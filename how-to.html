@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - How-To Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111827;
+            color: #F9FAFB;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid #374151;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 48px;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #9CA3AF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #2563EB;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .guide-section {
+            margin: 3rem 0;
+            background: linear-gradient(145deg, #1F2937 0%, #111827 100%);
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .guide-section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2563EB;
+            margin-bottom: 1rem;
+        }
+
+        .guide-section p {
+            color: #D1D5DB;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .pro-tip {
+            background: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid #2563EB;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .pro-tip strong {
+            color: #2563EB;
+        }
+
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid #374151;
+            margin-top: 6rem;
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <img src="/logo.svg" alt="FocusHub" class="logo">
+                <nav>
+                    <a href="/index.html">Home</a>
+                    <a href="/app.html">Launch App</a>
+                    <a href="/faq.html">FAQ</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>How to Use FocusHub</h1>
+
+        <div class="guide-section">
+            <h2>1. Choose Your Energy Level</h2>
+            <p>Before starting any sprint, pick Low (15 min), Medium (20 min), or High (30 min). Be honest. Your brain knows the difference between "I slept great" and "third coffee trying to function."</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Starting with Low energy but feeling great after? Upgrade mid-day. Claiming High when you're dragging? You'll crash. The system works when you're honest.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>2. Brain Dump Everything</h2>
+            <p>Paste your entire to-do list. One task per line. Or type them. Or copy from email, Slack, notes, wherever. Get it all out. The Holding Area is your external hard drive.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Dump first, decide later. If it's in your head taking up space, it goes in the dump. Sorting comes after capture.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>3. Sort Into Strategic Buckets</h2>
+            <p>Drag tasks from Holding into three buckets: Urgent Admin (bills, emails, quick replies), Deep Work (writing, coding, creating), Strategic Leap (the big thing you avoid). Assign sprint estimates (the little +/- counters).</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Most things are 1-2 sprints. If it's 5+ sprints, break it into smaller tasks. Your brain needs wins, not mountains.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>4. Run Your First Sprint</h2>
+            <p>Pick a task. Hit START on the timer. Work until it beeps. No task-switching. No "quick checks." If something pulls you away, log the distraction immediately.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Timer runs even if you switch tabs. That's intentional. You can't hide from the clock. Finish the sprint or log the distraction. No middle ground.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>5. Log Distractions Immediately</h2>
+            <p>Phone buzz? Coworker interrupt? Thought spiral about dinner? Click "Log / View" on the Distraction tracker. Write what pulled you away. Required. This is data, not shame.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Patterns emerge fast. Three "Slack" distractions by 11am? That's not random. That's a signal. The parking lot shows you where your focus leaks.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>6. Watch Your Daily Pace GPS</h2>
+            <p>Daily Pace GPS tracks your sprints against a realistic target. Here's how it calculates: Your target = planned sprints × 1.5 (with a minimum baseline of 4). Why the buffer? ADHD reality. Tasks take longer than estimated. Distractions happen. Breaks are needed. Context switching costs time. If you estimate 6 sprints of work, you'll probably need 9 actual sprints to complete it. The system accounts for how ADHD brains actually work, not how productivity gurus say they should work.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> 7 planned sprints = 11 target. Don't fight the buffer—it's there because your brain needs it. Working past 10pm means you underestimated, not that you're a hero. Fix your planning, not your sleep schedule.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>7. Grade Your Day (End of Day)</h2>
+            <p>Hit END DAY when you're done. System grades you A through F based on sprints completed, tasks finished, and distractions logged. The grade gets saved. Pattern builds over time.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> One C doesn't matter. Five Cs in a row is a pattern. The tracker shows your weekly rhythm. Use it to spot when you're slipping before it becomes a spiral.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>8. Track Your Wins</h2>
+            <p>Every completed task goes to "Done Today (Your Wins)." Visual progress for ADHD brains that forget what they accomplished by lunch. Your wins list is proof you're not failing, even when it feels like it.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Finished 2 tasks but feel like you did nothing? Check your wins list. Your brain lies about productivity. The list doesn't.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>9. Generate Your Morning Reflection (Standard Tier)</h2>
+            <p>Standard tier shows a daily reflection. It's not gentle. It's firm spiritual direction—virtue ethics, duty, stewardship. Hit "Generate New" if you want a different one. It's coaching, not therapy.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Reflection feels harsh? Good. You don't need coddling. You need direction. Read it. Sit with it. Then get to work.
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>10. Switch Between Light and Dark Mode</h2>
+            <p>Preference at top-right. Light mode if your eyes need it. Dark mode if you're focused. Logo switches automatically. System remembers your choice.</p>
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Some people focus better in dark. Others need light. Try both for a week. Use whichever keeps you locked in longer.
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
+            <p>Created by Ronan E. Kane</p>
+        </div>
+    </footer>
+</body>
+</html>
