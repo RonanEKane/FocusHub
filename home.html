@@ -17,11 +17,12 @@
             background: #0a0e14;
             color: #e0e0e0;
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1.5rem;
+            font-size: 13px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -29,18 +30,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
         }
 
         .logo {
-            height: 48px;
+            height: 32px;
         }
 
         .streak-badge {
             background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 24px;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -48,134 +49,168 @@
             border: 2px solid #FF8C5A;
         }
 
-        .hero {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 3rem 0;
+        /* AI Message - Front and Center */
+        .ai-message {
+            background: linear-gradient(135deg, #1a202c 0%, #111827 100%);
+            border: 2px solid #374151;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .hero h1 {
-            font-size: 48px;
-            font-weight: 800;
+        .ai-icon {
+            font-size: 32px;
             margin-bottom: 1rem;
-            line-height: 1.2;
         }
 
-        .hero p {
+        .ai-text {
             font-size: 18px;
-            color: #a8a8a8;
-            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-style: italic;
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
         }
 
+        .ai-attribution {
+            text-align: right;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Compact Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+            color: #e0e0e0;
+        }
+
+        .stat-sublabel {
+            font-size: 11px;
+            color: #a8a8a8;
+            margin-top: 0.25rem;
+        }
+
+        /* Visual Chart - Compact */
+        .week-chart {
+            background: #111827;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 80px;
+            gap: 0.5rem;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 100%;
+            background: #374151;
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .bar.today {
+            background: #2563EB;
+        }
+
+        .bar-label {
+            font-size: 9px;
+            color: #6b7280;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 700;
+            color: #e0e0e0;
+        }
+
+        /* CTA Button - Smaller */
         .btn-start {
             background: #e3302f;
             color: white;
             border: none;
-            padding: 1.25rem 3rem;
-            font-size: 18px;
+            padding: 0.75rem 2rem;
+            font-size: 14px;
             font-weight: 800;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
+            display: block;
+            text-align: center;
             transition: all 0.2s;
             border: 2px solid #c72827;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-start:hover {
             background: #c72827;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(227, 48, 47, 0.3);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: #111827;
-            border: 2px solid #2d3748;
-            border-radius: 12px;
-            padding: 2rem;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-large {
-            font-size: 72px;
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 18px;
-            color: #a8a8a8;
-        }
-
-        .reflection-card {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #1a202c 0%, #111827 100%);
-            border: 2px solid #374151;
-            padding: 2.5rem;
-        }
-
-        .reflection-text {
-            font-size: 20px;
-            line-height: 1.8;
-            font-style: italic;
-            color: #d1d5db;
-            margin-bottom: 1rem;
-        }
-
-        .reflection-attribution {
-            text-align: right;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .yesterday-summary {
-            display: flex;
-            gap: 2rem;
-            justify-content: space-around;
-        }
-
-        .summary-item {
-            text-align: center;
-        }
-
-        .summary-value {
-            font-size: 48px;
-            font-weight: 800;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .summary-label {
-            font-size: 12px;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(227, 48, 47, 0.3);
         }
 
         .grade-badge {
             display: inline-block;
-            padding: 0.5rem 1.5rem;
-            border-radius: 8px;
-            font-size: 48px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 24px;
             font-weight: 800;
-            border: 3px solid;
+            border: 2px solid;
         }
 
         .grade-A { background: #22C55E; border-color: #16A34A; color: white; }
@@ -185,88 +220,21 @@
         .grade-F { background: #991B1B; border-color: #7F1D1D; color: white; }
 
         @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            body {
+                padding: 1rem;
             }
 
-            .hero h1 {
-                font-size: 32px;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .stat-large {
-                font-size: 48px;
+            .ai-text {
+                font-size: 16px;
             }
 
-            .yesterday-summary {
-                flex-direction: column;
-                gap: 1.5rem;
+            .stat-value {
+                font-size: 24px;
             }
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #111827;
-            border-top: 2px solid #374151;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 999;
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 0;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: #6b7280;
-            border-radius: 8px;
-            min-width: 80px;
-            background: none;
-            border: none;
-        }
-
-        .nav-item:hover {
-            background: #1a202c;
-            color: #a8a8a8;
-        }
-
-        .nav-item.active {
-            color: #2563EB;
-        }
-
-        .nav-item.active .nav-icon {
-            color: #2563EB;
-        }
-
-        .nav-icon {
-            font-size: 24px;
-            line-height: 1;
-            color: #6b7280;
-            transition: all 0.2s;
-        }
-
-        .nav-item:hover .nav-icon {
-            color: #a8a8a8;
-        }
-
-        .nav-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .container {
-            padding-bottom: 80px;
         }
     </style>
 </head>
@@ -274,58 +242,56 @@
     <div class="container">
         <div class="header">
             <img src="/logo.svg" alt="FocusHub" class="logo">
-            <div class="streak-badge" id="streakBadge">
-                🔥 <span id="streakCount">0</span> days
+            <div class="streak-badge" id="streakBadge" style="display: none;">
+                🔥 <span id="streakCount">0</span>
             </div>
         </div>
 
-        <div class="hero">
-            <h1>Ready to Work?</h1>
-            <p>Your daily accountability starts here.</p>
-            <a href="/app.html" class="btn-start">START WORKING →</a>
+        <!-- AI Message - FRONT AND CENTER -->
+        <div class="ai-message">
+            <div class="ai-icon">◆</div>
+            <p class="ai-text" id="reflection">Loading...</p>
+            <p class="ai-attribution">— Your Accountability Partner</p>
         </div>
 
-        <div class="dashboard-grid">
-            <!-- Today's Reflection -->
-            <div class="reflection-card">
-                <h2 class="card-title">Today's Reflection</h2>
-                <p class="reflection-text" id="reflection">Loading...</p>
-                <p class="reflection-attribution">— Daily Reminder</p>
+        <!-- Compact Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Yesterday</div>
+                <div class="stat-value" id="yesterdaySprints">-</div>
+                <div class="stat-sublabel">sprints</div>
             </div>
-
-            <!-- Yesterday's Summary -->
-            <div class="card">
-                <h2 class="card-title">Yesterday's Performance</h2>
-                <div class="yesterday-summary" id="yesterdaySummary">
-                    <div class="summary-item">
-                        <span class="summary-value" id="yesterdaySprints">-</span>
-                        <span class="summary-label">Sprints</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-value" id="yesterdayTasks">-</span>
-                        <span class="summary-label">Wins</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="grade-badge" id="yesterdayGrade">-</span>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-label">Grade</div>
+                <div class="stat-value">
+                    <span class="grade-badge" id="yesterdayGrade">-</span>
                 </div>
             </div>
-
-            <!-- This Week Stats -->
-            <div class="card">
-                <h2 class="card-title">This Week</h2>
-                <div class="stat-large" id="weekSprints">0</div>
-                <div class="stat-label">Total Sprints</div>
+            <div class="stat-card">
+                <div class="stat-label">This Week</div>
+                <div class="stat-value" id="weekSprints">0</div>
+                <div class="stat-sublabel">total</div>
             </div>
         </div>
+
+        <!-- Visual Week Chart -->
+        <div class="week-chart">
+            <div class="chart-title">Last 7 Days</div>
+            <div class="chart-bars" id="chartBars">
+                <!-- Generated by JS -->
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <a href="/app.html" class="btn-start">Start Working →</a>
     </div>
 
     <script>
         // Load streak
         const streakData = JSON.parse(localStorage.getItem('focushub_streak') || '{"count": 0}');
-        document.getElementById('streakCount').textContent = streakData.count || 0;
-        if (streakData.count === 0) {
-            document.getElementById('streakBadge').style.display = 'none';
+        if (streakData.count > 0) {
+            document.getElementById('streakCount').textContent = streakData.count;
+            document.getElementById('streakBadge').style.display = 'flex';
         }
 
         // Load reflection
@@ -354,25 +320,23 @@
 
         document.getElementById('reflection').textContent = dailyReflection;
 
-        // Load yesterday's data
+        // Load data
         const gradeHistory = JSON.parse(localStorage.getItem('focushub_grade_history') || '[]');
+        
+        // Yesterday
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toDateString();
-        
         const yesterdayData = gradeHistory.find(entry => entry.date === yesterdayStr);
         
         if (yesterdayData) {
             document.getElementById('yesterdaySprints').textContent = yesterdayData.sprintCount || 0;
-            document.getElementById('yesterdayTasks').textContent = yesterdayData.tasksCompleted || 0;
             const gradeEl = document.getElementById('yesterdayGrade');
             gradeEl.textContent = yesterdayData.grade || 'F';
             gradeEl.className = 'grade-badge grade-' + (yesterdayData.grade || 'F');
-        } else {
-            document.getElementById('yesterdaySummary').innerHTML = '<p style="color: #6b7280; text-align: center; width: 100%;">No data from yesterday</p>';
         }
 
-        // Calculate this week's sprints
+        // This week
         const weekSprints = gradeHistory
             .filter(entry => {
                 const entryDate = new Date(entry.date);
@@ -383,44 +347,48 @@
             .reduce((sum, entry) => sum + (entry.sprintCount || 0), 0);
 
         document.getElementById('weekSprints').textContent = weekSprints;
-    </script>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="/home.html" class="nav-item active">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-label">Home</span>
-        </a>
-        <a href="/app.html" class="nav-item">
-            <span class="nav-icon">⏱️</span>
-            <span class="nav-label">Focus</span>
-        </a>
-        <a href="/app.html#tasks" class="nav-item">
-            <span class="nav-icon">✓</span>
-            <span class="nav-label">Tasks</span>
-        </a>
-        <button class="nav-item" onclick="toggleTheme()">
-            <span class="nav-icon" id="themeIcon">🌙</span>
-            <span class="nav-label">Theme</span>
-        </button>
-    </nav>
-
-    <script>
-        function toggleTheme() {
-            const currentTheme = localStorage.getItem('focushub_theme') || 'dark';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('focushub_theme', newTheme);
-            
-            if (newTheme === 'light') {
-                document.body.style.background = '#f5f5f5';
-                document.body.style.color = '#0a0a0a';
-                document.getElementById('themeIcon').textContent = '☀️';
-            } else {
-                document.body.style.background = '#0a0e14';
-                document.body.style.color = '#e0e0e0';
-                document.getElementById('themeIcon').textContent = '🌙';
-            }
+        // Chart
+        const chartBars = document.getElementById('chartBars');
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const last7Days = [];
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            const dayData = gradeHistory.find(entry => entry.date === dateStr);
+            const sprints = dayData ? dayData.sprintCount || 0 : 0;
+            const dayName = days[date.getDay() === 0 ? 6 : date.getDay() - 1];
+            last7Days.push({ sprints, day: i === 0 ? 'Today' : dayName, isToday: i === 0 });
         }
+
+        const maxSprints = Math.max(...last7Days.map(d => d.sprints), 1);
+        
+        last7Days.forEach(day => {
+            const barItem = document.createElement('div');
+            barItem.className = 'bar-item';
+            
+            const height = (day.sprints / maxSprints) * 100;
+            const bar = document.createElement('div');
+            bar.className = day.isToday ? 'bar today' : 'bar';
+            bar.style.height = height + '%';
+            
+            if (day.sprints > 0) {
+                const value = document.createElement('span');
+                value.className = 'bar-value';
+                value.textContent = day.sprints;
+                bar.appendChild(value);
+            }
+            
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.textContent = day.day;
+            
+            barItem.appendChild(bar);
+            barItem.appendChild(label);
+            chartBars.appendChild(barItem);
+        });
     </script>
 </body>
 </html>
