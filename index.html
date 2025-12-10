@@ -169,6 +169,37 @@
             letter-spacing: 1px;
         }
 
+        .tier.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .tier.disabled::after {
+            content: 'COMING SOON';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6B7280;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .tier.disabled:hover {
+            transform: none;
+            border-color: #4B5563;
+        }
+
+        .tier.disabled .btn {
+            background: #4B5563;
+            cursor: not-allowed;
+        }
+
         .tier-name {
             font-size: 28px;
             font-weight: 800;
@@ -266,6 +297,14 @@
             font-size: 64px;
             font-weight: 800;
             color: #9CA3AF;
+        }
+
+        .author-image-photo {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #4B5563;
         }
 
         .author-text h3 {
@@ -624,8 +663,7 @@
                     </div>
 
                     <!-- Standard Tier -->
-                    <div class="tier featured">
-                        <div class="badge">MOST POPULAR</div>
+                    <div class="tier featured disabled">
                         <h3 class="tier-name">Standard</h3>
                         <div class="tier-price">$XX<small>/month</small></div>
                         <p class="tier-description">For serious productivity</p>
@@ -641,11 +679,11 @@
                             <li class="coming-soon">Weekly planning mode (soon)</li>
                             <li class="coming-soon">Keyboard shortcuts (soon)</li>
                         </ul>
-                        <a href="#" class="btn btn-tier" onclick="openLicenseModal(); return false;">Purchase</a>
+                        <a href="#" class="btn btn-tier">Purchase</a>
                     </div>
 
                     <!-- Premium Tier -->
-                    <div class="tier">
+                    <div class="tier disabled">
                         <h3 class="tier-name">Premium</h3>
                         <div class="tier-price">$XX<small>/month</small></div>
                         <p class="tier-description">For maximum performance</p>
@@ -661,7 +699,7 @@
                             <li class="coming-soon">Accountability partner (soon)</li>
                             <li class="coming-soon">Voice logging (soon)</li>
                         </ul>
-                        <a href="#" class="btn btn-tier" onclick="openLicenseModal(); return false;">Purchase</a>
+                        <a href="#" class="btn btn-tier">Purchase</a>
                     </div>
                 </div>
             </div>
@@ -672,7 +710,7 @@
                 <h2 class="section-title">About the Author</h2>
                 
                 <div class="author-content">
-                    <div class="author-image">REK</div>
+                    <img src="/ronan-headshot.jpg" alt="Ronan E. Kane" class="author-image-photo">
                     
                     <div class="author-text">
                         <h3>Ronan E. Kane</h3>
