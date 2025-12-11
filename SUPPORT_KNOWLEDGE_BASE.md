@@ -17,39 +17,59 @@ Tagline: "Built for Brains That Wander, but Still Want to Win"
 - Timer includes focus time + short break
 
 ### 2. STRATEGIC BUCKET SYSTEM
-Four task management buckets with WEIGHTED SCORING:
+Four task management buckets with WEIGHTED SCORING and PRIORITY MULTIPLIERS:
+
+**Priority System:**
+Every task has a priority indicator (colored circle) that affects final point value:
+- 🔴 High Priority: 1.5x multiplier (must-do today)
+- 🟡 Medium Priority: 1.0x multiplier (default, should-do)
+- ⚪ Low Priority: 0.8x multiplier (nice-to-have)
+
+Click the colored circle to cycle through priorities. The AI tracks priority choices and will call out avoidance behavior (completing low-priority tasks while ignoring high-priority ones).
+
+**Task Buckets:**
 
 **Brain Dump:**
 - Quick capture space
 - No organization needed
 - Just empty your head
-- Worth 0.5 points when completed
+- Worth 0.5 base points when completed
 
 **Holding Area:**
 - Tasks reviewed but not prioritized
 - Staging area for decision-making
-- Worth 0.5 points when completed
+- Worth 0.5 base points when completed
 - Auto-destination for incomplete tasks at EOD
 
 **Urgent Admin:**
 - Must-do, low-complexity tasks
 - Email, bills, scheduling
-- Worth 0.5 points each
+- Worth 0.5 base points each
 - Prevents busywork optimization
 
 **Deep Work:**
 - Focus-intensive work
 - Writing, coding, designing
-- Worth 1.0 points each
+- Worth 1.0 base points each
 - Standard value tasks
 
 **Strategic Leap:**
 - High-impact, business-changing work
 - Client acquisition, major projects
-- Worth 1.5 points each
+- Worth 1.5 base points each
 - Highest value category
 
-**Key Design Decision:** Weighted points prevent gaming the system. Can't earn top grades by spamming admin tasks. Must do high-value work.
+**Final Task Value Formula:**
+```
+Final Points = Base Weight × Priority Multiplier
+
+Examples:
+- High-priority Strategic: 1.5 × 1.5 = 2.25 points (maximum)
+- Medium-priority Deep: 1.0 × 1.0 = 1.0 points
+- Low-priority Admin: 0.5 × 0.8 = 0.4 points (minimum)
+```
+
+**Key Design Decision:** Weighted points + priority multipliers prevent gaming. One high-priority strategic task (2.25 points) beats five low-priority admin tasks (2.0 points). Forces focus on what actually matters.
 
 ### 3. SPRINT TARGET SETTING
 - Each task shows 🎯 icon with number
