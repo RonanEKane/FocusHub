@@ -88,14 +88,33 @@
             <div class="faq-item">
                 <div class="faq-question">What are "Task Points" vs task count?</div>
                 <div class="faq-answer">
-                    Tasks are weighted by value to prevent busywork optimization:
+                    Tasks are weighted by value AND priority to prevent busywork:
                     <ul>
-                        <li>Admin tasks = <span class="highlight">0.5 points</span></li>
-                        <li>Deep Work = <span class="highlight">1.0 points</span></li>
-                        <li>Strategic = <span class="highlight">1.5 points</span></li>
+                        <li><strong>Base Weights:</strong> Admin (0.5), Deep Work (1.0), Strategic (1.5)</li>
+                        <li><strong>Priority Multipliers:</strong> 🔴 High (1.5x), 🟡 Medium (1.0x), ⚪ Low (0.8x)</li>
+                        <li><strong>Final Points = Base × Priority</strong></li>
                     </ul>
-                    <strong>Example:</strong> 3 Strategic tasks (4.5 points) beats 8 Admin tasks (4.0 points).<br>
-                    This forces high-value work, not just activity.
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li>🔴 High-priority Strategic: 1.5 × 1.5 = <span class="highlight">2.25 points</span> (maximum value)</li>
+                        <li>🟡 Medium-priority Admin: 0.5 × 1.0 = <span class="highlight">0.5 points</span></li>
+                        <li>⚪ Low-priority Admin: 0.5 × 0.8 = <span class="highlight">0.4 points</span> (minimal value)</li>
+                    </ul>
+                    <strong>Why this matters:</strong> Completing 5 low-priority admin tasks (2.0 points) is worth less than 1 high-priority strategic task (2.25 points). The system rewards doing the right things, not just doing things.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How do I set task priorities?</div>
+                <div class="faq-answer">
+                    Every task has a priority indicator next to the checkbox:
+                    <ul>
+                        <li><strong>🔴 High Priority:</strong> Must get done today. Maximum points.</li>
+                        <li><strong>🟡 Medium Priority:</strong> Should get done. Default for new tasks.</li>
+                        <li><strong>⚪ Low Priority:</strong> Nice to have. Minimal points.</li>
+                    </ul>
+                    <strong>To change priority:</strong> Click the colored circle to cycle through levels (⚪ → 🟡 → 🔴 → ⚪).<br><br>
+                    <strong>The AI notices:</strong> If you complete lots of low-priority tasks while ignoring high-priority ones, expect a brutal call-out. The system is designed to catch priority avoidance.
                 </div>
             </div>
 
