@@ -4,109 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusHub - FAQ</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #111827;
             color: #F9FAFB;
             line-height: 1.6;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        header {
-            padding: 2rem 0;
-            border-bottom: 1px solid #374151;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 48px;
-        }
-
-        nav {
-            display: flex;
-            gap: 2rem;
-        }
-
-        nav a {
-            color: #9CA3AF;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: #2563EB;
-        }
-
-        h1 {
-            font-size: 48px;
-            font-weight: 800;
-            margin: 4rem 0 2rem;
-            text-align: center;
-        }
-
-        .faq-grid {
-            display: grid;
-            gap: 2rem;
-            margin: 4rem 0;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        header { padding: 2rem 0; border-bottom: 1px solid #374151; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { height: 48px; }
+        nav { display: flex; gap: 2rem; }
+        nav a { color: #9CA3AF; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        nav a:hover { color: #2563EB; }
+        h1 { font-size: 48px; font-weight: 800; margin: 4rem 0 2rem; text-align: center; }
+        h2 { font-size: 32px; font-weight: 700; margin: 3rem 0 1.5rem; color: #2563EB; }
+        .faq-grid { display: grid; gap: 2rem; margin: 2rem 0; }
         .faq-item {
             background: linear-gradient(145deg, #1F2937 0%, #111827 100%);
             border: 1px solid #374151;
             border-radius: 12px;
             padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
-
-        .faq-question {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2563EB;
-            margin-bottom: 1rem;
-        }
-
-        .faq-answer {
-            color: #D1D5DB;
-            line-height: 1.8;
-        }
-
-        footer {
-            padding: 3rem 0;
-            text-align: center;
-            border-top: 1px solid #374151;
-            margin-top: 6rem;
-            color: #9CA3AF;
-        }
+        .faq-question { font-size: 20px; font-weight: 700; color: #2563EB; margin-bottom: 1rem; }
+        .faq-answer { color: #D1D5DB; line-height: 1.8; }
+        .faq-answer ul { margin: 1rem 0 1rem 2rem; }
+        .faq-answer li { margin: 0.5rem 0; }
+        .faq-answer code { background: #1F2937; padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; color: #F59E0B; }
+        .highlight { color: #F59E0B; font-weight: 600; }
+        footer { padding: 3rem 0; text-align: center; border-top: 1px solid #374151; margin-top: 6rem; color: #9CA3AF; }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-content">
-                <img src="/logo.svg" alt="FocusHub" class="logo">
+                <img src="/FocusHub_horinorm.svg" alt="FocusHub" class="logo">
                 <nav>
-                    <a href="/index.html">Home</a>
-                    <a href="/app.html">Launch App</a>
+                    <a href="/app.html">App</a>
                     <a href="/how-to.html">How-To Guide</a>
+                    <a href="/support.html">Support</a>
                 </nav>
             </div>
         </div>
@@ -115,67 +55,200 @@
     <div class="container">
         <h1>Frequently Asked Questions</h1>
 
+        <h2>Core Features</h2>
         <div class="faq-grid">
             <div class="faq-item">
-                <div class="faq-question">What makes FocusHub different from other productivity apps?</div>
+                <div class="faq-question">What is the Energy-Based Sprint System?</div>
                 <div class="faq-answer">
-                    FocusHub doesn't pile on endless to-do lists. It limits your focus to NOW. Energy-based timer. Strategic buckets. Tough-love accountability. Built specifically for ADHD brains that wander but still want to win.
+                    Choose your energy level and get sprint durations that match:
+                    <ul>
+                        <li><span class="highlight">Low (15 min):</span> Running on fumes? Short sprints keep you moving.</li>
+                        <li><span class="highlight">Medium (20 min):</span> Solid baseline. Where most work happens.</li>
+                        <li><span class="highlight">High (30 min):</span> Peak state. Maximum output window.</li>
+                    </ul>
+                    The timer adapts to YOUR energy, not arbitrary rules.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">Is this really for ADHD?</div>
+                <div class="faq-question">How do the Strategic Buckets work?</div>
                 <div class="faq-answer">
-                    Yes. Built by someone with ADHD who tried every other system and watched them fail. FocusHub accounts for time blindness, decision fatigue, hyperfocus crashes, and the constant pull of distractions. It's not inspiration. It's scaffolding.
+                    Four buckets for managing tasks:
+                    <ul>
+                        <li><span class="highlight">Brain Dump:</span> Quick capture. Get it out of your head.</li>
+                        <li><span class="highlight">Holding Area:</span> Tasks reviewed but not prioritized yet.</li>
+                        <li><span class="highlight">Urgent Admin:</span> Must-do tasks. Worth 0.5 points.</li>
+                        <li><span class="highlight">Deep Work:</span> Focus-intensive work. Worth 1.0 points.</li>
+                        <li><span class="highlight">Strategic Leap:</span> High-value work. Worth 1.5 points.</li>
+                    </ul>
+                    Drag and drop to move tasks. At end of day, uncompleted tasks auto-return to Holding Area.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">What's the tough-love approach?</div>
+                <div class="faq-question">What are "Task Points" vs task count?</div>
                 <div class="faq-answer">
-                    Your Daily Pace GPS tracks performance and calls out patterns. Not a cheerleader. Not a therapist. A performance coach. If you're logging 8 distractions by noon, it tells you. If you've done 6 sprints with zero output, it asks where the work is. Accountability, not coddling.
+                    Tasks are weighted by value to prevent busywork optimization:
+                    <ul>
+                        <li>Admin tasks = <span class="highlight">0.5 points</span></li>
+                        <li>Deep Work = <span class="highlight">1.0 points</span></li>
+                        <li>Strategic = <span class="highlight">1.5 points</span></li>
+                    </ul>
+                    <strong>Example:</strong> 3 Strategic tasks (4.5 points) beats 8 Admin tasks (4.0 points).<br>
+                    This forces high-value work, not just activity.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">What are faith-grounded reflections?</div>
+                <div class="faq-question">How does the Sprint Target work?</div>
                 <div class="faq-answer">
-                    Daily reflections draw from virtue ethics and spiritual wisdom traditions. They're not gentle affirmations. They're firm direction rooted in centuries of teaching on discipline, duty, and purpose. Standard tier includes Catholic-based reflections presented generically. Premium unlocks multi-faith options.
+                    Click the up/down arrows next to a task's 🎯 icon to set expected sprint count (1-10).
+                    Helps estimate workload and track if tasks take longer than planned.
+                </div>
+            </div>
+        </div>
+
+        <h2>AI Agent & Coaching</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">What is the Toughness Level selector?</div>
+                <div class="faq-answer">
+                    Choose your coaching intensity:
+                    <ul>
+                        <li><span class="highlight">💚 Gentle:</span> Supportive, encouraging. For high-anxiety days.</li>
+                        <li><span class="highlight">💙 Firm:</span> Balanced accountability. Default mode.</li>
+                        <li><span class="highlight">🔥 Brutal:</span> No sugar-coating. Maximum truth.</li>
+                    </ul>
+                    <strong>Example brutal message:</strong> "83% through your workday. 2 sprints. Expected 7. You're way behind. 2 hours left."<br>
+                    <strong>Same situation, gentle:</strong> "83% through your day. 2/7 sprints. You can still turn this around. 2 hours left."
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">Can I use the free tier forever?</div>
+                <div class="faq-question">How does time-aware coaching work?</div>
                 <div class="faq-answer">
-                    Yes. Lite tier is fully functional forever. Energy-based timer, task management, brain dump, distraction logging, daily grading, progress tracking. No time limits. No feature nagging. If you want reflections, streak tracking, and pattern recognition, upgrade to Standard.
+                    The AI tracks time and judges accordingly:
+                    <ul>
+                        <li>Knows your work hours (default 9am-6pm)</li>
+                        <li>Calculates expected progress: ~8 sprints/day, ~6 task points/day</li>
+                        <li>At 4:30pm with 2 sprints? Calls out you're behind</li>
+                        <li>At 10am with 0 sprints? Still time to recover</li>
+                        <li>Working at 11pm? Scolds you for poor planning</li>
+                    </ul>
+                    Uses percent of day gone + actual vs expected to give context.
+                </div>
+            </div>
+        </div>
+
+        <h2>Grading & Self-Assessment</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">How does the grading system work?</div>
+                <div class="faq-answer">
+                    End-of-day grade from three components:
+                    <ul>
+                        <li><span class="highlight">Sprints (40 pts):</span> 8+ = 40, 6+ = 30, 4+ = 20, 2+ = 10</li>
+                        <li><span class="highlight">Task Points (30 pts):</span> 7+ = 30, 5+ = 20, 3+ = 15, 1+ = 10</li>
+                        <li><span class="highlight">Distractions (-30 pts):</span> Each = -3 points</li>
+                    </ul>
+                    Total → Letter: A (90+), B (80+), C (70+), D (60+), F (<60)
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">What about my data and privacy?</div>
+                <div class="faq-question">What is Self-Grading?</div>
                 <div class="faq-answer">
-                    Everything lives in your browser's local storage. No cloud sync. No data collection. No tracking. Your tasks, your grades, your distractions—all yours. Can't be accessed without your device. If you clear browser data, it's gone. That's by design.
+                    After seeing AI's grade, YOU pick yours (A-F). AI analyzes the gap:
+                    <ul>
+                        <li><span class="highlight">Aligned:</span> "You see clearly. This self-awareness is rare."</li>
+                        <li><span class="highlight">Overestimating:</span> "Blind spot. You're confusing effort with results."</li>
+                        <li><span class="highlight">Underestimating:</span> "Too hard on yourself. ADHD brains discount wins."</li>
+                    </ul>
+                    Tracks over time: chronic overestimator? Imposter syndrome? Calibrated?<br>
+                    Builds awareness of how accurately you see your performance.
+                </div>
+            </div>
+        </div>
+
+        <h2>Reflection & Motivation</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">What are Morning Reflections?</div>
+                <div class="faq-answer">
+                    Personalized daily motivation:
+                    <ul>
+                        <li>Adapts to YOUR energy level</li>
+                        <li>References YOUR recent performance</li>
+                        <li>Acknowledges YOUR streak</li>
+                        <li>Spiritually-inspired (not religious)</li>
+                    </ul>
+                    <strong>Example:</strong> "5-day streak AND high energy? This is your moment. Attack your biggest challenge first."
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">What if I miss a day?</div>
+                <div class="faq-question">How do Sprint Streaks work?</div>
                 <div class="faq-answer">
-                    Your tasks persist. Your sprint streak resets. No guilt spirals. No shame notifications. Just start fresh. Discipline isn't perfection. It's getting back up. FocusHub doesn't punish gaps—it tracks forward momentum.
+                    4+ sprints/day = maintain/build streak.<br>
+                    Shows 🔥 with day count in header.<br>
+                    Resets if you miss or get less than 4 sprints.
+                </div>
+            </div>
+        </div>
+
+        <h2>Data & Privacy</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">Where is my data stored?</div>
+                <div class="faq-answer">
+                    Everything in browser localStorage:
+                    <ul>
+                        <li>No servers, no accounts, no login</li>
+                        <li>Data never leaves your device</li>
+                        <li>Complete privacy</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">How does the Daily Pace GPS calculate my target?</div>
+                <div class="faq-question">Can I export my data?</div>
                 <div class="faq-answer">
-                    Your target is your planned sprints × 1.5, with a minimum baseline of 4. Why the 50% buffer? ADHD reality: tasks take longer than estimated, distractions happen, breaks are needed, context switching costs time. If you estimate 6 sprints of work, you'll probably need 9 actual sprints to complete it. The buffer keeps your target realistic but challenging—not fantasy. The system accounts for how ADHD brains actually work, not how productivity gurus say they should work.
+                    Currently via browser console:
+                    <ol>
+                        <li>Open DevTools (F12)</li>
+                        <li>Console tab</li>
+                        <li>Run: <code>console.log(localStorage)</code></li>
+                        <li>Copy data</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <h2>Customization</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">How do I set my work hours?</div>
+                <div class="faq-answer">
+                    Default: 9am-6pm. To customize:
+                    <ol>
+                        <li>Open console (F12)</li>
+                        <li>Run: <code>localStorage.setItem('focushub_work_hours', JSON.stringify({start: 8, end: 17}))</code></li>
+                        <li>Replace 8 and 17 with your hours (24-hour format)</li>
+                        <li>Refresh</li>
+                    </ol>
+                    AI judges based on YOUR schedule.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">How do I get a license code?</div>
+                <div class="faq-question">Can I change themes?</div>
                 <div class="faq-answer">
-                    Purchase links coming soon. Once you have a code, click any "Purchase" button on the pricing tiers, enter your code in the license modal, and your tier unlocks immediately. Codes validate client-side for now. Backend validation coming.
+                    Click sun/moon button in header:
+                    <ul>
+                        <li><span class="highlight">Dark Mode:</span> Default</li>
+                        <li><span class="highlight">Light Mode:</span> Clean industrial</li>
+                    </ul>
+                    Preference persists.
                 </div>
             </div>
         </div>
@@ -183,8 +256,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
-            <p>Created by Ronan E. Kane</p>
+            <p>&copy; 2024 FocusHub. Built for brains that wander, but still want to win.</p>
         </div>
     </footer>
 </body>

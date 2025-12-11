@@ -4,210 +4,438 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusHub - How-To Guide</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #111827;
             color: #F9FAFB;
             line-height: 1.6;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        header {
-            padding: 2rem 0;
-            border-bottom: 1px solid #374151;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 48px;
-        }
-
-        nav {
-            display: flex;
-            gap: 2rem;
-        }
-
-        nav a {
-            color: #9CA3AF;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: #2563EB;
-        }
-
-        h1 {
-            font-size: 48px;
-            font-weight: 800;
-            margin: 4rem 0 2rem;
-            text-align: center;
-        }
-
-        .guide-section {
-            margin: 3rem 0;
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; }
+        header { padding: 2rem 0; border-bottom: 1px solid #374151; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { height: 48px; }
+        nav { display: flex; gap: 2rem; }
+        nav a { color: #9CA3AF; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        nav a:hover { color: #2563EB; }
+        h1 { font-size: 48px; font-weight: 800; margin: 4rem 0 2rem; text-align: center; }
+        h2 { font-size: 36px; font-weight: 700; margin: 3rem 0 1.5rem; color: #2563EB; border-bottom: 2px solid #374151; padding-bottom: 0.5rem; }
+        h3 { font-size: 24px; font-weight: 700; margin: 2rem 0 1rem; color: #F59E0B; }
+        .section {
             background: linear-gradient(145deg, #1F2937 0%, #111827 100%);
             border: 1px solid #374151;
             border-radius: 12px;
-            padding: 2.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            padding: 2rem;
+            margin: 2rem 0;
         }
-
-        .guide-section h2 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2563EB;
-            margin-bottom: 1rem;
-        }
-
-        .guide-section p {
-            color: #D1D5DB;
-            margin-bottom: 1rem;
-            line-height: 1.8;
-        }
-
-        .pro-tip {
+        .step { margin: 1.5rem 0; padding-left: 2rem; border-left: 3px solid #2563EB; }
+        .step-title { font-size: 18px; font-weight: 700; color: #2563EB; margin-bottom: 0.5rem; }
+        .step-content { color: #D1D5DB; line-height: 1.8; }
+        ul, ol { margin: 1rem 0 1rem 2rem; }
+        li { margin: 0.5rem 0; }
+        .highlight { color: #F59E0B; font-weight: 600; }
+        .tip {
             background: rgba(37, 99, 235, 0.1);
             border-left: 4px solid #2563EB;
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 4px;
         }
-
-        .pro-tip strong {
-            color: #2563EB;
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid #F59E0B;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
         }
-
-        footer {
-            padding: 3rem 0;
-            text-align: center;
-            border-top: 1px solid #374151;
-            margin-top: 6rem;
-            color: #9CA3AF;
+        code {
+            background: #1F2937;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #F59E0B;
         }
+        footer { padding: 3rem 0; text-align: center; border-top: 1px solid #374151; margin-top: 6rem; color: #9CA3AF; }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-content">
-                <img src="/logo.svg" alt="FocusHub" class="logo">
+                <img src="/FocusHub_horinorm.svg" alt="FocusHub" class="logo">
                 <nav>
-                    <a href="/index.html">Home</a>
-                    <a href="/app.html">Launch App</a>
+                    <a href="/app.html">App</a>
                     <a href="/faq.html">FAQ</a>
+                    <a href="/support.html">Support</a>
                 </nav>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <h1>How to Use FocusHub</h1>
+        <h1>How-To Guide</h1>
+        <p style="text-align: center; color: #9CA3AF; margin-bottom: 3rem;">Complete guide to getting the most out of FocusHub</p>
 
-        <div class="guide-section">
-            <h2>1. Choose Your Energy Level</h2>
-            <p>Before starting any sprint, pick Low (15 min), Medium (20 min), or High (30 min). Be honest. Your brain knows the difference between "I slept great" and "third coffee trying to function."</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Starting with Low energy but feeling great after? Upgrade mid-day. Claiming High when you're dragging? You'll crash. The system works when you're honest.
+        <h2>Getting Started</h2>
+        <div class="section">
+            <h3>1. Choose Your Energy Level</h3>
+            <div class="step">
+                <div class="step-title">Why energy levels matter</div>
+                <div class="step-content">
+                    ADHD brains don't have consistent energy. FocusHub adapts to YOUR reality:
+                    <ul>
+                        <li><span class="highlight">Low (15 min sprints):</span> Dragging? Short bursts keep momentum.</li>
+                        <li><span class="highlight">Medium (20 min sprints):</span> Normal days. Where consistency lives.</li>
+                        <li><span class="highlight">High (30 min sprints):</span> Peak state. Maximize this window.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip">
+                <strong>💡 Pro Tip:</strong> Be honest about your energy. Lying to yourself wastes time. If you're at 30% energy, choose Low and actually complete sprints.
+            </div>
+
+            <h3>2. Get Morning Reflection</h3>
+            <div class="step">
+                <div class="step-title">Personalized daily motivation</div>
+                <div class="step-content">
+                    After selecting energy, you'll see a reflection that:
+                    <ul>
+                        <li>References YOUR recent performance</li>
+                        <li>Acknowledges YOUR streak (if you have one)</li>
+                        <li>Adapts message to YOUR energy level</li>
+                        <li>Provides spiritually-inspired wisdom (not religious)</li>
+                    </ul>
+                    <strong>Example for 5-day streak + high energy:</strong><br>
+                    "Day 5. Peak energy. This is your moment. Attack your biggest challenge first."
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>2. Brain Dump Everything</h2>
-            <p>Paste your entire to-do list. One task per line. Or type them. Or copy from email, Slack, notes, wherever. Get it all out. The Holding Area is your external hard drive.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Dump first, decide later. If it's in your head taking up space, it goes in the dump. Sorting comes after capture.
+        <h2>Task Management</h2>
+        <div class="section">
+            <h3>1. Brain Dump Everything</h3>
+            <div class="step">
+                <div class="step-title">Get it out of your head</div>
+                <div class="step-content">
+                    Type tasks in Brain Dump section. Don't think. Just capture.
+                    <ul>
+                        <li>Hit Enter to save</li>
+                        <li>No organization yet</li>
+                        <li>Just empty your brain</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>2. Move to Holding Area</h3>
+            <div class="step">
+                <div class="step-title">Quick review, no commitment</div>
+                <div class="step-content">
+                    Drag tasks from Brain Dump → Holding Area when:
+                    <ul>
+                        <li>You've acknowledged it</li>
+                        <li>It's not immediate priority</li>
+                        <li>You'll decide later</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>3. Prioritize Into Strategic Buckets</h3>
+            <div class="step">
+                <div class="step-title">Three buckets, different values</div>
+                <div class="step-content">
+                    <strong>Urgent Admin (0.5 points each):</strong>
+                    <ul>
+                        <li>Quick tasks, low complexity</li>
+                        <li>Email, bills, scheduling</li>
+                        <li>Must-do but not strategic</li>
+                    </ul>
+                    
+                    <strong>Deep Work (1.0 points each):</strong>
+                    <ul>
+                        <li>Focus-intensive work</li>
+                        <li>Writing, coding, designing</li>
+                        <li>Requires uninterrupted time</li>
+                    </ul>
+                    
+                    <strong>Strategic Leap (1.5 points each):</strong>
+                    <ul>
+                        <li>High-impact, business-changing</li>
+                        <li>Client acquisition, product launch</li>
+                        <li>Moves the needle significantly</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Completing 8 admin tasks (4.0 points) won't beat 3 strategic tasks (4.5 points). System prevents busywork optimization. Focus on high-value work.
+            </div>
+
+            <h3>4. Set Sprint Targets</h3>
+            <div class="step">
+                <div class="step-title">Estimate task complexity</div>
+                <div class="step-content">
+                    Click up/down arrows next to 🎯 icon to set expected sprint count (1-10):
+                    <ul>
+                        <li>Quick admin? 1 sprint</li>
+                        <li>Writing a report? 3 sprints</li>
+                        <li>Major feature? 5-10 sprints</li>
+                    </ul>
+                    Helps track: "This is taking way longer than expected."
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>3. Sort Into Strategic Buckets</h2>
-            <p>Drag tasks from Holding into three buckets: Urgent Admin (bills, emails, quick replies), Deep Work (writing, coding, creating), Strategic Leap (the big thing you avoid). Assign sprint estimates (the little +/- counters).</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Most things are 1-2 sprints. If it's 5+ sprints, break it into smaller tasks. Your brain needs wins, not mountains.
+        <h2>Working Sessions</h2>
+        <div class="section">
+            <h3>1. Start a Sprint</h3>
+            <div class="step">
+                <div class="step-title">Single task focus</div>
+                <div class="step-content">
+                    <ol>
+                        <li>Pick ONE task from your priority buckets</li>
+                        <li>Click "Start Sprint"</li>
+                        <li>Work ONLY on that task</li>
+                        <li>Timer shows time remaining</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>2. Handle Distractions</h3>
+            <div class="step">
+                <div class="step-title">Track the pulls</div>
+                <div class="step-content">
+                    When something pulls your attention:
+                    <ul>
+                        <li>Click "Log Distraction"</li>
+                        <li>Type what distracted you</li>
+                        <li>Return to work</li>
+                    </ul>
+                    AI tracks distraction patterns and calls you out if it's excessive.
+                </div>
+            </div>
+
+            <h3>3. Complete Tasks</h3>
+            <div class="step">
+                <div class="step-title">Check it off</div>
+                <div class="step-content">
+                    Click checkbox when done. You'll get:
+                    <ul>
+                        <li>Confetti celebration 🎉</li>
+                        <li>Task moves to "Wins" section</li>
+                        <li>Points added (weighted by bucket)</li>
+                        <li>AI acknowledges progress</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>4. Run Your First Sprint</h2>
-            <p>Pick a task. Hit START on the timer. Work until it beeps. No task-switching. No "quick checks." If something pulls you away, log the distraction immediately.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Timer runs even if you switch tabs. That's intentional. You can't hide from the clock. Finish the sprint or log the distraction. No middle ground.
+        <h2>AI Agent & Coaching</h2>
+        <div class="section">
+            <h3>1. Set Toughness Level</h3>
+            <div class="step">
+                <div class="step-title">Choose your coaching intensity</div>
+                <div class="step-content">
+                    Located right above AI message box:
+                    <ul>
+                        <li><span class="highlight">💚 Gentle:</span> Supportive, encouraging (anxiety days)</li>
+                        <li><span class="highlight">💙 Firm:</span> Balanced accountability (default)</li>
+                        <li><span class="highlight">🔥 Brutal:</span> No sugar-coating (need kick in ass)</li>
+                    </ul>
+                    Preference saves. Switch anytime based on mental state.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 Pro Tip:</strong> Start day on Brutal. If anxiety spikes or you're struggling, drop to Gentle. Let the app adapt to YOUR needs.
+            </div>
+
+            <h3>2. Understand Time-Aware Feedback</h3>
+            <div class="step">
+                <div class="step-title">AI knows what time it is</div>
+                <div class="step-content">
+                    Default work hours: 9am-6pm. AI calculates:
+                    <ul>
+                        <li>Percent of workday gone</li>
+                        <li>Expected progress (~8 sprints, ~6 task points)</li>
+                        <li>How far behind/ahead you are</li>
+                    </ul>
+                    <strong>Example at 4:30pm with 2 sprints (Brutal mode):</strong><br>
+                    "83% through your workday. 2 sprints. Expected 7. You're way behind. 2 hours left."
+                </div>
+            </div>
+
+            <h3>3. Track Progress with Views</h3>
+            <div class="step">
+                <div class="step-title">Two view modes</div>
+                <div class="step-content">
+                    Switch between tabs:
+                    <ul>
+                        <li><span class="highlight">Numbers:</span> Current stats, progress bar</li>
+                        <li><span class="highlight">Charts:</span> 7-day trends, visual history</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>5. Log Distractions Immediately</h2>
-            <p>Phone buzz? Coworker interrupt? Thought spiral about dinner? Click "Log / View" on the Distraction tracker. Write what pulled you away. Required. This is data, not shame.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Patterns emerge fast. Three "Slack" distractions by 11am? That's not random. That's a signal. The parking lot shows you where your focus leaks.
+        <h2>End of Day</h2>
+        <div class="section">
+            <h3>1. Click "END DAY"</h3>
+            <div class="step">
+                <div class="step-title">See your AI grade</div>
+                <div class="step-content">
+                    AI calculates grade from:
+                    <ul>
+                        <li>Sprints completed (40 pts)</li>
+                        <li>Weighted task points (30 pts)</li>
+                        <li>Distraction penalty (-3 pts each)</li>
+                    </ul>
+                    Total converts to A-F letter grade.
+                </div>
+            </div>
+
+            <h3>2. Self-Grade</h3>
+            <div class="step">
+                <div class="step-title">How would YOU rate today?</div>
+                <div class="step-content">
+                    After seeing AI grade, pick yours (A-F):
+                    <ul>
+                        <li>Be honest</li>
+                        <li>Don't look at AI grade</li>
+                        <li>Trust your gut</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>3. See Comparison Analysis</h3>
+            <div class="step">
+                <div class="step-title">AI reveals your blind spots</div>
+                <div class="step-content">
+                    System compares your grade vs AI:
+                    <ul>
+                        <li><span class="highlight">Aligned:</span> Good self-awareness</li>
+                        <li><span class="highlight">Overestimate:</span> Confusing effort with results</li>
+                        <li><span class="highlight">Underestimate:</span> Discounting your wins (common with ADHD)</li>
+                    </ul>
+                    <strong>Example if you rate C but AI says A:</strong><br>
+                    "You're being too hard on yourself. The data proves you did better than you think. ADHD brains often discount wins. Don't."
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 Track Patterns:</strong> Over weeks, see if you chronically overestimate (blind spots) or underestimate (imposter syndrome). Adjust self-perception accordingly.
+            </div>
+
+            <h3>4. Reflect</h3>
+            <div class="step">
+                <div class="step-title">Quick journal</div>
+                <div class="step-content">
+                    Two prompts:
+                    <ul>
+                        <li>What went well?</li>
+                        <li>What will you do tomorrow?</li>
+                    </ul>
+                    Brief answers. Builds pattern recognition over time.
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>6. Watch Your Daily Pace GPS</h2>
-            <p>Daily Pace GPS tracks your sprints against a realistic target. Here's how it calculates: Your target = planned sprints × 1.5 (with a minimum baseline of 4). Why the buffer? ADHD reality. Tasks take longer than estimated. Distractions happen. Breaks are needed. Context switching costs time. If you estimate 6 sprints of work, you'll probably need 9 actual sprints to complete it. The system accounts for how ADHD brains actually work, not how productivity gurus say they should work.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> 7 planned sprints = 11 target. Don't fight the buffer—it's there because your brain needs it. Working past 10pm means you underestimated, not that you're a hero. Fix your planning, not your sleep schedule.
+        <h2>Advanced Features</h2>
+        <div class="section">
+            <h3>1. Customize Work Hours</h3>
+            <div class="step">
+                <div class="step-title">Set your schedule</div>
+                <div class="step-content">
+                    Open browser console (F12), run:<br>
+                    <code>localStorage.setItem('focushub_work_hours', JSON.stringify({start: 8, end: 17}))</code>
+                    <br><br>
+                    Replace 8 and 17 with your start/end (24-hour format). AI now judges based on YOUR hours.
+                </div>
+            </div>
+
+            <h3>2. Build Sprint Streaks</h3>
+            <div class="step">
+                <div class="step-title">Consistency tracking</div>
+                <div class="step-content">
+                    Complete 4+ sprints/day to maintain streak:
+                    <ul>
+                        <li>Shows 🔥 + day count in header</li>
+                        <li>Resets if you miss a day</li>
+                        <li>Referenced in morning reflections</li>
+                    </ul>
+                    Forces daily accountability.
+                </div>
+            </div>
+
+            <h3>3. View Grade History</h3>
+            <div class="step">
+                <div class="step-title">Track trends</div>
+                <div class="step-content">
+                    Click "Grade Tracker" tab to see:
+                    <ul>
+                        <li>Last 30 days of grades</li>
+                        <li>Self vs AI comparison patterns</li>
+                        <li>Performance trends</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>4. Theme Switching</h3>
+            <div class="step">
+                <div class="step-title">Dark or light</div>
+                <div class="step-content">
+                    Click sun/moon icon in header:
+                    <ul>
+                        <li>Dark mode (default)</li>
+                        <li>Light mode (industrial clean)</li>
+                    </ul>
+                    Preference persists.
+                </div>
             </div>
         </div>
 
-        <div class="guide-section">
-            <h2>7. Grade Your Day (End of Day)</h2>
-            <p>Hit END DAY when you're done. System grades you A through F based on sprints completed, tasks finished, and distractions logged. The grade gets saved. Pattern builds over time.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> One C doesn't matter. Five Cs in a row is a pattern. The tracker shows your weekly rhythm. Use it to spot when you're slipping before it becomes a spiral.
-            </div>
+        <h2>Common Workflows</h2>
+        <div class="section">
+            <h3>Morning Routine</h3>
+            <ol>
+                <li>Open app</li>
+                <li>Choose energy level honestly</li>
+                <li>Read morning reflection</li>
+                <li>Brain dump any new tasks</li>
+                <li>Prioritize 3-5 tasks into buckets</li>
+                <li>Set sprint targets</li>
+                <li>Start first sprint immediately</li>
+            </ol>
+
+            <h3>Mid-Day Check</h3>
+            <ol>
+                <li>Look at AI message</li>
+                <li>Check if you're on pace</li>
+                <li>Adjust toughness level if needed</li>
+                <li>Re-prioritize if behind</li>
+                <li>Focus on high-value tasks (Strategic/Deep)</li>
+            </ol>
+
+            <h3>End of Day</h3>
+            <ol>
+                <li>Click "END DAY"</li>
+                <li>Review AI grade</li>
+                <li>Self-grade honestly</li>
+                <li>Read comparison analysis</li>
+                <li>Write brief reflection</li>
+                <li>Submit and rest</li>
+            </ol>
         </div>
 
-        <div class="guide-section">
-            <h2>8. Track Your Wins</h2>
-            <p>Every completed task goes to "Done Today (Your Wins)." Visual progress for ADHD brains that forget what they accomplished by lunch. Your wins list is proof you're not failing, even when it feels like it.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Finished 2 tasks but feel like you did nothing? Check your wins list. Your brain lies about productivity. The list doesn't.
-            </div>
-        </div>
-
-        <div class="guide-section">
-            <h2>9. Generate Your Morning Reflection (Standard Tier)</h2>
-            <p>Standard tier shows a daily reflection. It's not gentle. It's firm spiritual direction—virtue ethics, duty, stewardship. Hit "Generate New" if you want a different one. It's coaching, not therapy.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Reflection feels harsh? Good. You don't need coddling. You need direction. Read it. Sit with it. Then get to work.
-            </div>
-        </div>
-
-        <div class="guide-section">
-            <h2>10. Switch Between Light and Dark Mode</h2>
-            <p>Preference at top-right. Light mode if your eyes need it. Dark mode if you're focused. Logo switches automatically. System remembers your choice.</p>
-            <div class="pro-tip">
-                <strong>Pro tip:</strong> Some people focus better in dark. Others need light. Try both for a week. Use whichever keeps you locked in longer.
-            </div>
+        <div class="warning">
+            <strong>⚠️ Remember:</strong> This app is designed for ADHD brains. It's tough because you NEED tough. It's adaptive because your energy isn't consistent. It tracks self-perception because ADHD creates blind spots. Use it honestly and it'll make you better.
         </div>
     </div>
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
-            <p>Created by Ronan E. Kane</p>
+            <p>&copy; 2024 FocusHub. Built for brains that wander, but still want to win.</p>
         </div>
     </footer>
 </body>

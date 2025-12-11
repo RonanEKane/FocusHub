@@ -17,24 +17,38 @@
             background: #f9fafb;
             color: #111827;
             min-height: 100vh;
-            padding: 2rem;
             font-size: 14px;
+            margin: 0;
+            padding: 0;
         }
 
-        .container {
+        /* Bold Header Bar */
+        .app-header {
+            background: white;
+            border-bottom: 3px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
             max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
         }
 
         .logo {
-            height: 32px;
+            height: 40px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .streak-badge {
@@ -46,8 +60,44 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            border: 1px solid #e5e7eb;
+            border: 2px solid #FF8C5A;
             color: white;
+            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+        }
+
+        .btn-app {
+            background: #2563EB;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-app:hover {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
         h1 {
@@ -312,14 +362,20 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <!-- Bold Sticky Header -->
+    <header class="app-header">
+        <div class="header-content">
             <img src="/FocusHub_horinorm.svg" alt="FocusHub" class="logo">
-            <div class="streak-badge" id="streakBadge" style="display: none;">
-                🔥 <span id="streakCount">0</span>
+            <div class="header-controls">
+                <div class="streak-badge" id="streakBadge" style="display: none;">
+                    🔥 <span id="streakCount">0</span>
+                </div>
+                <a href="/app.html" class="btn-app">Open App →</a>
             </div>
         </div>
+    </header>
 
+    <div class="container">
         <h1>Mission Control</h1>
         <p class="subtitle">Your productivity dashboard</p>
 
