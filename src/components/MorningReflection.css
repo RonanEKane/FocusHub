@@ -1,0 +1,48 @@
+.morning-reflection {
+  max-width: 600px;
+}
+
+.reflection-intro {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.reflection-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reflection-card {
+  padding: 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-tertiary);
+}
+
+.reflection-card:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+.reflection-card.selected {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.reflection-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.reflection-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
