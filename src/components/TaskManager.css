@@ -1,0 +1,260 @@
+.task-manager {
+  margin-bottom: 2rem;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+/* Brain Dump */
+.brain-dump-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border-heavy);
+}
+
+/* Holding Area */
+.holding-area {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 2px dashed var(--border-heavy);
+  border-radius: 6px;
+  background: var(--surface-muted);
+}
+
+/* Priority Columns - Horizontal Layout */
+.task-categories {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.task-category {
+  background: var(--surface-muted);
+  border: 2px solid var(--border-heavy);
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: 250px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border-heavy);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.category-count {
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Task Item with Proper Wrapping */
+.task-item {
+  background: var(--surface-elevated);
+  border: 2px solid var(--border-medium);
+  border-radius: 4px;
+  padding: 0.75rem;
+  transition: all 0.2s;
+}
+
+.task-item:hover {
+  border-color: var(--accent-blue);
+  transform: translateX(2px);
+}
+
+.task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* FIX: Text wrapping properly */
+.task-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Actions Row Below Text */
+.task-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Sprint Counter with Up/Down Arrows (like Gemini example) */
+.sprint-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--surface-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-medium);
+}
+
+.sprint-arrow {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sprint-arrow:hover {
+  color: var(--accent-blue);
+}
+
+.sprint-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 20px;
+  text-align: center;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Task Buttons */
+.task-move-btn {
+  background: none;
+  border: 1px solid;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task-move-btn:hover {
+  background: currentColor;
+  color: white !important;
+}
+
+.task-complete-btn {
+  background: var(--accent-green);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.task-delete {
+  background: var(--accent-red);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.empty-state-small {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Wins Section */
+.wins-section {
+  border-top: 2px solid var(--accent-green);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.wins-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.wins-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.win-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: var(--surface-muted);
+  border-radius: 6px;
+}
+
+.win-text {
+  flex: 1;
+  font-size: 14px;
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+.win-sprints {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Roboto Mono', monospace;
+}
+
+@media (max-width: 1024px) {
+  .task-categories {
+    grid-template-columns: 1fr;
+  }
+}

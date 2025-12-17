@@ -1,0 +1,20 @@
+# PROMPT FOR NEW CHAT
+
+I'm continuing work on FocusHub V4. I've uploaded a complete source code package. 
+
+**CRITICAL: Do not create new files or restructure. Modify the existing source code in place.**
+
+Please read REBUILD_INSTRUCTIONS.md first - it has full context.
+
+**Screenshot reference:** I've also uploaded a screenshot showing the target layout (2-column design with sidebar).
+
+**Quick Summary of What's Needed:**
+1. Fix layout from single column to 2-column grid (main content + sidebar)
+2. Implement bidirectional drag/drop for tasks (Holding Area ↔ Task Buckets)
+3. Make header compact and sticky with shrink-on-scroll behavior
+4. Add Home button to header
+5. Move meeting tracker to a simple toggle inside sprint timer card
+
+The CSS is complete and correct - don't rewrite it. Focus on implementing the missing layout and features in the React components.
+
+When done, run `npm run build` and provide the dist/ folder for deployment.
