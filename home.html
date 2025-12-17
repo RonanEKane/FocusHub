@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e14;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            height: 48px;
+        }
+
+        .streak-badge {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid #FF8C5A;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #a8a8a8;
+            margin-bottom: 2rem;
+        }
+
+        .btn-start {
+            background: #e3302f;
+            color: white;
+            border: none;
+            padding: 1.25rem 3rem;
+            font-size: 18px;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+            border: 2px solid #c72827;
+        }
+
+        .btn-start:hover {
+            background: #c72827;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(227, 48, 47, 0.3);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #111827;
+            border: 2px solid #2d3748;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-large {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 18px;
+            color: #a8a8a8;
+        }
+
+        .reflection-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a202c 0%, #111827 100%);
+            border: 2px solid #374151;
+            padding: 2.5rem;
+        }
+
+        .reflection-text {
+            font-size: 20px;
+            line-height: 1.8;
+            font-style: italic;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .reflection-attribution {
+            text-align: right;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .yesterday-summary {
+            display: flex;
+            gap: 2rem;
+            justify-content: space-around;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 48px;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-size: 48px;
+            font-weight: 800;
+            border: 3px solid;
+        }
+
+        .grade-A { background: #22C55E; border-color: #16A34A; color: white; }
+        .grade-B { background: #3B82F6; border-color: #2563EB; color: white; }
+        .grade-C { background: #F59E0B; border-color: #D97706; color: white; }
+        .grade-D { background: #EF4444; border-color: #DC2626; color: white; }
+        .grade-F { background: #991B1B; border-color: #7F1D1D; color: white; }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .stat-large {
+                font-size: 48px;
+            }
+
+            .yesterday-summary {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/logo.svg" alt="FocusHub" class="logo">
+            <div class="streak-badge" id="streakBadge">
+                🔥 <span id="streakCount">0</span> days
+            </div>
+        </div>
+
+        <div class="hero">
+            <h1>Ready to Work?</h1>
+            <p>Your daily accountability starts here.</p>
+            <a href="/app.html" class="btn-start">START WORKING →</a>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Today's Reflection -->
+            <div class="reflection-card">
+                <h2 class="card-title">Today's Reflection</h2>
+                <p class="reflection-text" id="reflection">Loading...</p>
+                <p class="reflection-attribution">— Daily Reminder</p>
+            </div>
+
+            <!-- Yesterday's Summary -->
+            <div class="card">
+                <h2 class="card-title">Yesterday's Performance</h2>
+                <div class="yesterday-summary" id="yesterdaySummary">
+                    <div class="summary-item">
+                        <span class="summary-value" id="yesterdaySprints">-</span>
+                        <span class="summary-label">Sprints</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-value" id="yesterdayTasks">-</span>
+                        <span class="summary-label">Wins</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="grade-badge" id="yesterdayGrade">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- This Week Stats -->
+            <div class="card">
+                <h2 class="card-title">This Week</h2>
+                <div class="stat-large" id="weekSprints">0</div>
+                <div class="stat-label">Total Sprints</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load streak
+        const streakData = JSON.parse(localStorage.getItem('focushub_streak') || '{"count": 0}');
+        document.getElementById('streakCount').textContent = streakData.count || 0;
+        if (streakData.count === 0) {
+            document.getElementById('streakBadge').style.display = 'none';
+        }
+
+        // Load reflection
+        const reflections = [
+            'Sloth is a deadly sin not because God hates rest, but because wasted potential dishonors the gifts you\'ve been given. Use them.',
+            'Discipline is a form of worship. Your focused work today echoes the patience of the saints who built cathedrals stone by stone.',
+            'Offer it up. Your fatigue is real, but so is your duty. Christ carried the cross exhausted. You can carry these tasks.',
+            'You were not promised comfort. You were promised meaning. Act accordingly.',
+            'The spirit is willing but the flesh is weak. The system accounts for this. That\'s why you\'re tracking, not trusting yourself.',
+            'God gave you time. What you do with it is your response to that gift. Make it count.',
+            'Distraction is the enemy of devotion. Clear your workspace. Clear your mind. Focus.',
+            'Small consistent acts of discipline compound into character. Your work today matters.',
+            'You can\'t control outcomes. You can control showing up. Show up.',
+            'The world needs what you can build when you stop procrastinating. Get to work.'
+        ];
+
+        const todayStr = new Date().toDateString();
+        let dailyReflection = localStorage.getItem('focushub_home_reflection');
+        let reflectionDate = localStorage.getItem('focushub_home_reflection_date');
+
+        if (reflectionDate !== todayStr) {
+            dailyReflection = reflections[Math.floor(Math.random() * reflections.length)];
+            localStorage.setItem('focushub_home_reflection', dailyReflection);
+            localStorage.setItem('focushub_home_reflection_date', todayStr);
+        }
+
+        document.getElementById('reflection').textContent = dailyReflection;
+
+        // Load yesterday's data
+        const gradeHistory = JSON.parse(localStorage.getItem('focushub_grade_history') || '[]');
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+        
+        const yesterdayData = gradeHistory.find(entry => entry.date === yesterdayStr);
+        
+        if (yesterdayData) {
+            document.getElementById('yesterdaySprints').textContent = yesterdayData.sprintCount || 0;
+            document.getElementById('yesterdayTasks').textContent = yesterdayData.tasksCompleted || 0;
+            const gradeEl = document.getElementById('yesterdayGrade');
+            gradeEl.textContent = yesterdayData.grade || 'F';
+            gradeEl.className = 'grade-badge grade-' + (yesterdayData.grade || 'F');
+        } else {
+            document.getElementById('yesterdaySummary').innerHTML = '<p style="color: #6b7280; text-align: center; width: 100%;">No data from yesterday</p>';
+        }
+
+        // Calculate this week's sprints
+        const weekSprints = gradeHistory
+            .filter(entry => {
+                const entryDate = new Date(entry.date);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return entryDate >= weekAgo;
+            })
+            .reduce((sum, entry) => sum + (entry.sprintCount || 0), 0);
+
+        document.getElementById('weekSprints').textContent = weekSprints;
+    </script>
+</body>
+</html>
