@@ -115,53 +115,29 @@
     <div class="container">
         <h1>Frequently Asked Questions</h1>
 
-        <!-- AI Support Agent Section -->
-        <div class="ai-support-section" style="background: linear-gradient(145deg, #1F2937 0%, #111827 100%); border: 2px solid #2563EB; border-radius: 16px; padding: 2rem; margin: 3rem 0; box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);">
+        <!-- AI Support Agent -->
+        <div style="background: linear-gradient(145deg, #1F2937 0%, #111827 100%); border: 2px solid #2563EB; border-radius: 16px; padding: 2rem; margin: 3rem 0; box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);">
             <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="font-size: 48px;">🤖</div>
                 <div>
-                    <h2 style="font-size: 28px; font-weight: 800; color: #2563EB; margin-bottom: 0.25rem;">AI Support Agent</h2>
-                    <p style="color: #9CA3AF; font-size: 14px;">Get instant answers about FocusHub features</p>
+                    <h2 style="font-size: 28px; font-weight: 800; color: #2563EB; margin: 0;">AI Support Agent</h2>
+                    <p style="color: #9CA3AF; font-size: 14px; margin: 0;">Get instant answers about FocusHub</p>
                 </div>
             </div>
-
             <div id="chatContainer" style="background: #0a0e14; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; min-height: 300px; max-height: 500px; overflow-y: auto;">
-                <div class="message" style="background: #1F2937; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #2563EB;">
-                    Hi! I'm your FocusHub support agent. Ask me anything about sprints, tasks, grading, or ADHD productivity tips.
-                </div>
+                <div style="background: #1F2937; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #2563EB;">Hi! Ask me anything about FocusHub features.</div>
             </div>
-
             <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
-                <input 
-                    type="text" 
-                    id="chatInput" 
-                    placeholder="Ask about energy levels, task buckets, grading..." 
-                    style="flex: 1; padding: 1rem; background: #0a0e14; border: 2px solid #374151; border-radius: 8px; color: #F9FAFB; font-size: 14px;"
-                    disabled
-                >
-                <button id="sendBtn" style="background: #2563EB; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;" disabled>
-                    Send
-                </button>
+                <input type="text" id="chatInput" placeholder="Ask about energy levels, tasks, grading..." style="flex: 1; padding: 1rem; background: #0a0e14; border: 2px solid #374151; border-radius: 8px; color: #F9FAFB; font-size: 14px;" disabled>
+                <button id="sendBtn" style="background: #2563EB; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;" disabled>Send</button>
             </div>
-
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                <button onclick="askAI('How do I start my first day?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">
-                    💡 How do I start?
-                </button>
-                <button onclick="askAI('What are energy levels?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">
-                    ⚡ Energy levels?
-                </button>
-                <button onclick="askAI('How does grading work?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">
-                    📊 Grading system?
-                </button>
-                <button onclick="askAI('How do task priorities work?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">
-                    🎯 Task buckets?
-                </button>
+                <button onclick="askAI('How do I start my first day?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">💡 How do I start?</button>
+                <button onclick="askAI('What are energy levels?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">⚡ Energy levels?</button>
+                <button onclick="askAI('How does grading work?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">📊 Grading?</button>
+                <button onclick="askAI('How do task priorities work?')" style="background: #1F2937; border: 1px solid #374151; color: #F9FAFB; padding: 0.75rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: 13px;">🎯 Task buckets?</button>
             </div>
-
-            <p style="margin-top: 1rem; font-size: 12px; color: #6B7280; text-align: center;">
-                AI agent works in claude.ai. Production requires API proxy.
-            </p>
+            <p style="margin-top: 1rem; font-size: 12px; color: #6B7280; text-align: center;">AI agent works in claude.ai. Production requires API proxy.</p>
         </div>
 
         <h2 style="font-size: 32px; font-weight: 800; margin: 3rem 0 2rem; text-align: center;">Or Browse Common Questions</h2>
@@ -238,78 +214,14 @@
             <p>Created by Ronan E. Kane</p>
         </div>
     </footer>
-
     <script>
-        if (typeof fetch !== 'undefined') {
-            document.getElementById('chatInput').disabled = false;
-            document.getElementById('sendBtn').disabled = false;
-        }
-
-        let conversationHistory = [];
-
-        function addAIMessage(content, isUser) {
-            const container = document.getElementById('chatContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = isUser 
-                ? 'background: #2563EB; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; margin-left: 3rem;'
-                : 'background: #1F2937; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #2563EB; margin-right: 3rem;';
-            messageDiv.textContent = content;
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendToAI(message) {
-            if (!message.trim()) return;
-            const input = document.getElementById('chatInput');
-            const sendBtn = document.getElementById('sendBtn');
-            input.disabled = true;
-            sendBtn.disabled = true;
-
-            addAIMessage(message, true);
-            conversationHistory.push({ role: 'user', content: message });
-
-            const container = document.getElementById('chatContainer');
-            const thinking = document.createElement('div');
-            thinking.id = 'thinking';
-            thinking.style.cssText = 'background: #374151; color: #9CA3AF; padding: 1rem; border-radius: 8px; text-align: center; font-style: italic;';
-            thinking.textContent = 'Thinking...';
-            container.appendChild(thinking);
-
-            try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        system: `You are a helpful support agent for FocusHub, a productivity app for people with ADHD. Features: Energy-based sprint timer (Low=15min, Medium=20min, High=30min), Task manager with 3 priority buckets (Urgent, Deep Work, Strategic), Meeting tracker, AI coach with Gentle/Tough Love modes, Distraction parking, Daily grading: (Sprints/Planned × 100) - (Distractions × 5), Grades A+ (97%+) through F (<60%), Morning reflection, All data stored locally. Be concise, direct, and understanding of ADHD challenges.`,
-                        messages: conversationHistory
-                    })
-                });
-                const data = await response.json();
-                document.getElementById('thinking').remove();
-                if (data.content && data.content[0]) {
-                    const reply = data.content[0].text;
-                    addAIMessage(reply, false);
-                    conversationHistory.push({ role: 'assistant', content: reply });
-                }
-            } catch (error) {
-                document.getElementById('thinking')?.remove();
-                addAIMessage('Error connecting. Try again.', false);
-            }
-
-            input.disabled = false;
-            sendBtn.disabled = false;
-            input.value = '';
-        }
-
-        function askAI(question) {
-            document.getElementById('chatInput').value = question;
-            sendToAI(question);
-        }
-
-        document.getElementById('sendBtn')?.addEventListener('click', () => sendToAI(document.getElementById('chatInput').value));
-        document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendToAI(e.target.value); });
+    if(typeof fetch!=='undefined'){document.getElementById('chatInput').disabled=false;document.getElementById('sendBtn').disabled=false;}
+    let conversationHistory=[];
+    function addAIMessage(c,u){const d=document.getElementById('chatContainer'),m=document.createElement('div');m.style.cssText=u?'background:#2563EB;color:white;padding:1rem;border-radius:8px;margin-bottom:1rem;margin-left:3rem;':'background:#1F2937;padding:1rem;border-radius:8px;margin-bottom:1rem;border-left:3px solid #2563EB;margin-right:3rem;';m.textContent=c;d.appendChild(m);d.scrollTop=d.scrollHeight;}
+    async function sendToAI(m){if(!m.trim())return;const i=document.getElementById('chatInput'),b=document.getElementById('sendBtn');i.disabled=true;b.disabled=true;addAIMessage(m,true);conversationHistory.push({role:'user',content:m});const c=document.getElementById('chatContainer'),t=document.createElement('div');t.id='thinking';t.style.cssText='background:#374151;color:#9CA3AF;padding:1rem;border-radius:8px;text-align:center;font-style:italic;';t.textContent='Thinking...';c.appendChild(t);try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'You are a helpful support agent for FocusHub, a productivity app for people with ADHD. Features: Energy-based sprint timer (Low=15min, Medium=20min, High=30min), Task manager with 3 priority buckets, Meeting tracker, AI coach with Gentle/Tough Love modes, Distraction parking, Daily grading, Grades A+ through F. Be concise and understanding of ADHD challenges.',messages:conversationHistory})});const d=await r.json();document.getElementById('thinking').remove();if(d.content&&d.content[0]){const y=d.content[0].text;addAIMessage(y,false);conversationHistory.push({role:'assistant',content:y});}}catch(e){document.getElementById('thinking')?.remove();addAIMessage('Error. Try again.',false);}i.disabled=false;b.disabled=false;i.value='';}
+    function askAI(q){document.getElementById('chatInput').value=q;sendToAI(q);}
+    document.getElementById('sendBtn')?.addEventListener('click',()=>sendToAI(document.getElementById('chatInput').value));
+    document.getElementById('chatInput')?.addEventListener('keypress',e=>{if(e.key==='Enter')sendToAI(e.target.value);});
     </script>
 </body>
 </html>
