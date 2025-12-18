@@ -1,8 +1,11 @@
 # Redirect /app to the React app
 /app /app-react.html 200
+/app-react /app-react.html 200
 
 # Redirect /app/* to the React app (for future routing)
 /app/* /app-react.html 200
 
-# Fallback for React app routes
-/app-react.html /app-react.html 200
+# Handle other extensionless URLs
+/home /home.html 200
+/how-to /how-to.html 200
+/faq /faq.html 200
