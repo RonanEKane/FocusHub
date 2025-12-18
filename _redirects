@@ -1,11 +1,8 @@
-# Redirect /app to the React app
+# SPA redirects - serve the React app for these routes
 /app /app-react.html 200
-/app-react /app-react.html 200
-
-# Redirect /app/* to the React app (for future routing)
 /app/* /app-react.html 200
 
-# Handle other extensionless URLs
+# Static page redirects (no extension)
 /home /home.html 200
 /how-to /how-to.html 200
 /faq /faq.html 200
