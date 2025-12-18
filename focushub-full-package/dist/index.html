@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - The Productivity OS for ADHD Brains</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #111827;
+            color: #F9FAFB;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            padding: 2rem 0;
+            border-bottom: 2px solid #4B5563;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 60px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 100%);
+            border-bottom: 1px solid #374151;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #2563EB 50%, transparent 100%);
+            opacity: 0.4;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .tagline {
+            font-size: 24px;
+            color: #D1D5DB;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            color: #D1D5DB;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .pricing {
+            padding: 6rem 0;
+            background: #1F2937;
+            border-top: 2px solid #4B5563;
+        }
+
+        .section-title {
+            font-size: 42px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .tiers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tier {
+            background: #111827;
+            border: 2px solid #4B5563;
+            border-radius: 8px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .tier:hover {
+            transform: translateY(-4px);
+            border-color: #2563EB;
+        }
+
+        .tier.featured {
+            border-color: #2563EB;
+            border-width: 3px;
+            position: relative;
+            transform: scale(1.05);
+        }
+
+        .tier.featured .badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563EB;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .tier.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .tier.disabled::after {
+            content: 'COMING SOON';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6B7280;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .tier.disabled:hover {
+            transform: none;
+            border-color: #4B5563;
+        }
+
+        .tier.disabled .btn {
+            background: #4B5563;
+            cursor: not-allowed;
+        }
+
+        .tier-name {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #2563EB;
+            margin: 1.5rem 0;
+        }
+
+        .tier-price small {
+            font-size: 18px;
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+
+        .tier-description {
+            color: #9CA3AF;
+            margin-bottom: 2rem;
+            font-size: 15px;
+        }
+
+        .tier-features {
+            list-style: none;
+            text-align: left;
+            margin: 2rem 0;
+            min-height: 300px;
+        }
+
+        .tier-features li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 15px;
+            color: #D1D5DB;
+        }
+
+        .tier-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22C55E;
+            font-weight: 800;
+        }
+
+        .tier-features li.coming-soon {
+            color: #6B7280;
+        }
+
+        .tier-features li.coming-soon:before {
+            content: "→";
+            color: #6B7280;
+        }
+
+        .btn-tier {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            background: #374151;
+            border: 2px solid #4B5563;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .author {
+            padding: 6rem 0;
+            background: #111827;
+        }
+
+        .author-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .author-image {
+            width: 200px;
+            height: 200px;
+            background: #374151;
+            border-radius: 8px;
+            border: 2px solid #4B5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: 800;
+            color: #9CA3AF;
+        }
+
+        .author-image-photo {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #4B5563;
+        }
+
+        .author-text h3 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .author-subtitle {
+            color: #9CA3AF;
+            font-size: 18px;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .author-bio {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #D1D5DB;
+            margin-bottom: 2rem;
+        }
+
+        .author-bio p {
+            margin-bottom: 1.5rem;
+        }
+
+        .book-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #F59E0B;
+            color: #111827;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .book-link:hover {
+            background: #D97706;
+            transform: translateY(-2px);
+        }
+
+        .faq {
+            padding: 6rem 0;
+            background: #1F2937;
+            border-top: 2px solid #4B5563;
+        }
+
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: #111827;
+            border: 2px solid #4B5563;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-question {
+            font-size: 20px;
+            font-weight: 700;
+            color: #F9FAFB;
+            margin-bottom: 1rem;
+        }
+
+        .faq-answer {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #D1D5DB;
+        }
+
+        .faq-answer p {
+            margin-bottom: 1rem;
+        }
+
+        .faq-answer strong {
+            color: #F9FAFB;
+        }
+
+        .howto {
+            padding: 6rem 0;
+            background: #111827;
+        }
+
+        .howto-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .howto-section {
+            background: #1F2937;
+            border: 2px solid #4B5563;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .howto-section h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2563EB;
+            margin-bottom: 1rem;
+        }
+
+        .howto-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #D1D5DB;
+            margin-bottom: 1rem;
+        }
+
+        .howto-section ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .howto-section li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #D1D5DB;
+        }
+
+        .howto-section li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #2563EB;
+            font-weight: 800;
+        }
+
+        .howto-tip {
+            background: #374151;
+            border-left: 4px solid #F59E0B;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #D1D5DB;
+        }
+
+        .howto-tip strong {
+            color: #F59E0B;
+        }
+
+        .license-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .license-modal.active {
+            display: flex;
+        }
+
+        .license-content {
+            background: #1F2937;
+            border: 2px solid #4B5563;
+            border-radius: 8px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .license-close {
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            font-size: 32px;
+            cursor: pointer;
+            float: right;
+            line-height: 1;
+            margin-top: -1rem;
+        }
+
+        .license-close:hover {
+            color: #F9FAFB;
+        }
+
+        .license-content h3 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            clear: both;
+        }
+
+        .license-content p {
+            color: #D1D5DB;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .license-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 16px;
+            background: #111827;
+            border: 2px solid #4B5563;
+            border-radius: 6px;
+            color: #F9FAFB;
+            font-family: 'Roboto Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+        }
+
+        .license-input:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+
+        .license-submit {
+            width: 100%;
+            background: #2563EB;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .license-submit:hover {
+            background: #1D4ED8;
+        }
+
+        .license-error {
+            background: #7F1D1D;
+            border: 2px solid #991B1B;
+            color: #FCA5A5;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .license-error.active {
+            display: block;
+        }
+
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 2px solid #4B5563;
+            color: #9CA3AF;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .author-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .author-image {
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .tiers {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .tier.featured {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            .tagline {
+                font-size: 18px;
+            }
+            .hero-description {
+                font-size: 16px;
+            }
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .section-title {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <img src="/logo.svg" alt="FocusHub" class="logo">
+                <a href="/app.html" class="btn">Launch App</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Stop Managing Tasks.<br>Start Finishing Them.</h1>
+                <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
+                <p class="hero-description">
+                    FocusHub isn't another to-do list. It's a productivity operating system designed for ADHD and anxiety brains. 
+                    No endless lists. No guilt. Just a system that actually works when your brain doesn't cooperate.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/app.html" class="btn">Get Started Free</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="pricing">
+            <div class="container">
+                <h2 class="section-title">Choose Your Level</h2>
+                
+                <div class="tiers">
+                    <!-- Lite Tier -->
+                    <div class="tier">
+                        <h3 class="tier-name">Lite</h3>
+                        <div class="tier-price">FREE</div>
+                        <p class="tier-description">For trying the system</p>
+                        <ul class="tier-features">
+                            <li>Energy-based sprint timer</li>
+                            <li>Task management (4 buckets)</li>
+                            <li>Brain dump system</li>
+                            <li>Distraction logger</li>
+                            <li>Daily grading (A-F)</li>
+                            <li>Basic progress tracking</li>
+                            <li>Light/dark mode</li>
+                            <li>Motivational reflections</li>
+                        </ul>
+                        <a href="/app.html" class="btn btn-secondary btn-tier">Start Free</a>
+                    </div>
+
+                    <!-- Standard Tier -->
+                    <div class="tier featured disabled">
+                        <h3 class="tier-name">Standard</h3>
+                        <div class="tier-price">$XX<small>/month</small></div>
+                        <p class="tier-description">For serious productivity</p>
+                        <ul class="tier-features">
+                            <li>Everything in Lite, plus:</li>
+                            <li>Faith-grounded reflections</li>
+                            <li>Sprint streak tracking</li>
+                            <li>Win celebrations & animations</li>
+                            <li>Task age warnings</li>
+                            <li>Hyperfocus protection</li>
+                            <li>Pattern recognition</li>
+                            <li>Extended grade history</li>
+                            <li class="coming-soon">Weekly planning mode (soon)</li>
+                            <li class="coming-soon">Keyboard shortcuts (soon)</li>
+                        </ul>
+                        <a href="#" class="btn btn-tier">Purchase</a>
+                    </div>
+
+                    <!-- Premium Tier -->
+                    <div class="tier disabled">
+                        <h3 class="tier-name">Premium</h3>
+                        <div class="tier-price">$XX<small>/month</small></div>
+                        <p class="tier-description">For maximum performance</p>
+                        <ul class="tier-features">
+                            <li>Everything in Standard, plus:</li>
+                            <li>Multi-faith reflection options</li>
+                            <li>Custom Agent intensity</li>
+                            <li>Quick capture widget</li>
+                            <li>Export & backup</li>
+                            <li class="coming-soon">Ambient focus mode (soon)</li>
+                            <li class="coming-soon">Reflection journal (soon)</li>
+                            <li class="coming-soon">Weekly email digest (soon)</li>
+                            <li class="coming-soon">Accountability partner (soon)</li>
+                            <li class="coming-soon">Voice logging (soon)</li>
+                        </ul>
+                        <a href="#" class="btn btn-tier">Purchase</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="author">
+            <div class="container">
+                <h2 class="section-title">About the Author</h2>
+                
+                <div class="author-content">
+                    <img src="/ronan-headshot.jpg" alt="Ronan E. Kane" class="author-image-photo">
+                    
+                    <div class="author-text">
+                        <h3>Ronan E. Kane</h3>
+                        <p class="author-subtitle">Author of "AI for ADHD & Anxiety"</p>
+                        
+                        <div class="author-bio">
+                            <p>Ronan E. Kane writes for people whose brains don't cooperate with standard productivity advice.</p>
+                            
+                            <p>He has ADHD. He tried the planners, the apps, the morning routines. Most of it didn't work because it assumed his brain could estimate time, start tasks without massive resistance, and maintain systems when he missed a day.</p>
+                            
+                            <p>So he built different systems. External scaffolding. AI as assistive technology. Tools that survive missed days and bad weeks.</p>
+                            
+                            <p><strong>You won't find inspiration here. You'll find instructions.</strong></p>
+                        </div>
+                        
+                        <a href="https://www.amazon.com/AI-ADHD-Anxiety-Overthinking-Finishing-ebook/dp/B0G511WKVS" target="_blank" class="book-link">
+                            📖 Read the Book on Amazon
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq">
+            <div class="container">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">What makes FocusHub different from other productivity apps?</div>
+                        <div class="faq-answer">
+                            <p>FocusHub isn't about tracking more tasks. It's about replacing the endless to-do list habit that ADHD/anxiety brains fall into. We limit your focus to what matters <strong>right now</strong>, use energy-based sprint timing, and provide tough-love accountability instead of gentle motivation.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Is this really designed for ADHD?</div>
+                        <div class="faq-answer">
+                            <p>Yes. By someone with ADHD. The system accounts for: time blindness (visual timers), decision fatigue (limited buckets), task initiation paralysis (brain dump system), hyperfocus risks (break enforcement), and inconsistency (tasks persist day-to-day).</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">What's the "tough-love" approach?</div>
+                        <div class="faq-answer">
+                            <p>The Agent acts like a performance coach, not a therapist. It calls out patterns, tracks your behavior, and holds you accountable. No coddling. No "you tried your best." Just: did you do the work or not?</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">What are the faith-grounded reflections?</div>
+                        <div class="faq-answer">
+                            <p>Daily reflections that connect discipline and productivity to deeper purpose. They're firm and directive, drawing from virtue ethics and spiritual wisdom. Free tier has secular motivational reflections. Standard includes faith-based reflections. Premium adds multi-faith options.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Can I use this without paying?</div>
+                        <div class="faq-answer">
+                            <p>Yes. Lite tier is completely free and includes all core features: timer, task management, grading, reflections. Standard and Premium add celebrations, pattern tracking, and advanced features.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Does my data stay private?</div>
+                        <div class="faq-answer">
+                            <p>Everything runs in your browser. Your tasks, grades, and reflections are stored locally on your device. We don't collect or see your data. Future cloud sync will be opt-in only.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">What if I miss a day?</div>
+                        <div class="faq-answer">
+                            <p>The system is built for this. Tasks persist until you complete them. Your streak resets, but your data doesn't disappear. The Agent will call you out, but you can start fresh immediately. No guilt spirals.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">How do I get a license code for Standard/Premium?</div>
+                        <div class="faq-answer">
+                            <p>Purchase links coming soon. For now, launch the free version and see if the system works for you. Paid tiers will unlock via license code entry in the app.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="howto">
+            <div class="container">
+                <h2 class="section-title">How to Use FocusHub</h2>
+                
+                <div class="howto-container">
+                    <div class="howto-section">
+                        <h3>1. Choose Your Energy Level</h3>
+                        <p>Start each session by selecting your current energy state. This adjusts your sprint duration automatically:</p>
+                        <ul>
+                            <li>🔋 <strong>Low (15 min):</strong> Running on fumes? Short sprints keep you moving.</li>
+                            <li>⚡ <strong>Medium (20 min):</strong> Standard energy. Most days live here.</li>
+                            <li>🚀 <strong>High (30 min):</strong> Full power. Use it on your hardest work.</li>
+                        </ul>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> Be honest. Picking "High" when you're dragging just sets you up to fail the sprint.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>2. Brain Dump Your Tasks</h3>
+                        <p>Stop keeping everything in your head. Use the Brain Dump to get it all out:</p>
+                        <ul>
+                            <li>Type or paste multiple tasks (one per line)</li>
+                            <li>Don't organize yet—just capture everything</li>
+                            <li>Tasks go to the Holding Area first</li>
+                        </ul>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> If you're stuck in Brain Dump for 10+ minutes, the Agent will call you out. Decision time.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>3. Sort Into Strategic Buckets</h3>
+                        <p>Drag tasks from Holding Area into the right bucket:</p>
+                        <ul>
+                            <li>🔥 <strong>Urgent Admin:</strong> Email, calls, quick responses. Do these fast.</li>
+                            <li>🏗️ <strong>Deep Work:</strong> Focused, hard thinking. Protect this time.</li>
+                            <li>🚀 <strong>Strategic Leap:</strong> Big moves. Projects that change things.</li>
+                        </ul>
+                        <p>Add sprint estimates (how many 15-30 min blocks each task needs). This feeds your Daily Pace tracker.</p>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> You can drag tasks back to Holding Area if you change your mind. Two-way movement.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>4. Run Your Sprints</h3>
+                        <p>Hit START and focus on one task. When the timer ends:</p>
+                        <ul>
+                            <li>Take the suggested break (5 min short, 15 min long after 4 sprints)</li>
+                            <li>Or skip it and keep going (but the Agent will judge you)</li>
+                            <li>After 2 hours without a break, you'll be forced to stop</li>
+                        </ul>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> The tab will blink and notify you when time's up. Works even in background tabs.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>5. Log Distractions (Don't Fight Them)</h3>
+                        <p>When a thought derails you, capture it immediately:</p>
+                        <ul>
+                            <li>Click "Log Distraction"</li>
+                            <li>Write what pulled you away</li>
+                            <li>Convert to task if needed</li>
+                            <li>Get back to work</li>
+                        </ul>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> The Agent tracks your distraction count. More than 7 in a day? You'll hear about it.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>6. Watch the Agent (Your Accountability GPS)</h3>
+                        <p>The Agent isn't a cheerleader. It's a performance coach that tracks:</p>
+                        <ul>
+                            <li>Your daily pace (sprints completed vs. 8-sprint target)</li>
+                            <li>Pattern recognition (task switching, late-night work)</li>
+                            <li>Time-aware messaging (calls out poor planning)</li>
+                            <li>Real-time feedback on your behavior</li>
+                        </ul>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> If you're working past 10pm, the Agent will tell you this is poor time management, not hustle.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>7. End Your Day & Get Graded</h3>
+                        <p>Click "END DAY" when you're done. You'll get an A-F grade based on:</p>
+                        <ul>
+                            <li>Sprints completed (target: 8)</li>
+                            <li>Tasks finished</li>
+                            <li>Distractions logged</li>
+                        </ul>
+                        <p>Your grade is saved to the Progress Tracker. Watch your consistency over time.</p>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> Bad days happen. The system doesn't punish you—it just shows reality. Use it to spot patterns.
+                        </div>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>8. Track Your Wins</h3>
+                        <p>Completed tasks move to "Done Today (Your Wins)" automatically. This is critical for ADHD brains:</p>
+                        <ul>
+                            <li>See your progress visually</li>
+                            <li>Combat the "I got nothing done" feeling</li>
+                            <li>Build momentum day by day</li>
+                        </ul>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>9. Morning Reflection (Standard Tier)</h3>
+                        <p>Start each day with purpose. After setting your energy level, you'll see a reflection that connects your work to deeper meaning. It's firm, not soft—spiritual direction for discipline.</p>
+                        <p>You can also generate a new reflection anytime during the day if you need a reset.</p>
+                    </div>
+
+                    <div class="howto-section">
+                        <h3>10. Light/Dark Mode</h3>
+                        <p>Toggle between light and dark themes using the button in the header. Your preference is saved.</p>
+                        <div class="howto-tip">
+                            <strong>Pro tip:</strong> Dark mode for evening work, light mode for bright environments. The logo switches automatically.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- License Code Modal -->
+    <div class="license-modal" id="licenseModal">
+        <div class="license-content">
+            <button class="license-close" onclick="closeLicenseModal()">&times;</button>
+            <h3>Enter License Code</h3>
+            <p>Enter your Standard or Premium license code to unlock features.</p>
+            
+            <div class="license-error" id="licenseError">
+                Invalid license code. Please check and try again.
+            </div>
+            
+            <input 
+                type="text" 
+                class="license-input" 
+                id="licenseInput" 
+                placeholder="XXXX-XXXX-XXXX-XXXX"
+                maxlength="19"
+            >
+            
+            <button class="license-submit" onclick="submitLicense()">Activate License</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
+            <p>Created by Ronan E. Kane</p>
+        </div>
+    </footer>
+
+    <script>
+        function openLicenseModal() {
+            document.getElementById('licenseModal').classList.add('active');
+        }
+
+        function closeLicenseModal() {
+            document.getElementById('licenseModal').classList.remove('active');
+            document.getElementById('licenseError').classList.remove('active');
+            document.getElementById('licenseInput').value = '';
+        }
+
+        function submitLicense() {
+            const code = document.getElementById('licenseInput').value.trim().toUpperCase();
+            const errorDiv = document.getElementById('licenseError');
+            
+            // Placeholder validation - replace with real logic later
+            if (code.length < 10) {
+                errorDiv.classList.add('active');
+                return;
+            }
+
+            // For now, store in localStorage and redirect to app
+            localStorage.setItem('focushub_license', code);
+            localStorage.setItem('focushub_tier', 'standard'); // Detect tier from code later
+            
+            alert('License activated! Redirecting to app...');
+            window.location.href = '/app.html';
+        }
+
+        // Auto-format license input with dashes
+        document.getElementById('licenseInput').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Z0-9]/g, '');
+            let formatted = '';
+            
+            for (let i = 0; i < value.length && i < 16; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += '-';
+                }
+                formatted += value[i];
+            }
+            
+            e.target.value = formatted;
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLicenseModal();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('licenseModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLicenseModal();
+            }
+        });
+    </script>
+</body>
+</html>
