@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Technical Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <img src="FocusHub_vertinv.svg" alt="FocusHub" class="status-logo" style="height: 32px; width: auto;">
+            <span class="status-app-name">FOCUSHUB</span>
+        </div>
+        <div class="status-right">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-text">SYSTEM STATUS: ONLINE</span>
+            </div>
+            <div class="status-time" id="currentTime"></div>
+        </div>
+    </div>
+
+    <!-- Mission Control Dashboard -->
+    <div class="mission-control">
+        <div class="container">
+            <h1 class="mission-title">MISSION CONTROL</h1>
+            
+            <!-- Bento Grid -->
+            <div class="bento-grid">
+                <!-- Total Sprints -->
+                <div class="bento-card activity-flow">
+                    <div class="card-micro-label">LIVE_TICKER_01</div>
+                    <h3 class="card-title">Activity Flow</h3>
+                    <div class="activity-chart">
+                        <div class="metric-large" id="totalSprints">0</div>
+                        <div class="metric-label">Total Sprints</div>
+                    </div>
+                    <div class="activity-context">
+                        Total: <span id="totalSprintsContext">0</span> <span class="trend-up">(↑ Last 7 days)</span>
+                    </div>
+                </div>
+
+                <!-- Day Streak -->
+                <div class="bento-card consistency-log">
+                    <div class="card-micro-label">STREAK_TRACKER</div>
+                    <h3 class="card-title">Consistency Log</h3>
+                    <div class="consistency-chart">
+                        <div class="metric-large" id="dayStreak">0</div>
+                        <div class="metric-label">Day Streak (B+ or Higher)</div>
+                    </div>
+                    <div class="bar-chart-mini" id="weeklyChart"></div>
+                </div>
+
+                <!-- Focus Score -->
+                <div class="bento-card daily-score">
+                    <div class="card-micro-label">PERF_INDEX</div>
+                    <h3 class="card-title">Performance Index</h3>
+                    <div class="score-gauge">
+                        <div class="gauge-value" id="focusScore">0%</div>
+                        <div class="gauge-label">Avg Grade: <span id="avgGrade">N/A</span></div>
+                    </div>
+                    <div class="score-context">
+                        Tasks Completed: <span class="streak-value" id="totalTasks">0</span>
+                    </div>
+                </div>
+
+                <!-- NEW: Intention vs. Reality -->
+                <div class="bento-card intention-reality">
+                    <div class="card-micro-label">BEHAVIOR_DELTA</div>
+                    <h3 class="card-title">Intention vs. Reality</h3>
+                    <div class="intention-visual">
+                        <div class="intention-bar">
+                            <div class="intention-fill" id="intentionFill" style="width: 0%"></div>
+                            <div class="intention-label">What You Said</div>
+                        </div>
+                        <div class="reality-bar">
+                            <div class="reality-fill" id="realityFill" style="width: 0%"></div>
+                            <div class="reality-label">What You Did</div>
+                        </div>
+                    </div>
+                    <div class="intention-stats">
+                        <div class="stat-item">
+                            <span class="stat-num" id="intentionCount">0</span>
+                            <span class="stat-desc">Declared Intentions</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-num" id="realityCount">0</span>
+                            <span class="stat-desc">Followed Through</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Action -->
+            <button class="primary-action" onclick="window.location.href='app.html'">
+                <span class="action-icon">[ &gt; ]</span>
+                <span class="action-text">INITIALIZE NEW SESSION</span>
+            </button>
+
+            <!-- Quick Stats Table -->
+            <div class="stats-table">
+                <h3 class="stats-title">SYSTEM METRICS</h3>
+                <table>
+                    <tr>
+                        <td class="stat-label">Days Logged</td>
+                        <td class="stat-value" id="daysLogged">0</td>
+                    </tr>
+                    <tr>
+                        <td class="stat-label">Average Distractions/Day</td>
+                        <td class="stat-value" id="avgDistractions">0</td>
+                    </tr>
+                    <tr>
+                        <td class="stat-label">Sprint Completion Rate</td>
+                        <td class="stat-value" id="sprintRate">0%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <a href="index.html">Home</a>
+        <span class="footer-separator">|</span>
+        <a href="app.html">Workspace</a>
+    </footer>
+
+    <script>
+        // Update current time
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toUTCString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Load stats from history
+        function loadStats() {
+            const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
+            
+            if (history.length === 0) {
+                return;
+            }
+
+            // Calculate total sprints
+            const totalSprints = history.reduce((sum, day) => sum + day.sprintCount, 0);
+            document.getElementById('totalSprints').textContent = totalSprints;
+            document.getElementById('totalSprintsContext').textContent = totalSprints;
+
+            // Calculate total tasks
+            const totalTasks = history.reduce((sum, day) => sum + day.tasksCompleted, 0);
+            document.getElementById('totalTasks').textContent = totalTasks;
+
+            // Calculate streak (consecutive days with B+ or higher)
+            const gradeThreshold = ['A+', 'A', 'A-', 'B+', 'B'];
+            let streak = 0;
+            for (let i = history.length - 1; i >= 0; i--) {
+                const grade = history[i].userGrade || history[i].autoGrade;
+                if (gradeThreshold.includes(grade)) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            document.getElementById('dayStreak').textContent = streak;
+
+            // Calculate average grade
+            const gradeValues = {
+                'A+': 4.3, 'A': 4.0, 'A-': 3.7,
+                'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                'F': 0.0
+            };
+            const avgGradeValue = history.reduce((sum, day) => {
+                return sum + (gradeValues[day.userGrade || day.autoGrade] || 0);
+            }, 0) / history.length;
+            
+            document.getElementById('avgGrade').textContent = avgGradeValue.toFixed(1);
+            document.getElementById('focusScore').textContent = ((avgGradeValue / 4.3) * 100).toFixed(0) + '%';
+
+            // Days logged
+            document.getElementById('daysLogged').textContent = history.length;
+
+            // Average distractions
+            const avgDistractions = (history.reduce((sum, day) => sum + day.distractionCount, 0) / history.length).toFixed(1);
+            document.getElementById('avgDistractions').textContent = avgDistractions;
+
+            // Sprint completion rate
+            const sprintRate = history.reduce((sum, day) => {
+                return sum + Math.min((day.sprintCount / day.plannedSprints) * 100, 100);
+            }, 0) / history.length;
+            document.getElementById('sprintRate').textContent = sprintRate.toFixed(0) + '%';
+
+            // Weekly chart (last 7 days)
+            const last7 = history.slice(-7);
+            const chartHTML = last7.map(day => {
+                const percentage = Math.min((day.sprintCount / day.plannedSprints) * 100, 100);
+                const color = percentage >= 100 ? '#22C55E' : '#ef4444';
+                const date = new Date(day.date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                return `
+                    <div class="bar-mini">
+                        <div class="bar-fill" style="height: ${percentage}%; background: ${color}"></div>
+                        <div class="bar-day">${dayName}</div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('weeklyChart').innerHTML = chartHTML;
+
+            // Intention vs Reality
+            const intentions = JSON.parse(localStorage.getItem('focushub_intentions') || '[]');
+            const intentionCount = intentions.length;
+            const followedThrough = intentions.filter(i => i.completed).length;
+            
+            document.getElementById('intentionCount').textContent = intentionCount;
+            document.getElementById('realityCount').textContent = followedThrough;
+            
+            if (intentionCount > 0) {
+                const intentionPercent = 100;
+                const realityPercent = (followedThrough / intentionCount) * 100;
+                document.getElementById('intentionFill').style.width = intentionPercent + '%';
+                document.getElementById('realityFill').style.width = realityPercent + '%';
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

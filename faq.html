@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-section">
+            <img src="FocusHub_vertnorm.png" alt="FocusHub" style="height: 40px; width: auto;">
+        </div>
+        
+        <div class="header-controls">
+            <a href="index.html" class="btn-home">🏠 Home</a>
+            <a href="app.html" class="btn btn-primary">Launch App</a>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 4rem 2rem;">
+        <h1 style="text-align: center; font-size: 48px; margin-bottom: 3rem; color: var(--text-primary);">Frequently Asked Questions</h1>
+
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">What makes FocusHub different from other productivity apps?</div>
+                <div class="faq-answer">
+                    FocusHub doesn't pile on endless to-do lists. It limits your focus to NOW. Energy-based timer. Strategic buckets. Tough-love accountability. Built specifically for ADHD brains that wander but still want to win.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Is this really for ADHD?</div>
+                <div class="faq-answer">
+                    Yes. Built by someone with ADHD who tried every other system and watched them fail. FocusHub accounts for time blindness, decision fatigue, hyperfocus crashes, and the constant pull of distractions. It's not inspiration. It's scaffolding.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What's the Tough Love approach?</div>
+                <div class="faq-answer">
+                    The AI Agent tracks performance and calls out patterns. Not a cheerleader. Not a therapist. A performance coach. If you're logging 8 distractions by noon, it tells you. If you've done 6 sprints with zero output, it asks where the work is. Choose from 3 levels: Supportive, Balanced, or Tough. Accountability, not coddling.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How does sprint targeting work?</div>
+                <div class="faq-answer">
+                    You set a baseline (minimum daily sprints). Tasks add to it based on priority: Strategic = 3 sprints, Deep Work = 2 sprints, Urgent = 1 sprint. If your baseline is 5 and you add 2 deep work tasks, your target becomes 9 (5 + 4). This accounts for ADHD reality: tasks take longer than estimated.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Is this free forever?</div>
+                <div class="faq-answer">
+                    Yes. FocusHub is fully functional forever. No time limits. No feature nagging. No subscription trap. This is a tool, not a business model. Built by someone with ADHD, for people with ADHD.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What about my data and privacy?</div>
+                <div class="faq-answer">
+                    Everything lives in your browser's local storage. No cloud sync. No data collection. No tracking. Your tasks, your grades, your distractions are yours alone. Can't be accessed without your device. If you clear browser data, it's gone. That's by design.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What if I miss a day?</div>
+                <div class="faq-answer">
+                    Your tasks persist. Your streak resets. No guilt spirals. No shame notifications. Just start fresh. Discipline isn't perfection. It's getting back up. FocusHub doesn't punish gaps; it tracks forward momentum.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How does the grading system work?</div>
+                <div class="faq-answer">
+                    At end of day, the system calculates a grade based on (sprints completed / planned sprints) minus a penalty for distractions (5% per distraction). You then grade yourself using buttons (A+, A, A-, B+, B, etc.). Compare the system's grade to yours. Build self-awareness over time.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What is Intention vs Reality tracking?</div>
+                <div class="faq-answer">
+                    When logging a distraction, you can check "I'll handle this" to declare your intention to deal with it. The system tracks whether you follow through. Over time, the dashboard shows the gap between what you say you'll do and what you actually do. Builds honest self-assessment without shame.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I use this on multiple devices?</div>
+                <div class="faq-answer">
+                    Currently, data is stored per-browser (localStorage). If you use Chrome on multiple devices with the same account, browser sync may help. For true multi-device sync, you'd need to add a backend (see EXPANSION_GUIDE.md in the documentation).
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I export my data?</div>
+                <div class="faq-answer">
+                    Currently no built-in export (easy to add though). All data is in localStorage as JSON. Open browser DevTools > Application > Local Storage > your domain to see it. Copy/paste to backup. Or ask us to add an export button.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Do I need an internet connection?</div>
+                <div class="faq-answer">
+                    No! FocusHub works 100% offline after the initial page load. Only external dependency is the confetti animation (CDN), which is purely cosmetic. Everything else runs in your browser.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <a href="index.html">Home</a>
+        <span class="footer-separator">|</span>
+        <a href="app.html">Launch App</a>
+        <span class="footer-separator">|</span>
+        <a href="how-to.html">How-To Guide</a>
+    </footer>
+
+    <style>
+        .faq-grid {
+            display: grid;
+            gap: 2rem;
+            margin: 4rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .faq-item {
+            background: var(--card-white);
+            border: 2px solid var(--border-medium);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-blue);
+        }
+
+        .faq-question {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 15px;
+        }
+    </style>
+</body>
+</html>
