@@ -728,7 +728,7 @@ code, .monospace {
 
 .app-header.scrolled {
     box-shadow: var(--shadow-md);
-    padding: 0.75rem 0;
+    padding: 0.4rem 0;
 }
 
 .app-header-content {
@@ -752,10 +752,6 @@ code, .monospace {
     height: 60px;
     width: auto;
     transition: all 0.3s;
-}
-
-.app-header.scrolled .logo-img {
-    height: 40px;
 }
 
 .logo-section .tagline {
@@ -827,7 +823,7 @@ code, .monospace {
     margin: 0 auto;
     padding: 2rem 1rem;
     display: grid;
-    grid-template-columns: 1fr 600px;
+    grid-template-columns: 1fr 700px;
     gap: 2rem;
 }
 
