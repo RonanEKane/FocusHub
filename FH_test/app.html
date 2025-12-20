@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - Workspace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Start Day Screen -->
+    <div id="startDayScreen" class="start-day-screen">
+        <div class="start-day-container">
+            <img id="startDayLogo" src="FocusHub_hori_light.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
+            <h1 class="start-title">Ready to Win Today?</h1>
+            <p class="start-subtitle">Built for Brains That Wander, but Still Want to Win</p>
+
+            <div class="start-form">
+                <div class="form-group">
+                    <label class="form-label">What's your energy level?</label>
+                    <div class="energy-options">
+                        <button class="energy-btn" data-energy="low">
+                            <div class="energy-emoji">🔋</div>
+                            <div>LOW</div>
+                            <div class="energy-desc" data-energy-desc="low">15min sprints</div>
+                        </button>
+                        <button class="energy-btn active" data-energy="medium">
+                            <div class="energy-emoji">⚡</div>
+                            <div>MEDIUM</div>
+                            <div class="energy-desc" data-energy-desc="medium">20min sprints</div>
+                        </button>
+                        <button class="energy-btn" data-energy="high">
+                            <div class="energy-emoji">🔥</div>
+                            <div>HIGH</div>
+                            <div class="energy-desc" data-energy-desc="high">30min sprints</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Baseline Sprint Target</label>
+                    <div class="baseline-input-row">
+                        <button class="baseline-btn" id="decreaseBaseline">−</button>
+                        <div class="baseline-value"><span id="baselineValue">5</span> sprints</div>
+                        <button class="baseline-btn" id="increaseBaseline">+</button>
+                    </div>
+                    <div class="form-hint">Minimum sprints before task weights are added</div>
+                </div>
+
+                <button class="btn btn-primary btn-start" id="startDayBtn">Start My Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (hidden initially) -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-header-content">
+                <div class="logo-section">
+                    <img id="appLogo" src="logo_light.svg" alt="FocusHub" class="logo-img">
+                    <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
+                </div>
+                
+                <div class="header-middle" id="headerTimer">
+                    <!-- Timer shows here when scrolled -->
+                </div>
+                
+                <div class="header-controls">
+                    <a href="home.html" class="btn-home">📊 Dashboard</a>
+                    <button id="themeToggle" class="btn-home">☀️ Light</button>
+                    <button id="endDayBtn" class="btn-end-day" data-label="endDay">END DAY</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-container">
+            <!-- Main Content (Left Column) -->
+            <div class="main-content">
+                <!-- Sprint Timer -->
+                <div class="card sprint-timer">
+                    <div class="card-header">
+                        <h3 class="card-title" id="timerTitle">🎯 SPRINT TIMER</h3>
+                        <div class="timer-meeting">
+                            <button id="meetingBtn" class="btn-meeting" data-label="meeting">📅 Meeting</button>
+                            <span id="meetingTime" class="meeting-time hidden">0m</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div id="timerSetup" class="timer-setup">
+                            <div class="energy-display">
+                                Energy: <span id="energyDisplay" class="energy-medium">MEDIUM</span>
+                            </div>
+                            
+                            <div class="duration-buttons">
+                                <button class="duration-btn" data-duration="15">15 min</button>
+                                <button class="duration-btn recommended" data-duration="20">20 min</button>
+                                <button class="duration-btn" data-duration="30">30 min</button>
+                            </div>
+                        </div>
+
+                        <div id="timerActive" class="timer-active hidden">
+                            <div class="timer-display">
+                                <div class="timer-time" id="timerTime">20:00</div>
+                                <div class="timer-progress">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="timer-controls">
+                                <button id="pauseBtn" class="btn btn-secondary">⏸ Pause</button>
+                                <button id="resumeBtn" class="btn btn-primary hidden">▶️ Resume</button>
+                                <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Manager -->
+                <div class="card task-manager">
+                    <div class="task-header">
+                        <h2>⚡ TASK COMMAND CENTER</h2>
+                        <div class="sprint-target">
+                            Target: <strong><span id="plannedSprints">5</span></strong> sprints
+                        </div>
+                    </div>
+
+                    <!-- Brain Dump -->
+                    <div class="brain-dump">
+                        <label data-label="brainDump">🧠 BRAIN DUMP</label>
+                        <p class="brain-dump-hint">Paste your task list below (one task per line)</p>
+                        <textarea id="taskInput" class="task-textarea" data-label="taskEntry" placeholder="What needs doing?" rows="4"></textarea>
+                        <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Parse & Add to <span data-label="holding">Holding</span></button>
+                        
+                        <!-- Holding Area -->
+                        <div id="holdingArea" class="holding-area" style="margin-top: 1rem;">
+                            <div class="holding-header">
+                                <span>📋 <span data-label="holding">HOLDING AREA</span></span>
+                                <span class="task-count" id="holdingCount">0</span>
+                            </div>
+                            <div id="holdingList" class="task-list" data-bucket="holding"></div>
+                        </div>
+                    </div>
+
+                    <!-- Task Buckets -->
+                    <div class="task-buckets">
+                        <div class="task-bucket urgent" data-bucket="urgent">
+                            <div class="bucket-header">
+                                <span class="bucket-icon">🔥</span>
+                                <h3 data-label="urgent">URGENT</h3>
+                                <span class="task-count" id="urgentCount">0</span>
+                            </div>
+                            <div id="urgentList" class="task-list" data-bucket="urgent"></div>
+                        </div>
+
+                        <div class="task-bucket deepwork" data-bucket="deepwork">
+                            <div class="bucket-header">
+                                <span class="bucket-icon">🎯</span>
+                                <h3 data-label="deepwork">DEEP WORK</h3>
+                                <span class="task-count" id="deepworkCount">0</span>
+                            </div>
+                            <div id="deepworkList" class="task-list" data-bucket="deepwork"></div>
+                        </div>
+
+                        <div class="task-bucket strategic" data-bucket="strategic">
+                            <div class="bucket-header">
+                                <span class="bucket-icon">♟️</span>
+                                <h3 data-label="strategic">STRATEGIC</h3>
+                                <span class="task-count" id="strategicCount">0</span>
+                            </div>
+                            <div id="strategicList" class="task-list" data-bucket="strategic"></div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Wins -->
+                    <div id="winsSection" class="wins-section hidden">
+                        <div class="wins-header">
+                            <h3>✅ TODAY'S WINS</h3>
+                        </div>
+                        <div id="winsList" class="wins-list"></div>
+                    </div>
+
+                    <div class="task-weights-legend">
+                        <small><strong>Sprint Values:</strong> Strategic (3) · Deep Work (2) · Urgent (1)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar (Right Column - NOT STICKY) -->
+            <div class="sidebar-column">
+                <!-- NEW: Tough Love Toggle -->
+                <div class="card tough-love-card">
+                    <h3 class="card-title">💪 TOUGH LOVE MODE</h3>
+                    <div class="tough-love-selector">
+                        <button class="tough-love-btn" data-level="supportive">Supportive</button>
+                        <button class="tough-love-btn active" data-level="balanced">Balanced</button>
+                        <button class="tough-love-btn" data-level="tough">Tough</button>
+                    </div>
+                    <p class="tough-love-desc">Changes how the AI Agent talks to you</p>
+                </div>
+
+                <!-- AI Agent with Progress Tracking -->
+                <div class="card ai-agent">
+                    <h3 class="card-title">🤖 AI AGENT</h3>
+                    <div class="agent-message">
+                        <div class="agent-text" id="agentText">Start your first sprint to get feedback.</div>
+                    </div>
+                    
+                    <!-- Progress tracking inside AI Agent card -->
+                    <div class="progress-grid" style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border-light);">
+                        <div class="progress-item">
+                            <div class="progress-label">Sprints</div>
+                            <div class="progress-value"><span id="sprintProgress">0</span> / <span id="sprintTarget">5</span></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Wins</div>
+                            <div class="progress-value" id="taskProgress">0</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Breaks</div>
+                            <div class="progress-value" id="breaksProgress">0</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Distractions</div>
+                            <div class="progress-value" id="distractionProgress">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distraction Logger with Intention Tracking -->
+                <div class="card distraction-logger">
+                    <div class="card-header">
+                        <h3 class="card-title">🚫 DISTRACTION PARKING</h3>
+                        <span class="distraction-count" id="distractionCount">0</span>
+                    </div>
+                    
+                    <div class="card-content">
+                        <!-- Add Intention Toggle -->
+                        <div class="distraction-input-group">
+                            <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
+                            <label class="intention-checkbox">
+                                <input type="checkbox" id="intentionCheck">
+                                <span>I'll handle this</span>
+                            </label>
+                            <button id="parkDistractionBtn" class="btn btn-primary">Park It</button>
+                        </div>
+
+                        <div id="distractionList" class="distraction-list"></div>
+                    </div>
+                </div>
+
+                <!-- Grade Preview -->
+                <div class="card grade-preview">
+                    <h3 class="card-title">📈 CURRENT GRADE</h3>
+                    <div class="grade-display">
+                        <div class="grade-large" id="currentGrade">-</div>
+                        <div class="grade-context">Based on current progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <a href="home.html">📊 Dashboard</a>
+            <span class="footer-separator">|</span>
+            <a href="how-to.html">📖 How-to</a>
+            <span class="footer-separator">|</span>
+            <a href="faq.html">💬 Support</a>
+        </footer>
+    </div>
+
+    <!-- Morning Reflection Modal -->
+    <div id="morningModal" class="modal-overlay hidden">
+        <div class="modal morning-modal">
+            <div class="modal-header">
+                <h2>🌅 Morning Reflection</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="reflection-content" id="reflectionContent">
+                    <p class="reflection-text">
+                        The day stretches before you like an empty canvas. What you choose to place on it reflects not just your plans, but your character. Discipline is not a burden placed upon you by others—it is the gift you give to your future self. Today, you have the power to honor your commitments or to excuse your failures. Choose deliberately.
+                    </p>
+                    <p class="reflection-attribution">— On Discipline and Duty</p>
+                </div>
+                
+                <button id="generateReflection" class="btn btn-secondary" style="width: 100%; margin: 1rem 0;">Generate New Reflection</button>
+                
+                <div class="morning-note">
+                    <strong>Remember:</strong> This is direction, not motivation. Reflect on it, then get to work.
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="closeMorningBtn" class="btn btn-primary">Begin Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- End of Day Modal -->
+    <div id="eodModal" class="modal-overlay hidden">
+        <div class="modal eod-modal">
+            <div class="modal-header">
+                <h2>📊 End of Day Report</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="day-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Sprints</div>
+                        <div class="stat-value"><span id="eodSprints">0</span> / <span id="eodPlanned">5</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Tasks</div>
+                        <div class="stat-value" id="eodTasks">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Distractions</div>
+                        <div class="stat-value" id="eodDistractions">0</div>
+                    </div>
+                </div>
+
+                <div class="grade-display">
+                    <div class="grade-section">
+                        <div class="grade-label">System Grade</div>
+                        <div class="grade-value" id="systemGrade">-</div>
+                    </div>
+                    
+                    <div class="grade-section">
+                        <div class="grade-label">Your Grade</div>
+                        <div class="grade-value" id="userGrade">-</div>
+                        <div class="grade-selector">
+                            <button class="grade-btn" data-grade="A+">A+</button>
+                            <button class="grade-btn" data-grade="A">A</button>
+                            <button class="grade-btn" data-grade="A-">A-</button>
+                            <button class="grade-btn" data-grade="B+">B+</button>
+                            <button class="grade-btn" data-grade="B">B</button>
+                            <button class="grade-btn" data-grade="B-">B-</button>
+                            <button class="grade-btn" data-grade="C+">C+</button>
+                            <button class="grade-btn" data-grade="C">C</button>
+                            <button class="grade-btn" data-grade="C-">C-</button>
+                            <button class="grade-btn" data-grade="D+">D+</button>
+                            <button class="grade-btn" data-grade="D">D</button>
+                            <button class="grade-btn" data-grade="D-">D-</button>
+                            <button class="grade-btn" data-grade="F">F</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reflection-section">
+                    <label class="reflection-label">What went well? What could improve?</label>
+                    <textarea id="reflectionInput" class="reflection-input" placeholder="Your thoughts..." rows="4"></textarea>
+                </div>
+
+                <div class="eod-note">
+                    ℹ️ Unfinished tasks and distractions will remain for tomorrow
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="completeDayBtn" class="btn btn-primary">Complete Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Configuration System -->
+    <script src="config.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        const state = {
+            energyLevel: 'medium',
+            baselineSprints: 5,
+            plannedSprints: 5,
+            sprintCount: 0,
+            breaksCount: 0,
+            distractionCount: 0,
+            tasksCompleted: 0,
+            meetingMinutes: 0,
+            toughLoveLevel: 'balanced',
+            timer: {
+                timeLeft: 0,
+                duration: 0,
+                isRunning: false,
+                timerType: 'focus',
+                interval: null
+            },
+            meeting: {
+                active: false,
+                startTime: null
+            },
+            tasks: {
+                holding: [],
+                urgent: [],
+                deepwork: [],
+                strategic: [],
+                wins: []
+            },
+            distractions: [],
+            intentions: []
+        };
+
+        const TASK_WEIGHTS = {
+            strategic: 3,
+            deepwork: 2,
+            urgent: 1,
+            holding: 0
+        };
+
+        const ENERGY_DURATIONS = {
+            low: 15,
+            medium: 20,
+            high: 30
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        function init() {
+            // Apply mode configuration FIRST
+            applyModeConfig();
+            
+            loadState();
+            restoreTimer();
+            setupEventListeners();
+            initDragDrop();
+            checkSessionState();
+        }
+
+        function loadState() {
+            const today = new Date().toDateString();
+            
+            // Load daily stats
+            const savedStats = localStorage.getItem('focushub_daily_stats');
+            if (savedStats) {
+                const stats = JSON.parse(savedStats);
+                if (stats.date === today) {
+                    state.sprintCount = stats.sprintCount || 0;
+                    state.breaksCount = stats.breaksCount || 0;
+                    state.distractionCount = stats.distractionCount || 0;
+                    state.tasksCompleted = stats.tasksCompleted || 0;
+                    state.meetingMinutes = stats.meetingMinutes || 0;
+                    state.plannedSprints = stats.plannedSprints || 5;
+                }
+            }
+
+            // Load tasks
+            const savedTasks = localStorage.getItem('focushub_tasks');
+            if (savedTasks) {
+                state.tasks = JSON.parse(savedTasks);
+            }
+
+            // Load distractions
+            const savedDistractions = localStorage.getItem('focushub_distractions');
+            if (savedDistractions) {
+                state.distractions = JSON.parse(savedDistractions);
+            }
+
+            // Load intentions
+            const savedIntentions = localStorage.getItem('focushub_intentions');
+            if (savedIntentions) {
+                state.intentions = JSON.parse(savedIntentions);
+            }
+
+            // Load tough love level
+            const savedToughLove = localStorage.getItem('focushub_tough_love');
+            if (savedToughLove) {
+                state.toughLoveLevel = savedToughLove;
+            }
+        }
+
+        function restoreTimer() {
+            const savedTimer = localStorage.getItem('focushub_timer');
+            if (!savedTimer) return;
+            
+            const timerData = JSON.parse(savedTimer);
+            
+            // Check if timer was running
+            if (timerData.isRunning && timerData.timeLeft > 0) {
+                // Calculate elapsed time since last save
+                const elapsed = Math.floor((Date.now() - timerData.lastUpdated) / 1000);
+                const adjustedTimeLeft = Math.max(0, timerData.timeLeft - elapsed);
+                
+                if (adjustedTimeLeft > 0) {
+                    // Restore timer state
+                    state.timer.duration = timerData.duration;
+                    state.timer.timeLeft = adjustedTimeLeft;
+                    state.timer.isRunning = true;
+                    state.timer.timerType = timerData.timerType;
+                    
+                    // Update UI
+                    document.getElementById('timerSetup').classList.add('hidden');
+                    document.getElementById('timerActive').classList.remove('hidden');
+                    
+                    if (timerData.timerType === 'focus') {
+                        document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+                    } else {
+                        document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
+                    }
+                    
+                    // Resume countdown
+                    state.timer.interval = setInterval(updateTimer, 1000);
+                    renderTimer();
+                } else {
+                    // Timer expired while away, complete it
+                    if (timerData.timerType === 'focus') {
+                        state.sprintCount++;
+                    } else {
+                        state.breaksCount++;
+                    }
+                    saveState();
+                }
+            }
+        }
+
+        function saveState() {
+            const today = new Date().toDateString();
+            
+            const stats = {
+                sprintCount: state.sprintCount,
+                breaksCount: state.breaksCount,
+                distractionCount: state.distractionCount,
+                tasksCompleted: state.tasksCompleted,
+                meetingMinutes: state.meetingMinutes,
+                plannedSprints: state.plannedSprints,
+                date: today
+            };
+            localStorage.setItem('focushub_daily_stats', JSON.stringify(stats));
+            localStorage.setItem('focushub_tasks', JSON.stringify(state.tasks));
+            localStorage.setItem('focushub_distractions', JSON.stringify(state.distractions));
+            localStorage.setItem('focushub_intentions', JSON.stringify(state.intentions));
+            localStorage.setItem('focushub_tough_love', state.toughLoveLevel);
+            
+            // Save timer state for persistence across pages
+            const timerState = {
+                timeLeft: state.timer.timeLeft,
+                duration: state.timer.duration,
+                isRunning: state.timer.isRunning,
+                timerType: state.timer.timerType,
+                lastUpdated: Date.now()
+            };
+            localStorage.setItem('focushub_timer', JSON.stringify(timerState));
+        }
+
+        function checkSessionState() {
+            const sessionState = localStorage.getItem('focushub_session_state');
+            const today = new Date().toDateString();
+            const lastDate = localStorage.getItem('focushub_session_date');
+
+            if (lastDate !== today) {
+                // New day
+                localStorage.setItem('focushub_session_state', 'not_started');
+                localStorage.setItem('focushub_session_date', today);
+                showStartScreen();
+            } else if (sessionState === 'active') {
+                hideStartScreen();
+                renderAll();
+            } else {
+                showStartScreen();
+            }
+        }
+
+        // ============================================
+        // START DAY SCREEN
+        // ============================================
+        function setupEventListeners() {
+            // Start Day Screen
+            document.querySelectorAll('.energy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    state.energyLevel = e.currentTarget.dataset.energy;
+                });
+            });
+
+            document.getElementById('decreaseBaseline').addEventListener('click', () => {
+                const current = parseInt(document.getElementById('baselineValue').textContent);
+                if (current > 0) {
+                    document.getElementById('baselineValue').textContent = current - 1;
+                }
+            });
+
+            document.getElementById('increaseBaseline').addEventListener('click', () => {
+                const current = parseInt(document.getElementById('baselineValue').textContent);
+                document.getElementById('baselineValue').textContent = current + 1;
+            });
+
+            document.getElementById('startDayBtn').addEventListener('click', startDay);
+
+            // Timer controls
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const duration = parseInt(e.currentTarget.dataset.duration);
+                    startTimer(duration);
+                });
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+            document.getElementById('resumeBtn').addEventListener('click', resumeTimer);
+            document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+            // Meeting
+            document.getElementById('meetingBtn').addEventListener('click', toggleMeeting);
+
+            // Tasks
+            document.getElementById('addTaskBtn').addEventListener('click', addTask);
+
+            // Distractions
+            document.getElementById('parkDistractionBtn').addEventListener('click', addDistraction);
+            document.getElementById('distractionInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDistraction();
+            });
+
+            // Tough Love
+            document.querySelectorAll('.tough-love-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tough-love-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    state.toughLoveLevel = e.currentTarget.dataset.level;
+                    saveState();
+                    updateAgentMessage();
+                });
+            });
+
+            // End of Day
+            document.getElementById('endDayBtn').addEventListener('click', showEndOfDayModal);
+            document.querySelectorAll('.grade-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                    document.getElementById('userGrade').textContent = e.currentTarget.dataset.grade;
+                });
+            });
+            document.getElementById('completeDayBtn').addEventListener('click', completeDay);
+        }
+
+        function showStartScreen() {
+            document.getElementById('startDayScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function hideStartScreen() {
+            document.getElementById('startDayScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        function startDay() {
+            state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
+            state.plannedSprints = state.baselineSprints;
+            
+            // Set cookie for returning user
+            document.cookie = "focushub_returning_user=true; path=/; max-age=31536000";
+            
+            localStorage.setItem('focushub_session_state', 'active');
+            hideStartScreen();
+            renderAll();
+            updateAgentMessage();
+        }
+
+        // ============================================
+        // TIMER
+        // ============================================
+        function startTimer(duration) {
+            state.timer.duration = duration * 60;
+            state.timer.timeLeft = duration * 60;
+            state.timer.isRunning = true;
+            state.timer.timerType = 'focus';
+
+            document.getElementById('timerSetup').classList.add('hidden');
+            document.getElementById('timerActive').classList.remove('hidden');
+            document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+
+            state.timer.interval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (state.timer.timeLeft > 0) {
+                state.timer.timeLeft--;
+                renderTimer();
+                
+                // Save timer state every 5 seconds for persistence
+                if (state.timer.timeLeft % 5 === 0) {
+                    saveState();
+                }
+            } else {
+                completeTimer();
+            }
+        }
+
+        function renderTimer() {
+            const mins = Math.floor(state.timer.timeLeft / 60);
+            const secs = state.timer.timeLeft % 60;
+            document.getElementById('timerTime').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            const progress = ((state.timer.duration - state.timer.timeLeft) / state.timer.duration) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update header timer if scrolled
+            if (document.querySelector('.app-header').classList.contains('scrolled')) {
+                updateHeaderTimer();
+            }
+        }
+
+        function pauseTimer() {
+            state.timer.isRunning = false;
+            clearInterval(state.timer.interval);
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('resumeBtn').classList.remove('hidden');
+        }
+
+        function resumeTimer() {
+            state.timer.isRunning = true;
+            state.timer.interval = setInterval(updateTimer, 1000);
+            document.getElementById('pauseBtn').classList.remove('hidden');
+            document.getElementById('resumeBtn').classList.add('hidden');
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer.interval);
+            state.timer.timeLeft = 0;
+            state.timer.isRunning = false;
+            document.getElementById('timerSetup').classList.remove('hidden');
+            document.getElementById('timerActive').classList.add('hidden');
+        }
+
+        function completeTimer() {
+            clearInterval(state.timer.interval);
+            
+            if (state.timer.timerType === 'focus') {
+                state.sprintCount++;
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                
+                // Auto-start break
+                state.timer.timerType = 'break';
+                state.timer.duration = 5 * 60;
+                state.timer.timeLeft = 5 * 60;
+                state.timer.interval = setInterval(updateTimer, 1000);
+                document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
+            } else {
+                // Break complete
+                state.breaksCount++;
+                resetTimer();
+            }
+            
+            saveState();
+            renderAll();
+            updateAgentMessage();
+        }
+
+        // ============================================
+        // MEETING TRACKER
+        // ============================================
+        function toggleMeeting() {
+            if (state.meeting.active) {
+                // End meeting
+                const elapsed = Math.floor((Date.now() - state.meeting.startTime) / 1000 / 60);
+                state.meetingMinutes += elapsed;
+                state.meeting.active = false;
+                state.meeting.startTime = null;
+                document.getElementById('meetingBtn').textContent = '📅 Meeting';
+                document.getElementById('meetingTime').classList.add('hidden');
+            } else {
+                // Start meeting
+                state.meeting.active = true;
+                state.meeting.startTime = Date.now();
+                document.getElementById('meetingBtn').textContent = '🔴 End Meeting';
+                document.getElementById('meetingTime').classList.remove('hidden');
+                
+                // Update meeting time every minute
+                setInterval(() => {
+                    if (state.meeting.active) {
+                        const elapsed = Math.floor((Date.now() - state.meeting.startTime) / 1000 / 60);
+                        document.getElementById('meetingTime').textContent = elapsed + 'm';
+                    }
+                }, 60000);
+            }
+            saveState();
+        }
+
+        // ============================================
+        // TASK MANAGEMENT WITH DRAG/DROP
+        // ============================================
+        
+        let draggedTask = null;
+        let draggedBucket = null;
+        
+        // Parse and add tasks from textarea
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            // Split by newlines and filter empty lines
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            lines.forEach(taskText => {
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: taskText,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                state.tasks.holding.push(newTask);
+            });
+            
+            input.value = '';
+            saveState();
+            renderTasks();
+        }
+        
+        // Create task element with all controls
+        function createTaskElement(task, bucket) {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.draggable = true;
+            div.dataset.taskId = task.id;
+            div.dataset.bucket = bucket;
+            
+            // Drag handle
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'task-drag-handle';
+            dragHandle.textContent = '⋮⋮';
+            div.appendChild(dragHandle);
+            
+            // Priority dropdown (not in wins)
+            if (bucket !== 'wins') {
+                const prioritySelect = document.createElement('select');
+                prioritySelect.className = 'task-priority-select';
+                prioritySelect.innerHTML = `
+                    <option value="holding" ${task.bucket === 'holding' ? 'selected' : ''}>Hold</option>
+                    <option value="urgent" ${task.bucket === 'urgent' ? 'selected' : ''}>Urgent</option>
+                    <option value="deepwork" ${task.bucket === 'deepwork' ? 'selected' : ''}>Deep</option>
+                    <option value="strategic" ${task.bucket === 'strategic' ? 'selected' : ''}>Strategic</option>
+                `;
+                prioritySelect.addEventListener('change', (e) => {
+                    moveTask(task.id, bucket, e.target.value);
+                });
+                div.appendChild(prioritySelect);
+            }
+            
+            // Sprint controls (not in holding or wins)
+            if (bucket !== 'holding' && bucket !== 'wins') {
+                const sprintControls = document.createElement('div');
+                sprintControls.className = 'task-sprint-controls';
+                
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'task-sprint-btn';
+                minusBtn.textContent = '−';
+                minusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, -1));
+                
+                const sprintValue = document.createElement('span');
+                sprintValue.className = 'task-sprint-value';
+                sprintValue.textContent = task.sprints || 0;
+                
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'task-sprint-btn';
+                plusBtn.textContent = '+';
+                plusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, 1));
+                
+                sprintControls.appendChild(minusBtn);
+                sprintControls.appendChild(sprintValue);
+                sprintControls.appendChild(plusBtn);
+                div.appendChild(sprintControls);
+            }
+            
+            // Checkbox (only in active buckets, not holding or wins)
+            if (bucket !== 'holding' && bucket !== 'wins') {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', () => completeTask(bucket, task.id));
+                div.appendChild(checkbox);
+            }
+            
+            // Task text
+            const textSpan = document.createElement('span');
+            textSpan.className = bucket === 'wins' ? 'win-text' : 'task-text';
+            textSpan.textContent = task.text;
+            div.appendChild(textSpan);
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-delete';
+            deleteBtn.textContent = '×';
+            deleteBtn.addEventListener('click', () => deleteTask(bucket, task.id));
+            div.appendChild(deleteBtn);
+            
+            // Drag events
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+            
+            return div;
+        }
+        
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedTask = e.target;
+            draggedBucket = e.target.dataset.bucket;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.classList.remove('drag-over');
+            });
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const list = e.currentTarget;
+            list.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetBucket = e.currentTarget.dataset.bucket;
+            
+            // Check if dropping a distraction
+            if (draggedDistraction && targetBucket === 'holding') {
+                // Convert distraction to task
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: draggedDistraction.text,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                state.tasks.holding.push(newTask);
+                
+                // Remove from distractions
+                state.distractions = state.distractions.filter(d => d.id !== draggedDistraction.id);
+                
+                // Remove related intention if exists
+                const intention = state.intentions.find(i => i.distractionId === draggedDistraction.id);
+                if (intention) {
+                    state.intentions = state.intentions.filter(i => i.distractionId !== draggedDistraction.id);
+                }
+                
+                draggedDistraction = null;
+                saveState();
+                renderTasks();
+                renderDistractions();
+            }
+            // Check if dropping a task
+            else if (draggedTask) {
+                const taskId = parseFloat(draggedTask.dataset.taskId);
+                moveTask(taskId, draggedBucket, targetBucket);
+            }
+        }
+        
+        // Move task between buckets
+        function moveTask(taskId, fromBucket, toBucket) {
+            const taskIndex = state.tasks[fromBucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[fromBucket][taskIndex];
+            state.tasks[fromBucket].splice(taskIndex, 1);
+            
+            task.bucket = toBucket;
+            
+            // Set default sprints based on bucket
+            if (toBucket !== 'holding' && toBucket !== 'wins') {
+                if (task.sprints === 0 || task.sprints === undefined) {
+                    task.sprints = TASK_WEIGHTS[toBucket] || 0;
+                }
+            }
+            
+            state.tasks[toBucket].push(task);
+            
+            saveState();
+            renderTasks();
+            updateSprintTarget();
+        }
+        
+        // Adjust sprint count for individual task
+        function adjustTaskSprints(taskId, bucket, delta) {
+            const task = state.tasks[bucket].find(t => t.id === taskId);
+            if (!task) return;
+            
+            task.sprints = Math.max(0, (task.sprints || 0) + delta);
+            
+            saveState();
+            renderTasks();
+            updateSprintTarget();
+        }
+        
+        // Complete task (move to wins)
+        function completeTask(bucket, taskId) {
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[bucket][taskIndex];
+            state.tasks[bucket].splice(taskIndex, 1);
+            
+            task.completed = true;
+            task.bucket = 'wins';
+            task.completedAt = new Date().toISOString();
+            state.tasks.wins.push(task);
+            
+            state.tasksCompleted++;
+            saveState();
+            renderTasks();
+            updateAgentMessage();
+        }
+        
+        // Delete task
+        function deleteTask(bucket, taskId) {
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            state.tasks[bucket].splice(taskIndex, 1);
+            saveState();
+            renderTasks();
+            updateSprintTarget();
+        }
+        
+        // Render all tasks
+        function renderTasks() {
+            // Render holding area
+            const holdingList = document.getElementById('holdingList');
+            holdingList.innerHTML = '';
+            state.tasks.holding.forEach(task => {
+                holdingList.appendChild(createTaskElement(task, 'holding'));
+            });
+            document.getElementById('holdingCount').textContent = state.tasks.holding.length;
+            
+            // Render buckets
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                const list = document.getElementById(`${bucket}List`);
+                list.innerHTML = '';
+                state.tasks[bucket].forEach(task => {
+                    list.appendChild(createTaskElement(task, bucket));
+                });
+                document.getElementById(`${bucket}Count`).textContent = state.tasks[bucket].length;
+            });
+            
+            // Render wins
+            const winsList = document.getElementById('winsList');
+            const winsSection = document.getElementById('winsSection');
+            
+            if (state.tasks.wins.length > 0) {
+                winsSection.classList.remove('hidden');
+                winsList.innerHTML = '';
+                state.tasks.wins.forEach(task => {
+                    winsList.appendChild(createTaskElement(task, 'wins'));
+                });
+            } else {
+                winsSection.classList.add('hidden');
+            }
+        }
+        
+        // Initialize drag/drop on all task lists
+        function initDragDrop() {
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.addEventListener('dragover', handleDragOver);
+                list.addEventListener('dragleave', handleDragLeave);
+                list.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        // Update sprint target calculation
+        function updateSprintTarget() {
+            let totalTaskSprints = 0;
+            
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    totalTaskSprints += task.sprints || 0;
+                });
+            });
+            
+            state.plannedSprints = state.baselineSprints + totalTaskSprints;
+            document.getElementById('sprintTarget').textContent = state.plannedSprints;
+            saveState();
+        }
+
+        // Kept for compatibility - now uses sprint target
+        function calculatePlannedSprints() {
+            updateSprintTarget();
+        }
+
+        // ============================================
+        // DISTRACTION MANAGEMENT
+        // ============================================
+        function addDistraction() {
+            const input = document.getElementById('distractionInput');
+            const text = input.value.trim();
+            const isIntention = document.getElementById('intentionCheck').checked;
+            
+            if (!text) return;
+            
+            const distraction = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            state.distractions.push(distraction);
+            state.distractionCount++;
+            
+            if (isIntention) {
+                state.intentions.push({
+                    id: Date.now(),
+                    distractionId: distraction.id,
+                    text: text,
+                    declared: new Date().toISOString(),
+                    completed: false
+                });
+            }
+            
+            input.value = '';
+            document.getElementById('intentionCheck').checked = false;
+            
+            saveState();
+            renderDistractions();
+            updateAgentMessage();
+        }
+
+        function removeDistraction(id) {
+            state.distractions = state.distractions.filter(d => d.id !== id);
+            
+            // Check if this was an intention
+            const intention = state.intentions.find(i => i.distractionId === id);
+            if (intention) {
+                intention.completed = true;
+            }
+            
+            saveState();
+            renderDistractions();
+        }
+
+        function renderDistractions() {
+            const list = document.getElementById('distractionList');
+            document.getElementById('distractionCount').textContent = state.distractions.length;
+            
+            list.innerHTML = '';
+            state.distractions.forEach(d => {
+                const isIntention = state.intentions.some(i => i.distractionId === d.id);
+                
+                const div = document.createElement('div');
+                div.className = `distraction-item ${isIntention ? 'is-intention' : ''}`;
+                div.draggable = true;
+                div.dataset.distractionId = d.id;
+                
+                // Drag handle
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'task-drag-handle';
+                dragHandle.textContent = '⋮⋮';
+                div.appendChild(dragHandle);
+                
+                // Intention badge
+                if (isIntention) {
+                    const badge = document.createElement('span');
+                    badge.className = 'intention-badge';
+                    badge.textContent = '💪';
+                    div.appendChild(badge);
+                }
+                
+                // Distraction text
+                const textDiv = document.createElement('div');
+                textDiv.className = 'distraction-text';
+                textDiv.textContent = d.text;
+                div.appendChild(textDiv);
+                
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'distraction-delete';
+                deleteBtn.textContent = '✕';
+                deleteBtn.addEventListener('click', () => removeDistraction(d.id));
+                div.appendChild(deleteBtn);
+                
+                // Drag events
+                div.addEventListener('dragstart', (e) => {
+                    draggedDistraction = d;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                div.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                });
+                
+                list.appendChild(div);
+            });
+        }
+        
+        let draggedDistraction = null;
+
+        // ============================================
+        // AI AGENT
+        // ============================================
+        function updateAgentMessage() {
+            const messages = {
+                supportive: {
+                    start: "You've got this! Take it one sprint at a time.",
+                    progress: `Great work! ${state.sprintCount} sprints completed. Keep the momentum going.`,
+                    struggling: `${state.distractionCount} distractions so far. That's okay. Just park them and refocus.`,
+                    winning: `You're crushing it today! ${state.tasksCompleted} tasks done. Stay focused.`
+                },
+                balanced: {
+                    start: "Focus on the next sprint. Everything else can wait.",
+                    progress: `${state.sprintCount}/${state.plannedSprints} sprints. Stay on pace.`,
+                    struggling: `${state.distractionCount} distractions. Log them, then get back to work.`,
+                    winning: `${state.sprintCount} sprints, ${state.tasksCompleted} tasks. Good pace.`
+                },
+                tough: {
+                    start: "Stop thinking. Start the timer.",
+                    progress: `${state.sprintCount}/${state.plannedSprints}. You're behind. Move faster.`,
+                    struggling: `${state.distractionCount} distractions already? Focus or quit.`,
+                    winning: `${state.sprintCount} sprints. Don't get cocky. Finish strong.`
+                }
+            };
+
+            const level = state.toughLoveLevel;
+            let message = messages[level].start;
+
+            if (state.sprintCount > 0) {
+                if (state.sprintCount >= state.plannedSprints) {
+                    message = messages[level].winning;
+                } else if (state.distractionCount > 5) {
+                    message = messages[level].struggling;
+                } else {
+                    message = messages[level].progress;
+                }
+            }
+
+            document.getElementById('agentText').textContent = message;
+        }
+
+        // ============================================
+        // GRADING
+        // ============================================
+        function calculateGrade() {
+            const sprintScore = Math.min((state.sprintCount / state.plannedSprints) * 100, 100);
+            const distractionPenalty = state.distractionCount * 5;
+            const finalScore = Math.max(sprintScore - distractionPenalty, 0);
+            
+            if (finalScore >= 97) return 'A+';
+            if (finalScore >= 93) return 'A';
+            if (finalScore >= 90) return 'A-';
+            if (finalScore >= 87) return 'B+';
+            if (finalScore >= 83) return 'B';
+            if (finalScore >= 80) return 'B-';
+            if (finalScore >= 77) return 'C+';
+            if (finalScore >= 73) return 'C';
+            if (finalScore >= 70) return 'C-';
+            if (finalScore >= 67) return 'D+';
+            if (finalScore >= 63) return 'D';
+            if (finalScore >= 60) return 'D-';
+            return 'F';
+        }
+
+        function updateCurrentGrade() {
+            const grade = calculateGrade();
+            document.getElementById('currentGrade').textContent = grade;
+        }
+
+        // ============================================
+        // END OF DAY
+        // ============================================
+        function showEndOfDayModal() {
+            document.getElementById('eodSprints').textContent = state.sprintCount;
+            document.getElementById('eodPlanned').textContent = state.plannedSprints;
+            document.getElementById('eodTasks').textContent = state.tasksCompleted;
+            document.getElementById('eodDistractions').textContent = state.distractionCount;
+            
+            const autoGrade = calculateGrade();
+            document.getElementById('systemGrade').textContent = autoGrade;
+            document.getElementById('userGrade').textContent = autoGrade;
+            
+            // Select the auto grade button
+            document.querySelectorAll('.grade-btn').forEach(btn => {
+                if (btn.dataset.grade === autoGrade) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            document.getElementById('eodModal').classList.remove('hidden');
+        }
+
+        function completeDay() {
+            const today = new Date().toDateString();
+            const autoGrade = calculateGrade();
+            const userGrade = document.getElementById('userGrade').textContent;
+            const reflection = document.getElementById('reflectionInput').value;
+            
+            // Move all unfinished tasks to holding area for tomorrow
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    task.bucket = 'holding';
+                    task.sprints = 0; // Reset sprint count
+                    state.tasks.holding.push(task);
+                });
+                state.tasks[bucket] = []; // Clear the bucket
+            });
+            
+            // Convert all distractions to tasks in holding area
+            state.distractions.forEach(distraction => {
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: distraction.text,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                state.tasks.holding.push(newTask);
+            });
+            
+            // Clear distractions and intentions
+            state.distractions = [];
+            state.intentions = [];
+            
+            // Clear today's wins for fresh start tomorrow
+            state.tasks.wins = [];
+            
+            const report = {
+                date: today,
+                sprintCount: state.sprintCount,
+                plannedSprints: state.plannedSprints,
+                distractionCount: state.distractionCount,
+                tasksCompleted: state.tasksCompleted,
+                meetingMinutes: state.meetingMinutes,
+                autoGrade: autoGrade,
+                userGrade: userGrade,
+                gradesMatch: autoGrade === userGrade,
+                reflection: reflection,
+                score: Math.min((state.sprintCount / state.plannedSprints) * 100, 100),
+                timestamp: new Date().toISOString()
+            };
+            
+            const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
+            history.push(report);
+            localStorage.setItem('focushub_history', JSON.stringify(history));
+            
+            // Save state so tasks persist in holding for tomorrow
+            saveState();
+            
+            localStorage.setItem('focushub_session_state', 'ended');
+            
+            window.location.href = 'home.html';
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function renderAll() {
+            renderTasks();
+            renderDistractions();
+            updateCurrentGrade();
+            
+            document.getElementById('sprintProgress').textContent = state.sprintCount;
+            document.getElementById('sprintTarget').textContent = state.plannedSprints;
+            document.getElementById('taskProgress').textContent = state.tasksCompleted;
+            document.getElementById('breaksProgress').textContent = state.breaksCount;
+            document.getElementById('distractionProgress').textContent = state.distractionCount;
+            
+            // Set energy display
+            const energyEl = document.getElementById('energyDisplay');
+            energyEl.textContent = state.energyLevel.toUpperCase();
+            energyEl.className = 'energy-' + state.energyLevel;
+            
+            // Set recommended timer button
+            const recommendedDuration = ENERGY_DURATIONS[state.energyLevel];
+            document.querySelectorAll('.duration-btn').forEach(btn => {
+                if (parseInt(btn.dataset.duration) === recommendedDuration) {
+                    btn.classList.add('recommended');
+                } else {
+                    btn.classList.remove('recommended');
+                }
+            });
+
+            // Set tough love active button
+            document.querySelectorAll('.tough-love-btn').forEach(btn => {
+                if (btn.dataset.level === state.toughLoveLevel) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize app
+        init();
+
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        const themeToggle = document.getElementById('themeToggle');
+        const appLogo = document.getElementById('appLogo');
+        
+        function initTheme() {
+            const savedTheme = localStorage.getItem('focushub_theme') || 'light';
+            setTheme(savedTheme);
+        }
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('focushub_theme', theme);
+            
+            const appLogo = document.getElementById('appLogo');
+            const startDayLogo = document.getElementById('startDayLogo');
+            
+            // Update toggle button and logos
+            if (theme === 'dark') {
+                themeToggle.textContent = '🌙 Dark';
+                if (appLogo) appLogo.src = 'logo_dark.svg'; // Orange icon + WHITE text
+                if (startDayLogo) startDayLogo.src = 'logo_dark.svg';
+            } else {
+                themeToggle.textContent = '☀️ Light';
+                if (appLogo) appLogo.src = 'logo_light.svg'; // Orange icon + BLACK text
+                if (startDayLogo) startDayLogo.src = 'logo_light.svg';
+            }
+        }
+        
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        initTheme();
+
+        // ============================================
+        // HEADER SCROLL & TIMER
+        // ============================================
+        const appHeader = document.querySelector('.app-header');
+        const headerTimer = document.getElementById('headerTimer');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                appHeader.classList.add('scrolled');
+                updateHeaderTimer();
+            } else {
+                appHeader.classList.remove('scrolled');
+            }
+        });
+        
+        function updateHeaderTimer() {
+            if (state.timer.isRunning) {
+                const minutes = Math.floor(state.timer.timeLeft / 60);
+                const seconds = state.timer.timeLeft % 60;
+                headerTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                headerTimer.textContent = '';
+            }
+        }
+
+        // ============================================
+        // MORNING REFLECTION
+        // ============================================
+        const morningModal = document.getElementById('morningModal');
+        const closeMorningBtn = document.getElementById('closeMorningBtn');
+        const generateReflection = document.getElementById('generateReflection');
+        const reflectionContent = document.getElementById('reflectionContent');
+        
+        const reflections = [
+            {
+                text: "The day stretches before you like an empty canvas. What you choose to place on it reflects not just your plans, but your character. Discipline is not a burden placed upon you by others—it is the gift you give to your future self. Today, you have the power to honor your commitments or to excuse your failures. Choose deliberately.",
+                attribution: "On Discipline and Duty"
+            },
+            {
+                text: "You will be tempted to drift. Your attention will be pulled in a dozen directions. This is not a moral failing—this is the nature of the mind. But you are not merely your impulses. You possess the capacity to redirect, to refocus, to persist. Use it. The scattered mind achieves nothing. The focused mind moves mountains.",
+                attribution: "On Focus and Perseverance"
+            },
+            {
+                text: "Today, you will face resistance. The voice that says 'later' or 'not now' or 'this doesn't matter.' That voice is not wisdom. It is entropy. Progress requires you to act against comfort, against ease, against the path of least resistance. This is not punishment. This is the price of growth.",
+                attribution: "On Resistance and Growth"
+            },
+            {
+                text: "You are not here to feel productive. You are here to produce. Feelings follow action, not the other way around. Start before you feel ready. Work before you feel motivated. The path forward is not paved with perfect conditions—it is built by imperfect effort, repeated daily.",
+                attribution: "On Action Over Feeling"
+            },
+            {
+                text: "Each task before you is an opportunity to practice integrity. Not the integrity of grand gestures, but the integrity of small promises kept. When you say you will do something, and then you do it, you build trust with yourself. This is the foundation of all achievement.",
+                attribution: "On Integrity and Trust"
+            },
+            {
+                text: "The work you avoid today does not disappear—it compounds. Every delay adds weight to tomorrow's burden. But the inverse is also true: every task completed today lightens tomorrow's load. You control which future you create. Choose wisely.",
+                attribution: "On Time and Consequence"
+            },
+            {
+                text: "Excellence is not a destination. It is a practice. Today, you will not achieve perfection. You will achieve effort. String enough days of effort together, and you will look back surprised at what you have built. But first, you must begin.",
+                attribution: "On Excellence Through Practice"
+            },
+            {
+                text: "Your energy is finite. Your attention is finite. Every distraction is not merely a loss of time—it is a theft of potential. Guard your focus as you would guard your most valuable possession. Because it is.",
+                attribution: "On Stewardship of Attention"
+            },
+            {
+                text: "Today, you may fail. You may fall short of your target, succumb to distraction, or lose focus. This does not make you a failure. It makes you human. What matters is not perfection, but the choice to return tomorrow and try again. Persistence outlasts talent.",
+                attribution: "On Failure and Persistence"
+            },
+            {
+                text: "The tasks before you are not obstacles to your life. They are your life. This moment, this work, this effort—this is not the preamble to something greater. This is it. Be here. Do this. Make it count.",
+                attribution: "On Presence and Purpose"
+            }
+        ];
+        
+        function showMorningReflection() {
+            // Check if already shown today
+            const today = new Date().toDateString();
+            const lastShown = localStorage.getItem('focushub_morning_reflection_date');
+            
+            if (lastShown === today) {
+                return; // Already shown today
+            }
+            
+            // Load or generate reflection
+            loadReflection();
+            morningModal.classList.remove('hidden');
+        }
+        
+        function loadReflection() {
+            const savedReflection = localStorage.getItem('focushub_current_reflection');
+            let reflection;
+            
+            if (savedReflection) {
+                reflection = JSON.parse(savedReflection);
+            } else {
+                reflection = reflections[Math.floor(Math.random() * reflections.length)];
+                localStorage.setItem('focushub_current_reflection', JSON.stringify(reflection));
+            }
+            
+            reflectionContent.innerHTML = `
+                <p class="reflection-text">${reflection.text}</p>
+                <p class="reflection-attribution">— ${reflection.attribution}</p>
+            `;
+        }
+        
+        function generateNewReflection() {
+            const reflection = reflections[Math.floor(Math.random() * reflections.length)];
+            localStorage.setItem('focushub_current_reflection', JSON.stringify(reflection));
+            reflectionContent.innerHTML = `
+                <p class="reflection-text">${reflection.text}</p>
+                <p class="reflection-attribution">— ${reflection.attribution}</p>
+            `;
+        }
+        
+        function closeMorningReflection() {
+            morningModal.classList.add('hidden');
+            const today = new Date().toDateString();
+            localStorage.setItem('focushub_morning_reflection_date', today);
+        }
+        
+        closeMorningBtn.addEventListener('click', closeMorningReflection);
+        generateReflection.addEventListener('click', generateNewReflection);
+        
+        // Show morning reflection after day starts (if not shown today)
+        setTimeout(() => {
+            if (state.sessionState !== 'not_started') {
+                showMorningReflection();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

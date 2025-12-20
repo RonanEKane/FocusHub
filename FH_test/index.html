@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - The Productivity OS for ADHD Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Cookie-based routing for returning users
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i=0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+        
+        // Redirect returning users to home dashboard
+        if (getCookie('focushub_returning_user') === 'true') {
+            window.location.href = 'home.html';
+        }
+    </script>
+</head>
+<body class="landing-page">
+    <header class="landing-header">
+        <div class="container">
+            <div class="header-content">
+                <img src="logo.svg" alt="FocusHub" class="logo-large" style="height: 56px; width: auto;">
+                <a href="app.html" class="btn btn-primary">Launch App</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Built for Brains That Wander, but Still Want to Win</h1>
+            <p class="tagline">The only productivity system that doesn't lie to you about your ADHD</p>
+            
+            <p class="hero-description">
+                Stop fighting your brain. FocusHub gives you Swiss-precision task management, 
+                realistic sprint tracking, and an AI agent that actually understands executive dysfunction.
+                No more aspirational garbage. Just results.
+            </p>
+
+            <div class="cta-buttons">
+                <a href="app.html" class="btn btn-primary btn-large">Start Working</a>
+                <a href="#features" class="btn btn-secondary btn-large">See Features</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">What Makes FocusHub Different</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Baseline Sprint Targets</h3>
+                    <p>Set your minimum daily sprints, then let task weights auto-calculate the rest. No more overwhelm from unrealistic goals.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Energy-Adaptive Timers</h3>
+                    <p>Low energy? 15-minute sprints. Crushing it? 30 minutes. The system adapts to your actual state, not fantasy productivity.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">♟️</div>
+                    <h3>Strategic Task Buckets</h3>
+                    <p>Urgent (1 sprint), Deep Work (2 sprints), Strategic (3 sprints). Weighted planning that reflects real effort.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Mission Control Dashboard</h3>
+                    <p>Technical-grade data visualization. See your total sprints, day streak, focus score, and Intention vs. Reality gap.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Tough Love AI Agent</h3>
+                    <p>Choose Supportive, Balanced, or Tough coaching. Real-time feedback that doesn't sugarcoat your distraction patterns.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Button-Based Self-Grading</h3>
+                    <p>End-of-day grades (A+ to F) using actual buttons. Compare your grade to the system's calculation. Build self-awareness.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About the Author Section -->
+    <section class="author-section">
+        <div class="container">
+            <h2 class="section-title">About the Author</h2>
+            
+            <div class="author-content">
+                <img src="ronan-headshot.jpg" alt="Ronan E. Kane" class="author-photo">
+                
+                <div class="author-text">
+                    <h3>Ronan E. Kane</h3>
+                    <p class="author-subtitle">Author of "AI for ADHD & Anxiety"</p>
+                    
+                    <div class="author-bio">
+                        <p>Ronan E. Kane writes for people whose brains don't cooperate with standard productivity advice.</p>
+                        
+                        <p>He has ADHD. He tried the planners, the apps, the morning routines. Most of it didn't work because it assumed his brain could estimate time, start tasks without massive resistance, and maintain systems when he missed a day.</p>
+                        
+                        <p>So he built different systems. External scaffolding. AI as assistive technology. Tools that survive missed days and bad weeks.</p>
+                        
+                        <p><strong>You won't find inspiration here. You'll find instructions.</strong></p>
+                    </div>
+                    
+                    <a href="https://www.amazon.com/AI-ADHD-Anxiety-Overthinking-Finishing-ebook/dp/B0G511WKVS" target="_blank" class="book-link">
+                        📖 Read the Book on Amazon
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing-section">
+        <div class="container">
+            <h2 class="section-title">Free. Open Source. No Subscription Trap.</h2>
+            <p class="pricing-subtitle">
+                This is a tool, not a business model. Download it. Use it. Modify it. 
+                Built by someone with ADHD, for people with ADHD.
+            </p>
+            
+            <div class="pricing-cta">
+                <a href="app.html" class="btn btn-primary btn-xl">Start Using FocusHub</a>
+                <p class="pricing-note">No account required. Data stays in your browser.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="container">
+            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
+            <p>Created by Ronan E. Kane</p>
+        </div>
+    </footer>
+</body>
+</html>
