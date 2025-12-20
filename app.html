@@ -55,15 +55,21 @@
     <div id="mainApp" class="hidden">
         <!-- Header -->
         <header class="app-header">
-            <div class="logo-section">
-                <img id="appLogo" src="logo.svg" alt="FocusHub" class="logo-img" style="height: 48px; width: auto;">
-                <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
-            </div>
-            
-            <div class="header-controls">
-                <a href="home.html" class="btn-home">🏠 Home</a>
-                <button id="themeToggle" class="btn-home">☀️ Light</button>
-                <button id="endDayBtn" class="btn-end-day">END DAY</button>
+            <div class="app-header-content">
+                <div class="logo-section">
+                    <img id="appLogo" src="FocusHub_vertnorm.png" alt="FocusHub" class="logo-img">
+                    <p class="tagline">Built for Brains That Wander,<br>but Still Want to Win</p>
+                </div>
+                
+                <div class="header-middle" id="headerTimer">
+                    <!-- Timer shows here when scrolled -->
+                </div>
+                
+                <div class="header-controls">
+                    <a href="home.html" class="btn-home">🏠 Home</a>
+                    <button id="themeToggle" class="btn-home">☀️ Light</button>
+                    <button id="endDayBtn" class="btn-end-day">END DAY</button>
+                </div>
             </div>
         </header>
 
@@ -617,6 +623,11 @@
             
             const progress = ((state.timer.duration - state.timer.timeLeft) / state.timer.duration) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update header timer if scrolled
+            if (document.querySelector('.app-header').classList.contains('scrolled')) {
+                updateHeaderTimer();
+            }
         }
 
         function pauseTimer() {
@@ -843,9 +854,40 @@
         function handleDrop(e) {
             e.preventDefault();
             const targetBucket = e.currentTarget.dataset.bucket;
-            const taskId = parseFloat(draggedTask.dataset.taskId);
             
-            moveTask(taskId, draggedBucket, targetBucket);
+            // Check if dropping a distraction
+            if (draggedDistraction && targetBucket === 'holding') {
+                // Convert distraction to task
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: draggedDistraction.text,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                state.tasks.holding.push(newTask);
+                
+                // Remove from distractions
+                state.distractions = state.distractions.filter(d => d.id !== draggedDistraction.id);
+                
+                // Remove related intention if exists
+                const intention = state.intentions.find(i => i.distractionId === draggedDistraction.id);
+                if (intention) {
+                    state.intentions = state.intentions.filter(i => i.distractionId !== draggedDistraction.id);
+                }
+                
+                draggedDistraction = null;
+                saveState();
+                renderTasks();
+                renderDistractions();
+            }
+            // Check if dropping a task
+            else if (draggedTask) {
+                const taskId = parseFloat(draggedTask.dataset.taskId);
+                moveTask(taskId, draggedBucket, targetBucket);
+            }
         }
         
         // Move task between buckets
@@ -1032,17 +1074,58 @@
             const list = document.getElementById('distractionList');
             document.getElementById('distractionCount').textContent = state.distractions.length;
             
-            list.innerHTML = state.distractions.map(d => {
+            list.innerHTML = '';
+            state.distractions.forEach(d => {
                 const isIntention = state.intentions.some(i => i.distractionId === d.id);
-                return `
-                    <div class="distraction-item ${isIntention ? 'is-intention' : ''}">
-                        ${isIntention ? '<span class="intention-badge">💪</span>' : ''}
-                        <div class="distraction-text">${d.text}</div>
-                        <button class="distraction-delete" onclick="removeDistraction(${d.id})">✕</button>
-                    </div>
-                `;
-            }).join('');
+                
+                const div = document.createElement('div');
+                div.className = `distraction-item ${isIntention ? 'is-intention' : ''}`;
+                div.draggable = true;
+                div.dataset.distractionId = d.id;
+                
+                // Drag handle
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'task-drag-handle';
+                dragHandle.textContent = '⋮⋮';
+                div.appendChild(dragHandle);
+                
+                // Intention badge
+                if (isIntention) {
+                    const badge = document.createElement('span');
+                    badge.className = 'intention-badge';
+                    badge.textContent = '💪';
+                    div.appendChild(badge);
+                }
+                
+                // Distraction text
+                const textDiv = document.createElement('div');
+                textDiv.className = 'distraction-text';
+                textDiv.textContent = d.text;
+                div.appendChild(textDiv);
+                
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'distraction-delete';
+                deleteBtn.textContent = '✕';
+                deleteBtn.addEventListener('click', () => removeDistraction(d.id));
+                div.appendChild(deleteBtn);
+                
+                // Drag events
+                div.addEventListener('dragstart', (e) => {
+                    draggedDistraction = d;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                div.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                });
+                
+                list.appendChild(div);
+            });
         }
+        
+        let draggedDistraction = null;
 
         // ============================================
         // AI AGENT
@@ -1144,6 +1227,33 @@
             const userGrade = document.getElementById('userGrade').textContent;
             const reflection = document.getElementById('reflectionInput').value;
             
+            // Move all unfinished tasks to holding area for tomorrow
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    task.bucket = 'holding';
+                    task.sprints = 0; // Reset sprint count
+                    state.tasks.holding.push(task);
+                });
+                state.tasks[bucket] = []; // Clear the bucket
+            });
+            
+            // Convert all distractions to tasks in holding area
+            state.distractions.forEach(distraction => {
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: distraction.text,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                state.tasks.holding.push(newTask);
+            });
+            
+            // Clear distractions and intentions
+            state.distractions = [];
+            state.intentions = [];
+            
             const report = {
                 date: today,
                 sprintCount: state.sprintCount,
@@ -1162,6 +1272,9 @@
             const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
             history.push(report);
             localStorage.setItem('focushub_history', JSON.stringify(history));
+            
+            // Save state so tasks persist in holding for tomorrow
+            saveState();
             
             localStorage.setItem('focushub_session_state', 'ended');
             
@@ -1224,11 +1337,15 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('focushub_theme', theme);
             
-            // Update toggle button (logo.svg works in both modes)
+            const appLogo = document.getElementById('appLogo');
+            
+            // Update toggle button and logo
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
+                appLogo.src = 'FocusHub_vertinv.png'; // White text for dark mode
             } else {
                 themeToggle.textContent = '☀️ Light';
+                appLogo.src = 'FocusHub_vertnorm.png'; // Black text for light mode
             }
         }
         
@@ -1240,6 +1357,31 @@
         
         themeToggle.addEventListener('click', toggleTheme);
         initTheme();
+
+        // ============================================
+        // HEADER SCROLL & TIMER
+        // ============================================
+        const appHeader = document.querySelector('.app-header');
+        const headerTimer = document.getElementById('headerTimer');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                appHeader.classList.add('scrolled');
+                updateHeaderTimer();
+            } else {
+                appHeader.classList.remove('scrolled');
+            }
+        });
+        
+        function updateHeaderTimer() {
+            if (state.timer.isRunning) {
+                const minutes = Math.floor(state.timer.timeLeft / 60);
+                const seconds = state.timer.timeLeft % 60;
+                headerTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                headerTimer.textContent = '';
+            }
+        }
 
         // ============================================
         // MORNING REFLECTION
