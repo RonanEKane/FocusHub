@@ -236,8 +236,8 @@ code, .monospace {
     background: var(--text-primary);
     color: var(--card-white);
     padding: 0.75rem 2rem;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     font-family: 'Roboto Mono', monospace;
     font-size: 11px;
@@ -249,6 +249,25 @@ code, .monospace {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.status-middle {
+    display: flex;
+    justify-content: center;
+}
+
+.dashboard-timer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    letter-spacing: 1px;
+}
+
+.dashboard-timer .timer-icon {
+    font-size: 20px;
 }
 
 .status-logo {
@@ -264,6 +283,7 @@ code, .monospace {
     display: flex;
     align-items: center;
     gap: 2rem;
+    justify-content: flex-end;
 }
 
 .status-indicator {

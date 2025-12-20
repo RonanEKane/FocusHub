@@ -10,8 +10,13 @@
     <!-- Technical Status Bar -->
     <div class="status-bar">
         <div class="status-left">
-            <img src="FocusHub_vertinv.svg" alt="FocusHub" class="status-logo" style="height: 32px; width: auto;">
-            <span class="status-app-name">FOCUSHUB</span>
+            <img id="dashboardLogo" src="logo_light.svg" alt="FocusHub" class="status-logo" style="height: 80px; width: auto;">
+        </div>
+        <div class="status-middle">
+            <div id="dashboardTimer" class="dashboard-timer hidden">
+                <span class="timer-icon">⏱</span>
+                <span id="dashboardTimerText">00:00</span>
+            </div>
         </div>
         <div class="status-right">
             <div class="status-indicator">
@@ -226,6 +231,76 @@
             }
         }
 
+        // Theme detection and logo swap
+        function initTheme() {
+            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const dashboardLogo = document.getElementById('dashboardLogo');
+            
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                dashboardLogo.src = 'logo_dark.svg';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                dashboardLogo.src = 'logo_light.svg';
+            }
+        }
+
+        // Check session state and update button
+        function checkSessionState() {
+            const sessionState = localStorage.getItem('focushub_session_state');
+            const dailyStats = localStorage.getItem('focushub_daily_stats');
+            const button = document.querySelector('.primary-action');
+            
+            // If session is active (not ended and has data)
+            if (sessionState !== 'ended' && dailyStats) {
+                const stats = JSON.parse(dailyStats);
+                const today = new Date().toDateString();
+                
+                // Check if stats are from today
+                if (stats.date === today) {
+                    button.innerHTML = `
+                        <span class="action-icon">[ &gt; ]</span>
+                        <span class="action-text">RETURN TO WORKSPACE</span>
+                    `;
+                }
+            }
+        }
+
+        // Update dashboard timer display
+        function updateDashboardTimer() {
+            const savedTimer = localStorage.getItem('focushub_timer');
+            if (!savedTimer) {
+                document.getElementById('dashboardTimer').classList.add('hidden');
+                return;
+            }
+            
+            const timerData = JSON.parse(savedTimer);
+            
+            if (timerData.isRunning && timerData.timeLeft > 0) {
+                // Calculate current time left
+                const elapsed = Math.floor((Date.now() - timerData.lastUpdated) / 1000);
+                const timeLeft = Math.max(0, timerData.timeLeft - elapsed);
+                
+                if (timeLeft > 0) {
+                    const mins = Math.floor(timeLeft / 60);
+                    const secs = timeLeft % 60;
+                    document.getElementById('dashboardTimerText').textContent = 
+                        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    document.getElementById('dashboardTimer').classList.remove('hidden');
+                    
+                    // Update every second
+                    setTimeout(updateDashboardTimer, 1000);
+                } else {
+                    document.getElementById('dashboardTimer').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('dashboardTimer').classList.add('hidden');
+            }
+        }
+
+        initTheme();
+        checkSessionState();
+        updateDashboardTimer();
         loadStats();
     </script>
 </body>

@@ -8,13 +8,15 @@
 </head>
 <body>
     <header class="app-header">
-        <div class="logo-section">
-            <img src="FocusHub_vertinv.png" alt="FocusHub" style="height: 40px; width: auto;">
-        </div>
-        
-        <div class="header-controls">
-            <a href="index.html" class="btn-home">🏠 Home</a>
-            <a href="app.html" class="btn btn-primary">Launch App</a>
+        <div class="app-header-content">
+            <div class="logo-section">
+                <img id="howToLogo" src="logo_light.svg" alt="FocusHub" class="logo-img" style="height: 60px; width: auto;">
+            </div>
+            
+            <div class="header-controls">
+                <a href="home.html" class="btn-home">📊 Dashboard</a>
+                <a href="app.html" id="howToWorkspaceBtn" class="btn btn-primary">Launch App</a>
+            </div>
         </div>
     </header>
 
@@ -132,11 +134,11 @@
     </div>
 
     <footer class="app-footer">
-        <a href="index.html">Home</a>
+        <a href="app.html">🎯 Workspace</a>
         <span class="footer-separator">|</span>
-        <a href="app.html">Launch App</a>
+        <a href="home.html">📊 Dashboard</a>
         <span class="footer-separator">|</span>
-        <a href="faq.html">FAQ</a>
+        <a href="faq.html">💬 Support</a>
     </footer>
 
     <style>
@@ -191,5 +193,44 @@
             font-weight: 700;
         }
     </style>
+
+    <script>
+        // Theme detection and logo swap
+        function initTheme() {
+            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const howToLogo = document.getElementById('howToLogo');
+            
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (howToLogo) howToLogo.src = 'logo_dark.svg';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (howToLogo) howToLogo.src = 'logo_light.svg';
+            }
+        }
+
+        // Check session state and update button
+        function checkSessionState() {
+            const sessionState = localStorage.getItem('focushub_session_state');
+            const dailyStats = localStorage.getItem('focushub_daily_stats');
+            const button = document.getElementById('howToWorkspaceBtn');
+            
+            if (!button) return;
+            
+            // If session is active (not ended and has data)
+            if (sessionState !== 'ended' && dailyStats) {
+                const stats = JSON.parse(dailyStats);
+                const today = new Date().toDateString();
+                
+                // Check if stats are from today
+                if (stats.date === today) {
+                    button.textContent = 'Return to Workspace';
+                }
+            }
+        }
+
+        initTheme();
+        checkSessionState();
+    </script>
 </body>
 </html>

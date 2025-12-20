@@ -418,6 +418,7 @@
         // ============================================
         function init() {
             loadState();
+            restoreTimer();
             setupEventListeners();
             initDragDrop();
             checkSessionState();
@@ -465,6 +466,50 @@
             }
         }
 
+        function restoreTimer() {
+            const savedTimer = localStorage.getItem('focushub_timer');
+            if (!savedTimer) return;
+            
+            const timerData = JSON.parse(savedTimer);
+            
+            // Check if timer was running
+            if (timerData.isRunning && timerData.timeLeft > 0) {
+                // Calculate elapsed time since last save
+                const elapsed = Math.floor((Date.now() - timerData.lastUpdated) / 1000);
+                const adjustedTimeLeft = Math.max(0, timerData.timeLeft - elapsed);
+                
+                if (adjustedTimeLeft > 0) {
+                    // Restore timer state
+                    state.timer.duration = timerData.duration;
+                    state.timer.timeLeft = adjustedTimeLeft;
+                    state.timer.isRunning = true;
+                    state.timer.timerType = timerData.timerType;
+                    
+                    // Update UI
+                    document.getElementById('timerSetup').classList.add('hidden');
+                    document.getElementById('timerActive').classList.remove('hidden');
+                    
+                    if (timerData.timerType === 'focus') {
+                        document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+                    } else {
+                        document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
+                    }
+                    
+                    // Resume countdown
+                    state.timer.interval = setInterval(updateTimer, 1000);
+                    renderTimer();
+                } else {
+                    // Timer expired while away, complete it
+                    if (timerData.timerType === 'focus') {
+                        state.sprintCount++;
+                    } else {
+                        state.breaksCount++;
+                    }
+                    saveState();
+                }
+            }
+        }
+
         function saveState() {
             const today = new Date().toDateString();
             
@@ -482,6 +527,16 @@
             localStorage.setItem('focushub_distractions', JSON.stringify(state.distractions));
             localStorage.setItem('focushub_intentions', JSON.stringify(state.intentions));
             localStorage.setItem('focushub_tough_love', state.toughLoveLevel);
+            
+            // Save timer state for persistence across pages
+            const timerState = {
+                timeLeft: state.timer.timeLeft,
+                duration: state.timer.duration,
+                isRunning: state.timer.isRunning,
+                timerType: state.timer.timerType,
+                lastUpdated: Date.now()
+            };
+            localStorage.setItem('focushub_timer', JSON.stringify(timerState));
         }
 
         function checkSessionState() {
@@ -619,6 +674,11 @@
             if (state.timer.timeLeft > 0) {
                 state.timer.timeLeft--;
                 renderTimer();
+                
+                // Save timer state every 5 seconds for persistence
+                if (state.timer.timeLeft % 5 === 0) {
+                    saveState();
+                }
             } else {
                 completeTimer();
             }
