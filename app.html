@@ -10,7 +10,7 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img src="FocusHub_vertinv.png" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
+            <img id="startDayLogo" src="FocusHub_hori_light.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
             <h1 class="start-title">Ready to Win Today?</h1>
             <p class="start-subtitle">Built for Brains That Wander, but Still Want to Win</p>
 
@@ -57,7 +57,7 @@
         <header class="app-header">
             <div class="app-header-content">
                 <div class="logo-section">
-                    <img id="appLogo" src="FocusHub_vertnorm.png" alt="FocusHub" class="logo-img">
+                    <img id="appLogo" src="logo_light.svg" alt="FocusHub" class="logo-img">
                     <p class="tagline">Built for Brains That Wander,<br>but Still Want to Win</p>
                 </div>
                 
@@ -1338,14 +1338,17 @@
             localStorage.setItem('focushub_theme', theme);
             
             const appLogo = document.getElementById('appLogo');
+            const startDayLogo = document.getElementById('startDayLogo');
             
-            // Update toggle button and logo
+            // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                appLogo.src = 'FocusHub_vertinv.png'; // White text for dark mode
+                if (appLogo) appLogo.src = 'logo_dark.svg'; // Orange icon + WHITE text
+                if (startDayLogo) startDayLogo.src = 'logo_dark.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
-                appLogo.src = 'FocusHub_vertnorm.png'; // Black text for light mode
+                if (appLogo) appLogo.src = 'logo_light.svg'; // Orange icon + BLACK text
+                if (startDayLogo) startDayLogo.src = 'logo_light.svg';
             }
         }
         

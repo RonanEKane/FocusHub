@@ -732,9 +732,9 @@ code, .monospace {
 }
 
 .app-header-content {
-    max-width: 1800px;
+    max-width: 2000px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -749,13 +749,13 @@ code, .monospace {
 }
 
 .logo-section .logo-img {
-    height: 80px;
+    height: 60px;
     width: auto;
     transition: all 0.3s;
 }
 
 .app-header.scrolled .logo-img {
-    height: 50px;
+    height: 40px;
 }
 
 .logo-section .tagline {
@@ -823,11 +823,11 @@ code, .monospace {
 }
 
 .app-container {
-    max-width: 1800px;
+    max-width: 2000px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
+    padding: 2rem 1rem;
     display: grid;
-    grid-template-columns: 1fr 550px;
+    grid-template-columns: 1fr 600px;
     gap: 2rem;
 }
 
