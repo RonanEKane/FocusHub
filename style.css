@@ -719,7 +719,7 @@ code, .monospace {
 .app-header {
     background: var(--card-white);
     border-bottom: 2px solid var(--border-light);
-    padding: 1.5rem 0;
+    padding: 1rem 0;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -728,7 +728,7 @@ code, .monospace {
 
 .app-header.scrolled {
     box-shadow: var(--shadow-md);
-    padding: 0.4rem 0;
+    padding: 0.25rem 0;
 }
 
 .app-header-content {
@@ -749,16 +749,23 @@ code, .monospace {
 }
 
 .logo-section .logo-img {
-    height: 60px;
+    height: 100px;
     width: auto;
     transition: all 0.3s;
 }
 
 .logo-section .tagline {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
-    max-width: 350px;
-    line-height: 1.4;
+    max-width: 500px;
+    line-height: 1.3;
+    transition: opacity 0.3s, height 0.3s;
+}
+
+.app-header.scrolled .tagline {
+    opacity: 0;
+    height: 0;
+    margin: 0;
 }
 
 .header-middle {
@@ -1484,8 +1491,8 @@ code, .monospace {
 
 .progress-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
 }
 
 .progress-item {

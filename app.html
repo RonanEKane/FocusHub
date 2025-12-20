@@ -58,7 +58,7 @@
             <div class="app-header-content">
                 <div class="logo-section">
                     <img id="appLogo" src="logo_light.svg" alt="FocusHub" class="logo-img">
-                    <p class="tagline">Built for Brains That Wander,<br>but Still Want to Win</p>
+                    <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
                 </div>
                 
                 <div class="header-middle" id="headerTimer">
@@ -66,7 +66,7 @@
                 </div>
                 
                 <div class="header-controls">
-                    <a href="home.html" class="btn-home">🏠 Home</a>
+                    <a href="home.html" class="btn-home">📊 Dashboard</a>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
                     <button id="endDayBtn" class="btn-end-day">END DAY</button>
                 </div>
@@ -184,28 +184,6 @@
                         <small><strong>Sprint Values:</strong> Strategic (3) · Deep Work (2) · Urgent (1)</small>
                     </div>
                 </div>
-
-                <!-- Distraction Logger with Intention Tracking -->
-                <div class="card distraction-logger">
-                    <div class="card-header">
-                        <h3 class="card-title">🚫 DISTRACTION PARKING</h3>
-                        <span class="distraction-count" id="distractionCount">0</span>
-                    </div>
-                    
-                    <div class="card-content">
-                        <!-- Add Intention Toggle -->
-                        <div class="distraction-input-group">
-                            <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
-                            <label class="intention-checkbox">
-                                <input type="checkbox" id="intentionCheck">
-                                <span>I'll handle this</span>
-                            </label>
-                            <button id="parkDistractionBtn" class="btn btn-primary">Park It</button>
-                        </div>
-
-                        <div id="distractionList" class="distraction-list"></div>
-                    </div>
-                </div>
             </div>
 
             <!-- Sidebar (Right Column - NOT STICKY) -->
@@ -239,9 +217,35 @@
                             <div class="progress-value" id="taskProgress">0</div>
                         </div>
                         <div class="progress-item">
+                            <div class="progress-label">Breaks</div>
+                            <div class="progress-value" id="breaksProgress">0</div>
+                        </div>
+                        <div class="progress-item">
                             <div class="progress-label">Distractions</div>
                             <div class="progress-value" id="distractionProgress">0</div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Distraction Logger with Intention Tracking -->
+                <div class="card distraction-logger">
+                    <div class="card-header">
+                        <h3 class="card-title">🚫 DISTRACTION PARKING</h3>
+                        <span class="distraction-count" id="distractionCount">0</span>
+                    </div>
+                    
+                    <div class="card-content">
+                        <!-- Add Intention Toggle -->
+                        <div class="distraction-input-group">
+                            <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
+                            <label class="intention-checkbox">
+                                <input type="checkbox" id="intentionCheck">
+                                <span>I'll handle this</span>
+                            </label>
+                            <button id="parkDistractionBtn" class="btn btn-primary">Park It</button>
+                        </div>
+
+                        <div id="distractionList" class="distraction-list"></div>
                     </div>
                 </div>
 
@@ -257,9 +261,11 @@
         </div>
 
         <footer class="app-footer">
-            <a href="index.html">Home</a>
+            <a href="home.html">📊 Dashboard</a>
             <span class="footer-separator">|</span>
-            <a href="home.html">Dashboard</a>
+            <a href="how-to.html">📖 How-to</a>
+            <span class="footer-separator">|</span>
+            <a href="faq.html">💬 Support</a>
         </footer>
     </div>
 
@@ -367,6 +373,7 @@
             baselineSprints: 5,
             plannedSprints: 5,
             sprintCount: 0,
+            breaksCount: 0,
             distractionCount: 0,
             tasksCompleted: 0,
             meetingMinutes: 0,
@@ -425,6 +432,7 @@
                 const stats = JSON.parse(savedStats);
                 if (stats.date === today) {
                     state.sprintCount = stats.sprintCount || 0;
+                    state.breaksCount = stats.breaksCount || 0;
                     state.distractionCount = stats.distractionCount || 0;
                     state.tasksCompleted = stats.tasksCompleted || 0;
                     state.meetingMinutes = stats.meetingMinutes || 0;
@@ -462,6 +470,7 @@
             
             const stats = {
                 sprintCount: state.sprintCount,
+                breaksCount: state.breaksCount,
                 distractionCount: state.distractionCount,
                 tasksCompleted: state.tasksCompleted,
                 meetingMinutes: state.meetingMinutes,
@@ -667,6 +676,7 @@
                 document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
             } else {
                 // Break complete
+                state.breaksCount++;
                 resetTimer();
             }
             
@@ -795,8 +805,8 @@
                 div.appendChild(sprintControls);
             }
             
-            // Checkbox (only in active buckets, not holding)
-            if (bucket !== 'holding') {
+            // Checkbox (only in active buckets, not holding or wins)
+            if (bucket !== 'holding' && bucket !== 'wins') {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'task-checkbox';
@@ -1254,6 +1264,9 @@
             state.distractions = [];
             state.intentions = [];
             
+            // Clear today's wins for fresh start tomorrow
+            state.tasks.wins = [];
+            
             const report = {
                 date: today,
                 sprintCount: state.sprintCount,
@@ -1292,6 +1305,7 @@
             document.getElementById('sprintProgress').textContent = state.sprintCount;
             document.getElementById('sprintTarget').textContent = state.plannedSprints;
             document.getElementById('taskProgress').textContent = state.tasksCompleted;
+            document.getElementById('breaksProgress').textContent = state.breaksCount;
             document.getElementById('distractionProgress').textContent = state.distractionCount;
             
             // Set energy display
