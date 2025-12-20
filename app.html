@@ -10,7 +10,7 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img src="FocusHub_vertnorm.png" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
+            <img src="FocusHub_vertinv.png" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
             <h1 class="start-title">Ready to Win Today?</h1>
             <p class="start-subtitle">Built for Brains That Wander, but Still Want to Win</p>
 
@@ -56,7 +56,7 @@
         <!-- Header -->
         <header class="app-header">
             <div class="logo-section">
-                <img id="appLogo" src="FocusHub_vertnorm.png" alt="FocusHub" class="logo-img" style="height: 40px; width: auto;">
+                <img id="appLogo" src="FocusHub_vertinv.png" alt="FocusHub" class="logo-img" style="height: 40px; width: auto;">
                 <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
             </div>
             
@@ -1056,10 +1056,10 @@
             // Update toggle button
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                appLogo.src = 'FocusHub_vertinv.png';
+                appLogo.src = 'FocusHub_vertnorm.png'; // All-orange icon for dark mode
             } else {
                 themeToggle.textContent = '☀️ Light';
-                appLogo.src = 'FocusHub_vertnorm.png';
+                appLogo.src = 'FocusHub_vertinv.png'; // Orange/White/Black icon for light mode
             }
         }
         
