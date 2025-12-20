@@ -56,7 +56,7 @@
         <!-- Header -->
         <header class="app-header">
             <div class="logo-section">
-                <img id="appLogo" src="FocusHub_vertinv.png" alt="FocusHub" class="logo-img" style="height: 40px; width: auto;">
+                <img id="appLogo" src="logo.svg" alt="FocusHub" class="logo-img" style="height: 48px; width: auto;">
                 <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
             </div>
             
@@ -122,24 +122,17 @@
                     <!-- Brain Dump -->
                     <div class="brain-dump">
                         <label>🧠 BRAIN DUMP</label>
-                        <div class="input-row">
-                            <select id="taskPriority" class="priority-select">
-                                <option value="holding">📋 Holding</option>
-                                <option value="urgent">🔥 Urgent (1 sprint)</option>
-                                <option value="deepwork">🎯 Deep Work (2 sprints)</option>
-                                <option value="strategic">♟️ Strategic (3 sprints)</option>
-                            </select>
-                            <input type="text" id="taskInput" placeholder="Type anything on your mind..." class="task-input">
-                            <button id="addTaskBtn" class="btn btn-primary">Add</button>
-                        </div>
+                        <p class="brain-dump-hint">Paste your task list below (one task per line)</p>
+                        <textarea id="taskInput" class="task-textarea" placeholder="Task 1&#10;Task 2&#10;Task 3&#10;etc..." rows="4"></textarea>
+                        <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Parse & Add to Holding</button>
                         
                         <!-- Holding Area -->
-                        <div id="holdingArea" class="holding-area hidden">
+                        <div id="holdingArea" class="holding-area" style="margin-top: 1rem;">
                             <div class="holding-header">
                                 <span>📋 HOLDING AREA</span>
                                 <span class="task-count" id="holdingCount">0</span>
                             </div>
-                            <div id="holdingList" class="task-list"></div>
+                            <div id="holdingList" class="task-list" data-bucket="holding"></div>
                         </div>
                     </div>
 
@@ -151,7 +144,7 @@
                                 <h3>URGENT</h3>
                                 <span class="task-count" id="urgentCount">0</span>
                             </div>
-                            <div id="urgentList" class="task-list"></div>
+                            <div id="urgentList" class="task-list" data-bucket="urgent"></div>
                         </div>
 
                         <div class="task-bucket deepwork" data-bucket="deepwork">
@@ -160,7 +153,7 @@
                                 <h3>DEEP WORK</h3>
                                 <span class="task-count" id="deepworkCount">0</span>
                             </div>
-                            <div id="deepworkList" class="task-list"></div>
+                            <div id="deepworkList" class="task-list" data-bucket="deepwork"></div>
                         </div>
 
                         <div class="task-bucket strategic" data-bucket="strategic">
@@ -169,7 +162,7 @@
                                 <h3>STRATEGIC</h3>
                                 <span class="task-count" id="strategicCount">0</span>
                             </div>
-                            <div id="strategicList" class="task-list"></div>
+                            <div id="strategicList" class="task-list" data-bucket="strategic"></div>
                         </div>
                     </div>
 
@@ -207,25 +200,6 @@
                         <div id="distractionList" class="distraction-list"></div>
                     </div>
                 </div>
-
-                <!-- Progress Tracker -->
-                <div class="card progress-tracker">
-                    <h3 class="card-title">📊 TODAY'S PROGRESS</h3>
-                    <div class="progress-grid">
-                        <div class="progress-item">
-                            <div class="progress-label">Sprints</div>
-                            <div class="progress-value"><span id="sprintProgress">0</span> / <span id="sprintTarget">5</span></div>
-                        </div>
-                        <div class="progress-item">
-                            <div class="progress-label">Tasks</div>
-                            <div class="progress-value" id="taskProgress">0</div>
-                        </div>
-                        <div class="progress-item">
-                            <div class="progress-label">Distractions</div>
-                            <div class="progress-value" id="distractionProgress">0</div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Sidebar (Right Column - NOT STICKY) -->
@@ -241,11 +215,27 @@
                     <p class="tough-love-desc">Changes how the AI Agent talks to you</p>
                 </div>
 
-                <!-- AI Agent -->
+                <!-- AI Agent with Progress Tracking -->
                 <div class="card ai-agent">
                     <h3 class="card-title">🤖 AI AGENT</h3>
                     <div class="agent-message">
                         <div class="agent-text" id="agentText">Start your first sprint to get feedback.</div>
+                    </div>
+                    
+                    <!-- Progress tracking inside AI Agent card -->
+                    <div class="progress-grid" style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border-light);">
+                        <div class="progress-item">
+                            <div class="progress-label">Sprints</div>
+                            <div class="progress-value"><span id="sprintProgress">0</span> / <span id="sprintTarget">5</span></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Wins</div>
+                            <div class="progress-value" id="taskProgress">0</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Distractions</div>
+                            <div class="progress-value" id="distractionProgress">0</div>
+                        </div>
                     </div>
                 </div>
 
@@ -416,6 +406,7 @@
         function init() {
             loadState();
             setupEventListeners();
+            initDragDrop();
             checkSessionState();
         }
 
@@ -540,9 +531,6 @@
 
             // Tasks
             document.getElementById('addTaskBtn').addEventListener('click', addTask);
-            document.getElementById('taskInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTask();
-            });
 
             // Distractions
             document.getElementById('parkDistractionBtn').addEventListener('click', addDistraction);
@@ -707,104 +695,287 @@
         }
 
         // ============================================
-        // TASK MANAGEMENT
+        // TASK MANAGEMENT WITH DRAG/DROP
         // ============================================
+        
+        let draggedTask = null;
+        let draggedBucket = null;
+        
+        // Parse and add tasks from textarea
         function addTask() {
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
-            const priority = document.getElementById('taskPriority').value;
             
             if (!text) return;
             
-            const task = {
-                id: Date.now(),
-                text: text,
-                createdAt: new Date().toISOString()
-            };
+            // Split by newlines and filter empty lines
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             
-            state.tasks[priority].push(task);
+            lines.forEach(taskText => {
+                const newTask = {
+                    id: Date.now() + Math.random(),
+                    text: taskText,
+                    bucket: 'holding',
+                    sprints: 0,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                state.tasks.holding.push(newTask);
+            });
+            
             input.value = '';
-            document.getElementById('taskPriority').value = 'holding';
-            
-            calculatePlannedSprints();
             saveState();
             renderTasks();
         }
-
-        function calculatePlannedSprints() {
-            let total = state.baselineSprints;
-            total += state.tasks.urgent.length * TASK_WEIGHTS.urgent;
-            total += state.tasks.deepwork.length * TASK_WEIGHTS.deepwork;
-            total += state.tasks.strategic.length * TASK_WEIGHTS.strategic;
-            state.plannedSprints = total;
+        
+        // Create task element with all controls
+        function createTaskElement(task, bucket) {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.draggable = true;
+            div.dataset.taskId = task.id;
+            div.dataset.bucket = bucket;
+            
+            // Drag handle
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'task-drag-handle';
+            dragHandle.textContent = '⋮⋮';
+            div.appendChild(dragHandle);
+            
+            // Priority dropdown (not in wins)
+            if (bucket !== 'wins') {
+                const prioritySelect = document.createElement('select');
+                prioritySelect.className = 'task-priority-select';
+                prioritySelect.innerHTML = `
+                    <option value="holding" ${task.bucket === 'holding' ? 'selected' : ''}>Hold</option>
+                    <option value="urgent" ${task.bucket === 'urgent' ? 'selected' : ''}>Urgent</option>
+                    <option value="deepwork" ${task.bucket === 'deepwork' ? 'selected' : ''}>Deep</option>
+                    <option value="strategic" ${task.bucket === 'strategic' ? 'selected' : ''}>Strategic</option>
+                `;
+                prioritySelect.addEventListener('change', (e) => {
+                    moveTask(task.id, bucket, e.target.value);
+                });
+                div.appendChild(prioritySelect);
+            }
+            
+            // Sprint controls (not in holding or wins)
+            if (bucket !== 'holding' && bucket !== 'wins') {
+                const sprintControls = document.createElement('div');
+                sprintControls.className = 'task-sprint-controls';
+                
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'task-sprint-btn';
+                minusBtn.textContent = '−';
+                minusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, -1));
+                
+                const sprintValue = document.createElement('span');
+                sprintValue.className = 'task-sprint-value';
+                sprintValue.textContent = task.sprints || 0;
+                
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'task-sprint-btn';
+                plusBtn.textContent = '+';
+                plusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, 1));
+                
+                sprintControls.appendChild(minusBtn);
+                sprintControls.appendChild(sprintValue);
+                sprintControls.appendChild(plusBtn);
+                div.appendChild(sprintControls);
+            }
+            
+            // Checkbox (only in active buckets, not holding)
+            if (bucket !== 'holding') {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', () => completeTask(bucket, task.id));
+                div.appendChild(checkbox);
+            }
+            
+            // Task text
+            const textSpan = document.createElement('span');
+            textSpan.className = bucket === 'wins' ? 'win-text' : 'task-text';
+            textSpan.textContent = task.text;
+            div.appendChild(textSpan);
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-delete';
+            deleteBtn.textContent = '×';
+            deleteBtn.addEventListener('click', () => deleteTask(bucket, task.id));
+            div.appendChild(deleteBtn);
+            
+            // Drag events
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+            
+            return div;
         }
-
-        function completeTask(bucket, taskId) {
+        
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedTask = e.target;
+            draggedBucket = e.target.dataset.bucket;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.classList.remove('drag-over');
+            });
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const list = e.currentTarget;
+            list.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetBucket = e.currentTarget.dataset.bucket;
+            const taskId = parseFloat(draggedTask.dataset.taskId);
+            
+            moveTask(taskId, draggedBucket, targetBucket);
+        }
+        
+        // Move task between buckets
+        function moveTask(taskId, fromBucket, toBucket) {
+            const taskIndex = state.tasks[fromBucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[fromBucket][taskIndex];
+            state.tasks[fromBucket].splice(taskIndex, 1);
+            
+            task.bucket = toBucket;
+            
+            // Set default sprints based on bucket
+            if (toBucket !== 'holding' && toBucket !== 'wins') {
+                if (task.sprints === 0 || task.sprints === undefined) {
+                    task.sprints = TASK_WEIGHTS[toBucket] || 0;
+                }
+            }
+            
+            state.tasks[toBucket].push(task);
+            
+            saveState();
+            renderTasks();
+            updateSprintTarget();
+        }
+        
+        // Adjust sprint count for individual task
+        function adjustTaskSprints(taskId, bucket, delta) {
             const task = state.tasks[bucket].find(t => t.id === taskId);
             if (!task) return;
             
-            state.tasks[bucket] = state.tasks[bucket].filter(t => t.id !== taskId);
-            state.tasks.wins.push({ ...task, completedAt: new Date().toISOString() });
-            state.tasksCompleted++;
+            task.sprints = Math.max(0, (task.sprints || 0) + delta);
             
-            calculatePlannedSprints();
+            saveState();
+            renderTasks();
+            updateSprintTarget();
+        }
+        
+        // Complete task (move to wins)
+        function completeTask(bucket, taskId) {
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[bucket][taskIndex];
+            state.tasks[bucket].splice(taskIndex, 1);
+            
+            task.completed = true;
+            task.bucket = 'wins';
+            task.completedAt = new Date().toISOString();
+            state.tasks.wins.push(task);
+            
+            state.tasksCompleted++;
             saveState();
             renderTasks();
             updateAgentMessage();
         }
-
+        
+        // Delete task
         function deleteTask(bucket, taskId) {
-            state.tasks[bucket] = state.tasks[bucket].filter(t => t.id !== taskId);
-            calculatePlannedSprints();
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            state.tasks[bucket].splice(taskIndex, 1);
             saveState();
             renderTasks();
+            updateSprintTarget();
         }
-
+        
+        // Render all tasks
         function renderTasks() {
-            // Render each bucket
-            ['holding', 'urgent', 'deepwork', 'strategic'].forEach(bucket => {
-                const listEl = document.getElementById(bucket + 'List');
-                const countEl = document.getElementById(bucket + 'Count');
-                
-                if (countEl) countEl.textContent = state.tasks[bucket].length;
-                
-                if (bucket === 'holding') {
-                    const container = document.getElementById('holdingArea');
-                    if (state.tasks.holding.length > 0) {
-                        container.classList.remove('hidden');
-                    } else {
-                        container.classList.add('hidden');
-                    }
-                }
-                
-                if (listEl) {
-                    listEl.innerHTML = state.tasks[bucket].map(task => `
-                        <div class="task-item">
-                            ${bucket !== 'holding' ? `<input type="checkbox" class="task-checkbox" onclick="completeTask('${bucket}', ${task.id})">` : ''}
-                            <span class="task-text">${task.text}</span>
-                            <button class="task-delete" onclick="deleteTask('${bucket}', ${task.id})">×</button>
-                        </div>
-                    `).join('');
-                }
+            // Render holding area
+            const holdingList = document.getElementById('holdingList');
+            holdingList.innerHTML = '';
+            state.tasks.holding.forEach(task => {
+                holdingList.appendChild(createTaskElement(task, 'holding'));
             });
-
+            document.getElementById('holdingCount').textContent = state.tasks.holding.length;
+            
+            // Render buckets
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                const list = document.getElementById(`${bucket}List`);
+                list.innerHTML = '';
+                state.tasks[bucket].forEach(task => {
+                    list.appendChild(createTaskElement(task, bucket));
+                });
+                document.getElementById(`${bucket}Count`).textContent = state.tasks[bucket].length;
+            });
+            
             // Render wins
-            const winsSection = document.getElementById('winsSection');
             const winsList = document.getElementById('winsList');
+            const winsSection = document.getElementById('winsSection');
             
             if (state.tasks.wins.length > 0) {
                 winsSection.classList.remove('hidden');
-                winsList.innerHTML = state.tasks.wins.map(task => `
-                    <div class="win-item">
-                        <span class="win-check">✓</span>
-                        <span class="win-text">${task.text}</span>
-                    </div>
-                `).join('');
+                winsList.innerHTML = '';
+                state.tasks.wins.forEach(task => {
+                    winsList.appendChild(createTaskElement(task, 'wins'));
+                });
             } else {
                 winsSection.classList.add('hidden');
             }
+        }
+        
+        // Initialize drag/drop on all task lists
+        function initDragDrop() {
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.addEventListener('dragover', handleDragOver);
+                list.addEventListener('dragleave', handleDragLeave);
+                list.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        // Update sprint target calculation
+        function updateSprintTarget() {
+            let totalTaskSprints = 0;
+            
+            ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    totalTaskSprints += task.sprints || 0;
+                });
+            });
+            
+            state.plannedSprints = state.baselineSprints + totalTaskSprints;
+            document.getElementById('sprintTarget').textContent = state.plannedSprints;
+            saveState();
+        }
 
-            document.getElementById('plannedSprints').textContent = state.plannedSprints;
+        // Kept for compatibility - now uses sprint target
+        function calculatePlannedSprints() {
+            updateSprintTarget();
         }
 
         // ============================================
@@ -1053,13 +1224,11 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('focushub_theme', theme);
             
-            // Update toggle button
+            // Update toggle button (logo.svg works in both modes)
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                appLogo.src = 'FocusHub_vertnorm.png'; // All-orange icon for dark mode
             } else {
                 themeToggle.textContent = '☀️ Light';
-                appLogo.src = 'FocusHub_vertinv.png'; // Orange/White/Black icon for light mode
             }
         }
         

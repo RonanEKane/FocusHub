@@ -719,7 +719,7 @@ code, .monospace {
 .app-header {
     background: var(--card-white);
     border-bottom: 2px solid var(--border-light);
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -731,13 +731,14 @@ code, .monospace {
 
 .app-header.scrolled {
     box-shadow: var(--shadow-md);
-    padding: 0.75rem 2rem;
+    padding: 0.5rem 1.5rem;
 }
 
 .logo-section {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
 }
 
 .logo-section .logo {
@@ -748,7 +749,7 @@ code, .monospace {
 .logo-section .tagline {
     font-size: 11px;
     color: var(--text-muted);
-    max-width: 250px;
+    max-width: 350px;
 }
 
 .header-controls {
@@ -796,7 +797,7 @@ code, .monospace {
     margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr 450px;
     gap: 2rem;
 }
 
@@ -1009,7 +1010,31 @@ code, .monospace {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-secondary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.brain-dump-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.task-textarea {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-medium);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.task-textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
 }
 
 .input-row {
@@ -1131,13 +1156,81 @@ code, .monospace {
     padding: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     transition: all 0.3s;
+    cursor: move;
 }
 
 .task-item:hover {
     border-color: var(--border-heavy);
     box-shadow: var(--shadow-sm);
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+.task-drag-handle {
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: grab;
+    user-select: none;
+}
+
+.task-drag-handle:active {
+    cursor: grabbing;
+}
+
+.task-priority-select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-medium);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.task-sprint-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    padding: 0.25rem;
+}
+
+.task-sprint-btn {
+    background: var(--card-white);
+    border: 1px solid var(--border-medium);
+    color: var(--text-secondary);
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.task-sprint-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.task-sprint-value {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 20px;
+    text-align: center;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .task-checkbox {
@@ -1171,6 +1264,12 @@ code, .monospace {
 .task-delete:hover {
     background: var(--accent-red);
     color: white;
+}
+
+/* Drag over state for buckets */
+.task-list.drag-over {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--accent-blue);
 }
 
 .wins-section {
@@ -1221,6 +1320,8 @@ code, .monospace {
 .win-text {
     font-size: 13px;
     color: var(--text-primary);
+    text-decoration: line-through;
+    opacity: 0.7;
 }
 
 .task-weights-legend {
