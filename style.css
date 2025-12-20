@@ -739,7 +739,7 @@ code, .monospace {
 .app-header {
     background: var(--card-white);
     border-bottom: 2px solid var(--border-light);
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -765,20 +765,24 @@ code, .monospace {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25rem;
+    gap: 0.35rem;
 }
 
 .logo-section .logo-img {
-    height: 36px;
+    height: 70px;
     width: auto;
     transition: all 0.3s;
 }
 
+.app-header.scrolled .logo-img {
+    height: 36px;
+}
+
 .logo-section .tagline {
-    font-size: 9px;
+    font-size: 10px;
     color: var(--text-muted);
-    max-width: 400px;
-    line-height: 1.2;
+    max-width: 450px;
+    line-height: 1.3;
     transition: opacity 0.3s, height 0.3s;
 }
 
@@ -815,12 +819,17 @@ code, .monospace {
     background: transparent;
     border: 2px solid var(--border-medium);
     color: var(--text-primary);
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s;
+}
+
+.app-header.scrolled .btn-home {
+    padding: 0.5rem 1rem;
+    font-size: 13px;
 }
 
 .btn-home:hover {
@@ -832,13 +841,18 @@ code, .monospace {
     background: var(--accent-red);
     color: white;
     border: none;
-    padding: 0.5rem 1.5rem;
+    padding: 0.75rem 1.75rem;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.3s;
+}
+
+.app-header.scrolled .btn-end-day {
+    padding: 0.5rem 1.25rem;
+    font-size: 13px;
 }
 
 .btn-end-day:hover {
