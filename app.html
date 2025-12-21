@@ -454,8 +454,9 @@
         };
         
         async function initApp() {
-            // Original app initialization code continues below
-            // (keeping all existing code intact)
+            // Initialize the app after Firebase auth is ready
+            await init();
+        }
     </script>
     
     <script>
@@ -510,7 +511,7 @@
         // ============================================
         // INITIALIZATION
         // ============================================
-        function init() {
+        async function init() {
             // Apply mode configuration FIRST
             applyModeConfig();
             
@@ -598,7 +599,7 @@
         }
 
         function restoreTimer() {
-            const savedTimer = getUserItem('focushub_timer');
+            const savedTimer = localStorage.getItem('focushub_timer');
             if (!savedTimer) return;
             
             const timerData = JSON.parse(savedTimer);
@@ -810,16 +811,24 @@
         }
 
         function startDay() {
+            console.log('startDay called');
             state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
             state.plannedSprints = state.baselineSprints;
+            
+            console.log('Baseline sprints:', state.baselineSprints);
             
             // Save session state to localStorage (simple flag)
             localStorage.setItem('focushub_session_state', 'active');
             localStorage.setItem('focushub_session_date', new Date().toDateString());
             
+            console.log('Hiding start screen...');
             hideStartScreen();
+            
+            console.log('Rendering all...');
             renderAll();
             updateAgentMessage();
+            
+            console.log('startDay complete');
         }
 
         // ============================================
@@ -1554,14 +1563,14 @@
                 wins: winsToSave  // Include wins for subject breakdown
             };
             
-            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
             history.push(report);
-            setUserItem('focushub_history', JSON.stringify(history));
+            localStorage.setItem('focushub_history', JSON.stringify(history));
             
             // Save state so tasks persist in holding for tomorrow
             saveState();
             
-            setUserItem('focushub_session_state', 'ended');
+            localStorage.setItem('focushub_session_state', 'ended');
             
             window.location.href = 'home.html';
         }
@@ -1604,9 +1613,6 @@
                 }
             });
         }
-
-        // Initialize app
-        init();
 
         // ============================================
         // THEME TOGGLE
