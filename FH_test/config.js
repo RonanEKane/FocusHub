@@ -403,8 +403,58 @@ function applyModeFeatures(features) {
         state.features = features;
     }
     
-    // Toggle subject-related UI if needed (Phase 3)
-    // This will be implemented when we add student features
+    // Toggle subject section visibility
+    const subjectSection = document.getElementById('subjectSection');
+    if (subjectSection) {
+        if (features.subjects) {
+            subjectSection.classList.remove('hidden');
+            populateSubjectDropdown();
+        } else {
+            subjectSection.classList.add('hidden');
+        }
+    }
+}
+
+// Populate subject dropdown with mode-specific subjects
+function populateSubjectDropdown() {
+    const config = loadModeConfig();
+    const subjectSelect = document.getElementById('subjectSelect');
+    
+    if (!subjectSelect || !config.subjects) return;
+    
+    // Clear existing options except the first one
+    subjectSelect.innerHTML = '<option value="">Select subject...</option>';
+    
+    // Add predefined subjects
+    config.subjects.predefined.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+    });
+    
+    // Add custom option if allowed
+    if (config.subjects.customAllowed) {
+        const customOption = document.createElement('option');
+        customOption.value = 'custom';
+        customOption.textContent = 'Other (type below)';
+        subjectSelect.appendChild(customOption);
+    }
+}
+
+// Handle subject selection (show custom input if "Other" selected)
+function handleSubjectChange() {
+    const subjectSelect = document.getElementById('subjectSelect');
+    const customInput = document.getElementById('customSubjectInput');
+    
+    if (!subjectSelect || !customInput) return;
+    
+    if (subjectSelect.value === 'custom') {
+        customInput.classList.remove('hidden');
+    } else {
+        customInput.classList.add('hidden');
+        customInput.value = '';
+    }
 }
 
 /**

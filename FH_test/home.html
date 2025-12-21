@@ -24,6 +24,16 @@
                 <span class="status-text">SYSTEM STATUS: ONLINE</span>
             </div>
             <div class="status-time" id="currentTime"></div>
+            <a href="admin.html" id="adminLink" class="btn-home hidden" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--primary-color); font-weight: 600; font-size: 0.875rem; text-decoration: none;">Admin</a>
+            <button id="logoutBtn" class="btn-home" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Admin Impersonation Banner -->
+    <div id="impersonationBanner" class="impersonation-banner hidden">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>👁️ <strong>Viewing as:</strong> <span id="impersonatedEmail"></span></span>
+            <button onclick="returnToAdmin()" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Return to Admin</button>
         </div>
     </div>
 
@@ -127,6 +137,17 @@
                     </tr>
                 </table>
             </div>
+            
+            <!-- Subject Breakdown (Student Mode Only) -->
+            <div id="subjectBreakdownSection" class="stats-table hidden" style="margin-top: 2rem;">
+                <h3 class="stats-title">📚 SUBJECT BREAKDOWN</h3>
+                <div id="subjectBreakdown" class="subject-breakdown-content">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 1rem;">
+                    Based on completed tasks
+                </p>
+            </div>
         </div>
     </div>
 
@@ -142,12 +163,69 @@
     <script src="config.js"></script>
 
     <script>
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        
+        if (!currentUser) {
+            // Not logged in, redirect to auth
+            window.location.href = 'auth.html';
+        }
+        
+        // ============================================
+        // USER-SPECIFIC STORAGE HELPERS
+        // ============================================
+        function getUserKey(baseKey) {
+            return currentUser ? `${baseKey}_${currentUser.id}` : baseKey;
+        }
+        
+        function getUserItem(baseKey) {
+            return localStorage.getItem(getUserKey(baseKey));
+        }
+        
+        function setUserItem(baseKey, value) {
+            localStorage.setItem(getUserKey(baseKey), value);
+        }
+        
         // Display current mode
         function displayCurrentMode() {
             const modeEl = document.getElementById('currentMode');
             if (modeEl && window.getModeDisplayName) {
                 modeEl.textContent = getModeDisplayName().toUpperCase();
             }
+            
+            // Show admin link if user is admin
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+            const userFull = users.find(u => u.id === currentUser.id);
+            if (userFull && userFull.plan === 'admin') {
+                document.getElementById('adminLink').classList.remove('hidden');
+            }
+            
+            // Check for admin impersonation
+            const adminReturn = sessionStorage.getItem('admin_return');
+            if (adminReturn) {
+                document.getElementById('impersonationBanner').classList.remove('hidden');
+                document.getElementById('impersonatedEmail').textContent = currentUser.email;
+            }
+        }
+        
+        // Return to admin panel
+        function returnToAdmin() {
+            const adminReturn = sessionStorage.getItem('admin_return');
+            if (!adminReturn) return;
+            
+            const adminUser = JSON.parse(adminReturn);
+            
+            // Restore admin session
+            localStorage.setItem('focushub_current_user', JSON.stringify(adminUser));
+            localStorage.setItem('focushub_mode', adminUser.mode);
+            
+            // Clear impersonation
+            sessionStorage.removeItem('admin_return');
+            
+            // Return to admin panel
+            window.location.href = 'admin.html';
         }
         
         // Update current time
@@ -162,7 +240,7 @@
 
         // Load stats from history
         function loadStats() {
-            const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
+            const history = JSON.parse(getUserItem('focushub_history') || '[]');
             
             if (history.length === 0) {
                 return;
@@ -235,7 +313,7 @@
             document.getElementById('weeklyChart').innerHTML = chartHTML;
 
             // Intention vs Reality
-            const intentions = JSON.parse(localStorage.getItem('focushub_intentions') || '[]');
+            const intentions = JSON.parse(getUserItem('focushub_intentions') || '[]');
             const intentionCount = intentions.length;
             const followedThrough = intentions.filter(i => i.completed).length;
             
@@ -248,6 +326,83 @@
                 document.getElementById('intentionFill').style.width = intentionPercent + '%';
                 document.getElementById('realityFill').style.width = realityPercent + '%';
             }
+            
+            // Subject breakdown (student mode only)
+            loadSubjectBreakdown();
+        }
+        
+        // Calculate and display subject breakdown
+        function loadSubjectBreakdown() {
+            const config = window.loadModeConfig ? loadModeConfig() : null;
+            const subjectSection = document.getElementById('subjectBreakdownSection');
+            
+            // Only show for student mode
+            if (!config || !config.features || !config.features.subjects) {
+                if (subjectSection) {
+                    subjectSection.classList.add('hidden');
+                }
+                return;
+            }
+            
+            // Show section
+            if (subjectSection) {
+                subjectSection.classList.remove('hidden');
+            }
+            
+            // Get completed tasks from history
+            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            const subjectSprints = {};
+            
+            // Calculate sprints per subject from all history
+            history.forEach(day => {
+                if (day.wins && Array.isArray(day.wins)) {
+                    day.wins.forEach(task => {
+                        if (task.subject) {
+                            subjectSprints[task.subject] = (subjectSprints[task.subject] || 0) + (task.sprints || 0);
+                        }
+                    });
+                }
+            });
+            
+            // Also check current tasks
+            const currentTasks = JSON.parse(getUserItem('focushub_tasks') || '{"wins":[]}');
+            if (currentTasks.wins && Array.isArray(currentTasks.wins)) {
+                currentTasks.wins.forEach(task => {
+                    if (task.subject) {
+                        subjectSprints[task.subject] = (subjectSprints[task.subject] || 0) + (task.sprints || 0);
+                    }
+                });
+            }
+            
+            // Render subject breakdown
+            const breakdownEl = document.getElementById('subjectBreakdown');
+            if (!breakdownEl) return;
+            
+            if (Object.keys(subjectSprints).length === 0) {
+                breakdownEl.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No subjects tracked yet. Complete tasks with subjects to see breakdown.</p>';
+                return;
+            }
+            
+            const totalSprints = Object.values(subjectSprints).reduce((a, b) => a + b, 0);
+            
+            const html = Object.entries(subjectSprints)
+                .sort((a, b) => b[1] - a[1]) // Sort by sprints descending
+                .map(([subject, sprints]) => {
+                    const percentage = ((sprints / totalSprints) * 100).toFixed(0);
+                    return `
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                <span style="font-weight: 600; color: var(--text-primary);">${subject}</span>
+                                <span style="color: var(--text-secondary); font-size: 0.875rem;">${sprints} sprints (${percentage}%)</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${percentage}%; height: 100%; background: var(--primary-color);"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            
+            breakdownEl.innerHTML = html;
         }
 
         // Theme detection and logo swap
@@ -266,8 +421,8 @@
 
         // Check session state and update button
         function checkSessionState() {
-            const sessionState = localStorage.getItem('focushub_session_state');
-            const dailyStats = localStorage.getItem('focushub_daily_stats');
+            const sessionState = getUserItem('focushub_session_state');
+            const dailyStats = getUserItem('focushub_daily_stats');
             const button = document.querySelector('.primary-action');
             
             // If session is active (not ended and has data)
@@ -287,7 +442,7 @@
 
         // Update dashboard timer display
         function updateDashboardTimer() {
-            const savedTimer = localStorage.getItem('focushub_timer');
+            const savedTimer = getUserItem('focushub_timer');
             if (!savedTimer) {
                 document.getElementById('dashboardTimer').classList.add('hidden');
                 return;
@@ -316,6 +471,14 @@
                 document.getElementById('dashboardTimer').classList.add('hidden');
             }
         }
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('focushub_current_user');
+                window.location.href = 'index.html';
+            }
+        });
 
         initTheme();
         checkSessionState();

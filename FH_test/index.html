@@ -6,7 +6,7 @@
     <title>FocusHub - The Productivity OS for ADHD Brains</title>
     <link rel="stylesheet" href="style.css">
     <script>
-        // Cookie-based routing for returning users
+        // Auth-based routing
         function getCookie(name) {
             const nameEQ = name + "=";
             const ca = document.cookie.split(';');
@@ -18,10 +18,14 @@
             return null;
         }
         
-        // Redirect returning users to home dashboard
-        if (getCookie('focushub_returning_user') === 'true') {
+        // Check if user is logged in
+        const currentUser = localStorage.getItem('focushub_current_user');
+        
+        if (currentUser) {
+            // User is logged in, redirect to dashboard
             window.location.href = 'home.html';
         }
+        // If not logged in, show landing page
     </script>
 </head>
 <body class="landing-page">
@@ -29,7 +33,7 @@
         <div class="container">
             <div class="header-content">
                 <img src="logo.svg" alt="FocusHub" class="logo-large" style="height: 56px; width: auto;">
-                <a href="app.html" class="btn btn-primary">Launch App</a>
+                <a href="auth.html" class="btn btn-primary">Get Started</a>
             </div>
         </div>
     </header>
@@ -46,7 +50,7 @@
             </p>
 
             <div class="cta-buttons">
-                <a href="app.html" class="btn btn-primary btn-large">Start Working</a>
+                <a href="auth.html" class="btn btn-primary btn-large">Start Working</a>
                 <a href="#features" class="btn btn-secondary btn-large">See Features</a>
             </div>
         </div>
@@ -128,15 +132,110 @@
 
     <section class="pricing-section">
         <div class="container">
-            <h2 class="section-title">Free. Open Source. No Subscription Trap.</h2>
+            <h2 class="section-title">Choose Your Plan</h2>
             <p class="pricing-subtitle">
-                This is a tool, not a business model. Download it. Use it. Modify it. 
-                Built by someone with ADHD, for people with ADHD.
+                Start free. Upgrade when you need more power.
             </p>
             
-            <div class="pricing-cta">
-                <a href="app.html" class="btn btn-primary btn-xl">Start Using FocusHub</a>
-                <p class="pricing-note">No account required. Data stays in your browser.</p>
+            <div class="pricing-grid">
+                <!-- Lite (Free) -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Lite</h3>
+                        <div class="price">Free</div>
+                        <p class="price-description">Perfect for getting started</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Professional OR Student (HS) mode</li>
+                        <li>✓ Core sprint timer system</li>
+                        <li>✓ 3 task buckets + subject tracking</li>
+                        <li>✓ Energy-adaptive timers</li>
+                        <li>✓ Distraction parking</li>
+                        <li>✓ Daily grading system</li>
+                        <li>✓ Mission Control dashboard</li>
+                        <li>✓ Local data storage only</li>
+                    </ul>
+                    <a href="auth.html" class="btn btn-primary btn-block">Start Free</a>
+                </div>
+                
+                <!-- Student HS (Coming Soon) -->
+                <div class="pricing-card coming-soon">
+                    <div class="pricing-header">
+                        <h3>Student - High School</h3>
+                        <div class="price">$XX<span class="price-period"> one-time</span></div>
+                        <p class="price-description">Built for high schoolers</p>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Everything in Lite</li>
+                        <li>✓ Cloud sync across devices</li>
+                        <li>✓ 90-day history retention</li>
+                        <li>✓ Export data to CSV</li>
+                        <li>✓ Email support</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
+                </div>
+                
+                <!-- Student College (Coming Soon) -->
+                <div class="pricing-card coming-soon">
+                    <div class="pricing-header">
+                        <h3>Student - College/Grad</h3>
+                        <div class="price">$X<span class="price-period">/month</span></div>
+                        <p class="price-description">For serious students</p>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Everything in Student HS</li>
+                        <li>✓ College-specific subjects</li>
+                        <li>✓ Unlimited history</li>
+                        <li>✓ Advanced analytics</li>
+                        <li>✓ Priority support</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
+                </div>
+                
+                <!-- Professional (Coming Soon) -->
+                <div class="pricing-card coming-soon">
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <div class="price">$X<span class="price-period">/month</span></div>
+                        <p class="price-description">For professionals</p>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Professional mode features</li>
+                        <li>✓ Cloud sync across devices</li>
+                        <li>✓ Unlimited history</li>
+                        <li>✓ Advanced analytics & trends</li>
+                        <li>✓ Export to multiple formats</li>
+                        <li>✓ Priority email support</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
+                </div>
+                
+                <!-- Premium (Coming Soon) -->
+                <div class="pricing-card coming-soon">
+                    <div class="pricing-header">
+                        <h3>Premium</h3>
+                        <div class="price">$XX<span class="price-period">/month</span></div>
+                        <p class="price-description">Full power & customization</p>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Switch between all modes</li>
+                        <li>✓ Custom task bucket types</li>
+                        <li>✓ Custom sprint durations</li>
+                        <li>✓ Custom AI persona messages</li>
+                        <li>✓ Unlimited everything</li>
+                        <li>✓ API access (future)</li>
+                        <li>✓ Priority support & feature requests</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
+                </div>
+            </div>
+            
+            <div class="pricing-cta" style="margin-top: 3rem;">
+                <p class="pricing-note">No credit card required to start. Upgrade anytime.</p>
             </div>
         </div>
     </section>
