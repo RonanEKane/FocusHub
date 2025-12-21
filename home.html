@@ -46,6 +46,7 @@
                     <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
                     MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>
                 </div>
+                    <button onclick="window.WeeklyReports?.showReport()" class="btn btn-secondary" style="font-size: 0.875rem;">📊 Report</button>
                     <a href="upgrade.html" id="upgradeBtn" class="btn btn-primary hidden" style="font-size: 0.875rem;">✨ Upgrade</a>
                 </div>
             
@@ -163,6 +164,9 @@
 
     <!-- Mode Configuration System -->
     <script src="config.js"></script>
+    
+    <!-- Weekly Reports -->
+    <script src="weekly-reports.js"></script>
 
     <script type="module">
         // Import Firebase

@@ -34,9 +34,65 @@ const FirestoreData = {
     
     // Import Firestore modules dynamically
     async getFirestoreModules() {
-        const { doc, setDoc, getDoc, collection, query, getDocs, updateDoc, deleteDoc } = 
+        const { doc, setDoc, getDoc, collection, query, getDocs, updateDoc, deleteDoc, onSnapshot } = 
             await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-        return { doc, setDoc, getDoc, collection, query, getDocs, updateDoc, deleteDoc };
+        return { doc, setDoc, getDoc, collection, query, getDocs, updateDoc, deleteDoc, onSnapshot };
+    },
+    
+    // ==================== REAL-TIME LISTENERS ====================
+    
+    // Listen for real-time task updates
+    async listenToTasks(callback) {
+        try {
+            const userId = this.getUserId();
+            if (!userId) return null;
+            
+            const { doc, onSnapshot } = await this.getFirestoreModules();
+            const db = this.getDb();
+            
+            const unsubscribe = onSnapshot(doc(db, 'users', userId, 'data', 'tasks'), (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    callback(data.tasks || []);
+                } else {
+                    callback([]);
+                }
+            }, (error) => {
+                console.error('Error listening to tasks:', error);
+            });
+            
+            return unsubscribe;
+        } catch (error) {
+            console.error('Error setting up task listener:', error);
+            return null;
+        }
+    },
+    
+    // Listen for real-time stats updates
+    async listenToDailyStats(callback) {
+        try {
+            const userId = this.getUserId();
+            if (!userId) return null;
+            
+            const { doc, onSnapshot } = await this.getFirestoreModules();
+            const db = this.getDb();
+            
+            const unsubscribe = onSnapshot(doc(db, 'users', userId, 'data', 'daily_stats'), (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    callback(data.stats || {});
+                } else {
+                    callback({});
+                }
+            }, (error) => {
+                console.error('Error listening to daily stats:', error);
+            });
+            
+            return unsubscribe;
+        } catch (error) {
+            console.error('Error setting up stats listener:', error);
+            return null;
+        }
     },
     
     // ==================== TASKS ====================
