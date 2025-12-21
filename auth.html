@@ -9,7 +9,7 @@
 <body>
     <div class="auth-container">
         <div class="auth-box">
-            <img src="FocusHub_vertnorm.png" alt="FocusHub" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
             
             <!-- Login Form -->
             <div id="loginForm" class="auth-form">
@@ -186,7 +186,7 @@
                 mode: mode,
                 subMode: mode === 'student' ? 'highschool' : null,
                 created: new Date().toISOString(),
-                plan: 'free'
+                plan: users.length === 0 ? 'admin' : 'free'  // First user is automatically admin
             };
             
             // Save user
@@ -244,10 +244,10 @@
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                authLogo.src = 'FocusHub_vertinv.png';
+                authLogo.src = 'FocusHub_vertinv.svg';
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
-                authLogo.src = 'FocusHub_vertnorm.png';
+                authLogo.src = 'FocusHub_vertnorm.svg';
             }
         }
         
