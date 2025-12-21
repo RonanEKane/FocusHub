@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div>
+                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
+                    <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Upgrade Your Plan</h1>
+                </div>
+                <div>
+                    <a href="home.html" class="btn btn-secondary">← Dashboard</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Current Plan -->
+                <div class="admin-section">
+                    <h2>Your Current Plan</h2>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div id="currentPlanBadge"></div>
+                        <div>
+                            <div id="currentPlanName" style="font-size: 18px; font-weight: 600;"></div>
+                            <div id="currentPlanFeatures" style="color: var(--text-secondary); font-size: 14px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Toggle -->
+                <div style="text-align: center; margin: 2rem 0;">
+                    <div class="billing-toggle">
+                        <button id="monthlyBtn" class="billing-btn active" onclick="setBilling('monthly')">Monthly</button>
+                        <button id="yearlyBtn" class="billing-btn" onclick="setBilling('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
+                    </div>
+                </div>
+
+                <!-- Pricing Cards -->
+                <div class="pricing-grid" style="max-width: 1200px; margin: 0 auto;">
+                    <!-- Student HS -->
+                    <div class="pricing-card" id="card-student_hs">
+                        <div class="pricing-header">
+                            <h3>Student - High School</h3>
+                            <div class="price">
+                                <span class="price-monthly">$5</span>
+                                <span class="price-yearly hidden">$49</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                            <p class="price-description">Perfect for high school students</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li>✓ Unlimited sprints & tasks</li>
+                            <li>✓ Subject tracking</li>
+                            <li>✓ Cloud sync across devices</li>
+                            <li>✓ 90-day history</li>
+                            <li>✓ Export to CSV</li>
+                            <li>✓ Email support</li>
+                        </ul>
+                        <button onclick="selectPlan('student_hs')" class="btn btn-primary btn-block">Upgrade Now</button>
+                        <div class="yearly-note hidden">Billed $49/year</div>
+                    </div>
+                    
+                    <!-- Student College -->
+                    <div class="pricing-card recommended" id="card-student_college">
+                        <div class="recommended-badge">MOST POPULAR</div>
+                        <div class="pricing-header">
+                            <h3>Student - College/Grad</h3>
+                            <div class="price">
+                                <span class="price-monthly">$8</span>
+                                <span class="price-yearly hidden">$79</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                            <p class="price-description">For serious students</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li>✓ Everything in Student HS</li>
+                            <li>✓ College-specific subjects</li>
+                            <li>✓ Research & thesis tracking</li>
+                            <li>✓ Unlimited history</li>
+                            <li>✓ Advanced analytics</li>
+                            <li>✓ Priority support</li>
+                        </ul>
+                        <button onclick="selectPlan('student_college')" class="btn btn-primary btn-block">Upgrade Now</button>
+                        <div class="yearly-note hidden">Billed $79/year</div>
+                    </div>
+                    
+                    <!-- Professional -->
+                    <div class="pricing-card" id="card-professional">
+                        <div class="pricing-header">
+                            <h3>Professional</h3>
+                            <div class="price">
+                                <span class="price-monthly">$10</span>
+                                <span class="price-yearly hidden">$99</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                            <p class="price-description">For professionals</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li>✓ Professional mode features</li>
+                            <li>✓ Cloud sync across devices</li>
+                            <li>✓ Unlimited history</li>
+                            <li>✓ Meeting time tracker</li>
+                            <li>✓ Advanced analytics & trends</li>
+                            <li>✓ Export to multiple formats</li>
+                            <li>✓ Priority email support</li>
+                        </ul>
+                        <button onclick="selectPlan('professional')" class="btn btn-primary btn-block">Upgrade Now</button>
+                        <div class="yearly-note hidden">Billed $99/year</div>
+                    </div>
+                    
+                    <!-- Premium -->
+                    <div class="pricing-card" id="card-premium">
+                        <div class="pricing-header">
+                            <h3>Premium</h3>
+                            <div class="price">
+                                <span class="price-monthly">$15</span>
+                                <span class="price-yearly hidden">$149</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                            <p class="price-description">Full power & customization</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li>✓ Switch between all modes</li>
+                            <li>✓ Custom task bucket types</li>
+                            <li>✓ Custom sprint durations</li>
+                            <li>✓ Custom AI persona messages</li>
+                            <li>✓ Unlimited everything</li>
+                            <li>✓ API access (coming soon)</li>
+                            <li>✓ White-glove support</li>
+                        </ul>
+                        <button onclick="selectPlan('premium')" class="btn btn-primary btn-block">Upgrade Now</button>
+                        <div class="yearly-note hidden">Billed $149/year</div>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="admin-section" style="max-width: 800px; margin: 3rem auto;">
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <div class="faq-item">
+                        <h4>Can I cancel anytime?</h4>
+                        <p>Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h4>What payment methods do you accept?</h4>
+                        <p>We accept all major credit cards (Visa, MasterCard, American Express) and debit cards through Stripe.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h4>Can I switch plans later?</h4>
+                        <p>Yes! You can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h4>Do you offer refunds?</h4>
+                        <p>We offer a 14-day money-back guarantee. If you're not satisfied, contact us for a full refund.</p>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h4>Is my data safe?</h4>
+                        <p>Yes! All data is encrypted in transit and at rest. We use industry-standard security practices and never sell your data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        
+        if (!currentUser) {
+            window.location.href = 'auth.html';
+        }
+        
+        const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+        const currentUserFull = users.find(u => u.id === currentUser.id);
+        
+        let billingInterval = 'monthly';
+        
+        // Display current plan
+        function displayCurrentPlan() {
+            const planNames = {
+                'free': 'Free Plan',
+                'student_hs': 'Student - High School',
+                'student_college': 'Student - College/Grad',
+                'professional': 'Professional',
+                'premium': 'Premium',
+                'admin': 'Admin Account'
+            };
+            
+            const planBadges = {
+                'free': '<span class="badge badge-gray">Free</span>',
+                'student_hs': '<span class="badge badge-blue">Student HS</span>',
+                'student_college': '<span class="badge badge-blue">Student College</span>',
+                'professional': '<span class="badge badge-green">Professional</span>',
+                'premium': '<span class="badge badge-purple">Premium</span>',
+                'admin': '<span class="badge badge-red">Admin</span>'
+            };
+            
+            const plan = currentUserFull.plan || 'free';
+            document.getElementById('currentPlanBadge').innerHTML = planBadges[plan];
+            document.getElementById('currentPlanName').textContent = planNames[plan];
+            
+            if (plan === 'free') {
+                document.getElementById('currentPlanFeatures').textContent = 'Local storage only • Limited features';
+            } else if (plan === 'admin') {
+                document.getElementById('currentPlanFeatures').textContent = 'Full admin access • All features unlocked';
+            } else {
+                document.getElementById('currentPlanFeatures').textContent = 'Cloud sync • Unlimited features';
+            }
+            
+            // Hide current plan from options
+            const currentCard = document.getElementById(`card-${plan}`);
+            if (currentCard) {
+                currentCard.style.opacity = '0.5';
+                currentCard.querySelector('button').textContent = 'Current Plan';
+                currentCard.querySelector('button').disabled = true;
+            }
+        }
+        
+        // Set billing interval
+        function setBilling(interval) {
+            billingInterval = interval;
+            
+            // Update buttons
+            document.getElementById('monthlyBtn').classList.toggle('active', interval === 'monthly');
+            document.getElementById('yearlyBtn').classList.toggle('active', interval === 'yearly');
+            
+            // Update prices
+            document.querySelectorAll('.price-monthly').forEach(el => {
+                el.classList.toggle('hidden', interval === 'yearly');
+            });
+            document.querySelectorAll('.price-yearly').forEach(el => {
+                el.classList.toggle('hidden', interval === 'monthly');
+            });
+            document.querySelectorAll('.yearly-note').forEach(el => {
+                el.classList.toggle('hidden', interval === 'monthly');
+            });
+        }
+        
+        // Select plan (ready for Stripe integration)
+        function selectPlan(plan) {
+            // For now, show coming soon message
+            // In production, this would redirect to Stripe Checkout
+            
+            const planNames = {
+                'student_hs': 'Student - High School',
+                'student_college': 'Student - College/Grad',
+                'professional': 'Professional',
+                'premium': 'Premium'
+            };
+            
+            const prices = {
+                'student_hs': { monthly: 5, yearly: 49 },
+                'student_college': { monthly: 8, yearly: 79 },
+                'professional': { monthly: 10, yearly: 99 },
+                'premium': { monthly: 15, yearly: 149 }
+            };
+            
+            const price = prices[plan][billingInterval];
+            const interval = billingInterval === 'monthly' ? 'month' : 'year';
+            
+            alert(`Stripe integration coming soon!\n\nYou selected: ${planNames[plan]}\nPrice: $${price}/${interval}\n\nFor now, contact admin to upgrade your account.`);
+            
+            // Track analytics
+            if (window.FocusHubAnalytics) {
+                FocusHubAnalytics.trackEvent('upgrade_attempted', {
+                    plan: plan,
+                    interval: billingInterval,
+                    price: price
+                });
+            }
+            
+            /* STRIPE INTEGRATION (Ready to uncomment when Stripe is set up)
+            
+            // Create Stripe checkout session
+            fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plan: plan,
+                    interval: billingInterval,
+                    userId: currentUser.id
+                })
+            })
+            .then(res => res.json())
+            .then(session => {
+                // Redirect to Stripe Checkout
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+            });
+            
+            */
+        }
+        
+        // Theme
+        const theme = localStorage.getItem('focushub_theme') || 'light';
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
+        }
+        
+        displayCurrentPlan();
+    </script>
+</body>
+</html>

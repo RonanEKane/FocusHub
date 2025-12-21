@@ -1,0 +1,87 @@
+<!-- Bug Report Modal -->
+<div id="bugReportModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>Report a Bug</h2>
+            <button class="modal-close" onclick="closeBugReport()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Help us improve FocusHub by reporting bugs or issues you encounter.
+            </p>
+            
+            <div class="form-group">
+                <label>What happened?</label>
+                <textarea id="bugDescription" rows="4" class="admin-input" placeholder="Describe the bug or issue..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Steps to reproduce (optional)</label>
+                <textarea id="bugSteps" rows="3" class="admin-input" placeholder="1. Go to...&#10;2. Click on...&#10;3. See error"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Page where it happened</label>
+                <input type="text" id="bugPage" class="admin-input" readonly>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeBugReport()" class="btn btn-secondary">Cancel</button>
+            <button onclick="submitBugReport()" class="btn btn-primary">Submit Report</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openBugReport() {
+    document.getElementById('bugReportModal').classList.remove('hidden');
+    document.getElementById('bugPage').value = window.location.pathname;
+}
+
+function closeBugReport() {
+    document.getElementById('bugReportModal').classList.add('hidden');
+    document.getElementById('bugDescription').value = '';
+    document.getElementById('bugSteps').value = '';
+}
+
+function submitBugReport() {
+    const description = document.getElementById('bugDescription').value.trim();
+    const steps = document.getElementById('bugSteps').value.trim();
+    const page = document.getElementById('bugPage').value;
+    
+    if (!description) {
+        alert('Please describe the bug');
+        return;
+    }
+    
+    const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+    
+    const bugReport = {
+        id: 'bug_' + Date.now(),
+        userId: currentUser ? currentUser.id : 'anonymous',
+        userEmail: currentUser ? currentUser.email : 'anonymous',
+        description: description,
+        steps: steps,
+        page: page,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        status: 'open'
+    };
+    
+    // Store bug report
+    const bugReports = JSON.parse(localStorage.getItem('focushub_bug_reports') || '[]');
+    bugReports.push(bugReport);
+    localStorage.setItem('focushub_bug_reports', JSON.stringify(bugReports));
+    
+    // Track in analytics
+    if (window.FocusHubAnalytics) {
+        FocusHubAnalytics.trackEvent('bug_reported', {
+            page: page,
+            hasSteps: !!steps
+        });
+    }
+    
+    closeBugReport();
+    alert('Thank you! Your bug report has been submitted.');
+}
+</script>

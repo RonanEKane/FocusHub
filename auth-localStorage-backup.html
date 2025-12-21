@@ -16,7 +16,7 @@
                 <h2>Welcome Back</h2>
                 <p class="auth-subtitle">Sign in to continue your productivity journey</p>
                 
-                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                <form onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
                         <input type="email" id="loginEmail" required>
@@ -29,7 +29,7 @@
                     
                     <div id="loginError" class="auth-error hidden"></div>
                     
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Sign In</button>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                 </form>
                 
                 <p class="auth-switch">
@@ -43,7 +43,7 @@
                 <h2>Get Started</h2>
                 <p class="auth-subtitle">Create your account and choose your mode</p>
                 
-                <form id="signupFormElement" onsubmit="handleSignup(event)">
+                <form onsubmit="handleSignup(event)">
                     <div class="form-group">
                         <label for="signupEmail">Email</label>
                         <input type="email" id="signupEmail" required>
@@ -84,7 +84,7 @@
                     
                     <div id="signupError" class="auth-error hidden"></div>
                     
-                    <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Create Account</button>
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
                 </form>
                 
                 <p class="auth-switch">
@@ -95,92 +95,64 @@
         </div>
     </div>
 
-    <!-- Firebase Config -->
-    <script type="module">
-        // Import Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
-            authDomain: "focushub-91094.firebaseapp.com",
-            projectId: "focushub-91094",
-            storageBucket: "focushub-91094.firebasestorage.app",
-            messagingSenderId: "548003574834",
-            appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Make functions available globally
-        window.handleLogin = handleLogin;
-        window.handleSignup = handleSignup;
-        window.showLogin = showLogin;
-        window.showSignup = showSignup;
-
+    <script>
+        // Simple auth state management using localStorage
+        
         function showLogin() {
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('signupError').classList.add('hidden');
         }
         
         function showSignup() {
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('signupForm').classList.remove('hidden');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('signupError').classList.add('hidden');
         }
         
-        async function handleLogin(event) {
+        function handleLogin(event) {
             event.preventDefault();
             
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
-            const loginBtn = document.getElementById('loginBtn');
             
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing in...';
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
             
-            try {
-                // Sign in with Firebase
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // Get user profile from Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.uid, 'profile', 'settings'));
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    
-                    // Set mode in localStorage for config.js
-                    localStorage.setItem('focushub_mode', userData.mode);
-                    if (userData.mode === 'student') {
-                        localStorage.setItem('focushub_student_submode', userData.subMode || 'highschool');
-                    }
-                    
-                    // Redirect to app
-                    window.location.href = 'app.html';
-                } else {
-                    throw new Error('User profile not found. Please contact support.');
-                }
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                errorEl.textContent = getFriendlyErrorMessage(error);
+            // Find user
+            const user = users.find(u => u.email === email);
+            
+            if (!user) {
+                errorEl.textContent = 'No account found with this email';
                 errorEl.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Sign In';
+                return;
             }
+            
+            // Simple password check (in production, this would be properly hashed)
+            if (user.password !== btoa(password)) {
+                errorEl.textContent = 'Incorrect password';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Set current user
+            localStorage.setItem('focushub_current_user', JSON.stringify({
+                id: user.id,
+                email: user.email,
+                mode: user.mode,
+                created: user.created
+            }));
+            
+            // Set mode for config system
+            localStorage.setItem('focushub_mode', user.mode);
+            if (user.mode === 'student') {
+                localStorage.setItem('focushub_student_submode', user.subMode || 'highschool');
+            }
+            
+            // Redirect to app
+            window.location.href = 'app.html';
         }
         
-        async function handleSignup(event) {
+        function handleSignup(event) {
             event.preventDefault();
             
             const email = document.getElementById('signupEmail').value;
@@ -188,7 +160,6 @@
             const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
             const mode = document.querySelector('input[name="mode"]:checked').value;
             const errorEl = document.getElementById('signupError');
-            const signupBtn = document.getElementById('signupBtn');
             
             // Validate passwords match
             if (password !== passwordConfirm) {
@@ -197,57 +168,73 @@
                 return;
             }
             
-            signupBtn.disabled = true;
-            signupBtn.textContent = 'Creating account...';
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
             
-            try {
-                // Create Firebase user
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // Check if this is the first user (make them admin)
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                const isFirstUser = usersSnapshot.size === 0;
-                
-                // Create user profile in Firestore
-                await setDoc(doc(db, 'users', user.uid, 'profile', 'settings'), {
-                    email: email,
-                    mode: mode,
-                    subMode: mode === 'student' ? 'highschool' : null,
-                    plan: isFirstUser ? 'admin' : 'free',
-                    created: new Date().toISOString()
-                });
-                
-                // Set mode in localStorage
-                localStorage.setItem('focushub_mode', mode);
-                if (mode === 'student') {
-                    localStorage.setItem('focushub_student_submode', 'highschool');
-                }
-                
-                // Redirect to app
-                window.location.href = 'app.html';
-                
-            } catch (error) {
-                console.error('Signup error:', error);
-                errorEl.textContent = getFriendlyErrorMessage(error);
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                errorEl.textContent = 'An account with this email already exists';
                 errorEl.classList.remove('hidden');
-                signupBtn.disabled = false;
-                signupBtn.textContent = 'Create Account';
+                return;
             }
-        }
-        
-        function getFriendlyErrorMessage(error) {
-            const errorMessages = {
-                'auth/email-already-in-use': 'An account with this email already exists',
-                'auth/invalid-email': 'Invalid email address',
-                'auth/user-not-found': 'No account found with this email',
-                'auth/wrong-password': 'Incorrect password',
-                'auth/weak-password': 'Password should be at least 6 characters',
-                'auth/too-many-requests': 'Too many failed attempts. Please try again later',
-                'auth/network-request-failed': 'Network error. Please check your connection'
+            
+            // Create new user
+            const newUser = {
+                id: 'user_' + Date.now(),
+                email: email,
+                password: btoa(password), // Base64 encoding (not secure, but works for localStorage)
+                mode: mode,
+                subMode: mode === 'student' ? 'highschool' : null,
+                created: new Date().toISOString(),
+                plan: users.length === 0 ? 'admin' : 'free'  // First user is automatically admin
             };
             
-            return errorMessages[error.code] || error.message || 'An error occurred. Please try again.';
+            // Save user
+            users.push(newUser);
+            localStorage.setItem('focushub_users', JSON.stringify(users));
+            
+            // Set current user
+            localStorage.setItem('focushub_current_user', JSON.stringify({
+                id: newUser.id,
+                email: newUser.email,
+                mode: newUser.mode,
+                created: newUser.created
+            }));
+            
+            // Set mode for config system
+            localStorage.setItem('focushub_mode', newUser.mode);
+            if (newUser.mode === 'student') {
+                localStorage.setItem('focushub_student_submode', 'highschool');
+            }
+            
+            // Migrate any existing localStorage data to this user
+            migrateExistingData(newUser.id);
+            
+            // Redirect to app
+            window.location.href = 'app.html';
+        }
+        
+        function migrateExistingData(userId) {
+            // Migrate all existing localStorage data to user-namespaced keys
+            const keysToMigrate = [
+                'focushub_tasks',
+                'focushub_daily_stats',
+                'focushub_history',
+                'focushub_distractions',
+                'focushub_intentions',
+                'focushub_tough_love',
+                'focushub_timer',
+                'focushub_session_state',
+                'focushub_session_date'
+            ];
+            
+            keysToMigrate.forEach(key => {
+                const existingData = localStorage.getItem(key);
+                if (existingData) {
+                    localStorage.setItem(`${key}_${userId}`, existingData);
+                    // Don't remove the original yet, in case multiple users want to claim it
+                }
+            });
         }
         
         // Theme detection

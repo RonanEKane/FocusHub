@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div>
+                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
+                    <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Analytics Dashboard</h1>
+                </div>
+                <div>
+                    <a href="admin.html" class="btn btn-secondary">← Admin</a>
+                    <a href="home.html" class="btn btn-secondary">Dashboard</a>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <div class="container">
+                <!-- Stats Overview -->
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Events</div>
+                        <div class="stat-value" id="totalEvents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Errors</div>
+                        <div class="stat-value" id="totalErrors">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Sessions</div>
+                        <div class="stat-value" id="activeSessions">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Page Views</div>
+                        <div class="stat-value" id="pageViews">0</div>
+                    </div>
+                </div>
+
+                <!-- Events by Type -->
+                <div class="admin-section">
+                    <h2>Events by Type</h2>
+                    <div id="eventsByType" class="chart-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Recent Events -->
+                <div class="admin-section">
+                    <h2>Recent Events (Last 50)</h2>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Event</th>
+                                    <th>User</th>
+                                    <th>Page</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentEventsTable">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Errors -->
+                <div class="admin-section">
+                    <h2>Recent Errors</h2>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Error</th>
+                                    <th>Page</th>
+                                    <th>User</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="errorsTable">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="admin-section">
+                    <h2>Data Management</h2>
+                    <button onclick="exportAnalytics()" class="btn btn-primary">Export Analytics (JSON)</button>
+                    <button onclick="clearAnalytics()" class="btn btn-secondary" style="margin-left: 1rem;">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Detail Modal -->
+    <div id="errorModal" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>Error Details</h2>
+                <button class="modal-close" onclick="closeErrorModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="error-detail">
+                    <strong>Error Message:</strong>
+                    <pre id="errorMessage"></pre>
+                </div>
+                <div class="error-detail">
+                    <strong>Stack Trace:</strong>
+                    <pre id="errorStack"></pre>
+                </div>
+                <div class="error-detail">
+                    <strong>Context:</strong>
+                    <pre id="errorContext"></pre>
+                </div>
+                <div class="error-detail">
+                    <strong>User Agent:</strong>
+                    <div id="errorUserAgent"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeErrorModal()" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="analytics.js"></script>
+    <script>
+        // Check admin access
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        
+        if (!currentUser) {
+            window.location.href = 'auth.html';
+        }
+        
+        const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+        const currentUserFull = users.find(u => u.id === currentUser.id);
+        
+        if (!currentUserFull || currentUserFull.plan !== 'admin') {
+            alert('Access denied. Admin privileges required.');
+            window.location.href = 'home.html';
+        }
+
+        // Load analytics
+        function loadAnalytics() {
+            const summary = FocusHubAnalytics.getAnalyticsSummary();
+            
+            // Update stats
+            document.getElementById('totalEvents').textContent = summary.totalEvents;
+            document.getElementById('totalErrors').textContent = summary.totalErrors;
+            
+            // Count page views
+            const pageViews = summary.eventsByType['page_view'] || 0;
+            document.getElementById('pageViews').textContent = pageViews;
+            
+            // Count unique sessions (approximate)
+            const events = JSON.parse(localStorage.getItem('focushub_analytics_events') || '[]');
+            const uniqueSessions = new Set(events.map(e => e.sessionId)).size;
+            document.getElementById('activeSessions').textContent = uniqueSessions;
+            
+            // Events by type chart
+            renderEventsByType(summary.eventsByType);
+            
+            // Recent events table
+            renderRecentEvents(summary.recentEvents);
+            
+            // Errors table
+            renderErrors(summary.recentErrors);
+        }
+        
+        function renderEventsByType(eventsByType) {
+            const container = document.getElementById('eventsByType');
+            const total = Object.values(eventsByType).reduce((a, b) => a + b, 0);
+            
+            container.innerHTML = Object.entries(eventsByType)
+                .sort((a, b) => b[1] - a[1])
+                .map(([type, count]) => {
+                    const percentage = ((count / total) * 100).toFixed(1);
+                    return `
+                        <div class="chart-bar">
+                            <div class="chart-label">${type}</div>
+                            <div class="chart-bar-container">
+                                <div class="chart-bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <div class="chart-value">${count} (${percentage}%)</div>
+                        </div>
+                    `;
+                }).join('');
+        }
+        
+        function renderRecentEvents(events) {
+            const tbody = document.getElementById('recentEventsTable');
+            
+            tbody.innerHTML = events.map(event => {
+                const time = new Date(event.timestamp).toLocaleString();
+                const userId = event.userId.substring(0, 8);
+                const page = event.page.split('/').pop();
+                const data = JSON.stringify(event.eventData).substring(0, 50);
+                
+                return `
+                    <tr>
+                        <td style="font-size: 12px;">${time}</td>
+                        <td><span class="badge badge-blue">${event.eventName}</span></td>
+                        <td style="font-family: monospace; font-size: 11px;">${userId}...</td>
+                        <td>${page}</td>
+                        <td style="font-size: 12px; color: var(--text-secondary);">${data}...</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No events yet</td></tr>';
+        }
+        
+        function renderErrors(errors) {
+            const tbody = document.getElementById('errorsTable');
+            
+            tbody.innerHTML = errors.map((error, index) => {
+                const time = new Date(error.timestamp).toLocaleString();
+                const page = error.page.split('/').pop();
+                const userId = error.userId.substring(0, 8);
+                const message = error.errorMessage.substring(0, 50);
+                
+                return `
+                    <tr>
+                        <td style="font-size: 12px;">${time}</td>
+                        <td style="color: #dc2626;">${message}...</td>
+                        <td>${page}</td>
+                        <td style="font-family: monospace; font-size: 11px;">${userId}...</td>
+                        <td><button onclick="viewError(${index})" class="btn-small">View</button></td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No errors logged</td></tr>';
+        }
+        
+        function viewError(index) {
+            const errors = JSON.parse(localStorage.getItem('focushub_errors') || '[]');
+            const recentErrors = errors.slice(-20).reverse();
+            const error = recentErrors[index];
+            
+            if (!error) return;
+            
+            document.getElementById('errorMessage').textContent = error.errorMessage;
+            document.getElementById('errorStack').textContent = error.errorStack || 'No stack trace available';
+            document.getElementById('errorContext').textContent = JSON.stringify(error.context, null, 2);
+            document.getElementById('errorUserAgent').textContent = error.userAgent;
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+        
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+        
+        function exportAnalytics() {
+            const events = JSON.parse(localStorage.getItem('focushub_analytics_events') || '[]');
+            const errors = JSON.parse(localStorage.getItem('focushub_errors') || '[]');
+            
+            const data = {
+                events: events,
+                errors: errors,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `focushub-analytics-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function clearAnalytics() {
+            if (!confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+                return;
+            }
+            
+            FocusHubAnalytics.clearAnalytics();
+            alert('Analytics data cleared');
+            loadAnalytics();
+        }
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Logout from analytics dashboard?')) {
+                localStorage.removeItem('focushub_current_user');
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // Theme
+        const theme = localStorage.getItem('focushub_theme') || 'light';
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadAnalytics, 30000);
+        
+        // Load initial data
+        loadAnalytics();
+    </script>
+</body>
+</html>

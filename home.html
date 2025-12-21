@@ -42,10 +42,12 @@
         <div class="container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h1 class="mission-title" data-label="missionControl">MISSION CONTROL</h1>
-                <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
                     MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>
                 </div>
-            </div>
+                    <a href="upgrade.html" id="upgradeBtn" class="btn btn-primary hidden" style="font-size: 0.875rem;">✨ Upgrade</a>
+                </div>
             
             <!-- Bento Grid -->
             <div class="bento-grid">
@@ -162,9 +164,69 @@
     <!-- Mode Configuration System -->
     <script src="config.js"></script>
 
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
+            authDomain: "focushub-91094.firebaseapp.com",
+            projectId: "focushub-91094",
+            storageBucket: "focushub-91094.firebasestorage.app",
+            messagingSenderId: "548003574834",
+            appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Check authentication and load user data
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+            } else {
+                window.currentFirebaseUser = user;
+                window.firebaseDb = db;
+                
+                // Load user profile
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid, 'profile', 'settings'));
+                    if (userDoc.exists()) {
+                        window.currentUserProfile = userDoc.data();
+                    }
+                } catch (error) {
+                    console.error('Error loading user profile:', error);
+                }
+                
+                initDashboard();
+            }
+        });
+        
+        // Logout function
+        window.handleFirebaseLogout = async function() {
+            if (confirm('Logout from dashboard?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            }
+        };
+        
+        function initDashboard() {
+            // Dashboard initialization continues below
+        }
+    </script>
+
     <script>
         // ============================================
-        // AUTHENTICATION CHECK
+        // AUTHENTICATION CHECK (LEGACY - FIREBASE ABOVE)
         // ============================================
         const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
         
@@ -200,6 +262,11 @@
             const userFull = users.find(u => u.id === currentUser.id);
             if (userFull && userFull.plan === 'admin') {
                 document.getElementById('adminLink').classList.remove('hidden');
+            }
+            
+            // Show upgrade button if user is on free plan
+            if (userFull && userFull.plan === 'free') {
+                document.getElementById('upgradeBtn').classList.remove('hidden');
             }
             
             // Check for admin impersonation
@@ -474,9 +541,8 @@
 
         // Logout handler
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('focushub_current_user');
-                window.location.href = 'index.html';
+            if (window.handleFirebaseLogout) {
+                window.handleFirebaseLogout();
             }
         });
 

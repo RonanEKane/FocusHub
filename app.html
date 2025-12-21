@@ -378,42 +378,67 @@
     <!-- Mode Configuration System -->
     <script src="config.js"></script>
 
+    <!-- Analytics System -->
+    <script src="analytics.js"></script>
+    
+    <!-- Firestore Data Management -->
+    <script src="firestore-data.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
+            authDomain: "focushub-91094.firebaseapp.com",
+            projectId: "focushub-91094",
+            storageBucket: "focushub-91094.firebasestorage.app",
+            messagingSenderId: "548003574834",
+            appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Check authentication
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in, redirect to auth
+                window.location.href = 'auth.html';
+            } else {
+                // User is logged in, initialize app
+                window.currentFirebaseUser = user;
+                window.firebaseDb = db;
+                initApp();
+            }
+        });
+        
+        // Make logout available
+        window.handleFirebaseLogout = async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Error logging out. Please try again.');
+                }
+            }
+        };
+        
+        async function initApp() {
+            // Original app initialization code continues below
+            // (keeping all existing code intact)
+    </script>
+    
     <script>
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            // Not logged in, redirect to auth
-            window.location.href = 'auth.html';
-        }
-        
-        // ============================================
-        // USER-SPECIFIC STORAGE HELPERS
-        // ============================================
-        function getUserKey(baseKey) {
-            // Generate user-specific key for localStorage
-            // e.g., "focushub_tasks" -> "focushub_tasks_user_1234567890"
-            return currentUser ? `${baseKey}_${currentUser.id}` : baseKey;
-        }
-        
-        function getUserItem(baseKey) {
-            // Get item from localStorage with user-specific key
-            return localStorage.getItem(getUserKey(baseKey));
-        }
-        
-        function setUserItem(baseKey, value) {
-            // Set item in localStorage with user-specific key
-            localStorage.setItem(getUserKey(baseKey), value);
-        }
-        
-        function removeUserItem(baseKey) {
-            // Remove item from localStorage with user-specific key
-            localStorage.removeItem(getUserKey(baseKey));
-        }
-        
         // ============================================
         // STATE MANAGEMENT
         // ============================================
@@ -469,18 +494,61 @@
             // Apply mode configuration FIRST
             applyModeConfig();
             
-            loadState();
+            await loadState();
             restoreTimer();
             setupEventListeners();
             initDragDrop();
             checkSessionState();
         }
 
-        function loadState() {
+        async function loadState() {
             const today = new Date().toDateString();
             
-            // Load daily stats (user-specific)
-            const savedStats = getUserItem('focushub_daily_stats');
+            // Try loading from Firestore first
+            if (window.FirestoreData && window.currentFirebaseUser) {
+                try {
+                    const [dailyStats, tasks, distractions, intentions] = await Promise.all([
+                        window.FirestoreData.loadDailyStats(),
+                        window.FirestoreData.loadTasks(),
+                        window.FirestoreData.loadDistractions(),
+                        window.FirestoreData.loadIntentions()
+                    ]);
+                    
+                    // Load daily stats
+                    if (dailyStats && dailyStats.date === today) {
+                        state.sprintCount = dailyStats.sprintCount || 0;
+                        state.breaksCount = dailyStats.breaksCount || 0;
+                        state.distractionCount = dailyStats.distractionCount || 0;
+                        state.tasksCompleted = dailyStats.tasksCompleted || 0;
+                        state.meetingMinutes = dailyStats.meetingMinutes || 0;
+                        state.plannedSprints = dailyStats.plannedSprints || 5;
+                    }
+                    
+                    // Load tasks
+                    if (tasks && tasks.length > 0) {
+                        state.tasks = tasks;
+                    }
+                    
+                    // Load distractions
+                    if (distractions && distractions.length > 0) {
+                        state.distractions = distractions;
+                    }
+                    
+                    // Load intentions
+                    if (intentions && intentions.length > 0) {
+                        state.intentions = intentions;
+                    }
+                    
+                    console.log('Loaded state from Firestore');
+                    return;
+                } catch (error) {
+                    console.error('Error loading from Firestore, falling back to localStorage:', error);
+                }
+            }
+            
+            // Fallback to localStorage if Firestore fails
+            console.log('Loading from localStorage (fallback)');
+            const savedStats = localStorage.getItem('focushub_daily_stats');
             if (savedStats) {
                 const stats = JSON.parse(savedStats);
                 if (stats.date === today) {
@@ -493,28 +561,19 @@
                 }
             }
 
-            // Load tasks (user-specific)
-            const savedTasks = getUserItem('focushub_tasks');
+            const savedTasks = localStorage.getItem('focushub_tasks');
             if (savedTasks) {
                 state.tasks = JSON.parse(savedTasks);
             }
 
-            // Load distractions (user-specific)
-            const savedDistractions = getUserItem('focushub_distractions');
+            const savedDistractions = localStorage.getItem('focushub_distractions');
             if (savedDistractions) {
                 state.distractions = JSON.parse(savedDistractions);
             }
 
-            // Load intentions (user-specific)
-            const savedIntentions = getUserItem('focushub_intentions');
+            const savedIntentions = localStorage.getItem('focushub_intentions');
             if (savedIntentions) {
                 state.intentions = JSON.parse(savedIntentions);
-            }
-
-            // Load tough love level (user-specific)
-            const savedToughLove = getUserItem('focushub_tough_love');
-            if (savedToughLove) {
-                state.toughLoveLevel = savedToughLove;
             }
         }
 
@@ -562,7 +621,7 @@
             }
         }
 
-        function saveState() {
+        async function saveState() {
             const today = new Date().toDateString();
             
             const stats = {
@@ -574,13 +633,29 @@
                 plannedSprints: state.plannedSprints,
                 date: today
             };
-            setUserItem('focushub_daily_stats', JSON.stringify(stats));
-            setUserItem('focushub_tasks', JSON.stringify(state.tasks));
-            setUserItem('focushub_distractions', JSON.stringify(state.distractions));
-            setUserItem('focushub_intentions', JSON.stringify(state.intentions));
-            setUserItem('focushub_tough_love', state.toughLoveLevel);
             
-            // Save timer state for persistence across pages
+            // Save to Firestore
+            if (window.FirestoreData && window.currentFirebaseUser) {
+                try {
+                    await Promise.all([
+                        window.FirestoreData.saveDailyStats(stats),
+                        window.FirestoreData.saveTasks(state.tasks),
+                        window.FirestoreData.saveDistractions(state.distractions),
+                        window.FirestoreData.saveIntentions(state.intentions)
+                    ]);
+                    console.log('Saved to Firestore');
+                } catch (error) {
+                    console.error('Error saving to Firestore:', error);
+                }
+            }
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('focushub_daily_stats', JSON.stringify(stats));
+            localStorage.setItem('focushub_tasks', JSON.stringify(state.tasks));
+            localStorage.setItem('focushub_distractions', JSON.stringify(state.distractions));
+            localStorage.setItem('focushub_intentions', JSON.stringify(state.intentions));
+            
+            // Save timer state
             const timerState = {
                 timeLeft: state.timer.timeLeft,
                 duration: state.timer.duration,
@@ -588,7 +663,11 @@
                 timerType: state.timer.timerType,
                 lastUpdated: Date.now()
             };
-            setUserItem('focushub_timer', JSON.stringify(timerState));
+            
+            if (window.FirestoreData && window.currentFirebaseUser) {
+                window.FirestoreData.saveTimerState(timerState).catch(console.error);
+            }
+            localStorage.setItem('focushub_timer', JSON.stringify(timerState));
         }
 
         function checkSessionState() {
@@ -683,9 +762,8 @@
             
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', () => {
-                if (confirm('Are you sure you want to logout?')) {
-                    localStorage.removeItem('focushub_current_user');
-                    window.location.href = 'index.html';
+                if (window.handleFirebaseLogout) {
+                    window.handleFirebaseLogout();
                 }
             });
 
@@ -738,6 +816,11 @@
             document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
 
             state.timer.interval = setInterval(updateTimer, 1000);
+            
+            // Track sprint started
+            if (window.FocusHubAnalytics) {
+                FocusHubAnalytics.trackFeature('sprint_started', { duration: duration });
+            }
         }
 
         function updateTimer() {
