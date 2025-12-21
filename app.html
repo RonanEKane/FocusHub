@@ -10,7 +10,7 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img id="startDayLogo" src="FocusHub_hori_light.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
+            <img id="startDayLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
             <h1 class="start-title">Ready to Win Today?</h1>
             <p class="start-subtitle">Built for Brains That Wander, but Still Want to Win</p>
 
@@ -50,6 +50,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Update start screen logo based on theme
+        function updateStartScreenLogo() {
+            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const logo = document.getElementById('startDayLogo');
+            if (logo) {
+                logo.src = theme === 'dark' ? 'FocusHub_vertdark.svg' : 'FocusHub_vertnorm.svg';
+            }
+        }
+        
+        // Run on load
+        updateStartScreenLogo();
+        
+        // Re-run if theme changes
+        window.addEventListener('storage', updateStartScreenLogo);
+    </script>
 
     <!-- Main App (hidden initially) -->
     <div id="mainApp" class="hidden">
@@ -674,14 +691,14 @@
         }
 
         function checkSessionState() {
-            const sessionState = getUserItem('focushub_session_state');
+            const sessionState = localStorage.getItem('focushub_session_state');
             const today = new Date().toDateString();
-            const lastDate = getUserItem('focushub_session_date');
+            const lastDate = localStorage.getItem('focushub_session_date');
 
             if (lastDate !== today) {
                 // New day
-                setUserItem('focushub_session_state', 'not_started');
-                setUserItem('focushub_session_date', today);
+                localStorage.setItem('focushub_session_state', 'not_started');
+                localStorage.setItem('focushub_session_date', today);
                 showStartScreen();
             } else if (sessionState === 'active') {
                 hideStartScreen();
@@ -796,10 +813,10 @@
             state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
             state.plannedSprints = state.baselineSprints;
             
-            // Set cookie for returning user
-            document.cookie = "focushub_returning_user=true; path=/; max-age=31536000";
+            // Save session state to localStorage (simple flag)
+            localStorage.setItem('focushub_session_state', 'active');
+            localStorage.setItem('focushub_session_date', new Date().toDateString());
             
-            setUserItem('focushub_session_state', 'active');
             hideStartScreen();
             renderAll();
             updateAgentMessage();
@@ -1612,8 +1629,8 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_vertinv.svg'; // White text for dark theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertinv.svg';
+                if (appLogo) appLogo.src = 'FocusHub_vertdark.svg'; // White text for dark theme
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertdark.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
                 if (appLogo) appLogo.src = 'FocusHub_vertnorm.svg'; // Black text for light theme
