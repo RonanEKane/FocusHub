@@ -21,17 +21,17 @@
                         <button class="energy-btn" data-energy="low">
                             <div class="energy-emoji">🔋</div>
                             <div>LOW</div>
-                            <div class="energy-desc">15min sprints</div>
+                            <div class="energy-desc" data-energy-desc="low">15min sprints</div>
                         </button>
                         <button class="energy-btn active" data-energy="medium">
                             <div class="energy-emoji">⚡</div>
                             <div>MEDIUM</div>
-                            <div class="energy-desc">20min sprints</div>
+                            <div class="energy-desc" data-energy-desc="medium">20min sprints</div>
                         </button>
                         <button class="energy-btn" data-energy="high">
                             <div class="energy-emoji">🔥</div>
                             <div>HIGH</div>
-                            <div class="energy-desc">30min sprints</div>
+                            <div class="energy-desc" data-energy-desc="high">30min sprints</div>
                         </button>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
         <header class="app-header">
             <div class="app-header-content">
                 <div class="logo-section">
-                    <img id="appLogo" src="logo_light.svg" alt="FocusHub" class="logo-img">
+                    <img id="appLogo" src="FocusHub_vertnorm.png" alt="FocusHub" class="logo-img">
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
                 </div>
                 
@@ -68,7 +68,8 @@
                 <div class="header-controls">
                     <a href="home.html" class="btn-home">📊 Dashboard</a>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
-                    <button id="endDayBtn" class="btn-end-day">END DAY</button>
+                    <button id="logoutBtn" class="btn-home" style="color: var(--text-secondary);">Logout</button>
+                    <button id="endDayBtn" class="btn-end-day" data-label="endDay">END DAY</button>
                 </div>
             </div>
         </header>
@@ -81,7 +82,7 @@
                     <div class="card-header">
                         <h3 class="card-title" id="timerTitle">🎯 SPRINT TIMER</h3>
                         <div class="timer-meeting">
-                            <button id="meetingBtn" class="btn-meeting">📅 Meeting</button>
+                            <button id="meetingBtn" class="btn-meeting" data-label="meeting">📅 Meeting</button>
                             <span id="meetingTime" class="meeting-time hidden">0m</span>
                         </div>
                     </div>
@@ -127,15 +128,26 @@
 
                     <!-- Brain Dump -->
                     <div class="brain-dump">
-                        <label>🧠 BRAIN DUMP</label>
+                        <label data-label="brainDump">🧠 BRAIN DUMP</label>
                         <p class="brain-dump-hint">Paste your task list below (one task per line)</p>
-                        <textarea id="taskInput" class="task-textarea" placeholder="Task 1&#10;Task 2&#10;Task 3&#10;etc..." rows="4"></textarea>
-                        <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Parse & Add to Holding</button>
+                        <textarea id="taskInput" class="task-textarea" data-label="taskEntry" placeholder="What needs doing?" rows="4"></textarea>
+                        
+                        <!-- Subject Selection (Student Mode Only) -->
+                        <div id="subjectSection" class="subject-section hidden" style="margin-top: 0.75rem;">
+                            <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">📚 Subject (Optional)</label>
+                            <select id="subjectSelect" class="subject-select" style="width: 100%; padding: 0.625rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem;">
+                                <option value="">Select subject...</option>
+                                <!-- Options populated by config.js -->
+                            </select>
+                            <input type="text" id="customSubjectInput" class="custom-subject-input hidden" placeholder="Enter custom subject..." style="width: 100%; margin-top: 0.5rem; padding: 0.625rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem;">
+                        </div>
+                        
+                        <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Parse & Add to <span data-label="holding">Holding</span></button>
                         
                         <!-- Holding Area -->
                         <div id="holdingArea" class="holding-area" style="margin-top: 1rem;">
                             <div class="holding-header">
-                                <span>📋 HOLDING AREA</span>
+                                <span>📋 <span data-label="holding">HOLDING AREA</span></span>
                                 <span class="task-count" id="holdingCount">0</span>
                             </div>
                             <div id="holdingList" class="task-list" data-bucket="holding"></div>
@@ -147,7 +159,7 @@
                         <div class="task-bucket urgent" data-bucket="urgent">
                             <div class="bucket-header">
                                 <span class="bucket-icon">🔥</span>
-                                <h3>URGENT</h3>
+                                <h3 data-label="urgent">URGENT</h3>
                                 <span class="task-count" id="urgentCount">0</span>
                             </div>
                             <div id="urgentList" class="task-list" data-bucket="urgent"></div>
@@ -156,7 +168,7 @@
                         <div class="task-bucket deepwork" data-bucket="deepwork">
                             <div class="bucket-header">
                                 <span class="bucket-icon">🎯</span>
-                                <h3>DEEP WORK</h3>
+                                <h3 data-label="deepwork">DEEP WORK</h3>
                                 <span class="task-count" id="deepworkCount">0</span>
                             </div>
                             <div id="deepworkList" class="task-list" data-bucket="deepwork"></div>
@@ -165,7 +177,7 @@
                         <div class="task-bucket strategic" data-bucket="strategic">
                             <div class="bucket-header">
                                 <span class="bucket-icon">♟️</span>
-                                <h3>STRATEGIC</h3>
+                                <h3 data-label="strategic">STRATEGIC</h3>
                                 <span class="task-count" id="strategicCount">0</span>
                             </div>
                             <div id="strategicList" class="task-list" data-bucket="strategic"></div>
@@ -363,8 +375,45 @@
         </div>
     </div>
 
+    <!-- Mode Configuration System -->
+    <script src="config.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        
+        if (!currentUser) {
+            // Not logged in, redirect to auth
+            window.location.href = 'auth.html';
+        }
+        
+        // ============================================
+        // USER-SPECIFIC STORAGE HELPERS
+        // ============================================
+        function getUserKey(baseKey) {
+            // Generate user-specific key for localStorage
+            // e.g., "focushub_tasks" -> "focushub_tasks_user_1234567890"
+            return currentUser ? `${baseKey}_${currentUser.id}` : baseKey;
+        }
+        
+        function getUserItem(baseKey) {
+            // Get item from localStorage with user-specific key
+            return localStorage.getItem(getUserKey(baseKey));
+        }
+        
+        function setUserItem(baseKey, value) {
+            // Set item in localStorage with user-specific key
+            localStorage.setItem(getUserKey(baseKey), value);
+        }
+        
+        function removeUserItem(baseKey) {
+            // Remove item from localStorage with user-specific key
+            localStorage.removeItem(getUserKey(baseKey));
+        }
+        
         // ============================================
         // STATE MANAGEMENT
         // ============================================
@@ -417,6 +466,9 @@
         // INITIALIZATION
         // ============================================
         function init() {
+            // Apply mode configuration FIRST
+            applyModeConfig();
+            
             loadState();
             restoreTimer();
             setupEventListeners();
@@ -427,8 +479,8 @@
         function loadState() {
             const today = new Date().toDateString();
             
-            // Load daily stats
-            const savedStats = localStorage.getItem('focushub_daily_stats');
+            // Load daily stats (user-specific)
+            const savedStats = getUserItem('focushub_daily_stats');
             if (savedStats) {
                 const stats = JSON.parse(savedStats);
                 if (stats.date === today) {
@@ -441,33 +493,33 @@
                 }
             }
 
-            // Load tasks
-            const savedTasks = localStorage.getItem('focushub_tasks');
+            // Load tasks (user-specific)
+            const savedTasks = getUserItem('focushub_tasks');
             if (savedTasks) {
                 state.tasks = JSON.parse(savedTasks);
             }
 
-            // Load distractions
-            const savedDistractions = localStorage.getItem('focushub_distractions');
+            // Load distractions (user-specific)
+            const savedDistractions = getUserItem('focushub_distractions');
             if (savedDistractions) {
                 state.distractions = JSON.parse(savedDistractions);
             }
 
-            // Load intentions
-            const savedIntentions = localStorage.getItem('focushub_intentions');
+            // Load intentions (user-specific)
+            const savedIntentions = getUserItem('focushub_intentions');
             if (savedIntentions) {
                 state.intentions = JSON.parse(savedIntentions);
             }
 
-            // Load tough love level
-            const savedToughLove = localStorage.getItem('focushub_tough_love');
+            // Load tough love level (user-specific)
+            const savedToughLove = getUserItem('focushub_tough_love');
             if (savedToughLove) {
                 state.toughLoveLevel = savedToughLove;
             }
         }
 
         function restoreTimer() {
-            const savedTimer = localStorage.getItem('focushub_timer');
+            const savedTimer = getUserItem('focushub_timer');
             if (!savedTimer) return;
             
             const timerData = JSON.parse(savedTimer);
@@ -522,11 +574,11 @@
                 plannedSprints: state.plannedSprints,
                 date: today
             };
-            localStorage.setItem('focushub_daily_stats', JSON.stringify(stats));
-            localStorage.setItem('focushub_tasks', JSON.stringify(state.tasks));
-            localStorage.setItem('focushub_distractions', JSON.stringify(state.distractions));
-            localStorage.setItem('focushub_intentions', JSON.stringify(state.intentions));
-            localStorage.setItem('focushub_tough_love', state.toughLoveLevel);
+            setUserItem('focushub_daily_stats', JSON.stringify(stats));
+            setUserItem('focushub_tasks', JSON.stringify(state.tasks));
+            setUserItem('focushub_distractions', JSON.stringify(state.distractions));
+            setUserItem('focushub_intentions', JSON.stringify(state.intentions));
+            setUserItem('focushub_tough_love', state.toughLoveLevel);
             
             // Save timer state for persistence across pages
             const timerState = {
@@ -536,18 +588,18 @@
                 timerType: state.timer.timerType,
                 lastUpdated: Date.now()
             };
-            localStorage.setItem('focushub_timer', JSON.stringify(timerState));
+            setUserItem('focushub_timer', JSON.stringify(timerState));
         }
 
         function checkSessionState() {
-            const sessionState = localStorage.getItem('focushub_session_state');
+            const sessionState = getUserItem('focushub_session_state');
             const today = new Date().toDateString();
-            const lastDate = localStorage.getItem('focushub_session_date');
+            const lastDate = getUserItem('focushub_session_date');
 
             if (lastDate !== today) {
                 // New day
-                localStorage.setItem('focushub_session_state', 'not_started');
-                localStorage.setItem('focushub_session_date', today);
+                setUserItem('focushub_session_state', 'not_started');
+                setUserItem('focushub_session_date', today);
                 showStartScreen();
             } else if (sessionState === 'active') {
                 hideStartScreen();
@@ -601,6 +653,16 @@
 
             // Tasks
             document.getElementById('addTaskBtn').addEventListener('click', addTask);
+            
+            // Subject dropdown (student mode)
+            const subjectSelect = document.getElementById('subjectSelect');
+            if (subjectSelect) {
+                subjectSelect.addEventListener('change', () => {
+                    if (window.handleSubjectChange) {
+                        handleSubjectChange();
+                    }
+                });
+            }
 
             // Distractions
             document.getElementById('parkDistractionBtn').addEventListener('click', addDistraction);
@@ -617,6 +679,14 @@
                     saveState();
                     updateAgentMessage();
                 });
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('focushub_current_user');
+                    window.location.href = 'index.html';
+                }
             });
 
             // End of Day
@@ -648,7 +718,7 @@
             // Set cookie for returning user
             document.cookie = "focushub_returning_user=true; path=/; max-age=31536000";
             
-            localStorage.setItem('focushub_session_state', 'active');
+            setUserItem('focushub_session_state', 'active');
             hideStartScreen();
             renderAll();
             updateAgentMessage();
@@ -789,6 +859,22 @@
             
             if (!text) return;
             
+            // Get subject if in student mode
+            const subjectSelect = document.getElementById('subjectSelect');
+            const customSubjectInput = document.getElementById('customSubjectInput');
+            let subject = null;
+            let customSubject = null;
+            
+            if (subjectSelect && !subjectSelect.classList.contains('hidden')) {
+                const selectedValue = subjectSelect.value;
+                if (selectedValue && selectedValue !== 'custom') {
+                    subject = selectedValue;
+                } else if (selectedValue === 'custom' && customSubjectInput.value.trim()) {
+                    customSubject = customSubjectInput.value.trim();
+                    subject = customSubject; // Use custom as the display subject
+                }
+            }
+            
             // Split by newlines and filter empty lines
             const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             
@@ -799,13 +885,25 @@
                     bucket: 'holding',
                     sprints: 0,
                     completed: false,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    // Student mode fields (Phase 3)
+                    subject: subject,
+                    customSubject: customSubject,
+                    deadline: null
                 };
                 
                 state.tasks.holding.push(newTask);
             });
             
             input.value = '';
+            // Clear subject selection
+            if (subjectSelect) {
+                subjectSelect.value = '';
+            }
+            if (customSubjectInput) {
+                customSubjectInput.value = '';
+                customSubjectInput.classList.add('hidden');
+            }
             saveState();
             renderTasks();
         }
@@ -880,6 +978,15 @@
             textSpan.className = bucket === 'wins' ? 'win-text' : 'task-text';
             textSpan.textContent = task.text;
             div.appendChild(textSpan);
+            
+            // Subject badge (if subject exists)
+            if (task.subject) {
+                const subjectBadge = document.createElement('span');
+                subjectBadge.className = 'task-subject-badge';
+                subjectBadge.textContent = task.subject;
+                subjectBadge.style.cssText = 'display: inline-block; margin-left: 0.5rem; padding: 0.125rem 0.5rem; background: var(--primary-color); color: white; border-radius: 12px; font-size: 0.75rem; font-weight: 600;';
+                div.appendChild(subjectBadge);
+            }
             
             // Delete button
             const deleteBtn = document.createElement('button');
@@ -1201,37 +1308,35 @@
         // AI AGENT
         // ============================================
         function updateAgentMessage() {
-            const messages = {
-                supportive: {
-                    start: "You've got this! Take it one sprint at a time.",
-                    progress: `Great work! ${state.sprintCount} sprints completed. Keep the momentum going.`,
-                    struggling: `${state.distractionCount} distractions so far. That's okay. Just park them and refocus.`,
-                    winning: `You're crushing it today! ${state.tasksCompleted} tasks done. Stay focused.`
-                },
-                balanced: {
-                    start: "Focus on the next sprint. Everything else can wait.",
-                    progress: `${state.sprintCount}/${state.plannedSprints} sprints. Stay on pace.`,
-                    struggling: `${state.distractionCount} distractions. Log them, then get back to work.`,
-                    winning: `${state.sprintCount} sprints, ${state.tasksCompleted} tasks. Good pace.`
-                },
-                tough: {
-                    start: "Stop thinking. Start the timer.",
-                    progress: `${state.sprintCount}/${state.plannedSprints}. You're behind. Move faster.`,
-                    struggling: `${state.distractionCount} distractions already? Focus or quit.`,
-                    winning: `${state.sprintCount} sprints. Don't get cocky. Finish strong.`
-                }
-            };
+            // Get AI messages from mode config
+            const config = loadModeConfig();
+            const aiMessages = config.ai || state.aiMessages;
+            
+            if (!aiMessages) {
+                // Fallback to default if config not loaded
+                document.getElementById('agentText').textContent = "Start your first sprint to get feedback.";
+                return;
+            }
+            
+            const level = state.toughLoveLevel || 'balanced';
+            const messages = aiMessages[level];
+            
+            let message = messages.welcome || "Start your first sprint to get feedback.";
 
-            const level = state.toughLoveLevel;
-            let message = messages[level].start;
-
+            // Determine which message to show based on state
             if (state.sprintCount > 0) {
                 if (state.sprintCount >= state.plannedSprints) {
-                    message = messages[level].winning;
+                    // Met or exceeded target
+                    message = messages.sprintComplete || message;
                 } else if (state.distractionCount > 5) {
-                    message = messages[level].struggling;
+                    // Too many distractions
+                    message = messages.distraction || message;
+                } else if (state.sprintCount < state.plannedSprints * 0.5) {
+                    // Behind pace (less than 50% of target)
+                    message = messages.behindPace || message;
                 } else {
-                    message = messages[level].progress;
+                    // Making progress
+                    message = messages.sprintComplete || message;
                 }
             }
 
@@ -1320,6 +1425,9 @@
                 state.tasks.holding.push(newTask);
             });
             
+            // Save wins before clearing for subject tracking
+            const winsToSave = [...state.tasks.wins];
+            
             // Clear distractions and intentions
             state.distractions = [];
             state.intentions = [];
@@ -1339,17 +1447,18 @@
                 gradesMatch: autoGrade === userGrade,
                 reflection: reflection,
                 score: Math.min((state.sprintCount / state.plannedSprints) * 100, 100),
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                wins: winsToSave  // Include wins for subject breakdown
             };
             
-            const history = JSON.parse(localStorage.getItem('focushub_history') || '[]');
+            const history = JSON.parse(getUserItem('focushub_history') || '[]');
             history.push(report);
-            localStorage.setItem('focushub_history', JSON.stringify(history));
+            setUserItem('focushub_history', JSON.stringify(history));
             
             // Save state so tasks persist in holding for tomorrow
             saveState();
             
-            localStorage.setItem('focushub_session_state', 'ended');
+            setUserItem('focushub_session_state', 'ended');
             
             window.location.href = 'home.html';
         }
@@ -1417,12 +1526,12 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'logo_dark.svg'; // Orange icon + WHITE text
-                if (startDayLogo) startDayLogo.src = 'logo_dark.svg';
+                if (appLogo) appLogo.src = 'FocusHub_vertinv.png'; // White text for dark theme
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertinv.png';
             } else {
                 themeToggle.textContent = '☀️ Light';
-                if (appLogo) appLogo.src = 'logo_light.svg'; // Orange icon + BLACK text
-                if (startDayLogo) startDayLogo.src = 'logo_light.svg';
+                if (appLogo) appLogo.src = 'FocusHub_vertnorm.png'; // Black text for light theme
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.png';
             }
         }
         

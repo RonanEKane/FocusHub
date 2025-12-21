@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mode Switching Test - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+        .test-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .test-btn {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .test-btn:hover {
+            background: var(--primary-hover);
+        }
+        .config-display {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .label-test {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .label-item {
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+        }
+        .label-key {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .label-value {
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">🧪 Mode Switching Test</h1>
+        
+        <!-- Current Mode -->
+        <div class="test-section">
+            <h2>Current Mode</h2>
+            <div style="font-size: 1.5rem; font-weight: 600; text-align: center; padding: 1rem; background: var(--bg-primary); border-radius: 4px;">
+                <span id="currentMode">Loading...</span>
+            </div>
+        </div>
+        
+        <!-- Mode Switching -->
+        <div class="test-section">
+            <h2>Switch Mode</h2>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="switchToProfessional(); location.reload();">
+                    Professional Mode
+                </button>
+                <button class="test-btn" onclick="switchToStudentHS(); location.reload();">
+                    Student (High School)
+                </button>
+                <button class="test-btn" onclick="switchToStudentCollege(); location.reload();">
+                    Student (College)
+                </button>
+            </div>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem;">
+                Click a button to switch modes. Page will reload to apply changes.
+            </p>
+        </div>
+        
+        <!-- Label Preview -->
+        <div class="test-section">
+            <h2>Mode Labels</h2>
+            <div class="label-test">
+                <div class="label-item">
+                    <div class="label-key">Strategic</div>
+                    <div class="label-value" data-label="strategic">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Deep Work</div>
+                    <div class="label-value" data-label="deepwork">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Urgent</div>
+                    <div class="label-value" data-label="urgent">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Meeting</div>
+                    <div class="label-value" data-label="meeting">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">End Day Button</div>
+                    <div class="label-value" data-label="endDay">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Task Entry</div>
+                    <div class="label-value" data-label="taskEntry">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Brain Dump</div>
+                    <div class="label-value" data-label="brainDump">Loading...</div>
+                </div>
+                <div class="label-item">
+                    <div class="label-key">Holding Area</div>
+                    <div class="label-value" data-label="holding">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timer Options -->
+        <div class="test-section">
+            <h2>Timer Options</h2>
+            <div id="timerOptions" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                Loading...
+            </div>
+        </div>
+        
+        <!-- Config Display -->
+        <div class="test-section">
+            <h2>Current Configuration (JSON)</h2>
+            <div class="config-display" id="configDisplay">Loading...</div>
+        </div>
+        
+        <!-- Navigation -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="app.html" class="test-btn" style="display: inline-block; text-decoration: none;">
+                Go to App →
+            </a>
+        </div>
+    </div>
+
+    <!-- Mode Configuration System -->
+    <script src="config.js"></script>
+    
+    <script>
+        // Initialize test page
+        function init() {
+            displayCurrentMode();
+            applyModeConfig();
+            displayTimerOptions();
+            displayConfig();
+        }
+        
+        function displayCurrentMode() {
+            const modeEl = document.getElementById('currentMode');
+            if (modeEl) {
+                modeEl.textContent = getModeDisplayName();
+            }
+        }
+        
+        function displayTimerOptions() {
+            const config = loadModeConfig();
+            const container = document.getElementById('timerOptions');
+            
+            container.innerHTML = config.timers.options.map(minutes => {
+                const isDefault = minutes === config.timers.default;
+                return `
+                    <div style="padding: 0.75rem 1.5rem; background: ${isDefault ? 'var(--primary-color)' : 'var(--bg-primary)'}; 
+                         color: ${isDefault ? 'white' : 'var(--text-primary)'}; border-radius: 4px; 
+                         border: 1px solid var(--border-light); font-weight: ${isDefault ? '600' : '400'};">
+                        ${minutes} min ${isDefault ? '(default)' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function displayConfig() {
+            const config = loadModeConfig();
+            const container = document.getElementById('configDisplay');
+            container.textContent = JSON.stringify(config, null, 2);
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
