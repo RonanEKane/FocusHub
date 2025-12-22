@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Test - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
+            
+            <h2>Auth Page Test</h2>
+            <p>If you can see this, the auth page structure is working.</p>
+            
+            <div id="status" style="margin: 2rem 0; padding: 1rem; background: #f0f0f0; border-radius: 8px;">
+                <p><strong>Status:</strong> Page loaded successfully!</p>
+                <p><strong>Time:</strong> <span id="time"></span></p>
+            </div>
+            
+            <button onclick="testFirebase()" class="btn btn-primary">Test Firebase Loading</button>
+            
+            <div id="firebase-status" style="margin-top: 1rem; display: none;"></div>
+            
+            <hr style="margin: 2rem 0;">
+            
+            <p><a href="/">← Back to Home</a></p>
+            <p><a href="/test.html">Go to Test Page</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Basic JavaScript test
+        document.getElementById('time').textContent = new Date().toLocaleTimeString();
+        
+        async function testFirebase() {
+            const status = document.getElementById('firebase-status');
+            status.style.display = 'block';
+            status.innerHTML = '<p>Loading Firebase modules...</p>';
+            
+            try {
+                // Try to import Firebase
+                const module = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+                status.innerHTML += '<p style="color: green;">✓ Firebase loaded successfully!</p>';
+                status.innerHTML += '<p>The real auth.html should work. Try: <a href="/auth.html">/auth.html</a></p>';
+            } catch (error) {
+                status.innerHTML += '<p style="color: red;">✗ Firebase failed to load</p>';
+                status.innerHTML += '<p>Error: ' + error.message + '</p>';
+                status.innerHTML += '<p>This is why auth.html is failing in Chrome.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

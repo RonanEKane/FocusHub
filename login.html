@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <p class="auth-subtitle">Sign in to continue your productivity journey</p>
+                
+                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    
+                    <div id="loginError" class="auth-error hidden"></div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Sign In</button>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="#" onclick="showPasswordReset(); return false;" style="font-size: 0.875rem; color: var(--primary-color);">Forgot password?</a>
+                    </div>
+                </form>
+                
+                <p class="auth-switch">
+                    Don't have an account? 
+                    <a href="#" onclick="showSignup(); return false;">Sign up</a>
+                </p>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form hidden">
+                <h2>Get Started</h2>
+                <p class="auth-subtitle">Create your account and choose your mode</p>
+                
+                <form id="signupFormElement" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" required minlength="6">
+                        <small>At least 6 characters</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupPasswordConfirm">Confirm Password</label>
+                        <input type="password" id="signupPasswordConfirm" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Choose Your Mode</label>
+                        <div class="mode-selector">
+                            <label class="mode-option">
+                                <input type="radio" name="mode" value="professional" checked>
+                                <div class="mode-card">
+                                    <h3>💼 Professional</h3>
+                                    <p>For work and career productivity</p>
+                                </div>
+                            </label>
+                            
+                            <label class="mode-option">
+                                <input type="radio" name="mode" value="student">
+                                <div class="mode-card">
+                                    <h3>🎓 Student (High School)</h3>
+                                    <p>For academic work and assignments</p>
+                                </div>
+                            </label>
+                        </div>
+                        <small>You can change this later in settings</small>
+                    </div>
+                    
+                    <div id="signupError" class="auth-error hidden"></div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Create Account</button>
+                </form>
+                
+                <p class="auth-switch">
+                    Already have an account? 
+                    <a href="#" onclick="showLogin(); return false;">Sign in</a>
+                </p>
+            </div>
+            
+            <!-- Password Reset Form -->
+            <div id="resetForm" class="auth-form hidden">
+                <h2>Reset Password</h2>
+                <p class="auth-subtitle">Enter your email to receive a password reset link</p>
+                
+                <form id="resetFormElement" onsubmit="handlePasswordReset(event)">
+                    <div class="form-group">
+                        <label for="resetEmail">Email</label>
+                        <input type="email" id="resetEmail" required>
+                    </div>
+                    
+                    <div id="resetError" class="auth-error hidden"></div>
+                    <div id="resetSuccess" class="auth-success hidden"></div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="resetBtn">Send Reset Link</button>
+                </form>
+                
+                <p class="auth-switch">
+                    Remember your password? 
+                    <a href="#" onclick="showLogin(); return false;">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Config -->
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
+            authDomain: "focushub-91094.firebaseapp.com",
+            projectId: "focushub-91094",
+            storageBucket: "focushub-91094.firebasestorage.app",
+            messagingSenderId: "548003574834",
+            appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Make functions available globally
+        window.handleLogin = handleLogin;
+        window.handleSignup = handleSignup;
+        window.showLogin = showLogin;
+        window.showSignup = showSignup;
+        window.showPasswordReset = showPasswordReset;
+        window.handlePasswordReset = handlePasswordReset;
+
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('resetForm').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('signupError').classList.add('hidden');
+        }
+        
+        function showSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('resetForm').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('signupError').classList.add('hidden');
+        }
+        
+        function showPasswordReset() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('resetForm').classList.remove('hidden');
+            document.getElementById('resetError').classList.add('hidden');
+            document.getElementById('resetSuccess').classList.add('hidden');
+        }
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            
+            try {
+                // Sign in with Firebase
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Get user profile from Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid, 'profile', 'settings'));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    
+                    // Set mode in localStorage for config.js
+                    localStorage.setItem('focushub_mode', userData.mode);
+                    if (userData.mode === 'student') {
+                        localStorage.setItem('focushub_student_submode', userData.subMode || 'highschool');
+                    }
+                    
+                    // Redirect to app
+                    window.location.href = 'app.html';
+                } else {
+                    throw new Error('User profile not found. Please contact support.');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                errorEl.textContent = getFriendlyErrorMessage(error);
+                errorEl.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        }
+        
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const errorEl = document.getElementById('signupError');
+            const signupBtn = document.getElementById('signupBtn');
+            
+            // Validate passwords match
+            if (password !== passwordConfirm) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'Creating account...';
+            
+            try {
+                // Create Firebase user
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Check if this is watersjb@gmail.com (permanent admin)
+                const isAdmin = email.toLowerCase() === 'watersjb@gmail.com';
+                
+                // Create user profile in Firestore
+                await setDoc(doc(db, 'users', user.uid, 'profile', 'settings'), {
+                    email: email,
+                    mode: mode,
+                    subMode: mode === 'student' ? 'highschool' : null,
+                    plan: isAdmin ? 'admin' : 'free',
+                    created: new Date().toISOString()
+                });
+                
+                // Set mode in localStorage
+                localStorage.setItem('focushub_mode', mode);
+                if (mode === 'student') {
+                    localStorage.setItem('focushub_student_submode', 'highschool');
+                }
+                
+                // Redirect to app
+                window.location.href = 'app.html';
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorEl.textContent = getFriendlyErrorMessage(error);
+                errorEl.classList.remove('hidden');
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        }
+        
+        function getFriendlyErrorMessage(error) {
+            const errorMessages = {
+                'auth/email-already-in-use': 'An account with this email already exists',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/weak-password': 'Password should be at least 6 characters',
+                'auth/too-many-requests': 'Too many failed attempts. Please try again later',
+                'auth/network-request-failed': 'Network error. Please check your connection'
+            };
+            
+            return errorMessages[error.code] || error.message || 'An error occurred. Please try again.';
+        }
+        
+        async function handlePasswordReset(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value;
+            const errorEl = document.getElementById('resetError');
+            const successEl = document.getElementById('resetSuccess');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Sending...';
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                
+                successEl.textContent = 'Password reset email sent! Check your inbox.';
+                successEl.classList.remove('hidden');
+                
+                // Clear form
+                document.getElementById('resetEmail').value = '';
+                
+                // Auto-switch to login after 3 seconds
+                setTimeout(() => {
+                    showLogin();
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Password reset error:', error);
+                errorEl.textContent = getFriendlyErrorMessage(error);
+                errorEl.classList.remove('hidden');
+            } finally {
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Send Reset Link';
+            }
+        }
+        
+        // Theme detection
+        function initTheme() {
+            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const authLogo = document.querySelector('.auth-logo');
+            
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                authLogo.src = 'FocusHub_vertdark.svg';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                authLogo.src = 'FocusHub_vertnorm.svg';
+            }
+        }
+        
+        initTheme();
+    </script>
+</body>
+</html>
