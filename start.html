@@ -16,7 +16,7 @@
                 <h2>Welcome Back</h2>
                 <p class="auth-subtitle">Sign in to continue your productivity journey</p>
                 
-                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                <form onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
                         <input type="email" id="loginEmail" required>
@@ -29,11 +29,7 @@
                     
                     <div id="loginError" class="auth-error hidden"></div>
                     
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Sign In</button>
-                    
-                    <div style="text-align: center; margin-top: 1rem;">
-                        <a href="#" onclick="showPasswordReset(); return false;" style="font-size: 0.875rem; color: var(--primary-color);">Forgot password?</a>
-                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                 </form>
                 
                 <p class="auth-switch">
@@ -47,7 +43,7 @@
                 <h2>Get Started</h2>
                 <p class="auth-subtitle">Create your account and choose your mode</p>
                 
-                <form id="signupFormElement" onsubmit="handleSignup(event)">
+                <form onsubmit="handleSignup(event)">
                     <div class="form-group">
                         <label for="signupEmail">Email</label>
                         <input type="email" id="signupEmail" required>
@@ -56,23 +52,39 @@
                     <div class="form-group">
                         <label for="signupPassword">Password</label>
                         <input type="password" id="signupPassword" required minlength="6">
-                        <small style="color: var(--text-muted);">Minimum 6 characters</small>
+                        <small>At least 6 characters</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Select Your Mode</label>
-                        <select id="modeSelect" class="mode-select" required>
-                            <option value="free">Free - Core Features</option>
-                            <option value="tough_love">Tough Love ($9/mo) - Aggressive Accountability</option>
-                            <option value="zen_mode">Zen Mode ($9/mo) - Gentle Guidance</option>
-                            <option value="college">College Student ($4/mo) - Student Discount</option>
-                            <option value="high_school">High School ($2/mo) - Teen Pricing</option>
-                        </select>
+                        <label for="signupPasswordConfirm">Confirm Password</label>
+                        <input type="password" id="signupPasswordConfirm" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Choose Your Mode</label>
+                        <div class="mode-selector">
+                            <label class="mode-option">
+                                <input type="radio" name="mode" value="professional" checked>
+                                <div class="mode-card">
+                                    <h3>💼 Professional</h3>
+                                    <p>For work and career productivity</p>
+                                </div>
+                            </label>
+                            
+                            <label class="mode-option">
+                                <input type="radio" name="mode" value="student">
+                                <div class="mode-card">
+                                    <h3>🎓 Student (High School)</h3>
+                                    <p>For academic work and assignments</p>
+                                </div>
+                            </label>
+                        </div>
+                        <small>You can change this later in settings</small>
                     </div>
                     
                     <div id="signupError" class="auth-error hidden"></div>
                     
-                    <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Create Account</button>
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
                 </form>
                 
                 <p class="auth-switch">
@@ -80,200 +92,149 @@
                     <a href="#" onclick="showLogin(); return false;">Sign in</a>
                 </p>
             </div>
-            
-            <!-- Password Reset Form -->
-            <div id="resetForm" class="auth-form hidden">
-                <h2>Reset Password</h2>
-                <p class="auth-subtitle">Enter your email to receive a password reset link</p>
-                
-                <form id="resetFormElement" onsubmit="handlePasswordReset(event)">
-                    <div class="form-group">
-                        <label for="resetEmail">Email</label>
-                        <input type="email" id="resetEmail" required>
-                    </div>
-                    
-                    <div id="resetError" class="auth-error hidden"></div>
-                    <div id="resetSuccess" class="auth-success hidden"></div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block" id="resetBtn">Send Reset Link</button>
-                </form>
-                
-                <p class="auth-switch">
-                    <a href="#" onclick="showLogin(); return false;">← Back to Sign In</a>
-                </p>
-            </div>
         </div>
     </div>
 
-    <script type="module">
-        // Import Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
-            authDomain: "focushub-91094.firebaseapp.com",
-            projectId: "focushub-91094",
-            storageBucket: "focushub-91094.firebasestorage.app",
-            messagingSenderId: "548003574834",
-            appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Make functions available globally
-        window.handleLogin = handleLogin;
-        window.handleSignup = handleSignup;
-        window.showLogin = showLogin;
-        window.showSignup = showSignup;
-        window.showPasswordReset = showPasswordReset;
-        window.handlePasswordReset = handlePasswordReset;
-
+    <script>
+        // Simple auth state management using localStorage
+        
         function showLogin() {
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('resetForm').classList.add('hidden');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('signupError').classList.add('hidden');
         }
         
         function showSignup() {
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('signupForm').classList.remove('hidden');
-            document.getElementById('resetForm').classList.add('hidden');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('signupError').classList.add('hidden');
         }
         
-        function showPasswordReset() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('resetForm').classList.remove('hidden');
-            document.getElementById('resetError').classList.add('hidden');
-            document.getElementById('resetSuccess').classList.add('hidden');
-        }
-        
-        async function handleLogin(event) {
+        function handleLogin(event) {
             event.preventDefault();
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
-            const btn = document.getElementById('loginBtn');
             
-            btn.disabled = true;
-            btn.textContent = 'Signing in...';
-            errorEl.classList.add('hidden');
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
             
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // Redirect to app
-                window.location.href = 'app.html';
-            } catch (error) {
-                console.error('Login error:', error);
-                errorEl.textContent = getErrorMessage(error.code);
+            // Find user
+            const user = users.find(u => u.email === email);
+            
+            if (!user) {
+                errorEl.textContent = 'No account found with this email';
                 errorEl.classList.remove('hidden');
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
+                return;
             }
+            
+            // Simple password check (in production, this would be properly hashed)
+            if (user.password !== btoa(password)) {
+                errorEl.textContent = 'Incorrect password';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Set current user
+            localStorage.setItem('focushub_current_user', JSON.stringify({
+                id: user.id,
+                email: user.email,
+                mode: user.mode,
+                created: user.created
+            }));
+            
+            // Set mode for config system
+            localStorage.setItem('focushub_mode', user.mode);
+            if (user.mode === 'student') {
+                localStorage.setItem('focushub_student_submode', user.subMode || 'highschool');
+            }
+            
+            // Redirect to app
+            window.location.href = 'app.html';
         }
         
-        async function handleSignup(event) {
+        function handleSignup(event) {
             event.preventDefault();
+            
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
-            const mode = document.getElementById('modeSelect').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
             const errorEl = document.getElementById('signupError');
-            const btn = document.getElementById('signupBtn');
             
-            btn.disabled = true;
-            btn.textContent = 'Creating account...';
-            errorEl.classList.add('hidden');
+            // Validate passwords match
+            if (password !== passwordConfirm) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.classList.remove('hidden');
+                return;
+            }
             
-            try {
-                // Create user
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // Determine plan type
-                let plan = 'free';
-                if (email === 'watersjb@gmail.com') {
-                    plan = 'admin';
-                } else if (mode !== 'free') {
-                    plan = mode;
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+            
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                errorEl.textContent = 'An account with this email already exists';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: 'user_' + Date.now(),
+                email: email,
+                password: btoa(password), // Base64 encoding (not secure, but works for localStorage)
+                mode: mode,
+                subMode: mode === 'student' ? 'highschool' : null,
+                created: new Date().toISOString(),
+                plan: users.length === 0 ? 'admin' : 'free'  // First user is automatically admin
+            };
+            
+            // Save user
+            users.push(newUser);
+            localStorage.setItem('focushub_users', JSON.stringify(users));
+            
+            // Set current user
+            localStorage.setItem('focushub_current_user', JSON.stringify({
+                id: newUser.id,
+                email: newUser.email,
+                mode: newUser.mode,
+                created: newUser.created
+            }));
+            
+            // Set mode for config system
+            localStorage.setItem('focushub_mode', newUser.mode);
+            if (newUser.mode === 'student') {
+                localStorage.setItem('focushub_student_submode', 'highschool');
+            }
+            
+            // Migrate any existing localStorage data to this user
+            migrateExistingData(newUser.id);
+            
+            // Redirect to app
+            window.location.href = 'app.html';
+        }
+        
+        function migrateExistingData(userId) {
+            // Migrate all existing localStorage data to user-namespaced keys
+            const keysToMigrate = [
+                'focushub_tasks',
+                'focushub_daily_stats',
+                'focushub_history',
+                'focushub_distractions',
+                'focushub_intentions',
+                'focushub_tough_love',
+                'focushub_timer',
+                'focushub_session_state',
+                'focushub_session_date'
+            ];
+            
+            keysToMigrate.forEach(key => {
+                const existingData = localStorage.getItem(key);
+                if (existingData) {
+                    localStorage.setItem(`${key}_${userId}`, existingData);
+                    // Don't remove the original yet, in case multiple users want to claim it
                 }
-                
-                // Create user profile in Firestore
-                await setDoc(doc(db, 'users', user.uid, 'profile', 'settings'), {
-                    email: email,
-                    plan: plan,
-                    mode: mode,
-                    createdAt: new Date().toISOString(),
-                    toughLoveLevel: mode === 'tough_love' ? 'aggressive' : mode === 'zen_mode' ? 'gentle' : 'balanced'
-                });
-                
-                // Redirect to app
-                window.location.href = 'app.html';
-            } catch (error) {
-                console.error('Signup error:', error);
-                errorEl.textContent = getErrorMessage(error.code);
-                errorEl.classList.remove('hidden');
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        }
-        
-        async function handlePasswordReset(event) {
-            event.preventDefault();
-            const email = document.getElementById('resetEmail').value;
-            const errorEl = document.getElementById('resetError');
-            const successEl = document.getElementById('resetSuccess');
-            const btn = document.getElementById('resetBtn');
-            
-            btn.disabled = true;
-            btn.textContent = 'Sending...';
-            errorEl.classList.add('hidden');
-            successEl.classList.add('hidden');
-            
-            try {
-                await sendPasswordResetEmail(auth, email);
-                successEl.textContent = 'Password reset email sent! Check your inbox.';
-                successEl.classList.remove('hidden');
-                document.getElementById('resetEmail').value = '';
-                btn.disabled = false;
-                btn.textContent = 'Send Reset Link';
-            } catch (error) {
-                console.error('Password reset error:', error);
-                errorEl.textContent = getErrorMessage(error.code);
-                errorEl.classList.remove('hidden');
-                btn.disabled = false;
-                btn.textContent = 'Send Reset Link';
-            }
-        }
-        
-        function getErrorMessage(code) {
-            switch (code) {
-                case 'auth/invalid-email':
-                    return 'Invalid email address.';
-                case 'auth/user-disabled':
-                    return 'This account has been disabled.';
-                case 'auth/user-not-found':
-                    return 'No account found with this email.';
-                case 'auth/wrong-password':
-                    return 'Incorrect password.';
-                case 'auth/email-already-in-use':
-                    return 'An account already exists with this email.';
-                case 'auth/weak-password':
-                    return 'Password should be at least 6 characters.';
-                case 'auth/invalid-credential':
-                    return 'Invalid email or password.';
-                default:
-                    return 'An error occurred. Please try again.';
-            }
+            });
         }
         
         // Theme detection
@@ -283,7 +244,7 @@
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                authLogo.src = 'FocusHub_vertdark.svg';
+                authLogo.src = 'FocusHub_vertinv.svg';
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
                 authLogo.src = 'FocusHub_vertnorm.svg';

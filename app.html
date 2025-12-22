@@ -398,99 +398,34 @@
     <!-- Analytics System -->
     <script src="analytics.js"></script>
     
-    <!-- Firestore Data Management -->
-    <script src="firestore-data.js"></script>
-    
     <!-- Keyboard Shortcuts -->
     <script src="keyboard-shortcuts.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script>
-        // CHECK BACKDOOR FIRST - Before loading Firebase!
-        const backdoorActive = localStorage.getItem('focushub_backdoor_active');
-        
-        if (backdoorActive === 'true') {
-            // Backdoor mode - Skip Firebase entirely!
-            console.log('🔓 Backdoor mode active - Skipping Firebase');
-            
-            // Set fake Firebase objects
-            window.currentFirebaseUser = {
-                uid: 'backdoor-admin-user',
-                email: 'watersjb@gmail.com'
-            };
-            window.firebaseDb = null; // Firestore disabled in backdoor mode
-            
-            // Wait for DOM to load, then init app
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initApp);
-            } else {
-                initApp();
-            }
-        } else {
-            // Normal mode - Load Firebase
-            console.log('Loading Firebase...');
-            loadFirebaseAndInit();
-        }
-        
-        async function loadFirebaseAndInit() {
-            // Dynamically import Firebase only when needed
-            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-            const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
-            const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-
-            // Firebase configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
-                authDomain: "focushub-91094.firebaseapp.com",
-                projectId: "focushub-91094",
-                storageBucket: "focushub-91094.firebasestorage.app",
-                messagingSenderId: "548003574834",
-                appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
-            };
-
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            
-            // Check authentication
-            onAuthStateChanged(auth, (user) => {
-                if (!user) {
-                    // Not logged in, redirect to auth
-                    window.location.href = 'start.html';
-                } else {
-                    // User is logged in, initialize app
-                    window.currentFirebaseUser = user;
-                    window.firebaseDb = db;
-                    initApp();
-                }
-            });
-            
-            // Make logout available
-            window.handleFirebaseLogout = async function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    try {
-                        await signOut(auth);
-                        window.location.href = 'start.html';
-                    } catch (error) {
-                        console.error('Logout error:', error);
-                        alert('Error logging out. Please try again.');
-                    }
-                }
-            };
-        }
-    </script>
-    
-    <script>
-        async function initApp() {
-            // Initialize the app after Firebase auth is ready
-            await init();
-        }
-    </script>
-    
     <script>
         // ============================================
+        // LOCALSTORAGE AUTHENTICATION CHECK
+        // ============================================
+        
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        
+        if (!currentUser) {
+            // Not logged in, redirect to start page
+            window.location.href = 'start.html';
+        }
+        
+        // User is logged in, set up logout function
+        window.handleFirebaseLogout = function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('focushub_current_user');
+                window.location.href = 'start.html';
+            }
+        };
+        
+        console.log('✅ User authenticated:', currentUser.email);
+    </script>
+    
         // STATE MANAGEMENT
         // ============================================
         const state = {
