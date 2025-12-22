@@ -355,8 +355,8 @@ code, .monospace {
    MISSION CONTROL DASHBOARD
    ============================================ */
 .status-bar {
-    background: var(--text-primary);
-    color: var(--card-white);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     padding: 0.75rem 2rem;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
