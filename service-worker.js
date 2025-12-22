@@ -1,7 +1,7 @@
 // FocusHub Service Worker
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'focushub-v1';
+const CACHE_NAME = 'focushub-v2';
 const urlsToCache = [
   '/',
   '/index.html',

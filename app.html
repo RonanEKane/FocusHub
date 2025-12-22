@@ -429,7 +429,19 @@
         
         // Check authentication
         onAuthStateChanged(auth, (user) => {
-            if (!user) {
+            // BACKDOOR: Check if backdoor is active
+            const backdoorActive = localStorage.getItem('focushub_backdoor_active');
+            
+            if (backdoorActive === 'true') {
+                // Backdoor mode - create fake user and proceed
+                window.currentFirebaseUser = {
+                    uid: 'backdoor-admin-user',
+                    email: 'watersjb@gmail.com'
+                };
+                window.firebaseDb = db;
+                console.log('🔓 Backdoor access granted');
+                initApp();
+            } else if (!user) {
                 // Not logged in, redirect to auth
                 window.location.href = 'start.html';
             } else {
