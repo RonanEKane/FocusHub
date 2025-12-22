@@ -1,12 +1,12 @@
 // FocusHub Service Worker
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'focushub-v3-no-firebase';
+const CACHE_NAME = 'focushub-v4-overview';
 const urlsToCache = [
   '/',
   '/index.html',
   '/app.html',
-  '/dashboard.html',
+  '/overview.html',
   '/start.html',
   '/style.css',
   '/config.js',

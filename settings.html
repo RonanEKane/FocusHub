@@ -16,8 +16,8 @@
                     <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Admin Dashboard</h1>
                 </div>
                 <div>
-                    <a href="analytics-dashboard.html" class="btn btn-primary">📊 Analytics</a>
-                    <a href="dashboard.html" class="btn btn-secondary">← Dashboard</a>
+                    <a href="analytics-overview.html" class="btn btn-primary">📊 Analytics</a>
+                    <a href="overview.html" class="btn btn-secondary">← Dashboard</a>
                     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
                 </div>
             </div>
@@ -172,7 +172,7 @@
         
         if (!currentUserFull || currentUserFull.plan !== 'admin') {
             alert('Access denied. Admin privileges required.');
-            window.location.href = 'dashboard.html';
+            window.location.href = 'overview.html';
         }
 
         // Load and display users
@@ -406,7 +406,7 @@
             }
             
             // Redirect to their dashboard
-            window.location.href = 'dashboard.html';
+            window.location.href = 'overview.html';
         }
         
         // Logout

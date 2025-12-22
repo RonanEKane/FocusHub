@@ -122,8 +122,8 @@ const KeyboardShortcuts = {
             
             // Navigation
             goHome: () => {
-                if (window.location.pathname !== '/dashboard.html') {
-                    window.location.href = 'dashboard.html';
+                if (window.location.pathname !== '/overview.html') {
+                    window.location.href = 'overview.html';
                 }
             },
             

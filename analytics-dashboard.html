@@ -17,7 +17,7 @@
                 </div>
                 <div>
                     <a href="settings.html" class="btn btn-secondary">← Admin</a>
-                    <a href="dashboard.html" class="btn btn-secondary">Dashboard</a>
+                    <a href="overview.html" class="btn btn-secondary">Dashboard</a>
                     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
                 </div>
             </div>
@@ -151,7 +151,7 @@
         
         if (!currentUserFull || currentUserFull.plan !== 'admin') {
             alert('Access denied. Admin privileges required.');
-            window.location.href = 'dashboard.html';
+            window.location.href = 'overview.html';
         }
 
         // Load analytics
