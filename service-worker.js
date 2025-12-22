@@ -7,7 +7,7 @@ const urlsToCache = [
   '/index.html',
   '/app.html',
   '/dashboard.html',
-  '/login.html',
+  '/signin.html',
   '/style.css',
   '/config.js',
   '/analytics.js',
