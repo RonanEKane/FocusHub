@@ -431,7 +431,7 @@
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 // Not logged in, redirect to auth
-                window.location.href = 'signin.html';
+                window.location.href = 'start.html';
             } else {
                 // User is logged in, initialize app
                 window.currentFirebaseUser = user;
