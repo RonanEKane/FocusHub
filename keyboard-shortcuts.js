@@ -122,14 +122,14 @@ const KeyboardShortcuts = {
             
             // Navigation
             goHome: () => {
-                if (window.location.pathname !== '/home.html') {
-                    window.location.href = 'home.html';
+                if (window.location.pathname !== '/dashboard.html') {
+                    window.location.href = 'dashboard.html';
                 }
             },
             
             goAdmin: () => {
                 if (window.currentUserProfile?.plan === 'admin') {
-                    window.location.href = 'admin.html';
+                    window.location.href = 'settings.html';
                 }
             },
             

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Loading Test</title>
+    <style>
+        body { font-family: monospace; padding: 2rem; max-width: 800px; margin: 0 auto; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .test { padding: 0.5rem; margin: 0.5rem 0; background: #f5f5f5; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔬 Firebase CDN Loading Test</h1>
+    <p>Testing if Chrome can load Firebase from Google's CDN...</p>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function addResult(test, passed, message) {
+            const div = document.createElement('div');
+            div.className = 'test';
+            div.innerHTML = `<span class="${passed ? 'pass' : 'fail'}">${passed ? '✓' : '✗'}</span> ${test}: ${message}`;
+            results.appendChild(div);
+        }
+        
+        // Test 1: Basic page load
+        addResult('Page Load', true, 'HTML loaded successfully');
+        
+        // Test 2: Module script support
+        addResult('ES Modules', true, 'Browser supports ES modules');
+        
+        // Test 3: Try to load Firebase
+        try {
+            addResult('Firebase Import', false, 'Attempting to load Firebase app module...');
+            
+            const startTime = Date.now();
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+            const loadTime = Date.now() - startTime;
+            
+            addResult('Firebase App Module', true, `Loaded in ${loadTime}ms`);
+            
+            // Test 4: Try to load Firebase Auth
+            const authStart = Date.now();
+            const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+            const authTime = Date.now() - authStart;
+            
+            addResult('Firebase Auth Module', true, `Loaded in ${authTime}ms`);
+            
+            // Test 5: Try to load Firestore
+            const dbStart = Date.now();
+            const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            const dbTime = Date.now() - dbStart;
+            
+            addResult('Firebase Firestore Module', true, `Loaded in ${dbTime}ms`);
+            
+            // Test 6: Try to initialize Firebase
+            const config = {
+                apiKey: "AIzaSyBJeuBD1TSL6gIZnr5sAKvTFYMj66ztzno",
+                authDomain: "focushub-91094.firebaseapp.com",
+                projectId: "focushub-91094",
+                storageBucket: "focushub-91094.firebasestorage.app",
+                messagingSenderId: "548003574834",
+                appId: "1:548003574834:web:b19ed9ac4d4d84517bb82b"
+            };
+            
+            const app = initializeApp(config);
+            addResult('Firebase Init', true, 'Firebase initialized successfully');
+            
+            const auth = getAuth(app);
+            addResult('Firebase Auth Init', true, 'Auth service ready');
+            
+            const db = getFirestore(app);
+            addResult('Firestore Init', true, 'Firestore ready');
+            
+            // SUCCESS!
+            const summary = document.createElement('div');
+            summary.style.cssText = 'margin-top: 2rem; padding: 1.5rem; background: #d4edda; border: 2px solid #28a745; border-radius: 8px;';
+            summary.innerHTML = '<h2 style="color: #155724; margin: 0 0 1rem 0;">✅ ALL TESTS PASSED!</h2><p style="margin: 0; color: #155724;">Chrome can load Firebase successfully. The issue with login.html must be something else.</p><p style="margin: 1rem 0 0 0;"><a href="/login.html" style="color: #155724; font-weight: bold;">Try login.html now →</a></p>';
+            results.appendChild(summary);
+            
+        } catch (error) {
+            addResult('Firebase Loading', false, `FAILED: ${error.message}`);
+            
+            const summary = document.createElement('div');
+            summary.style.cssText = 'margin-top: 2rem; padding: 1.5rem; background: #f8d7da; border: 2px solid #dc3545; border-radius: 8px;';
+            summary.innerHTML = `
+                <h2 style="color: #721c24; margin: 0 0 1rem 0;">❌ FIREBASE BLOCKED</h2>
+                <p style="margin: 0 0 1rem 0; color: #721c24;"><strong>Error:</strong> ${error.message}</p>
+                <p style="margin: 0; color: #721c24;">Chrome is blocking Firebase from loading. This is why login.html fails.</p>
+                <h3 style="color: #721c24; margin: 1rem 0 0.5rem 0;">Possible Causes:</h3>
+                <ul style="color: #721c24;">
+                    <li>Chrome extension blocking gstatic.com</li>
+                    <li>Corporate firewall/proxy</li>
+                    <li>Chrome security policy</li>
+                    <li>Network DNS issue</li>
+                </ul>
+                <h3 style="color: #721c24; margin: 1rem 0 0.5rem 0;">Solutions:</h3>
+                <ul style="color: #721c24;">
+                    <li>Try different network (mobile hotspot)</li>
+                    <li>Use Safari for now</li>
+                    <li>Check Chrome://settings/content for blocked sites</li>
+                </ul>
+            `;
+            results.appendChild(summary);
+            
+            console.error('Full error:', error);
+        }
+    </script>
+</body>
+</html>
