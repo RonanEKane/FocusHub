@@ -110,10 +110,17 @@
                                 Energy: <span id="energyDisplay" class="energy-medium">MEDIUM</span>
                             </div>
                             
+                            <h4 style="font-size: 0.875rem; color: var(--text-secondary); margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Focus Sprint</h4>
                             <div class="duration-buttons">
-                                <button class="duration-btn" data-duration="15">15 min</button>
-                                <button class="duration-btn recommended" data-duration="20">20 min</button>
-                                <button class="duration-btn" data-duration="30">30 min</button>
+                                <button class="duration-btn" data-duration="15" data-type="focus">15 min</button>
+                                <button class="duration-btn recommended" data-duration="20" data-type="focus">20 min</button>
+                                <button class="duration-btn" data-duration="30" data-type="focus">30 min</button>
+                            </div>
+                            
+                            <h4 style="font-size: 0.875rem; color: var(--text-secondary); margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Break</h4>
+                            <div class="duration-buttons">
+                                <button class="duration-btn" data-duration="5" data-type="break">5 min</button>
+                                <button class="duration-btn" data-duration="15" data-type="break">15 min</button>
                             </div>
                         </div>
 
@@ -594,6 +601,11 @@
                         document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
                     }
                     
+                    // Clear any existing interval first
+                    if (state.timer.interval) {
+                        clearInterval(state.timer.interval);
+                    }
+                    
                     // Resume countdown
                     state.timer.interval = setInterval(updateTimer, 1000);
                     renderTimer();
@@ -707,7 +719,8 @@
             document.querySelectorAll('.duration-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const duration = parseInt(e.currentTarget.dataset.duration);
-                    startTimer(duration);
+                    const timerType = e.currentTarget.dataset.type || 'focus';
+                    startTimer(duration, timerType);
                 });
             });
 
@@ -801,15 +814,25 @@
         // ============================================
         // TIMER
         // ============================================
-        function startTimer(duration) {
+        function startTimer(duration, timerType = 'focus') {
+            // Clear any existing interval first to prevent multiple timers
+            if (state.timer.interval) {
+                clearInterval(state.timer.interval);
+            }
+            
             state.timer.duration = duration * 60;
             state.timer.timeLeft = duration * 60;
             state.timer.isRunning = true;
-            state.timer.timerType = 'focus';
+            state.timer.timerType = timerType;
 
             document.getElementById('timerSetup').classList.add('hidden');
             document.getElementById('timerActive').classList.remove('hidden');
-            document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+            
+            if (timerType === 'focus') {
+                document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+            } else {
+                document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
+            }
 
             state.timer.interval = setInterval(updateTimer, 1000);
             
@@ -856,6 +879,11 @@
         }
 
         function resumeTimer() {
+            // Clear any existing interval first
+            if (state.timer.interval) {
+                clearInterval(state.timer.interval);
+            }
+            
             state.timer.isRunning = true;
             state.timer.interval = setInterval(updateTimer, 1000);
             document.getElementById('pauseBtn').classList.remove('hidden');
@@ -877,12 +905,8 @@
                 state.sprintCount++;
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                 
-                // Auto-start break
-                state.timer.timerType = 'break';
-                state.timer.duration = 5 * 60;
-                state.timer.timeLeft = 5 * 60;
-                state.timer.interval = setInterval(updateTimer, 1000);
-                document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
+                // Show timer setup so user can choose break duration
+                resetTimer();
             } else {
                 // Break complete
                 state.breaksCount++;
