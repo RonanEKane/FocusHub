@@ -1743,6 +1743,9 @@
         closeMorningBtn.addEventListener('click', closeMorningReflection);
         generateReflection.addEventListener('click', generateNewReflection);
         
+        // Initialize the app
+        init();
+        
         // Show morning reflection after day starts (if not shown today)
         setTimeout(() => {
             if (state.sessionState !== 'not_started') {
