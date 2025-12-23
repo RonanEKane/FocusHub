@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - FocusHub</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .card {
+            background: #2a2a2a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .good { color: #4ade80; }
+        .bad { color: #f87171; }
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        pre {
+            background: #0a0a0a;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 FocusHub Debug</h1>
+    
+    <div class="card">
+        <h2>LocalStorage Status</h2>
+        <div id="status"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Current User</h2>
+        <pre id="userInfo"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>All Users</h2>
+        <pre id="allUsers"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>Actions</h2>
+        <button onclick="createTestUser()">Create Test User (watersjb@gmail.com)</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="clearAll()">Clear All Data</button>
+        <button onclick="window.location.href='app.html'">Go to App</button>
+    </div>
+
+    <script>
+        function updateDisplay() {
+            const currentUser = localStorage.getItem('focushub_current_user');
+            const users = localStorage.getItem('focushub_users');
+            
+            // Status
+            const statusDiv = document.getElementById('status');
+            if (currentUser) {
+                statusDiv.innerHTML = '<p class="good">✅ User is logged in</p>';
+            } else {
+                statusDiv.innerHTML = '<p class="bad">❌ No user logged in</p>';
+            }
+            
+            // Current user
+            document.getElementById('userInfo').textContent = currentUser || 'null';
+            
+            // All users
+            document.getElementById('allUsers').textContent = users || '[]';
+        }
+        
+        function createTestUser() {
+            // Create users array if it doesn't exist
+            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+            
+            // Check if user already exists
+            if (!users.find(u => u.email === 'watersjb@gmail.com')) {
+                users.push({
+                    id: Date.now(),
+                    email: 'watersjb@gmail.com',
+                    password: btoa('test123'), // password: test123
+                    mode: 'professional',
+                    created: new Date().toISOString()
+                });
+                localStorage.setItem('focushub_users', JSON.stringify(users));
+            }
+            
+            // Set as current user
+            localStorage.setItem('focushub_current_user', JSON.stringify({
+                id: Date.now(),
+                email: 'watersjb@gmail.com',
+                mode: 'professional',
+                created: new Date().toISOString()
+            }));
+            
+            alert('✅ Test user created and logged in!');
+            updateDisplay();
+        }
+        
+        function logout() {
+            localStorage.removeItem('focushub_current_user');
+            alert('Logged out');
+            updateDisplay();
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all FocusHub data?')) {
+                localStorage.removeItem('focushub_current_user');
+                localStorage.removeItem('focushub_users');
+                localStorage.removeItem('focushub_session_state');
+                localStorage.removeItem('focushub_history');
+                alert('All data cleared');
+                updateDisplay();
+            }
+        }
+        
+        updateDisplay();
+    </script>
+</body>
+</html>
