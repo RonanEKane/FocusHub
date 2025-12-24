@@ -1,8 +1,5 @@
-# Specific routes first (MUST BE BEFORE CATCH-ALL)
+# Clean URL redirects for convenience
 /app /app.html 200
 /overview /overview.html 200
 /start /start.html 200
 /settings /settings.html 200
-
-# Catch-all for SPA (MUST BE LAST)
-/* /index.html 200
