@@ -74,7 +74,7 @@
         <header class="app-header">
             <div class="app-header-content">
                 <div class="logo-section">
-                    <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
+                    <img id="appLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" class="logo-img">
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
                 </div>
                 
@@ -111,10 +111,9 @@
                             </div>
                             
                             <div class="duration-buttons">
-                                <button class="duration-btn" data-duration="15" data-type="focus">15 min</button>
-                                <button class="duration-btn recommended" data-duration="20" data-type="focus">20 min</button>
-                                <button class="duration-btn" data-duration="30" data-type="focus">30 min</button>
-                                <button class="duration-btn" id="breakBtn" data-type="break" style="margin-top: 0.75rem;">☕ Break</button>
+                                <button class="duration-btn" data-duration="15">15 min</button>
+                                <button class="duration-btn recommended" data-duration="20">20 min</button>
+                                <button class="duration-btn" data-duration="30">30 min</button>
                             </div>
                         </div>
 
@@ -427,8 +426,6 @@
         console.log('✅ User authenticated:', currentUser.email);
     </script>
     
-    <script>
-        // ============================================
         // STATE MANAGEMENT
         // ============================================
         const state = {
@@ -595,11 +592,6 @@
                         document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
                     }
                     
-                    // Clear any existing interval first
-                    if (state.timer.interval) {
-                        clearInterval(state.timer.interval);
-                    }
-                    
                     // Resume countdown
                     state.timer.interval = setInterval(updateTimer, 1000);
                     renderTimer();
@@ -712,18 +704,8 @@
             // Timer controls
             document.querySelectorAll('.duration-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const timerType = e.currentTarget.dataset.type || 'focus';
-                    let duration;
-                    
-                    if (timerType === 'break') {
-                        // Smart break duration based on sprint count
-                        // First 3 sprints = 5 min break, 4th+ = 15 min break
-                        duration = (state.sprintCount > 0 && state.sprintCount % 4 === 0) ? 15 : 5;
-                    } else {
-                        duration = parseInt(e.currentTarget.dataset.duration);
-                    }
-                    
-                    startTimer(duration, timerType);
+                    const duration = parseInt(e.currentTarget.dataset.duration);
+                    startTimer(duration);
                 });
             });
 
@@ -781,15 +763,6 @@
                 });
             });
             document.getElementById('completeDayBtn').addEventListener('click', completeDay);
-            
-            // Page Visibility API - pause timer when tab is hidden
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden && state.timer.isRunning) {
-                    // Tab hidden and timer running - pause it
-                    pauseTimer();
-                    console.log('⏸️ Timer auto-paused (tab hidden)');
-                }
-            });
         }
 
         function showStartScreen() {
@@ -826,25 +799,15 @@
         // ============================================
         // TIMER
         // ============================================
-        function startTimer(duration, timerType = 'focus') {
-            // Clear any existing interval first to prevent multiple timers
-            if (state.timer.interval) {
-                clearInterval(state.timer.interval);
-            }
-            
+        function startTimer(duration) {
             state.timer.duration = duration * 60;
             state.timer.timeLeft = duration * 60;
             state.timer.isRunning = true;
-            state.timer.timerType = timerType;
+            state.timer.timerType = 'focus';
 
             document.getElementById('timerSetup').classList.add('hidden');
             document.getElementById('timerActive').classList.remove('hidden');
-            
-            if (timerType === 'focus') {
-                document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
-            } else {
-                document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
-            }
+            document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
 
             state.timer.interval = setInterval(updateTimer, 1000);
             
@@ -891,11 +854,6 @@
         }
 
         function resumeTimer() {
-            // Clear any existing interval first
-            if (state.timer.interval) {
-                clearInterval(state.timer.interval);
-            }
-            
             state.timer.isRunning = true;
             state.timer.interval = setInterval(updateTimer, 1000);
             document.getElementById('pauseBtn').classList.remove('hidden');
@@ -917,8 +875,12 @@
                 state.sprintCount++;
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                 
-                // Show timer setup so user can choose break duration
-                resetTimer();
+                // Auto-start break
+                state.timer.timerType = 'break';
+                state.timer.duration = 5 * 60;
+                state.timer.timeLeft = 5 * 60;
+                state.timer.interval = setInterval(updateTimer, 1000);
+                document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
             } else {
                 // Break complete
                 state.breaksCount++;
@@ -1597,13 +1559,6 @@
             energyEl.textContent = state.energyLevel.toUpperCase();
             energyEl.className = 'energy-' + state.energyLevel;
             
-            // Update break button text based on sprint count
-            const breakBtn = document.getElementById('breakBtn');
-            if (breakBtn) {
-                const isLongBreak = (state.sprintCount > 0 && state.sprintCount % 4 === 0);
-                breakBtn.textContent = isLongBreak ? '☕ Break (15 min)' : '☕ Break (5 min)';
-            }
-            
             // Set recommended timer button
             const recommendedDuration = ENERGY_DURATIONS[state.energyLevel];
             document.querySelectorAll('.duration-btn').forEach(btn => {
@@ -1645,11 +1600,11 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White text for dark theme
+                if (appLogo) appLogo.src = 'FocusHub_vertdark.svg'; // White text for dark theme
                 if (startDayLogo) startDayLogo.src = 'FocusHub_vertdark.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
-                if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Orange text for light theme
+                if (appLogo) appLogo.src = 'FocusHub_vertnorm.svg'; // Black text for light theme
                 if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.svg';
             }
         }
@@ -1787,9 +1742,6 @@
         
         closeMorningBtn.addEventListener('click', closeMorningReflection);
         generateReflection.addEventListener('click', generateNewReflection);
-        
-        // Initialize the app
-        init();
         
         // Show morning reflection after day starts (if not shown today)
         setTimeout(() => {
