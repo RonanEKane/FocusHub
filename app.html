@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusHub - Workspace</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
 </head>
 <body>
     <!-- Start Day Screen -->
@@ -18,20 +22,20 @@
                 <div class="form-group">
                     <label class="form-label">What's your energy level?</label>
                     <div class="energy-options">
-                        <button class="energy-btn" data-energy="low">
+                        <button class="energy-btn" data-energy="high">
                             <div class="energy-emoji">🔋</div>
-                            <div>LOW</div>
-                            <div class="energy-desc" data-energy-desc="low">15min sprints</div>
+                            <div>HIGH</div>
+                            <div class="energy-desc" data-energy-desc="high">30min sprints</div>
                         </button>
                         <button class="energy-btn active" data-energy="medium">
                             <div class="energy-emoji">⚡</div>
                             <div>MEDIUM</div>
                             <div class="energy-desc" data-energy-desc="medium">20min sprints</div>
                         </button>
-                        <button class="energy-btn" data-energy="high">
-                            <div class="energy-emoji">🔥</div>
-                            <div>HIGH</div>
-                            <div class="energy-desc" data-energy-desc="high">30min sprints</div>
+                        <button class="energy-btn" data-energy="low">
+                            <div class="energy-emoji">🪫</div>
+                            <div>LOW</div>
+                            <div class="energy-desc" data-energy-desc="low">15min sprints</div>
                         </button>
                     </div>
                 </div>
@@ -74,7 +78,7 @@
         <header class="app-header">
             <div class="app-header-content">
                 <div class="logo-section">
-                    <img id="appLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" class="logo-img">
+                    <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
                 </div>
                 
@@ -106,8 +110,16 @@
                     
                     <div class="card-content">
                         <div id="timerSetup" class="timer-setup">
-                            <div class="energy-display">
-                                Energy: <span id="energyDisplay" class="energy-medium">MEDIUM</span>
+                            <div class="energy-selector">
+                                <button class="energy-btn-small" data-energy="high">
+                                    🔋 <span>Full Power</span>
+                                </button>
+                                <button class="energy-btn-small active" data-energy="medium">
+                                    😐 <span>Kinda 'Meh'</span>
+                                </button>
+                                <button class="energy-btn-small" data-energy="low">
+                                    🪫 <span>On Fumes</span>
+                                </button>
                             </div>
                             
                             <div class="duration-buttons">
@@ -119,6 +131,18 @@
                         </div>
 
                         <div id="timerActive" class="timer-active hidden">
+                            <div class="energy-selector">
+                                <button class="energy-btn-small" data-energy="high">
+                                    🔋 <span>Full Power</span>
+                                </button>
+                                <button class="energy-btn-small active" data-energy="medium">
+                                    😐 <span>Kinda 'Meh'</span>
+                                </button>
+                                <button class="energy-btn-small" data-energy="low">
+                                    🪫 <span>On Fumes</span>
+                                </button>
+                            </div>
+                            
                             <div class="timer-display">
                                 <div class="timer-time" id="timerTime">20:00</div>
                                 <div class="timer-progress">
@@ -127,9 +151,7 @@
                             </div>
                             
                             <div class="timer-controls">
-                                <button id="pauseBtn" class="btn btn-secondary">⏸ Pause</button>
-                                <button id="resumeBtn" class="btn btn-primary hidden">▶️ Resume</button>
-                                <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
+                                <button id="resetBtn" class="btn btn-danger">🔄 Reset (Won't Count)</button>
                             </div>
                         </div>
                     </div>
@@ -408,23 +430,52 @@
         // LOCALSTORAGE AUTHENTICATION CHECK
         // ============================================
         
-        // Check if user is logged in
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            // Not logged in, redirect to start page
-            window.location.href = 'start.html';
+        // Check if user is logged in (Supabase)
+        async function checkAuthAndInit() {
+            const user = await getCurrentUser()
+            
+            if (!user) {
+                // Not logged in, redirect to start page
+                window.location.href = 'start.html'
+                return
+            }
+            
+            // User is authenticated
+            console.log('✅ User authenticated:', user.email)
+            
+            // Load user profile and set mode
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('mode, student_submode, theme')
+                .eq('id', user.id)
+                .single()
+            
+            if (profile) {
+                localStorage.setItem('focushub_mode', profile.mode)
+                if (profile.student_submode) {
+                    localStorage.setItem('focushub_student_submode', profile.student_submode)
+                }
+                if (profile.theme) {
+                    localStorage.setItem('focushub_theme', profile.theme)
+                }
+            }
+            
+            // Try to migrate from localStorage (one-time)
+            await migrateFromLocalStorage()
+            
+            // Initialize the app
+            init()
         }
         
-        // User is logged in, set up logout function
-        window.handleFirebaseLogout = function() {
+        // User logout function
+        window.handleFirebaseLogout = async function() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('focushub_current_user');
-                window.location.href = 'start.html';
+                await signOut()
             }
-        };
+        }
         
-        console.log('✅ User authenticated:', currentUser.email);
+        // Start the app
+        checkAuthAndInit()
     </script>
     
     <script>
@@ -471,9 +522,9 @@
         };
 
         const ENERGY_DURATIONS = {
-            low: 15,
-            medium: 20,
-            high: 30
+            high: 30,   // Full Power → Can handle 30 min sprints
+            medium: 20, // Kinda Meh → 20 min sprints
+            low: 15     // On Fumes → Short 15 min sprints
         };
 
         // ============================================
@@ -687,6 +738,16 @@
                     document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('active'));
                     e.currentTarget.classList.add('active');
                     state.energyLevel = e.currentTarget.dataset.energy;
+                });
+            });
+            
+            // Energy buttons in timer views (small buttons)
+            document.querySelectorAll('.energy-btn-small').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.energy-btn-small').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    state.energyLevel = e.currentTarget.dataset.energy;
+                    renderAll(); // Update recommended duration
                 });
             });
 
@@ -1577,10 +1638,14 @@
             document.getElementById('breaksProgress').textContent = state.breaksCount;
             document.getElementById('distractionProgress').textContent = state.distractionCount;
             
-            // Set energy display
-            const energyEl = document.getElementById('energyDisplay');
-            energyEl.textContent = state.energyLevel.toUpperCase();
-            energyEl.className = 'energy-' + state.energyLevel;
+            // Sync energy button states across all views
+            document.querySelectorAll('.energy-btn-small').forEach(btn => {
+                if (btn.dataset.energy === state.energyLevel) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
             
             // Set recommended timer button
             const recommendedDuration = ENERGY_DURATIONS[state.energyLevel];
@@ -1623,11 +1688,11 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_vertdark.svg'; // White text for dark theme
+                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White text for dark theme
                 if (startDayLogo) startDayLogo.src = 'FocusHub_vertdark.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
-                if (appLogo) appLogo.src = 'FocusHub_vertnorm.svg'; // Black text for light theme
+                if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Orange text for light theme
                 if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.svg';
             }
         }
@@ -1773,8 +1838,7 @@
             }
         }, 1000);
         
-        // Initialize the app
-        init();
+        // Initialize the app (handled by checkAuthAndInit() in auth section)
     </script>
 </body>
 </html>
