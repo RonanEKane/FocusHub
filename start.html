@@ -95,8 +95,12 @@
         </div>
     </div>
 
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
     <script>
-        // Simple auth state management using localStorage
+        // Supabase authentication
         
         function showLogin() {
             document.getElementById('loginForm').classList.remove('hidden');
@@ -108,51 +112,43 @@
             document.getElementById('signupForm').classList.remove('hidden');
         }
         
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
             
-            // Get users from localStorage
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+            errorEl.classList.add('hidden');
             
-            // Find user
-            const user = users.find(u => u.email === email);
+            // Sign in with Supabase
+            const result = await handleSignIn(email, password);
             
-            if (!user) {
-                errorEl.textContent = 'No account found with this email';
+            if (!result.success) {
+                errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
             
-            // Simple password check (in production, this would be properly hashed)
-            if (user.password !== btoa(password)) {
-                errorEl.textContent = 'Incorrect password';
-                errorEl.classList.remove('hidden');
-                return;
-            }
+            // Set mode for config system (from user profile)
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('mode, student_submode')
+                .eq('id', result.user.id)
+                .single();
             
-            // Set current user
-            localStorage.setItem('focushub_current_user', JSON.stringify({
-                id: user.id,
-                email: user.email,
-                mode: user.mode,
-                created: user.created
-            }));
-            
-            // Set mode for config system
-            localStorage.setItem('focushub_mode', user.mode);
-            if (user.mode === 'student') {
-                localStorage.setItem('focushub_student_submode', user.subMode || 'highschool');
+            if (profile) {
+                localStorage.setItem('focushub_mode', profile.mode);
+                if (profile.student_submode) {
+                    localStorage.setItem('focushub_student_submode', profile.student_submode);
+                }
             }
             
             // Redirect to app
             window.location.href = 'app.html';
         }
         
-        function handleSignup(event) {
+        async function handleSignup(event) {
             event.preventDefault();
             
             const email = document.getElementById('signupEmail').value;
@@ -161,6 +157,8 @@
             const mode = document.querySelector('input[name="mode"]:checked').value;
             const errorEl = document.getElementById('signupError');
             
+            errorEl.classList.add('hidden');
+            
             // Validate passwords match
             if (password !== passwordConfirm) {
                 errorEl.textContent = 'Passwords do not match';
@@ -168,73 +166,23 @@
                 return;
             }
             
-            // Get existing users
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
+            // Sign up with Supabase
+            const result = await handleSignUp(email, password, mode);
             
-            // Check if email already exists
-            if (users.find(u => u.email === email)) {
-                errorEl.textContent = 'An account with this email already exists';
+            if (!result.success) {
+                errorEl.textContent = result.error;
                 errorEl.classList.remove('hidden');
                 return;
             }
             
-            // Create new user
-            const newUser = {
-                id: 'user_' + Date.now(),
-                email: email,
-                password: btoa(password), // Base64 encoding (not secure, but works for localStorage)
-                mode: mode,
-                subMode: mode === 'student' ? 'highschool' : null,
-                created: new Date().toISOString(),
-                plan: users.length === 0 ? 'admin' : 'free'  // First user is automatically admin
-            };
-            
-            // Save user
-            users.push(newUser);
-            localStorage.setItem('focushub_users', JSON.stringify(users));
-            
-            // Set current user
-            localStorage.setItem('focushub_current_user', JSON.stringify({
-                id: newUser.id,
-                email: newUser.email,
-                mode: newUser.mode,
-                created: newUser.created
-            }));
-            
             // Set mode for config system
-            localStorage.setItem('focushub_mode', newUser.mode);
-            if (newUser.mode === 'student') {
+            localStorage.setItem('focushub_mode', mode);
+            if (mode === 'student') {
                 localStorage.setItem('focushub_student_submode', 'highschool');
             }
             
-            // Migrate any existing localStorage data to this user
-            migrateExistingData(newUser.id);
-            
             // Redirect to app
             window.location.href = 'app.html';
-        }
-        
-        function migrateExistingData(userId) {
-            // Migrate all existing localStorage data to user-namespaced keys
-            const keysToMigrate = [
-                'focushub_tasks',
-                'focushub_daily_stats',
-                'focushub_history',
-                'focushub_distractions',
-                'focushub_intentions',
-                'focushub_tough_love',
-                'focushub_timer',
-                'focushub_session_state',
-                'focushub_session_date'
-            ];
-            
-            keysToMigrate.forEach(key => {
-                const existingData = localStorage.getItem(key);
-                if (existingData) {
-                    localStorage.setItem(`${key}_${userId}`, existingData);
-                    // Don't remove the original yet, in case multiple users want to claim it
-                }
-            });
         }
         
         // Theme detection
