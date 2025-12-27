@@ -122,7 +122,7 @@
             errorEl.classList.add('hidden');
             
             // Sign in with Supabase
-            const result = await handleSignIn(email, password);
+            const result = await handleSignin(email, password);
             
             if (!result.success) {
                 errorEl.textContent = result.error;
@@ -167,7 +167,7 @@
             }
             
             // Sign up with Supabase
-            const result = await handleSignUp(email, password, mode);
+            const result = await handleSignup(email, password, mode);
             
             if (!result.success) {
                 errorEl.textContent = result.error;

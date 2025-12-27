@@ -2,18 +2,18 @@
 // SUPABASE CONFIGURATION FOR FOCUSHUB
 // ============================================
 
-const SUPABASE_URL = 'https://zpbzursxjlhizminfvyd.supabase.co'
+const SUPABASE_URL = 'https://zpbzursxjlhizminfvyd.window.supabaseClient.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYnp1cnN4amxoaXptaW5mdnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3OTIzNjcsImV4cCI6MjA4MjM2ODM2N30.fKAO3lO5NEa2M-fHQC7I6uTb00rITdCA_o6Cek0H3Nk'
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Initialize Supabase client (use window.supabase to avoid duplicate variable)
+window.supabaseClient = window.window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ============================================
 // AUTH HELPER FUNCTIONS
 // ============================================
 
 async function getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const { data: { user }, error } = await window.supabaseClient.auth.getUser()
     if (error) {
         console.error('Get user error:', error)
         return null
@@ -27,7 +27,7 @@ async function isLoggedIn() {
 }
 
 async function signOut() {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await window.supabaseClient.auth.signOut()
     if (error) {
         console.error('Sign out error:', error)
     } else {
@@ -35,10 +35,10 @@ async function signOut() {
     }
 }
 
-async function handleSignUp(email, password, mode) {
+async function handleSignup(email, password, mode) {
     try {
         // Sign up the user
-        const { data: { user }, error } = await supabase.auth.signUp({
+        const { data: { user }, error } = await window.supabaseClient.auth.signUp({
             email: email,
             password: password
         })
@@ -74,9 +74,9 @@ async function handleSignUp(email, password, mode) {
     }
 }
 
-async function handleSignIn(email, password) {
+async function handleSignin(email, password) {
     try {
-        const { data: { user }, error } = await supabase.auth.signInWithPassword({
+        const { data: { user }, error } = await window.supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         })
@@ -95,7 +95,7 @@ async function handleSignIn(email, password) {
 
 async function resetPassword(email) {
     try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/start.html'
         })
         
