@@ -239,7 +239,7 @@
                     </div>
 
                     <div class="task-weights-legend">
-                        <small><strong>Priority:</strong> ⚪ Holding · 🔴 Admin (1 sprint) · 🟡 Deep Work (2 sprints) · 🟢 Strategic (3 sprints)</small>
+                        <small><strong>Priority (within bucket):</strong> 🔴 High · 🟡 Medium · 🟢 Low &nbsp;|&nbsp; <strong>Sprint Values:</strong> Admin (1) · Deep Work (2) · Strategic (3)</small>
                     </div>
                 </div>
             </div>
@@ -1086,6 +1086,7 @@
                     text: taskText,
                     bucket: 'holding',
                     sprints: 0,
+                    priority: 'medium', // Default priority
                     completed: false,
                     createdAt: new Date().toISOString(),
                     // Student mode fields (Phase 3)
@@ -1124,30 +1125,35 @@
             dragHandle.textContent = '⋮⋮';
             div.appendChild(dragHandle);
             
-            // Priority indicator (stoplight system) - not in wins
-            if (bucket !== 'wins') {
+            // Priority indicator (within bucket) - not in holding or wins
+            if (bucket !== 'holding' && bucket !== 'wins') {
                 const priorityIndicator = document.createElement('button');
                 priorityIndicator.className = 'task-priority-indicator';
                 priorityIndicator.title = 'Click to change priority';
                 
-                // Set color based on bucket
-                let priorityColor = '⚪'; // Default (holding)
-                if (bucket === 'urgent') priorityColor = '🔴';
-                if (bucket === 'deepwork') priorityColor = '🟡';
-                if (bucket === 'strategic') priorityColor = '🟢';
+                // Get task priority (default to medium if not set)
+                const taskPriority = task.priority || 'medium';
+                
+                // Set color based on priority
+                let priorityColor = '🟡'; // Default medium
+                if (taskPriority === 'high') priorityColor = '🔴';
+                if (taskPriority === 'medium') priorityColor = '🟡';
+                if (taskPriority === 'low') priorityColor = '🟢';
                 
                 priorityIndicator.textContent = priorityColor;
                 priorityIndicator.style.cssText = 'background: none; border: none; font-size: 18px; cursor: pointer; padding: 0; width: 24px; height: 24px;';
                 
-                // Click to cycle through priorities
-                priorityIndicator.addEventListener('click', () => {
-                    let newBucket = bucket;
-                    if (bucket === 'holding') newBucket = 'urgent';
-                    else if (bucket === 'urgent') newBucket = 'deepwork';
-                    else if (bucket === 'deepwork') newBucket = 'strategic';
-                    else if (bucket === 'strategic') newBucket = 'holding';
+                // Click to cycle through priorities (stays in same bucket)
+                priorityIndicator.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Don't trigger other clicks
                     
-                    moveTask(task.id, bucket, newBucket);
+                    // Cycle: high → medium → low → high
+                    if (task.priority === 'high') task.priority = 'medium';
+                    else if (task.priority === 'medium') task.priority = 'low';
+                    else task.priority = 'high';
+                    
+                    saveState();
+                    renderTasks();
                 });
                 
                 div.appendChild(priorityIndicator);
