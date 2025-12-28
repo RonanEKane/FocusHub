@@ -126,10 +126,11 @@ async function getTodaySession() {
         .select('*')
         .eq('user_id', user.id)
         .eq('session_date', today)
-        .single()
+        .maybeSingle()  // Use maybeSingle() instead of single() - doesn't error if no rows
     
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
         console.error('Get session error:', error)
+        return null
     }
     
     return data
