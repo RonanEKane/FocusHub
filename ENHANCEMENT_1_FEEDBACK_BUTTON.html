@@ -1,0 +1,250 @@
+<!-- ENHANCEMENT #1: FEEDBACK BUTTON + MODAL -->
+<!-- Add this to app.html before closing </body> -->
+
+<!-- Feedback FAB -->
+<button id="feedbackFab" class="feedback-fab" title="Send Feedback">
+    💬
+</button>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 550px;">
+        <div class="modal-header">
+            <h2>📣 Send Feedback</h2>
+            <button class="modal-close" onclick="closeFeedbackModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 14px;">
+                Help make FocusHub better! Your feedback shapes the product.
+            </p>
+            
+            <!-- Type Selection -->
+            <div style="margin-bottom: 1.5rem;">
+                <label class="form-label">What's this about?</label>
+                <div class="feedback-type-grid">
+                    <button class="feedback-type-btn active" data-type="bug">
+                        🐛 Bug Report
+                    </button>
+                    <button class="feedback-type-btn" data-type="feature">
+                        💡 Feature Idea
+                    </button>
+                    <button class="feedback-type-btn" data-type="praise">
+                        ❤️ Works Great
+                    </button>
+                    <button class="feedback-type-btn" data-type="other">
+                        💬 General
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Feedback Text -->
+            <div style="margin-bottom: 1.5rem;">
+                <label for="feedbackText" class="form-label">Your feedback:</label>
+                <textarea 
+                    id="feedbackText" 
+                    class="form-input"
+                    rows="5"
+                    placeholder="Be specific! For bugs: what did you expect vs what happened? For features: what problem would this solve?"
+                    style="resize: vertical; font-size: 14px;"
+                ></textarea>
+            </div>
+            
+            <!-- Submit -->
+            <div style="display: flex; gap: 1rem;">
+                <button 
+                    class="btn btn-secondary" 
+                    onclick="closeFeedbackModal()"
+                    style="flex: 1;"
+                >
+                    Cancel
+                </button>
+                <button 
+                    class="btn btn-primary" 
+                    onclick="submitFeedback()"
+                    id="feedbackSubmitBtn"
+                    style="flex: 2;"
+                >
+                    Send Feedback
+                </button>
+            </div>
+            
+            <div id="feedbackError" class="error-message hidden" style="margin-top: 1rem;"></div>
+            <div id="feedbackSuccess" class="success-message hidden" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Feedback FAB */
+.feedback-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    z-index: 9998;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feedback-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
+}
+
+.feedback-fab:active {
+    transform: scale(0.95);
+}
+
+/* Feedback Type Grid */
+.feedback-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.feedback-type-btn {
+    padding: 0.875rem;
+    border: 2px solid var(--border-medium);
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.feedback-type-btn:hover {
+    border-color: var(--accent-blue);
+    background: var(--card-white);
+}
+
+.feedback-type-btn.active {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .feedback-fab {
+        bottom: 80px;
+        right: 16px;
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+    
+    .feedback-type-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Feedback system
+let currentFeedbackType = 'bug';
+
+// Open feedback modal
+document.getElementById('feedbackFab').addEventListener('click', () => {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+    document.getElementById('feedbackText').focus();
+});
+
+// Close feedback modal
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    document.getElementById('feedbackText').value = '';
+    document.getElementById('feedbackError').classList.add('hidden');
+    document.getElementById('feedbackSuccess').classList.add('hidden');
+}
+
+// Type selection
+document.querySelectorAll('.feedback-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFeedbackType = btn.dataset.type;
+    });
+});
+
+// Submit feedback to Supabase
+async function submitFeedback() {
+    const text = document.getElementById('feedbackText').value.trim();
+    const errorDiv = document.getElementById('feedbackError');
+    const successDiv = document.getElementById('feedbackSuccess');
+    const submitBtn = document.getElementById('feedbackSubmitBtn');
+    
+    errorDiv.classList.add('hidden');
+    successDiv.classList.add('hidden');
+    
+    if (!text) {
+        errorDiv.textContent = 'Please enter your feedback!';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    try {
+        const user = await getCurrentUser();
+        
+        const { error } = await supabaseClient
+            .from('feedback_submissions')
+            .insert({
+                user_id: user ? user.id : null,
+                user_email: user ? user.email : 'anonymous',
+                feedback_type: currentFeedbackType,
+                feedback_text: text,
+                page_url: window.location.href,
+                browser_info: navigator.userAgent,
+                screen_size: `${window.innerWidth}x${window.innerHeight}`,
+                status: 'new'
+            });
+        
+        if (error) throw error;
+        
+        // Update beta tester stats
+        if (user) {
+            await supabaseClient.rpc('increment_feedback_count', { user_id_param: user.id });
+        }
+        
+        successDiv.textContent = '✓ Feedback sent! Thank you!';
+        successDiv.classList.remove('hidden');
+        submitBtn.textContent = '✓ Sent!';
+        submitBtn.style.background = 'var(--success)';
+        
+        setTimeout(() => {
+            closeFeedbackModal();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback';
+            submitBtn.style.background = '';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Feedback error:', error);
+        errorDiv.textContent = 'Failed to send. Please try again.';
+        errorDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Feedback';
+    }
+}
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('feedbackModal').classList.contains('hidden')) {
+        closeFeedbackModal();
+    }
+});
+</script>
