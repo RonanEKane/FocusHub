@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-box" style="max-width: 1100px; position: relative;">
+        <div class="auth-box" style="max-width: 1000px; position: relative;">
             <!-- BETA badge -->
             <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
             
@@ -26,68 +26,32 @@
             <!-- Beta Notice -->
             <div style="background: rgba(37, 99, 235, 0.1); border-left: 4px solid var(--accent-blue); padding: 0.875rem; margin-bottom: 1.5rem; border-radius: 6px; text-align: center;">
                 <p style="margin: 0; font-size: 14px; color: var(--text-primary);">
-                    <strong>🎉 All plans FREE during beta</strong> — Choose your tier below to get started
+                    <strong>🎉 All features FREE during beta</strong> — Your feedback shapes the final product
                 </p>
             </div>
             
             <!-- Horizontal Plan Selection -->
             <div class="pricing-tiers">
-                <!-- Lite -->
-                <div class="tier-card" data-plan="lite">
-                    <div class="tier-header">
-                        <h3>Lite</h3>
-                        <div class="tier-price">
-                            <span class="current">FREE</span>
-                            <span class="future">$6/mo</span>
-                        </div>
-                    </div>
-                    <ul class="tier-features">
-                        <li>✓ Energy-based timers</li>
-                        <li>✓ Task buckets</li>
-                        <li>✓ Basic tracking</li>
-                        <li>✓ Daily grading</li>
-                    </ul>
-                    <div class="tier-ideal">For: Side hustlers</div>
-                </div>
-                
-                <!-- Professional (Highlighted) -->
+                <!-- Professional -->
                 <div class="tier-card tier-popular active" data-plan="professional">
-                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="popular-badge">RECOMMENDED</div>
                     <div class="tier-header">
                         <h3>Professional</h3>
                         <div class="tier-price">
                             <span class="current">FREE</span>
-                            <span class="future">$12/mo</span>
+                            <span class="future">$10/mo after beta</span>
                         </div>
                     </div>
                     <ul class="tier-features">
-                        <li>✓ Everything in Lite</li>
-                        <li>✓ Priority system</li>
+                        <li>✓ Energy-based sprint timers</li>
+                        <li>✓ Priority task system</li>
                         <li>✓ Distraction tracking</li>
-                        <li>✓ AI coaching</li>
+                        <li>✓ Tough-love AI coaching</li>
+                        <li>✓ Daily performance grading</li>
                         <li>✓ Multi-device sync</li>
                         <li>✓ Weekly reports</li>
                     </ul>
-                    <div class="tier-ideal">For: Knowledge workers</div>
-                </div>
-                
-                <!-- Premium -->
-                <div class="tier-card" data-plan="premium">
-                    <div class="tier-header">
-                        <h3>Premium</h3>
-                        <div class="tier-price">
-                            <span class="current">FREE</span>
-                            <span class="future">$20/mo</span>
-                        </div>
-                    </div>
-                    <ul class="tier-features">
-                        <li>✓ Everything in Pro</li>
-                        <li>✓ Team features</li>
-                        <li>✓ Advanced analytics</li>
-                        <li>✓ Priority support</li>
-                        <li>✓ Custom integrations</li>
-                    </ul>
-                    <div class="tier-ideal">For: Executives</div>
+                    <div class="tier-ideal">Ideal for: Professionals, entrepreneurs, knowledge workers</div>
                 </div>
                 
                 <!-- Student -->
@@ -96,21 +60,30 @@
                         <h3>Student</h3>
                         <div class="tier-price">
                             <span class="current">FREE</span>
-                            <span class="future">$6/mo</span>
+                            <span class="future">$5/mo after beta</span>
                         </div>
                     </div>
                     <ul class="tier-features">
-                        <li>✓ All Pro features</li>
-                        <li>✓ Subject tracking</li>
-                        <li>✓ Deadline alerts</li>
-                        <li>✓ Academic style</li>
+                        <li>✓ All Professional features</li>
+                        <li>✓ Subject-based organization</li>
+                        <li>✓ Assignment deadline tracking</li>
+                        <li>✓ Study session optimization</li>
+                        <li>✓ Academic coaching style</li>
+                        <li>✓ Semester planning tools</li>
                     </ul>
-                    <div class="tier-ideal">For: Students</div>
+                    <div class="tier-ideal">Ideal for: Students, researchers, academics</div>
                 </div>
             </div>
             
+            <!-- Note about future tiers -->
+            <div style="text-align: center; margin-bottom: 2rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 6px;">
+                <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
+                    💡 <strong>Coming soon:</strong> Lite ($6/mo) and Premium ($15/mo) tiers with additional features
+                </p>
+            </div>
+            
             <!-- Signup Form -->
-            <form id="signupForm" style="margin-top: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+            <form id="signupForm" style="max-width: 450px; margin: 0 auto;">
                 <div style="margin-bottom: 1.25rem;">
                     <label for="email" class="form-label">Email</label>
                     <input 
@@ -159,7 +132,7 @@
                             style="margin-top: 0.25rem; width: 16px; height: 16px; cursor: pointer;"
                         >
                         <span style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
-                            I agree to participate in the beta program. I understand this is beta software.
+                            I agree to participate in the beta program. I understand this is beta software and my feedback will help shape the final product.
                         </span>
                     </label>
                 </div>
@@ -194,15 +167,15 @@
 /* Horizontal Pricing Tiers */
 .pricing-tiers {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
 .tier-card {
     border: 2px solid var(--border-medium);
     border-radius: 10px;
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1.25rem;
     cursor: pointer;
     transition: all 0.2s;
     background: var(--bg-secondary);
@@ -217,6 +190,7 @@
 .tier-card.active {
     border-color: var(--accent-blue);
     border-width: 3px;
+    padding: calc(1.5rem - 1px) calc(1.25rem - 1px); /* Compensate for thicker border */
     background: var(--card-white);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
@@ -247,7 +221,7 @@
 }
 
 .tier-header h3 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
@@ -260,13 +234,13 @@
 }
 
 .tier-price .current {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--accent-blue);
 }
 
 .tier-price .future {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
     text-decoration: line-through;
 }
@@ -274,24 +248,25 @@
 .tier-features {
     list-style: none;
     padding: 0;
-    margin: 0 0 0.875rem 0;
-    min-height: 140px;
+    margin: 0 0 1rem 0;
+    min-height: 160px;
 }
 
 .tier-features li {
-    padding: 0.375rem 0;
-    font-size: 13px;
+    padding: 0.4rem 0;
+    font-size: 14px;
     color: var(--text-primary);
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
 .tier-ideal {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-secondary);
-    padding: 0.5rem;
+    padding: 0.625rem;
     background: var(--bg-primary);
     border-radius: 6px;
     text-align: center;
+    line-height: 1.4;
 }
 
 /* Mobile: Stack vertically */
@@ -300,19 +275,8 @@
         grid-template-columns: 1fr;
     }
     
-    .tier-card {
-        padding: 1.25rem;
-    }
-    
     .tier-features {
         min-height: auto;
-    }
-}
-
-/* Tablet: 2 columns */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .pricing-tiers {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -401,7 +365,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         const result = await handleSignup(email, password, selectedPlan);
         
         if (result.success) {
-            successDiv.textContent = 'Account created! Check your email to verify, then you can sign in.';
+            successDiv.textContent = 'Account created! Check your email to verify, then sign in.';
             successDiv.classList.remove('hidden');
             document.getElementById('signupForm').reset();
             
