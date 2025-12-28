@@ -114,6 +114,7 @@
                     
                     <div class="card-content">
                         <div id="timerSetup" class="timer-setup">
+                            <label style="display: block; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; color: var(--text-primary);">⚡ Energy Check-In</label>
                             <div class="energy-selector">
                                 <button class="energy-btn-small" data-energy="high">
                                     🔋 <span>Full Power</span>
@@ -135,6 +136,7 @@
                         </div>
 
                         <div id="timerActive" class="timer-active hidden">
+                            <label style="display: block; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; color: var(--text-primary);">⚡ Energy Check-In</label>
                             <div class="energy-selector">
                                 <button class="energy-btn-small" data-energy="high">
                                     🔋 <span>Full Power</span>
@@ -237,7 +239,7 @@
                     </div>
 
                     <div class="task-weights-legend">
-                        <small><strong>Sprint Values:</strong> Strategic (3) · Deep Work (2) · Urgent (1)</small>
+                        <small><strong>Priority:</strong> ⚪ Holding · 🔴 Admin (1 sprint) · 🟡 Deep Work (2 sprints) · 🟢 Strategic (3 sprints)</small>
                     </div>
                 </div>
             </div>
@@ -1122,20 +1124,33 @@
             dragHandle.textContent = '⋮⋮';
             div.appendChild(dragHandle);
             
-            // Priority dropdown (not in wins)
+            // Priority indicator (stoplight system) - not in wins
             if (bucket !== 'wins') {
-                const prioritySelect = document.createElement('select');
-                prioritySelect.className = 'task-priority-select';
-                prioritySelect.innerHTML = `
-                    <option value="holding" ${task.bucket === 'holding' ? 'selected' : ''}>Hold</option>
-                    <option value="urgent" ${task.bucket === 'urgent' ? 'selected' : ''}>Urgent</option>
-                    <option value="deepwork" ${task.bucket === 'deepwork' ? 'selected' : ''}>Deep</option>
-                    <option value="strategic" ${task.bucket === 'strategic' ? 'selected' : ''}>Strategic</option>
-                `;
-                prioritySelect.addEventListener('change', (e) => {
-                    moveTask(task.id, bucket, e.target.value);
+                const priorityIndicator = document.createElement('button');
+                priorityIndicator.className = 'task-priority-indicator';
+                priorityIndicator.title = 'Click to change priority';
+                
+                // Set color based on bucket
+                let priorityColor = '⚪'; // Default (holding)
+                if (bucket === 'urgent') priorityColor = '🔴';
+                if (bucket === 'deepwork') priorityColor = '🟡';
+                if (bucket === 'strategic') priorityColor = '🟢';
+                
+                priorityIndicator.textContent = priorityColor;
+                priorityIndicator.style.cssText = 'background: none; border: none; font-size: 18px; cursor: pointer; padding: 0; width: 24px; height: 24px;';
+                
+                // Click to cycle through priorities
+                priorityIndicator.addEventListener('click', () => {
+                    let newBucket = bucket;
+                    if (bucket === 'holding') newBucket = 'urgent';
+                    else if (bucket === 'urgent') newBucket = 'deepwork';
+                    else if (bucket === 'deepwork') newBucket = 'strategic';
+                    else if (bucket === 'strategic') newBucket = 'holding';
+                    
+                    moveTask(task.id, bucket, newBucket);
                 });
-                div.appendChild(prioritySelect);
+                
+                div.appendChild(priorityIndicator);
             }
             
             // Sprint controls (not in holding or wins)
