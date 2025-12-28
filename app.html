@@ -20,21 +20,22 @@
 
             <div class="start-form">
                 <div class="form-group">
-                    <label class="form-label">What's your energy level?</label>
+                    <label class="form-label" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">⚡ Energy Check-In</label>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">How are you feeling today? Click one:</p>
                     <div class="energy-options">
-                        <button class="energy-btn" data-energy="high">
+                        <button class="energy-btn" data-energy="high" style="cursor: pointer; transition: all 0.2s;">
                             <div class="energy-emoji">🔋</div>
-                            <div>HIGH</div>
+                            <div style="font-weight: 600;">HIGH ENERGY</div>
                             <div class="energy-desc" data-energy-desc="high">30min sprints</div>
                         </button>
-                        <button class="energy-btn active" data-energy="medium">
+                        <button class="energy-btn active" data-energy="medium" style="cursor: pointer; transition: all 0.2s;">
                             <div class="energy-emoji">⚡</div>
-                            <div>MEDIUM</div>
+                            <div style="font-weight: 600;">MEDIUM ENERGY</div>
                             <div class="energy-desc" data-energy-desc="medium">20min sprints</div>
                         </button>
-                        <button class="energy-btn" data-energy="low">
+                        <button class="energy-btn" data-energy="low" style="cursor: pointer; transition: all 0.2s;">
                             <div class="energy-emoji">🪫</div>
-                            <div>LOW</div>
+                            <div style="font-weight: 600;">LOW ENERGY</div>
                             <div class="energy-desc" data-energy-desc="low">15min sprints</div>
                         </button>
                     </div>
@@ -78,7 +79,10 @@
         <header class="app-header">
             <div class="app-header-content">
                 <div class="logo-section">
-                    <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
+                    <div style="position: relative; display: inline-block;">
+                        <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
+                        <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
+                    </div>
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
                 </div>
                 
@@ -122,11 +126,11 @@
                                 </button>
                             </div>
                             
-                            <div class="duration-buttons">
-                                <button class="duration-btn" data-duration="15" data-type="focus">15 min</button>
-                                <button class="duration-btn recommended" data-duration="20" data-type="focus">20 min</button>
-                                <button class="duration-btn" data-duration="30" data-type="focus">30 min</button>
-                                <button class="duration-btn" id="breakBtn" data-type="break" style="margin-top: 0.75rem;">☕ Break</button>
+                            <div class="duration-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                                <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
+                                <button class="duration-btn recommended" data-duration="20" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">20 min</button>
+                                <button class="duration-btn" data-duration="30" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">30 min</button>
+                                <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1 1 100%; font-size: 1.1rem; padding: 1rem; margin-top: 0.5rem; background: var(--success); color: white;">☕ Take a Break (5 min)</button>
                             </div>
                         </div>
 
@@ -716,7 +720,8 @@
             const lastDate = localStorage.getItem('focushub_session_date');
 
             if (lastDate !== today) {
-                // New day
+                // New day - perform daily reset
+                performDailyReset();
                 localStorage.setItem('focushub_session_state', 'not_started');
                 localStorage.setItem('focushub_session_date', today);
                 showStartScreen();
@@ -726,6 +731,35 @@
             } else {
                 showStartScreen();
             }
+        }
+        
+        function performDailyReset() {
+            console.log('🔄 Performing daily reset...');
+            
+            // Move uncompleted tasks from priority buckets back to holding
+            const bucketsToReset = ['urgent', 'deepwork', 'strategic'];
+            
+            bucketsToReset.forEach(bucket => {
+                const uncompletedTasks = state.tasks[bucket].filter(task => !task.completed);
+                
+                // Move each uncompleted task to holding and reset sprints
+                uncompletedTasks.forEach(task => {
+                    task.bucket = 'holding';
+                    task.sprints = 0; // Reset sprint weight
+                    state.tasks.holding.push(task);
+                });
+                
+                // Keep only completed tasks in the bucket (for historical record)
+                state.tasks[bucket] = state.tasks[bucket].filter(task => task.completed);
+            });
+            
+            // Distractions persist (don't clear them)
+            // Holding area persists (don't clear it)
+            
+            // Save the reset state
+            saveState();
+            
+            console.log('✅ Daily reset complete. Uncompleted tasks moved to holding.');
         }
 
         // ============================================
@@ -1196,21 +1230,22 @@
         
         function handleDrop(e) {
             e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
             const targetBucket = e.currentTarget.dataset.bucket;
             
             // Check if dropping a distraction
-            if (draggedDistraction && targetBucket === 'holding') {
-                // Convert distraction to task
+            if (draggedDistraction) {
+                // Convert distraction to task in ANY bucket
                 const newTask = {
                     id: Date.now() + Math.random(),
                     text: draggedDistraction.text,
-                    bucket: 'holding',
-                    sprints: 0,
+                    bucket: targetBucket,
+                    sprints: targetBucket === 'holding' ? 0 : (TASK_WEIGHTS[targetBucket] || 1),
                     completed: false,
                     createdAt: new Date().toISOString()
                 };
                 
-                state.tasks.holding.push(newTask);
+                state.tasks[targetBucket].push(newTask);
                 
                 // Remove from distractions
                 state.distractions = state.distractions.filter(d => d.id !== draggedDistraction.id);
