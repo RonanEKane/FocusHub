@@ -1159,28 +1159,51 @@
                 div.appendChild(priorityIndicator);
             }
             
-            // Sprint controls (not in holding or wins)
+            // Sprint controls (not in holding or wins) - compact with triangles
             if (bucket !== 'holding' && bucket !== 'wins') {
                 const sprintControls = document.createElement('div');
                 sprintControls.className = 'task-sprint-controls';
+                sprintControls.style.cssText = 'display: flex; align-items: center; gap: 2px; position: relative;';
                 
-                const minusBtn = document.createElement('button');
-                minusBtn.className = 'task-sprint-btn';
-                minusBtn.textContent = '−';
-                minusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, -1));
-                
+                // Value (always visible)
                 const sprintValue = document.createElement('span');
                 sprintValue.className = 'task-sprint-value';
                 sprintValue.textContent = task.sprints || 0;
+                sprintValue.style.cssText = 'font-size: 12px; font-weight: 700; color: var(--text-primary); min-width: 16px; text-align: center; font-family: "Roboto Mono", monospace;';
                 
-                const plusBtn = document.createElement('button');
-                plusBtn.className = 'task-sprint-btn';
-                plusBtn.textContent = '+';
-                plusBtn.addEventListener('click', () => adjustTaskSprints(task.id, bucket, 1));
+                // Up button (hidden by default, shows on hover)
+                const upBtn = document.createElement('button');
+                upBtn.className = 'task-sprint-btn-compact';
+                upBtn.textContent = '▲';
+                upBtn.style.cssText = 'background: none; border: none; color: var(--text-secondary); font-size: 8px; cursor: pointer; padding: 0; width: 12px; height: 10px; opacity: 0; transition: opacity 0.2s;';
+                upBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    adjustTaskSprints(task.id, bucket, 1);
+                });
                 
-                sprintControls.appendChild(minusBtn);
+                // Down button (hidden by default, shows on hover)
+                const downBtn = document.createElement('button');
+                downBtn.className = 'task-sprint-btn-compact';
+                downBtn.textContent = '▼';
+                downBtn.style.cssText = 'background: none; border: none; color: var(--text-secondary); font-size: 8px; cursor: pointer; padding: 0; width: 12px; height: 10px; opacity: 0; transition: opacity 0.2s;';
+                downBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    adjustTaskSprints(task.id, bucket, -1);
+                });
+                
+                // Show buttons on hover
+                sprintControls.addEventListener('mouseenter', () => {
+                    upBtn.style.opacity = '1';
+                    downBtn.style.opacity = '1';
+                });
+                sprintControls.addEventListener('mouseleave', () => {
+                    upBtn.style.opacity = '0';
+                    downBtn.style.opacity = '0';
+                });
+                
+                sprintControls.appendChild(upBtn);
                 sprintControls.appendChild(sprintValue);
-                sprintControls.appendChild(plusBtn);
+                sprintControls.appendChild(downBtn);
                 div.appendChild(sprintControls);
             }
             
@@ -1403,13 +1426,26 @@
         function updateSprintTarget() {
             let totalTaskSprints = 0;
             
+            // Priority multipliers
+            const PRIORITY_MULTIPLIERS = {
+                high: 1.5,
+                medium: 1.0,
+                low: 0.5
+            };
+            
             ['urgent', 'deepwork', 'strategic'].forEach(bucket => {
                 state.tasks[bucket].forEach(task => {
-                    totalTaskSprints += task.sprints || 0;
+                    const baseSprints = task.sprints || 0;
+                    const priority = task.priority || 'medium';
+                    const multiplier = PRIORITY_MULTIPLIERS[priority] || 1.0;
+                    
+                    // Apply priority multiplier to sprint value
+                    totalTaskSprints += baseSprints * multiplier;
                 });
             });
             
-            state.plannedSprints = state.baselineSprints + totalTaskSprints;
+            // Round to 1 decimal place for display
+            state.plannedSprints = state.baselineSprints + Math.round(totalTaskSprints * 10) / 10;
             document.getElementById('sprintTarget').textContent = state.plannedSprints;
             saveState();
         }
