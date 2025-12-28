@@ -537,12 +537,19 @@
             // User is authenticated
             console.log('✅ User authenticated:', user.email)
             
+            // Ensure user profile exists (creates if missing)
+            await ensureUserProfile();
+            
             // Load user profile and set mode
-            const { data: profile } = await supabaseClient
+            const { data: profile, error: profileError } = await supabaseClient
                 .from('user_profiles')
                 .select('mode, student_submode, theme')
                 .eq('id', user.id)
-                .single()
+                .maybeSingle()
+            
+            if (profileError) {
+                console.warn('User profile query error:', profileError)
+            }
             
             if (profile) {
                 localStorage.setItem('focushub_mode', profile.mode)
@@ -552,6 +559,10 @@
                 if (profile.theme) {
                     localStorage.setItem('focushub_theme', profile.theme)
                 }
+            } else {
+                // Set defaults if no profile exists yet
+                localStorage.setItem('focushub_mode', 'professional')
+                console.log('Using default mode: professional')
             }
             
             // Initialize the app

@@ -400,4 +400,40 @@ async function loadAllIntentions() {
     }));
 }
 
+// Create user profile if it doesn't exist
+async function ensureUserProfile() {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not logged in' };
+    
+    // Check if profile exists
+    const { data: existing } = await supabaseClient
+        .from('user_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+    
+    if (existing) {
+        return { success: true, existed: true };
+    }
+    
+    // Create profile
+    const { error } = await supabaseClient
+        .from('user_profiles')
+        .insert({
+            id: user.id,
+            email: user.email,
+            mode: 'professional',
+            theme: 'light',
+            tough_love_level: 'balanced'
+        });
+    
+    if (error) {
+        console.error('Create profile error:', error);
+        return { success: false, error: error.message };
+    }
+    
+    console.log('✅ User profile created');
+    return { success: true, existed: false };
+}
+
 console.log('✅ Supabase config loaded for FocusHub (with Phase 3 sync)')
