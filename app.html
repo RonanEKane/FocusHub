@@ -782,9 +782,14 @@
                 });
             });
 
-            document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
-            document.getElementById('resumeBtn').addEventListener('click', resumeTimer);
-            document.getElementById('resetBtn').addEventListener('click', resetTimer);
+            // Timer controls with null checks
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resumeBtn = document.getElementById('resumeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            if (pauseBtn) pauseBtn.addEventListener('click', pauseTimer);
+            if (resumeBtn) resumeBtn.addEventListener('click', resumeTimer);
+            if (resetBtn) resetBtn.addEventListener('click', resetTimer);
 
             // Meeting
             document.getElementById('meetingBtn').addEventListener('click', toggleMeeting);
