@@ -16,7 +16,7 @@
                 <h2>Welcome Back</h2>
                 <p class="auth-subtitle">Sign in to continue your productivity journey</p>
                 
-                <form onsubmit="handleLogin(event)">
+                <form onsubmit="handleLogin(event); return false;">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
                         <input type="email" id="loginEmail" required>
@@ -43,7 +43,7 @@
                 <h2>Get Started</h2>
                 <p class="auth-subtitle">Create your account and choose your mode</p>
                 
-                <form onsubmit="handleSignup(event)">
+                <form onsubmit="handleSignupForm(event); return false;">
                     <div class="form-group">
                         <label for="signupEmail">Email</label>
                         <input type="email" id="signupEmail" required>
@@ -121,7 +121,7 @@
             
             errorEl.classList.add('hidden');
             
-            // Sign in with Supabase
+            // Sign in with Supabase (calls function from supabase-config.js)
             const result = await handleSignin(email, password);
             
             if (!result.success) {
@@ -131,7 +131,7 @@
             }
             
             // Set mode for config system (from user profile)
-            const { data: profile } = await supabase
+            const { data: profile } = await supabaseClient
                 .from('user_profiles')
                 .select('mode, student_submode')
                 .eq('id', result.user.id)
@@ -148,7 +148,7 @@
             window.location.href = 'app.html';
         }
         
-        async function handleSignup(event) {
+        async function handleSignupForm(event) {
             event.preventDefault();
             
             const email = document.getElementById('signupEmail').value;
@@ -166,7 +166,7 @@
                 return;
             }
             
-            // Sign up with Supabase
+            // Sign up with Supabase (calls function from supabase-config.js)
             const result = await handleSignup(email, password, mode);
             
             if (!result.success) {
