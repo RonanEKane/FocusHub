@@ -1018,12 +1018,16 @@
             console.log('startDay called');
             state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
             state.plannedSprints = state.baselineSprints;
+            state.sessionState = 'active'; // FIX: Set session state
             
             console.log('Baseline sprints:', state.baselineSprints);
             
             // Save session state to localStorage (simple flag)
             localStorage.setItem('focushub_session_state', 'active');
             localStorage.setItem('focushub_session_date', new Date().toDateString());
+            
+            // Save to Supabase
+            saveState();
             
             console.log('Hiding start screen...');
             hideStartScreen();
