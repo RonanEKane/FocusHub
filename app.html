@@ -444,7 +444,7 @@
             console.log('✅ User authenticated:', user.email)
             
             // Load user profile and set mode
-            const { data: profile } = await supabase
+            const { data: profile } = await supabaseClient
                 .from('user_profiles')
                 .select('mode, student_submode, theme')
                 .eq('id', user.id)
