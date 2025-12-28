@@ -2,18 +2,18 @@
 // SUPABASE CONFIGURATION FOR FOCUSHUB
 // ============================================
 
-const SUPABASE_URL = 'https://zpbzursxjlhizminfvyd.window.supabaseClient.co'
+const SUPABASE_URL = 'https://zpbzursxjlhizminfvyd.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYnp1cnN4amxoaXptaW5mdnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3OTIzNjcsImV4cCI6MjA4MjM2ODM2N30.fKAO3lO5NEa2M-fHQC7I6uTb00rITdCA_o6Cek0H3Nk'
 
-// Initialize Supabase client (use window.supabase to avoid duplicate variable)
-window.supabaseClient = window.window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Initialize Supabase client
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ============================================
 // AUTH HELPER FUNCTIONS
 // ============================================
 
 async function getCurrentUser() {
-    const { data: { user }, error } = await window.supabaseClient.auth.getUser()
+    const { data: { user }, error } = await supabaseClient.auth.getUser()
     if (error) {
         console.error('Get user error:', error)
         return null
@@ -27,7 +27,7 @@ async function isLoggedIn() {
 }
 
 async function signOut() {
-    const { error } = await window.supabaseClient.auth.signOut()
+    const { error } = await supabaseClient.auth.signOut()
     if (error) {
         console.error('Sign out error:', error)
     } else {
@@ -38,7 +38,7 @@ async function signOut() {
 async function handleSignup(email, password, mode) {
     try {
         // Sign up the user
-        const { data: { user }, error } = await window.supabaseClient.auth.signUp({
+        const { data: { user }, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password
         })
@@ -53,7 +53,7 @@ async function handleSignup(email, password, mode) {
         }
         
         // Create user profile
-        const { error: profileError } = await supabase
+        const { error: profileError } = await supabaseClient
             .from('user_profiles')
             .insert({
                 id: user.id,
@@ -76,7 +76,7 @@ async function handleSignup(email, password, mode) {
 
 async function handleSignin(email, password) {
     try {
-        const { data: { user }, error } = await window.supabaseClient.auth.signInWithPassword({
+        const { data: { user }, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
         })
@@ -95,7 +95,7 @@ async function handleSignin(email, password) {
 
 async function resetPassword(email) {
     try {
-        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/start.html'
         })
         
@@ -121,14 +121,14 @@ async function getTodaySession() {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('daily_sessions')
         .select('*')
         .eq('user_id', user.id)
         .eq('session_date', today)
         .single()
     
-    if (error && error.code !== 'PGRST116') {  // PGRST116 = no rows
+    if (error && error.code !== 'PGRST116') {
         console.error('Get session error:', error)
     }
     
@@ -141,7 +141,7 @@ async function saveTodaySession(sessionData) {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('daily_sessions')
         .upsert({
             user_id: user.id,
@@ -165,7 +165,7 @@ async function getTodayTasks() {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('tasks')
         .select('*')
         .eq('user_id', user.id)
@@ -186,7 +186,7 @@ async function saveTask(taskData) {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('tasks')
         .insert({
             user_id: user.id,
@@ -205,7 +205,7 @@ async function saveTask(taskData) {
 }
 
 async function updateTask(taskId, updates) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('tasks')
         .update(updates)
         .eq('id', taskId)
@@ -219,7 +219,7 @@ async function updateTask(taskId, updates) {
 }
 
 async function deleteTask(taskId) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('tasks')
         .delete()
         .eq('id', taskId)
@@ -238,7 +238,7 @@ async function saveDistraction(intention, reality, followedThrough) {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('distractions')
         .insert({
             user_id: user.id,
@@ -262,7 +262,7 @@ async function getTodayDistractions() {
     
     const today = new Date().toISOString().split('T')[0]
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('distractions')
         .select('*')
         .eq('user_id', user.id)
