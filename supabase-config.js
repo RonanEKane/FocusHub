@@ -159,164 +159,244 @@ async function saveTodaySession(sessionData) {
     return { success: true }
 }
 
-async function getTodayTasks() {
-    const user = await getCurrentUser()
-    if (!user) return []
-    
-    const today = new Date().toISOString().split('T')[0]
-    
-    const { data, error } = await supabaseClient
-        .from('tasks')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('session_date', today)
-        .order('created_at', { ascending: true })
-    
-    if (error) {
-        console.error('Get tasks error:', error)
-        return []
-    }
-    
-    return data || []
-}
+// ============================================
+// ENHANCED DATA SYNC FUNCTIONS (PHASE 3)
+// ============================================
 
-async function saveTask(taskData) {
-    const user = await getCurrentUser()
-    if (!user) return { success: false, error: 'Not logged in' }
+// Save all tasks for today (batch operation)
+async function saveAllTasks(tasksObj) {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not logged in' };
     
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0];
     
-    const { data, error } = await supabaseClient
-        .from('tasks')
-        .insert({
-            user_id: user.id,
-            session_date: today,
-            ...taskData
-        })
-        .select()
-        .single()
+    // Flatten tasks object into array
+    const allTasks = [];
+    Object.keys(tasksObj).forEach(bucket => {
+        tasksObj[bucket].forEach(task => {
+            allTasks.push({
+                user_id: user.id,
+                session_date: today,
+                text: task.text,
+                bucket: bucket,
+                sprints: task.sprints || 0,
+                priority: task.priority || 'medium',
+                completed: task.completed || false,
+                completed_at: task.completed ? new Date().toISOString() : null,
+                subject: task.subject || null,
+                custom_subject: task.customSubject || null,
+                deadline: task.deadline || null
+            });
+        });
+    });
     
-    if (error) {
-        console.error('Save task error:', error)
-        return { success: false, error: error.message }
-    }
-    
-    return { success: true, task: data }
-}
-
-async function updateTask(taskId, updates) {
-    const { error } = await supabaseClient
-        .from('tasks')
-        .update(updates)
-        .eq('id', taskId)
-    
-    if (error) {
-        console.error('Update task error:', error)
-        return { success: false, error: error.message }
-    }
-    
-    return { success: true }
-}
-
-async function deleteTask(taskId) {
-    const { error } = await supabaseClient
+    // Delete existing tasks for today
+    await supabaseClient
         .from('tasks')
         .delete()
-        .eq('id', taskId)
+        .eq('user_id', user.id)
+        .eq('session_date', today);
     
-    if (error) {
-        console.error('Delete task error:', error)
-        return { success: false, error: error.message }
+    // Insert all tasks
+    if (allTasks.length > 0) {
+        const { data, error } = await supabaseClient
+            .from('tasks')
+            .insert(allTasks)
+            .select();
+        
+        if (error) {
+            console.error('Save all tasks error:', error);
+            return { success: false, error: error.message };
+        }
+        
+        return { success: true, tasks: data };
     }
     
-    return { success: true }
+    return { success: true, tasks: [] };
 }
 
-async function saveDistraction(intention, reality, followedThrough) {
-    const user = await getCurrentUser()
-    if (!user) return { success: false, error: 'Not logged in' }
+// Load all tasks for today and organize by bucket
+async function loadAllTasks() {
+    const user = await getCurrentUser();
+    if (!user) return null;
     
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabaseClient
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('session_date', today)
+        .order('created_at', { ascending: true });
+    
+    if (error) {
+        console.error('Load tasks error:', error);
+        return null;
+    }
+    
+    // Organize by bucket
+    const tasks = {
+        holding: [],
+        urgent: [],
+        deepwork: [],
+        strategic: [],
+        wins: []
+    };
+    
+    (data || []).forEach(task => {
+        const bucket = task.bucket || 'holding';
+        if (tasks[bucket]) {
+            tasks[bucket].push({
+                id: task.id, // Use Supabase ID as primary
+                supabase_id: task.id,
+                text: task.text,
+                bucket: task.bucket,
+                sprints: task.sprints,
+                priority: task.priority,
+                completed: task.completed,
+                createdAt: task.created_at,
+                subject: task.subject,
+                customSubject: task.custom_subject,
+                deadline: task.deadline
+            });
+        }
+    });
+    
+    return tasks;
+}
+
+// Save all distractions for today
+async function saveAllDistractions(distractions) {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not logged in' };
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Delete existing
+    await supabaseClient
+        .from('distractions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('session_date', today);
+    
+    // Insert all
+    const distractionsData = distractions.map(d => ({
+        user_id: user.id,
+        session_date: today,
+        text: d.text,
+        intention: d.intention || null,
+        reality: d.reality || null,
+        followed_through: d.followed_through || false
+    }));
+    
+    if (distractionsData.length === 0) {
+        return { success: true };
+    }
     
     const { error } = await supabaseClient
         .from('distractions')
-        .insert({
-            user_id: user.id,
-            session_date: today,
-            intention: intention,
-            reality: reality || null,
-            followed_through: followedThrough || false
-        })
+        .insert(distractionsData);
     
     if (error) {
-        console.error('Save distraction error:', error)
-        return { success: false, error: error.message }
+        console.error('Save distractions error:', error);
+        return { success: false, error: error.message };
     }
     
-    return { success: true }
+    return { success: true };
 }
 
-async function getTodayDistractions() {
-    const user = await getCurrentUser()
-    if (!user) return []
+// Load all distractions for today
+async function loadAllDistractions() {
+    const user = await getCurrentUser();
+    if (!user) return [];
     
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0];
     
     const { data, error } = await supabaseClient
         .from('distractions')
         .select('*')
         .eq('user_id', user.id)
         .eq('session_date', today)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: true });
     
     if (error) {
-        console.error('Get distractions error:', error)
-        return []
+        console.error('Load distractions error:', error);
+        return [];
     }
     
-    return data || []
+    return (data || []).map(d => ({
+        id: d.id,
+        text: d.text,
+        intention: d.intention,
+        reality: d.reality,
+        followed_through: d.followed_through
+    }));
 }
 
-// ============================================
-// MIGRATION HELPER (ONE-TIME USE)
-// ============================================
-
-async function migrateFromLocalStorage() {
-    const user = await getCurrentUser()
-    if (!user) return
+// Save all intentions for today
+async function saveAllIntentions(intentions) {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not logged in' };
     
-    // Check if already migrated
-    const migrated = localStorage.getItem('migrated_to_supabase')
-    if (migrated) return
+    const today = new Date().toISOString().split('T')[0];
     
-    console.log('🔄 Starting localStorage migration...')
+    // Delete existing
+    await supabaseClient
+        .from('intentions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('session_date', today);
     
-    try {
-        // Get old state
-        const oldState = JSON.parse(localStorage.getItem('focushub_state') || '{}')
-        const today = new Date().toISOString().split('T')[0]
-        
-        // Migrate today's session if it exists
-        if (oldState.sessionDate === today && oldState.sessionState) {
-            await saveTodaySession({
-                energy_level: oldState.energyLevel || 'medium',
-                baseline_sprints: oldState.baselineSprints || 5,
-                planned_sprints: oldState.plannedSprints || 5,
-                sprints_completed: oldState.sprintCount || 0,
-                tasks_completed: oldState.tasksCompleted || 0,
-                breaks_taken: oldState.breaksCount || 0,
-                distractions_logged: oldState.distractionCount || 0,
-                session_state: oldState.sessionState || 'not_started',
-                current_grade: oldState.currentGrade || null
-            })
-        }
-        
-        // Mark as migrated
-        localStorage.setItem('migrated_to_supabase', 'true')
-        console.log('✅ Migration complete!')
-    } catch (err) {
-        console.error('Migration error:', err)
+    // Insert all
+    const intentionsData = intentions.map(i => ({
+        user_id: user.id,
+        session_date: today,
+        distraction_id: i.distractionId || null,
+        intention: i.intention,
+        followed_through: i.followedThrough || false
+    }));
+    
+    if (intentionsData.length === 0) {
+        return { success: true };
     }
+    
+    const { error } = await supabaseClient
+        .from('intentions')
+        .insert(intentionsData);
+    
+    if (error) {
+        console.error('Save intentions error:', error);
+        return { success: false, error: error.message };
+    }
+    
+    return { success: true };
 }
 
-console.log('✅ Supabase config loaded for FocusHub')
+// Load all intentions for today
+async function loadAllIntentions() {
+    const user = await getCurrentUser();
+    if (!user) return [];
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabaseClient
+        .from('intentions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('session_date', today)
+        .order('created_at', { ascending: true });
+    
+    if (error) {
+        console.error('Load intentions error:', error);
+        return [];
+    }
+    
+    return (data || []).map(i => ({
+        id: i.id,
+        distractionId: i.distraction_id,
+        intention: i.intention,
+        followedThrough: i.followed_through
+    }));
+}
+
+console.log('✅ Supabase config loaded for FocusHub (with Phase 3 sync)')

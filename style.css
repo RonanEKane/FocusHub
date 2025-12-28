@@ -2964,3 +2964,557 @@ code, .monospace {
     color: #6ee7b7;
     border-color: #059669;
 }
+
+/* ============================================
+   MOBILE RESPONSIVENESS - COMPREHENSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Container layout - stack everything */
+    .app-container {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .main-content,
+    .sidebar-column {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Header adjustments */
+    .app-header-content {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .logo-section {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .logo-section .tagline {
+        font-size: 12px;
+    }
+    
+    .header-controls {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .btn-home,
+    .btn-end-day {
+        font-size: 12px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    /* Touch-friendly tap targets (min 44px) */
+    button,
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .energy-btn,
+    .energy-btn-small {
+        min-height: 60px;
+        padding: 1rem;
+    }
+    
+    .duration-btn {
+        min-height: 60px;
+        font-size: 18px !important;
+    }
+    
+    /* Task items - easier to tap */
+    .task-item {
+        padding: 1rem;
+        min-height: 60px;
+    }
+    
+    .task-drag-handle {
+        font-size: 20px;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .task-priority-indicator {
+        font-size: 24px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+    
+    .task-delete {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 24px;
+    }
+    
+    /* Sprint timer - bigger */
+    .timer-time {
+        font-size: 72px;
+    }
+    
+    /* Brain dump textarea - bigger */
+    .task-textarea {
+        min-height: 120px;
+        font-size: 16px;
+    }
+    
+    /* Distraction input - bigger */
+    .distraction-input {
+        font-size: 16px;
+        min-height: 48px;
+    }
+    
+    /* Cards - better spacing */
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Bucket headers - better touch */
+    .bucket-header {
+        padding: 1rem;
+        font-size: 16px;
+    }
+    
+    /* Hide less critical elements on mobile */
+    .task-weights-legend {
+        font-size: 11px;
+        text-align: center;
+    }
+    
+    /* AI Agent - condensed */
+    .agent-message {
+        font-size: 14px;
+        padding: 1rem;
+    }
+    
+    /* Progress grid - 2 columns instead of 4 */
+    .progress-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    /* Tough Love buttons */
+    .tough-love-btn {
+        font-size: 14px;
+        padding: 0.75rem;
+    }
+    
+    /* Footer - stack */
+    .app-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .footer-separator {
+        display: none;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+    /* Even more compact */
+    .app-header-content {
+        padding: 0.75rem;
+    }
+    
+    .logo-img {
+        height: 40px !important;
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .card-title {
+        font-size: 16px;
+    }
+    
+    .timer-time {
+        font-size: 56px;
+    }
+    
+    /* Single column for everything */
+    .task-buckets {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .energy-options {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .duration-buttons {
+        flex-direction: column !important;
+    }
+    
+    .duration-btn {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    
+    /* Smaller priority dots */
+    .task-priority-indicator {
+        font-size: 20px !important;
+    }
+}
+
+/* Tablet landscape - keep 2-column layout */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .app-container {
+        gap: 1.5rem;
+    }
+    
+    .task-buckets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sidebar-column {
+        width: 35%;
+    }
+}
+
+/* Touch-specific improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* This is a touch device */
+    
+    /* Make all interactive elements bigger */
+    button, .btn, a {
+        min-height: 48px;
+        min-width: 48px;
+    }
+    
+    /* Remove hover effects that don't work on touch */
+    .task-sprint-controls {
+        /* Show controls always on touch devices */
+    }
+    
+    .task-sprint-btn-compact {
+        opacity: 1 !important; /* Always visible on touch */
+    }
+    
+    /* Better touch feedback */
+    button:active,
+    .btn:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    
+    /* Prevent text selection during drag */
+    .task-item,
+    .distraction-item {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+/* Landscape phone optimization */
+@media (max-width: 896px) and (orientation: landscape) {
+    .start-day-screen {
+        padding: 1rem;
+    }
+    
+    .start-day-container {
+        max-width: 600px;
+    }
+    
+    .energy-options {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* PWA fullscreen mode */
+@media (display-mode: standalone) {
+    /* App is installed as PWA */
+    .app-header {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .app-container {
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    }
+}
+
+
+/* ============================================
+   MOBILE ACTION BOTTOM SHEET
+   ============================================ */
+
+.mobile-action-sheet {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+.mobile-action-sheet.hidden {
+    display: none;
+}
+
+.mobile-action-sheet.active {
+    pointer-events: all;
+}
+
+.action-sheet-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-action-sheet.active .action-sheet-overlay {
+    opacity: 1;
+}
+
+.action-sheet-content {
+    position: relative;
+    width: 100%;
+    max-height: 85vh;
+    background: var(--card-white);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-action-sheet.active .action-sheet-content {
+    transform: translateY(0);
+}
+
+.action-sheet-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+    position: relative;
+}
+
+.action-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--border-medium);
+    border-radius: 2px;
+    margin: 0 auto 0.75rem;
+}
+
+.action-sheet-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-primary);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 1rem;
+}
+
+.action-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 0 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.action-section {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.action-section:last-of-type {
+    border-bottom: none;
+}
+
+.action-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.action-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: none;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 60px;
+}
+
+.action-btn:last-child {
+    margin-bottom: 0;
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+    background: var(--border-light);
+}
+
+.action-btn.action-btn-active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.action-btn.action-btn-active .action-meta {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.action-btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+.action-btn-danger:active {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.action-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.action-label {
+    flex: 1;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.action-btn-danger .action-label {
+    color: var(--accent-red);
+}
+
+.action-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Sprint Adjuster */
+.sprint-adjuster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.sprint-adjust-btn {
+    width: 56px;
+    height: 56px;
+    border: 2px solid var(--border-medium);
+    background: var(--card-white);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.sprint-adjust-btn:active {
+    transform: scale(0.95);
+    background: var(--border-light);
+}
+
+.sprint-value-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.sprint-value-display span:first-child {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Cancel Button */
+.action-btn-cancel {
+    width: calc(100% - 2rem);
+    margin: 1rem 1rem 0;
+    padding: 1rem;
+    border: none;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 56px;
+}
+
+.action-btn-cancel:active {
+    transform: scale(0.98);
+    background: var(--border-light);
+}
+
+/* Dark theme support */
+[data-theme="dark"] .action-sheet-content {
+    background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .action-btn {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] .sprint-adjust-btn {
+    background: var(--bg-secondary);
+}
+
+
+/* Mobile-specific drag handle styling */
+@media (max-width: 768px) {
+    .task-drag-handle {
+        cursor: pointer;
+        /* Make it clear it's tappable on mobile */
+        font-size: 22px;
+        padding: 0.25rem;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+    
+    .task-drag-handle:active {
+        background: var(--border-light);
+    }
+    
+    /* Disable draggable cursor on mobile */
+    .task-item,
+    .distraction-item {
+        cursor: default;
+    }
+}
+

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FAQ - FocusHub</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -71,7 +71,26 @@
             <div class="faq-item">
                 <div class="faq-question">How does sprint targeting work?</div>
                 <div class="faq-answer">
-                    You set a baseline (minimum daily sprints). Tasks add to it based on priority: Strategic = 3 sprints, Deep Work = 2 sprints, Urgent = 1 sprint. If your baseline is 5 and you add 2 deep work tasks, your target becomes 9 (5 + 4). This accounts for ADHD reality: tasks take longer than estimated.
+                    You set a baseline (minimum daily sprints). Tasks add to it based on bucket type: Strategic = 3 sprints, Deep Work = 2 sprints, Admin = 1 sprint. Priority also matters: High Priority tasks count 1.5x, Medium = 1x (normal), Low = 0.5x. Example: A Strategic task with High Priority = 3 × 1.5 = 4.5 sprints! This rewards tackling important, difficult work first.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How do I organize tasks and set priorities?</div>
+                <div class="faq-answer">
+                    <strong>Buckets (drag & drop):</strong> Drag tasks between Holding Area, Admin, Deep Work, and Strategic to categorize work type.<br><br>
+                    <strong>Priority (stoplight):</strong> Click the colored dot (🔴🟡🟢) on any task to cycle through High/Medium/Low priority <em>within that bucket</em>. This helps you tackle the most urgent Admin tasks first, or defer low-priority Strategic work.<br><br>
+                    Priority doesn't move tasks between buckets—it ranks urgency within each bucket.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What do the colored priority dots mean?</div>
+                <div class="faq-answer">
+                    🔴 <strong>High Priority</strong> = Do this first (counts 1.5x toward sprint target)<br>
+                    🟡 <strong>Medium Priority</strong> = Normal importance (counts 1x)<br>
+                    🟢 <strong>Low Priority</strong> = Can wait (counts 0.5x toward target)<br><br>
+                    Click the dot to cycle through priorities. A High Priority Strategic task is worth 4.5 sprints—your highest-value work!
                 </div>
             </div>
 
@@ -99,7 +118,7 @@
             <div class="faq-item">
                 <div class="faq-question">How does the grading system work?</div>
                 <div class="faq-answer">
-                    At end of day, the system calculates a grade based on (sprints completed / planned sprints) minus a penalty for distractions (5% per distraction). You then grade yourself using buttons (A+, A, A-, B+, B, etc.). Compare the system's grade to yours. Build self-awareness over time.
+                    At end of day, the system calculates a grade based on (sprints completed / planned sprints) minus a penalty for distractions (5% per distraction). Because high-priority tasks count more toward your target, completing them gives a bigger grade boost than low-priority tasks. You then grade yourself using buttons (A+, A, A-, B+, B, etc.). Compare the system's grade to yours. Build self-awareness over time.
                 </div>
             </div>
 

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>FocusHub - Workspace</title>
     <link rel="stylesheet" href="style.css">
     
@@ -355,6 +358,91 @@
         </div>
     </div>
 
+    <!-- Mobile Task Action Bottom Sheet -->
+    <div id="mobileActionSheet" class="mobile-action-sheet hidden">
+        <div class="action-sheet-overlay"></div>
+        <div class="action-sheet-content">
+            <div class="action-sheet-header">
+                <div class="action-sheet-handle"></div>
+                <h3 id="actionSheetTaskName">Task Actions</h3>
+            </div>
+            
+            <div class="action-sheet-body">
+                <!-- Move To Section -->
+                <div class="action-section">
+                    <div class="action-section-label">Move To</div>
+                    <button class="action-btn" data-action="move" data-bucket="holding">
+                        <span class="action-icon">📋</span>
+                        <span class="action-label">Holding Area</span>
+                    </button>
+                    <button class="action-btn" data-action="move" data-bucket="urgent">
+                        <span class="action-icon">🔥</span>
+                        <span class="action-label">Admin</span>
+                        <span class="action-meta">(1 sprint)</span>
+                    </button>
+                    <button class="action-btn" data-action="move" data-bucket="deepwork">
+                        <span class="action-icon">🎯</span>
+                        <span class="action-label">Deep Work</span>
+                        <span class="action-meta">(2 sprints)</span>
+                    </button>
+                    <button class="action-btn" data-action="move" data-bucket="strategic">
+                        <span class="action-icon">♟️</span>
+                        <span class="action-label">Strategic</span>
+                        <span class="action-meta">(3 sprints)</span>
+                    </button>
+                </div>
+                
+                <!-- Priority Section -->
+                <div class="action-section">
+                    <div class="action-section-label">Priority</div>
+                    <button class="action-btn" data-action="priority" data-priority="high">
+                        <span class="action-icon">🔴</span>
+                        <span class="action-label">High Priority</span>
+                        <span class="action-meta">(1.5x value)</span>
+                    </button>
+                    <button class="action-btn" data-action="priority" data-priority="medium">
+                        <span class="action-icon">🟡</span>
+                        <span class="action-label">Medium Priority</span>
+                        <span class="action-meta">(1x value)</span>
+                    </button>
+                    <button class="action-btn" data-action="priority" data-priority="low">
+                        <span class="action-icon">🟢</span>
+                        <span class="action-label">Low Priority</span>
+                        <span class="action-meta">(0.5x value)</span>
+                    </button>
+                </div>
+                
+                <!-- Sprint Adjustment Section -->
+                <div class="action-section" id="sprintAdjustSection">
+                    <div class="action-section-label">Sprint Value</div>
+                    <div class="sprint-adjuster">
+                        <button class="sprint-adjust-btn" data-action="sprint" data-delta="-1">
+                            <span style="font-size: 24px;">−</span>
+                        </button>
+                        <div class="sprint-value-display">
+                            <span id="actionSheetSprintValue">1</span>
+                            <span style="font-size: 12px; color: var(--text-secondary);">sprints</span>
+                        </div>
+                        <button class="sprint-adjust-btn" data-action="sprint" data-delta="1">
+                            <span style="font-size: 24px;">+</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Delete Section -->
+                <div class="action-section">
+                    <button class="action-btn action-btn-danger" data-action="delete">
+                        <span class="action-icon">🗑️</span>
+                        <span class="action-label">Delete Task</span>
+                    </button>
+                </div>
+                
+                <!-- Cancel Button -->
+                <button class="action-btn-cancel" id="actionSheetCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- End of Day Modal -->
     <div id="eodModal" class="modal-overlay hidden">
         <div class="modal eod-modal">
@@ -550,50 +638,63 @@
         async function loadState() {
             const today = new Date().toDateString();
             
-            // Try loading from Firestore first
-            if (window.FirestoreData && window.currentFirebaseUser) {
-                try {
-                    const [dailyStats, tasks, distractions, intentions] = await Promise.all([
-                        window.FirestoreData.loadDailyStats(),
-                        window.FirestoreData.loadTasks(),
-                        window.FirestoreData.loadDistractions(),
-                        window.FirestoreData.loadIntentions()
-                    ]);
+            // Try loading from Supabase FIRST (Phase 3)
+            try {
+                if (typeof loadAllTasks === 'function' && typeof getTodaySession === 'function') {
+                    console.log('🔄 Loading from Supabase...');
                     
-                    // Load daily stats
-                    if (dailyStats && dailyStats.date === today) {
-                        state.sprintCount = dailyStats.sprintCount || 0;
-                        state.breaksCount = dailyStats.breaksCount || 0;
-                        state.distractionCount = dailyStats.distractionCount || 0;
-                        state.tasksCompleted = dailyStats.tasksCompleted || 0;
-                        state.meetingMinutes = dailyStats.meetingMinutes || 0;
-                        state.plannedSprints = dailyStats.plannedSprints || 5;
+                    // Load session data
+                    const session = await getTodaySession();
+                    if (session) {
+                        state.energyLevel = session.energy_level || 'medium';
+                        state.baselineSprints = session.baseline_sprints || 5;
+                        state.plannedSprints = session.planned_sprints || 5;
+                        state.sprintCount = session.sprints_completed || 0;
+                        state.tasksCompleted = session.tasks_completed || 0;
+                        state.breaksCount = session.breaks_taken || 0;
+                        state.distractionCount = session.distractions_logged || 0;
+                        state.meetingMinutes = session.meeting_minutes || 0;
+                        state.sessionState = session.session_state || 'not_started';
+                        state.currentGrade = session.current_grade || null;
                     }
                     
                     // Load tasks
-                    if (tasks && tasks.length > 0) {
+                    const tasks = await loadAllTasks();
+                    if (tasks) {
                         state.tasks = tasks;
                     }
                     
                     // Load distractions
+                    const distractions = await loadAllDistractions();
                     if (distractions && distractions.length > 0) {
                         state.distractions = distractions;
                     }
                     
                     // Load intentions
+                    const intentions = await loadAllIntentions();
                     if (intentions && intentions.length > 0) {
                         state.intentions = intentions;
                     }
                     
-                    console.log('Loaded state from Firestore');
-                    return;
-                } catch (error) {
-                    console.error('Error loading from Firestore, falling back to localStorage:', error);
+                    // Load preferences from localStorage (not synced)
+                    const storedEnergy = localStorage.getItem('focushub_energy');
+                    const storedBaseline = localStorage.getItem('focushub_baseline');
+                    const storedToughLove = localStorage.getItem('focushub_tough_love');
+                    
+                    if (storedEnergy) state.energyLevel = storedEnergy;
+                    if (storedBaseline) state.baselineSprints = parseInt(storedBaseline) || 5;
+                    if (storedToughLove) state.toughLoveLevel = storedToughLove;
+                    
+                    console.log('✅ Loaded from Supabase');
+                    return; // Exit early - we got data from Supabase
                 }
+            } catch (error) {
+                console.error('Supabase load error (falling back to localStorage):', error);
             }
             
-            // Fallback to localStorage if Firestore fails
-            console.log('Loading from localStorage (fallback)');
+            // FALLBACK to localStorage if Supabase fails
+            console.log('📂 Loading from localStorage (fallback)...');
+            
             const savedStats = localStorage.getItem('focushub_daily_stats');
             if (savedStats) {
                 const stats = JSON.parse(savedStats);
@@ -621,6 +722,14 @@
             if (savedIntentions) {
                 state.intentions = JSON.parse(savedIntentions);
             }
+            
+            const storedEnergy = localStorage.getItem('focushub_energy');
+            const storedBaseline = localStorage.getItem('focushub_baseline');
+            const storedToughLove = localStorage.getItem('focushub_tough_love');
+            
+            if (storedEnergy) state.energyLevel = storedEnergy;
+            if (storedBaseline) state.baselineSprints = parseInt(storedBaseline) || 5;
+            if (storedToughLove) state.toughLoveLevel = storedToughLove;
         }
 
         function restoreTimer() {
@@ -680,28 +789,48 @@
                 date: today
             };
             
-            // Save to Firestore
-            if (window.FirestoreData && window.currentFirebaseUser) {
-                try {
-                    await Promise.all([
-                        window.FirestoreData.saveDailyStats(stats),
-                        window.FirestoreData.saveTasks(state.tasks),
-                        window.FirestoreData.saveDistractions(state.distractions),
-                        window.FirestoreData.saveIntentions(state.intentions)
-                    ]);
-                    console.log('Saved to Firestore');
-                } catch (error) {
-                    console.error('Error saving to Firestore:', error);
+            // Save to Supabase FIRST (Phase 3)
+            try {
+                if (typeof saveAllTasks === 'function' && typeof saveTodaySession === 'function') {
+                    // Save session data
+                    await saveTodaySession({
+                        energy_level: state.energyLevel,
+                        baseline_sprints: state.baselineSprints,
+                        planned_sprints: state.plannedSprints,
+                        sprints_completed: state.sprintCount,
+                        tasks_completed: state.tasksCompleted,
+                        breaks_taken: state.breaksCount,
+                        distractions_logged: state.distractionCount,
+                        meeting_minutes: state.meetingMinutes,
+                        session_state: state.sessionState,
+                        current_grade: state.currentGrade
+                    });
+                    
+                    // Save all tasks
+                    await saveAllTasks(state.tasks);
+                    
+                    // Save all distractions
+                    await saveAllDistractions(state.distractions);
+                    
+                    // Save all intentions
+                    await saveAllIntentions(state.intentions);
+                    
+                    console.log('✅ Saved to Supabase');
                 }
+            } catch (error) {
+                console.error('Supabase save error (will use localStorage):', error);
             }
             
-            // Also save to localStorage as backup
+            // ALSO save to localStorage as backup/offline cache
             localStorage.setItem('focushub_daily_stats', JSON.stringify(stats));
             localStorage.setItem('focushub_tasks', JSON.stringify(state.tasks));
             localStorage.setItem('focushub_distractions', JSON.stringify(state.distractions));
             localStorage.setItem('focushub_intentions', JSON.stringify(state.intentions));
+            localStorage.setItem('focushub_energy', state.energyLevel);
+            localStorage.setItem('focushub_baseline', state.baselineSprints.toString());
+            localStorage.setItem('focushub_tough_love', state.toughLoveLevel);
             
-            // Save timer state
+            // Save timer state (local only)
             const timerState = {
                 timeLeft: state.timer.timeLeft,
                 duration: state.timer.duration,
@@ -709,10 +838,6 @@
                 timerType: state.timer.timerType,
                 lastUpdated: Date.now()
             };
-            
-            if (window.FirestoreData && window.currentFirebaseUser) {
-                window.FirestoreData.saveTimerState(timerState).catch(console.error);
-            }
             localStorage.setItem('focushub_timer', JSON.stringify(timerState));
         }
 
@@ -1123,6 +1248,16 @@
             const dragHandle = document.createElement('span');
             dragHandle.className = 'task-drag-handle';
             dragHandle.textContent = '⋮⋮';
+            
+            // On mobile (< 768px), clicking handle opens bottom sheet
+            // On desktop, it's for dragging
+            dragHandle.addEventListener('click', (e) => {
+                if (window.innerWidth < 768) {
+                    e.stopPropagation();
+                    showMobileActionSheet(task, bucket);
+                }
+            });
+            
             div.appendChild(dragHandle);
             
             // Priority indicator (within bucket) - not in holding or wins
@@ -1422,6 +1557,361 @@
             });
         }
         
+        // ============================================
+        // MOBILE TOUCH DRAG & DROP SUPPORT
+        // ============================================
+        
+        let touchStartX, touchStartY;
+        let touchElement = null;
+        let touchClone = null;
+        let isDraggingTouch = false;
+        
+        function initTouchDragDrop() {
+            // Only enable touch drag on tablets (768px+), not on phones
+            // Phones use the bottom sheet action menu instead
+            if (window.innerWidth < 768) {
+                return; // Skip touch drag & drop on mobile phones
+            }
+            
+            function addTouchEvents(element) {
+                element.addEventListener('touchstart', handleTouchStart, { passive: false });
+                element.addEventListener('touchmove', handleTouchMove, { passive: false });
+                element.addEventListener('touchend', handleTouchEnd, { passive: false });
+            }
+            
+            document.querySelectorAll('.task-item').forEach(addTouchEvents);
+            document.querySelectorAll('.distraction-item').forEach(addTouchEvents);
+        }
+        
+        function handleTouchStart(e) {
+            if (!e.target.classList.contains('task-drag-handle') && !e.target.closest('.task-drag-handle')) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            touchElement = e.target.closest('.task-item') || e.target.closest('.distraction-item');
+            if (!touchElement) return;
+            
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            
+            touchClone = touchElement.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.zIndex = '9999';
+            touchClone.style.opacity = '0.8';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.width = touchElement.offsetWidth + 'px';
+            touchClone.style.left = touch.clientX - (touchElement.offsetWidth / 2) + 'px';
+            touchClone.style.top = touch.clientY - 30 + 'px';
+            document.body.appendChild(touchClone);
+            
+            touchElement.style.opacity = '0.3';
+            isDraggingTouch = true;
+        }
+        
+        function handleTouchMove(e) {
+            if (!isDraggingTouch || !touchClone) return;
+            
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            touchClone.style.left = touch.clientX - (touchClone.offsetWidth / 2) + 'px';
+            touchClone.style.top = touch.clientY - 30 + 'px';
+            
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dropZone = elementBelow?.closest('.task-list');
+            
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.classList.remove('drag-over');
+            });
+            
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            if (!isDraggingTouch) return;
+            
+            e.preventDefault();
+            
+            const touch = e.changedTouches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dropZone = elementBelow?.closest('.task-list');
+            
+            if (touchClone) {
+                touchClone.remove();
+                touchClone = null;
+            }
+            
+            if (touchElement) {
+                touchElement.style.opacity = '1';
+            }
+            
+            document.querySelectorAll('.task-list').forEach(list => {
+                list.classList.remove('drag-over');
+            });
+            
+            if (dropZone && touchElement) {
+                const targetBucket = dropZone.dataset.bucket;
+                
+                if (touchElement.classList.contains('distraction-item')) {
+                    const distractionId = parseInt(touchElement.dataset.distractionId);
+                    const distraction = state.distractions.find(d => d.id === distractionId);
+                    
+                    if (distraction) {
+                        const newTask = {
+                            id: Date.now() + Math.random(),
+                            text: distraction.text,
+                            bucket: targetBucket,
+                            sprints: targetBucket === 'holding' ? 0 : (TASK_WEIGHTS[targetBucket] || 1),
+                            priority: 'medium',
+                            completed: false,
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        state.tasks[targetBucket].push(newTask);
+                        state.distractions = state.distractions.filter(d => d.id !== distractionId);
+                        state.intentions = state.intentions.filter(i => i.distractionId !== distractionId);
+                        
+                        saveState();
+                        renderTasks();
+                        renderDistractions();
+                        initTouchDragDrop();
+                    }
+                } else if (touchElement.classList.contains('task-item')) {
+                    const taskId = parseFloat(touchElement.dataset.taskId);
+                    const fromBucket = touchElement.dataset.bucket;
+                    
+                    if (fromBucket !== targetBucket) {
+                        moveTask(taskId, fromBucket, targetBucket);
+                        initTouchDragDrop();
+                    }
+                }
+            }
+            
+            touchElement = null;
+            isDraggingTouch = false;
+        }
+        
+        // ============================================
+        // MOBILE BOTTOM SHEET ACTION MENU
+        // ============================================
+        
+        let currentActionTask = null;
+        let currentActionBucket = null;
+        
+        function showMobileActionSheet(task, bucket) {
+            const sheet = document.getElementById('mobileActionSheet');
+            const taskName = document.getElementById('actionSheetTaskName');
+            const sprintValue = document.getElementById('actionSheetSprintValue');
+            const sprintSection = document.getElementById('sprintAdjustSection');
+            
+            currentActionTask = task;
+            currentActionBucket = bucket;
+            
+            // Set task name in header
+            taskName.textContent = task.text.length > 40 ? task.text.substring(0, 40) + '...' : task.text;
+            
+            // Hide sprint adjustment for holding area
+            if (bucket === 'holding') {
+                sprintSection.style.display = 'none';
+            } else {
+                sprintSection.style.display = 'block';
+                sprintValue.textContent = task.sprints || 0;
+            }
+            
+            // Highlight current bucket
+            document.querySelectorAll('[data-action="move"]').forEach(btn => {
+                if (btn.dataset.bucket === bucket) {
+                    btn.classList.add('action-btn-active');
+                } else {
+                    btn.classList.remove('action-btn-active');
+                }
+            });
+            
+            // Highlight current priority
+            document.querySelectorAll('[data-action="priority"]').forEach(btn => {
+                if (btn.dataset.priority === (task.priority || 'medium')) {
+                    btn.classList.add('action-btn-active');
+                } else {
+                    btn.classList.remove('action-btn-active');
+                }
+            });
+            
+            // Show sheet
+            sheet.classList.remove('hidden');
+            setTimeout(() => sheet.classList.add('active'), 10);
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideMobileActionSheet() {
+            const sheet = document.getElementById('mobileActionSheet');
+            sheet.classList.remove('active');
+            setTimeout(() => sheet.classList.add('hidden'), 300);
+            
+            currentActionTask = null;
+            currentActionBucket = null;
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+        
+        function setupMobileActionSheet() {
+            const sheet = document.getElementById('mobileActionSheet');
+            const overlay = sheet.querySelector('.action-sheet-overlay');
+            const cancel = document.getElementById('actionSheetCancel');
+            
+            // Close on overlay click
+            overlay.addEventListener('click', hideMobileActionSheet);
+            
+            // Close on cancel
+            cancel.addEventListener('click', hideMobileActionSheet);
+            
+            // Handle move actions
+            document.querySelectorAll('[data-action="move"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetBucket = btn.dataset.bucket;
+                    if (currentActionTask && currentActionBucket !== targetBucket) {
+                        moveTask(currentActionTask.id, currentActionBucket, targetBucket);
+                        hideMobileActionSheet();
+                    }
+                });
+            });
+            
+            // Handle priority actions
+            document.querySelectorAll('[data-action="priority"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const priority = btn.dataset.priority;
+                    if (currentActionTask) {
+                        currentActionTask.priority = priority;
+                        saveState();
+                        renderTasks();
+                        
+                        // Update visual feedback
+                        document.querySelectorAll('[data-action="priority"]').forEach(b => {
+                            b.classList.remove('action-btn-active');
+                        });
+                        btn.classList.add('action-btn-active');
+                    }
+                });
+            });
+            
+            // Handle sprint adjustments
+            document.querySelectorAll('[data-action="sprint"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const delta = parseInt(btn.dataset.delta);
+                    if (currentActionTask && currentActionBucket !== 'holding') {
+                        currentActionTask.sprints = Math.max(0, (currentActionTask.sprints || 0) + delta);
+                        document.getElementById('actionSheetSprintValue').textContent = currentActionTask.sprints;
+                        saveState();
+                        updateSprintTarget();
+                        renderTasks();
+                    }
+                });
+            });
+            
+            // Handle delete action
+            document.querySelector('[data-action="delete"]').addEventListener('click', () => {
+                if (currentActionTask && currentActionBucket) {
+                    if (confirm('Delete this task?')) {
+                        deleteTask(currentActionBucket, currentActionTask.id);
+                        hideMobileActionSheet();
+                    }
+                }
+            });
+            
+            // Swipe down to close
+            let startY = 0;
+            const content = sheet.querySelector('.action-sheet-content');
+            
+            content.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            content.addEventListener('touchmove', (e) => {
+                const currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+                
+                if (diff > 0 && content.scrollTop === 0) {
+                    // Scrolled to top and swiping down
+                    if (diff > 100) {
+                        hideMobileActionSheet();
+                    }
+                }
+            }, { passive: true });
+        }
+        
+        // Initialize on load
+        setupMobileActionSheet();
+        
+        // Distraction action sheet - simplified for "convert to task"
+        function showDistractionActionSheet(distraction) {
+            const sheet = document.getElementById('mobileActionSheet');
+            const taskName = document.getElementById('actionSheetTaskName');
+            const sprintSection = document.getElementById('sprintAdjustSection');
+            
+            // Hide priority and sprint sections for distractions
+            document.querySelectorAll('.action-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Only show move section
+            document.querySelectorAll('[data-action="move"]').forEach(btn => {
+                btn.parentElement.style.display = 'block';
+                btn.classList.remove('action-btn-active');
+            });
+            
+            taskName.textContent = 'Convert to Task: ' + (distraction.text.length > 30 ? distraction.text.substring(0, 30) + '...' : distraction.text);
+            
+            // Remove existing click handlers and add new ones
+            const moveButtons = document.querySelectorAll('[data-action="move"]');
+            moveButtons.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', () => {
+                    const targetBucket = newBtn.dataset.bucket;
+                    
+                    // Convert distraction to task
+                    const newTask = {
+                        id: Date.now() + Math.random(),
+                        text: distraction.text,
+                        bucket: targetBucket,
+                        sprints: targetBucket === 'holding' ? 0 : (TASK_WEIGHTS[targetBucket] || 1),
+                        priority: 'medium',
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    state.tasks[targetBucket].push(newTask);
+                    state.distractions = state.distractions.filter(d => d.id !== distraction.id);
+                    state.intentions = state.intentions.filter(i => i.distractionId !== distraction.id);
+                    
+                    saveState();
+                    renderTasks();
+                    renderDistractions();
+                    hideMobileActionSheet();
+                    
+                    // Restore sections for next use
+                    setTimeout(() => {
+                        document.querySelectorAll('.action-section').forEach(section => {
+                            section.style.display = 'block';
+                        });
+                    }, 300);
+                });
+            });
+            
+            // Show sheet
+            sheet.classList.remove('hidden');
+            setTimeout(() => sheet.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+        
         // Update sprint target calculation
         function updateSprintTarget() {
             let totalTaskSprints = 0;
@@ -1522,6 +2012,15 @@
                 const dragHandle = document.createElement('span');
                 dragHandle.className = 'task-drag-handle';
                 dragHandle.textContent = '⋮⋮';
+                
+                // On mobile, clicking handle converts to task via bottom sheet
+                dragHandle.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768) {
+                        e.stopPropagation();
+                        showDistractionActionSheet(d);
+                    }
+                });
+                
                 div.appendChild(dragHandle);
                 
                 // Intention badge
@@ -1728,6 +2227,11 @@
             renderTasks();
             renderDistractions();
             updateCurrentGrade();
+            
+            // Initialize touch drag & drop for mobile
+            if ('ontouchstart' in window) {
+                initTouchDragDrop();
+            }
             
             document.getElementById('sprintProgress').textContent = state.sprintCount;
             document.getElementById('sprintTarget').textContent = state.plannedSprints;
