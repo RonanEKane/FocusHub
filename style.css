@@ -724,7 +724,7 @@ code, .monospace {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    background: var(--bg-primary);
 }
 
 .start-day-container {
@@ -2069,7 +2069,7 @@ code, .monospace {
 }
 
 .btn-primary {
-    background: var(--accent-blue);
+    background: var(--industrial-orange);
 }
 
 .btn-secondary {
@@ -3537,3 +3537,42 @@ code, .monospace {
     }
 }
 
+
+/* How-To Guide Styles */
+.guide-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.guide-section {
+    margin-bottom: 3rem;
+}
+
+.guide-section h2 {
+    font-size: 24px;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.guide-section p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.pro-tip {
+    background: rgba(245, 91, 7, 0.1);
+    border-left: 4px solid var(--industrial-orange);
+    padding: 1rem 1.5rem;
+    margin-top: 1rem;
+    border-radius: 4px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.pro-tip strong {
+    color: var(--industrial-orange);
+    font-weight: 700;
+}
