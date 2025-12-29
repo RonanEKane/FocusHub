@@ -2,512 +2,420 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>FAQ - FocusHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - FocusHub</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-dark" data-theme="dark">
+    <!-- Header -->
     <header class="app-header">
         <div class="app-header-content">
             <div class="logo-section">
-                <img id="faqLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto;">
+                <img src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
             </div>
             
             <div class="header-controls">
-                <a href="overview.html" class="btn-home">📊 Dashboard</a>
-                <a href="app.html" id="faqWorkspaceBtn" class="btn btn-primary">Launch App</a>
+                <a href="overview.html" class="btn-home">Dashboard</a>
+                <a href="app.html" class="btn-home">Workspace</a>
             </div>
         </div>
     </header>
 
-    <div class="container" style="padding: 4rem 2rem;">
-        <h1 style="text-align: center; font-size: 48px; margin-bottom: 3rem; color: var(--text-primary);">Support</h1>
-
-        <!-- AI Support Agent -->
-        <div class="ai-support-section" style="background: var(--bg-secondary); padding: 3rem 2rem; border-radius: 12px; margin-bottom: 4rem;">
-            <h2 style="text-align: center; font-size: 32px; margin-bottom: 1rem; color: var(--text-primary);">💬 AI Support Agent</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Ask anything about FocusHub - get instant answers.</p>
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 4rem 2rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; align-items: start;">
             
-            <div class="chat-container">
-                <div id="chatMessages" class="chat-messages"></div>
-                
-                <div class="chat-input-area">
-                    <input 
-                        type="text" 
-                        id="chatInput" 
-                        class="chat-input" 
-                        placeholder="Ask a question about FocusHub..."
-                        autocomplete="off"
-                    >
-                    <button id="sendBtn" class="chat-send-btn">Send</button>
+            <!-- Left Column: FAQ Content -->
+            <div>
+                <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 3rem; color: var(--text-primary);">Support</h1>
+
+                <!-- Group 1: Getting Started -->
+                <div style="margin-bottom: 3rem;">
+                    <h2 style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; text-transform: uppercase;">
+                        Getting started
+                    </h2>
+                    
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>What is FocusHub designed for</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>FocusHub is designed to reduce decision-making during work. It enforces time-bounded sessions and tracks actual effort, not intentions or plans.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Who should not use FocusHub</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>If you need flexible scheduling, open-ended creative sessions, or prefer motivation over structure, FocusHub will feel restrictive. The system works best when used as intended.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Do I need ADHD to use this</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>No. FocusHub is built for focus problems, not specific diagnoses. If you struggle with starting, staying focused, or measuring real work output, the system applies.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Is this a task manager</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>No. FocusHub is a session-based focus system. Tasks exist only to provide context during sessions. The core unit is time spent working, not tasks completed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Using FocusHub -->
+                <div style="margin-bottom: 3rem;">
+                    <h2 style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; text-transform: uppercase;">
+                        Using FocusHub
+                    </h2>
+                    
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How do focus sessions work</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Sessions are time-boxed work periods. You set a duration based on your energy level, start the timer, and work until it ends. Sessions are intentionally constrained to reduce overthinking.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>What happens when a session ends</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>When a session ends, you log what happened. You can start another session immediately or take a break. The system tracks sessions completed, not hours logged.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Can I stop a session early</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Yes, but it is discouraged. Stopping early breaks the time-bounded structure that makes the system work. If you must stop, log the distraction and start a new session when ready.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>What happens if I lose focus during a session</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Log the distraction in real time. The system tracks what pulled you away and whether you intended it. This data helps you understand your actual focus patterns.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 3: Account and Data -->
+                <div style="margin-bottom: 3rem;">
+                    <h2 style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; text-transform: uppercase;">
+                        Account and data
+                    </h2>
+                    
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Is my data private</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Yes. Your session data, tasks, and metrics are stored securely and not shared with third parties. Only you can access your data.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Can I export my data</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Yes. You can export all your data at any time. The export includes sessions, tasks, distractions, and performance metrics in a standard format.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>What happens when I log out</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Your session ends and your data is saved. You can log back in from any device and continue where you left off. Active timers do not persist across logout.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Can I delete my account</span>
+                                <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="faq-answer" hidden>
+                                <p>Yes. Account deletion is permanent and removes all your data from the system. Export your data before deleting if you want to keep it.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: AI Support Agent -->
+            <div style="position: sticky; top: 100px;">
+                <div id="aiSupportBox" style="border: 1px solid var(--border-medium); background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px;">
+                    <!-- Collapsed State -->
+                    <div id="aiSupportCollapsed">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Need help?</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem;">Ask FocusHub support</p>
+                        <button id="openAiSupport" style="width: 100%; background: var(--industrial-orange); color: white; padding: 0.75rem; border: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
+                            Start conversation
+                        </button>
+                    </div>
+
+                    <!-- Expanded State (hidden by default) -->
+                    <div id="aiSupportExpanded" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">FocusHub Support</h3>
+                            <button id="closeAiSupport" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 0;">×</button>
+                        </div>
+                        
+                        <div id="chatMessages" style="min-height: 300px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; padding: 1rem; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: 4px;">
+                            <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; margin-bottom: 1rem;">
+                                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Hi. I'm the FocusHub support agent. Ask me anything about how FocusHub works, its features, or troubleshooting.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                placeholder="Type your question..."
+                                style="flex: 1; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 14px; border-radius: 4px;"
+                            >
+                            <button id="sendMessage" style="background: var(--industrial-orange); color: white; padding: 0.75rem 1.5rem; border: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
+                                Send
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <h2 style="text-align: center; font-size: 32px; margin-bottom: 2rem; color: var(--text-primary);">Frequently Asked Questions</h2>
-
-        <div class="faq-grid">
-            <div class="faq-item">
-                <div class="faq-question">What makes FocusHub different from other productivity apps?</div>
-                <div class="faq-answer">
-                    FocusHub doesn't pile on endless to-do lists. It limits your focus to NOW. Energy-based timer. Strategic buckets. Tough-love accountability. Built specifically for ADHD brains that wander but still want to win.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Is this really for ADHD?</div>
-                <div class="faq-answer">
-                    Yes. Built by someone with ADHD who tried every other system and watched them fail. FocusHub accounts for time blindness, decision fatigue, hyperfocus crashes, and the constant pull of distractions. It's not inspiration. It's scaffolding.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">What's the Tough Love approach?</div>
-                <div class="faq-answer">
-                    The AI Agent tracks performance and calls out patterns. Not a cheerleader. Not a therapist. A performance coach. If you're logging 8 distractions by noon, it tells you. If you've done 6 sprints with zero output, it asks where the work is. Choose from 3 levels: Supportive, Balanced, or Tough. Accountability, not coddling.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">How does sprint targeting work?</div>
-                <div class="faq-answer">
-                    You set a baseline (minimum daily sprints). Tasks add to it based on bucket type: Strategic = 3 sprints, Deep Work = 2 sprints, Admin = 1 sprint. Priority also matters: High Priority tasks count 1.5x, Medium = 1x (normal), Low = 0.5x. Example: A Strategic task with High Priority = 3 × 1.5 = 4.5 sprints! This rewards tackling important, difficult work first.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">How do I organize tasks and set priorities?</div>
-                <div class="faq-answer">
-                    <strong>Buckets (drag & drop):</strong> Drag tasks between Holding Area, Admin, Deep Work, and Strategic to categorize work type.<br><br>
-                    <strong>Priority (stoplight):</strong> Click the colored dot (🔴🟡🟢) on any task to cycle through High/Medium/Low priority <em>within that bucket</em>. This helps you tackle the most urgent Admin tasks first, or defer low-priority Strategic work.<br><br>
-                    Priority doesn't move tasks between buckets—it ranks urgency within each bucket.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">What do the colored priority dots mean?</div>
-                <div class="faq-answer">
-                    🔴 <strong>High Priority</strong> = Do this first (counts 1.5x toward sprint target)<br>
-                    🟡 <strong>Medium Priority</strong> = Normal importance (counts 1x)<br>
-                    🟢 <strong>Low Priority</strong> = Can wait (counts 0.5x toward target)<br><br>
-                    Click the dot to cycle through priorities. A High Priority Strategic task is worth 4.5 sprints—your highest-value work!
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Is this free forever?</div>
-                <div class="faq-answer">
-                    Yes. FocusHub is fully functional forever. No time limits. No feature nagging. No subscription trap. This is a tool, not a business model. Built by someone with ADHD, for people with ADHD.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">What about my data and privacy?</div>
-                <div class="faq-answer">
-                    Everything lives in your browser's local storage. No cloud sync. No data collection. No tracking. Your tasks, your grades, your distractions are yours alone. Can't be accessed without your device. If you clear browser data, it's gone. That's by design.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">What if I miss a day?</div>
-                <div class="faq-answer">
-                    Your tasks persist. Your streak resets. No guilt spirals. No shame notifications. Just start fresh. Discipline isn't perfection. It's getting back up. FocusHub doesn't punish gaps; it tracks forward momentum.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">How does the grading system work?</div>
-                <div class="faq-answer">
-                    At end of day, the system calculates a grade based on (sprints completed / planned sprints) minus a penalty for distractions (5% per distraction). Because high-priority tasks count more toward your target, completing them gives a bigger grade boost than low-priority tasks. You then grade yourself using buttons (A+, A, A-, B+, B, etc.). Compare the system's grade to yours. Build self-awareness over time.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">What is Intention vs Reality tracking?</div>
-                <div class="faq-answer">
-                    When logging a distraction, you can check "I'll handle this" to declare your intention to deal with it. The system tracks whether you follow through. Over time, the dashboard shows the gap between what you say you'll do and what you actually do. Builds honest self-assessment without shame.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Can I use this on multiple devices?</div>
-                <div class="faq-answer">
-                    Currently, data is stored per-browser (localStorage). If you use Chrome on multiple devices with the same account, browser sync may help. For true multi-device sync, you'd need to add a backend (see EXPANSION_GUIDE.md in the documentation).
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Can I export my data?</div>
-                <div class="faq-answer">
-                    Currently no built-in export (easy to add though). All data is in localStorage as JSON. Open browser DevTools > Application > Local Storage > your domain to see it. Copy/paste to backup. Or ask us to add an export button.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">Do I need an internet connection?</div>
-                <div class="faq-answer">
-                    No! FocusHub works 100% offline after the initial page load. Only external dependency is the confetti animation (CDN), which is purely cosmetic. Everything else runs in your browser.
-                </div>
-            </div>
+        <!-- Mobile: Show AI Support as button -->
+        <div id="mobileAiSupport" style="display: none; margin-top: 3rem; text-align: center;">
+            <button onclick="document.getElementById('openAiSupport').click()" style="background: var(--industrial-orange); color: white; padding: 1rem 2rem; border: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
+                Ask AI Support
+            </button>
         </div>
     </div>
 
-    <footer class="app-footer">
-        <a href="app.html">🎯 Workspace</a>
-        <span class="footer-separator">|</span>
-        <a href="overview.html">📊 Dashboard</a>
-        <span class="footer-separator">|</span>
-        <a href="how-to.html">📖 How-to</a>
-    </footer>
-
+    <!-- FAQ Styles -->
     <style>
-        .faq-grid {
-            display: grid;
-            gap: 2rem;
-            margin: 4rem 0;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
         }
 
         .faq-item {
-            background: var(--card-white);
-            border: 2px solid var(--border-medium);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s;
-        }
-
-        .faq-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-blue);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
         }
 
         .faq-question {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-blue);
-            margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-
-        .faq-answer {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-size: 15px;
-        }
-
-        /* AI Support Agent Styles */
-        .ai-support-section {
-            background: var(--bg-secondary);
-            padding: 4rem 0;
-            margin-top: 4rem;
-        }
-
-        .chat-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--card-white);
-            border: 2px solid var(--border-medium);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .chat-messages {
-            height: 400px;
-            overflow-y: auto;
-            padding: 1.5rem;
+            width: 100%;
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .chat-message {
-            display: flex;
-            gap: 0.75rem;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .chat-message.user {
-            flex-direction: row-reverse;
-        }
-
-        .chat-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            padding: 1.25rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-question:focus {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: -2px;
+        }
+
+        .faq-icon {
+            transition: transform 0.2s;
             flex-shrink: 0;
         }
 
-        .chat-message.user .chat-avatar {
-            background: var(--accent-blue);
-            color: white;
+        .faq-question[aria-expanded="true"] .faq-icon {
+            transform: rotate(180deg);
         }
 
-        .chat-message.assistant .chat-avatar {
-            background: var(--accent-green);
-            color: white;
-        }
-
-        .chat-bubble {
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            max-width: 70%;
+        .faq-answer {
+            padding: 0 1.5rem 1.25rem;
+            color: var(--text-secondary);
+            font-size: 15px;
             line-height: 1.6;
         }
 
-        .chat-message.user .chat-bubble {
-            background: var(--accent-blue);
-            color: white;
-            border-bottom-right-radius: 4px;
+        .faq-answer p {
+            margin: 0;
         }
 
-        .chat-message.assistant .chat-bubble {
+        /* Mobile */
+        @media (max-width: 1024px) {
+            [style*="grid-template-columns: 2fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            #aiSupportBox {
+                display: none !important;
+            }
+            
+            #mobileAiSupport {
+                display: block !important;
+            }
+        }
+
+        /* Chat messages */
+        .user-message {
+            background: var(--industrial-orange);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            margin-left: 2rem;
+        }
+
+        .agent-message {
             background: var(--bg-secondary);
             color: var(--text-primary);
-            border: 1px solid var(--border-light);
-            border-bottom-left-radius: 4px;
-        }
-
-        .chat-input-area {
-            display: flex;
-            gap: 0.5rem;
-            padding: 1rem;
-            border-top: 2px solid var(--border-light);
-            background: var(--bg-secondary);
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border-medium);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            background: var(--card-white);
-            color: var(--text-primary);
-        }
-
-        .chat-input:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-
-        .chat-send-btn {
-            padding: 0.75rem 1.5rem;
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .chat-send-btn:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-
-        .chat-send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 0.25rem;
-            padding: 0.75rem 1rem;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            margin-right: 2rem;
         }
     </style>
 
+    <!-- FAQ JavaScript -->
     <script>
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-
-        // Add initial greeting
-        addMessage('assistant', "Hi! I'm the FocusHub support agent. Ask me anything about how FocusHub works, its features, or troubleshooting.");
-
-        function addMessage(role, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${role}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'chat-avatar';
-            avatar.textContent = role === 'user' ? '👤' : '🤖';
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            bubble.textContent = content;
-            
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(bubble);
-            chatMessages.appendChild(messageDiv);
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'chat-message assistant';
-            typingDiv.id = 'typing-indicator';
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'chat-avatar';
-            avatar.textContent = '🤖';
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble typing-indicator';
-            bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-            
-            typingDiv.appendChild(avatar);
-            typingDiv.appendChild(bubble);
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) indicator.remove();
-        }
-
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-            
-            // Add user message
-            addMessage('user', message);
-            chatInput.value = '';
-            
-            // Disable input
-            sendBtn.disabled = true;
-            chatInput.disabled = true;
-            
-            // Show typing indicator
-            showTypingIndicator();
-            
-            try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        system: `You are a helpful support agent for FocusHub, a productivity app designed specifically for ADHD brains. 
-
-FocusHub features:
-- Sprint-based timer (15/20/30 min based on energy level)
-- Task buckets: Holding, Urgent (1 sprint), Deep Work (2 sprints), Strategic (3 sprints)
-- Sprint targeting that adds up based on task priorities
-- Distraction parking with intention tracking
-- Tough Love AI Agent (3 levels: Supportive, Balanced, Tough)
-- End-of-day grading system
-- Mission Control dashboard with stats
-- Intention vs Reality tracking
-- 100% local storage (no cloud, no tracking)
-- Free forever
-
-Be concise, helpful, and direct. Use a supportive but no-nonsense tone that matches the app's philosophy. Don't sugarcoat or over-explain.`,
-                        messages: [
-                            { role: 'user', content: message }
-                        ]
-                    })
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const expanded = button.getAttribute('aria-expanded') === 'true';
+                const answer = button.nextElementSibling;
+                
+                // Close all other questions
+                document.querySelectorAll('.faq-question').forEach(otherButton => {
+                    if (otherButton !== button) {
+                        otherButton.setAttribute('aria-expanded', 'false');
+                        otherButton.nextElementSibling.hidden = true;
+                    }
                 });
+                
+                // Toggle current question
+                button.setAttribute('aria-expanded', !expanded);
+                answer.hidden = expanded;
+            });
+        });
 
-                const data = await response.json();
-                removeTypingIndicator();
-                
-                if (data.content && data.content[0]) {
-                    addMessage('assistant', data.content[0].text);
-                } else {
-                    addMessage('assistant', "Sorry, I couldn't process that. Please try again.");
-                }
-                
-            } catch (error) {
-                removeTypingIndicator();
-                addMessage('assistant', "Sorry, I'm having trouble connecting right now. Please try again later or check the FAQ above.");
-                console.error('Chat error:', error);
-            }
-            
-            // Re-enable input
-            sendBtn.disabled = false;
-            chatInput.disabled = false;
-            chatInput.focus();
-        }
+        // AI Support Toggle
+        const openBtn = document.getElementById('openAiSupport');
+        const closeBtn = document.getElementById('closeAiSupport');
+        const collapsed = document.getElementById('aiSupportCollapsed');
+        const expanded = document.getElementById('aiSupportExpanded');
+
+        openBtn.addEventListener('click', () => {
+            collapsed.style.display = 'none';
+            expanded.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            expanded.style.display = 'none';
+            collapsed.style.display = 'block';
+        });
+
+        // Chat functionality (placeholder)
+        const sendBtn = document.getElementById('sendMessage');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
 
         sendBtn.addEventListener('click', sendMessage);
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
-        // Theme detection and logo swap
-        function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
-            const faqLogo = document.getElementById('faqLogo');
-            
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertdark.svg';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertnorm.svg';
-            }
-        }
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
 
-        // Check session state and update button
-        function checkSessionState() {
-            const sessionState = localStorage.getItem('focushub_session_state');
-            const dailyStats = localStorage.getItem('focushub_daily_stats');
-            const button = document.getElementById('faqWorkspaceBtn');
-            
-            if (!button) return;
-            
-            // If session is active (not ended and has data)
-            if (sessionState !== 'ended' && dailyStats) {
-                const stats = JSON.parse(dailyStats);
-                const today = new Date().toDateString();
-                
-                // Check if stats are from today
-                if (stats.date === today) {
-                    button.textContent = 'Return to Workspace';
-                }
-            }
-        }
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'user-message';
+            userMsg.textContent = message;
+            chatMessages.appendChild(userMsg);
 
-        initTheme();
-        checkSessionState();
+            // Clear input
+            chatInput.value = '';
+
+            // Simulate agent response
+            setTimeout(() => {
+                const agentMsg = document.createElement('div');
+                agentMsg.className = 'agent-message';
+                agentMsg.textContent = 'Thank you for your question. I can help you with information about FocusHub. For specific technical support, please refer to the FAQ above or contact support directly.';
+                chatMessages.appendChild(agentMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
+
 </body>
 </html>
