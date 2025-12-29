@@ -2,241 +2,382 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>How-To Guide - FocusHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How-To - FocusHub</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-dark" data-theme="dark">
+    <!-- Header -->
     <header class="app-header">
         <div class="app-header-content">
             <div class="logo-section">
-                <img id="howToLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto;">
+                <img src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
             </div>
             
             <div class="header-controls">
-                <a href="overview.html" class="btn-home">📊 Dashboard</a>
-                <a href="app.html" id="howToWorkspaceBtn" class="btn btn-primary">Launch App</a>
+                <a href="overview.html" class="btn-home">Dashboard</a>
+                <a href="app.html" class="btn-home">Workspace</a>
             </div>
         </div>
     </header>
 
-    <div class="container" style="padding: 4rem 2rem;">
-        <h1 style="text-align: center; font-size: 48px; margin-bottom: 3rem; color: var(--text-primary);">How to Use FocusHub</h1>
+    <!-- Mobile Jump Menu -->
+    <div id="mobileJumpMenu" style="display: none; background: var(--bg-secondary); border-bottom: 1px solid var(--border-medium); padding: 1rem 2rem;">
+        <label for="jumpSelect" style="display: block; font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem;">JUMP TO</label>
+        <select id="jumpSelect" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 14px; border-radius: 4px;">
+            <option value="">Select a topic</option>
+            <option value="start-timer">Start timer</option>
+            <option value="set-sprints">Set sprints for tasks</option>
+            <option value="set-priority">Set task priority</option>
+            <option value="drag-drop">Drag and drop tasks</option>
+            <option value="review-history">Review session history</option>
+        </select>
+    </div>
 
-        <div class="guide-container">
-            <div class="guide-section">
-                <h2>1. Choose Your Energy Level</h2>
-                <p>Before starting any sprint, pick Low (15 min), Medium (20 min), or High (30 min). Be honest. Your brain knows the difference between "I slept great" and "third coffee trying to function."</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Starting with Low energy but feeling great after? Upgrade mid-day. Claiming High when you're dragging? You'll crash. The system works when you're honest.
-                </div>
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 4rem 2rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; align-items: start;">
+            
+            <!-- Left Column: Main Content -->
+            <div>
+                <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 3rem; color: var(--text-primary);">How to use FocusHub</h1>
+
+                <!-- Step 1: Start a focus session -->
+                <section id="step-1" style="margin-bottom: 4rem;">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary);">Start a focus session</h2>
+                    
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-left: 4px solid var(--industrial-orange); margin-bottom: 2rem;">
+                        <p style="font-size: 16px; line-height: 1.6; color: var(--text-primary); margin: 0;">
+                            Choose a task, start the timer, and work until the session ends. Sessions are time-bounded work periods that enforce focus without requiring motivation.
+                        </p>
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div class="detail-section">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>Why sessions are time-bounded</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Sessions are intentionally constrained by time because open-ended work invites hesitation and overthinking. A fixed endpoint removes the need to decide when to stop, which reduces decision fatigue and forces a start.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" id="start-timer">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>What to do if focus breaks during a session</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Log the distraction immediately. FocusHub tracks what pulled you away and whether you intended it. This data helps you understand actual focus patterns rather than imagined ones. Continue the session after logging.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>How strict the system is intended to be</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Stopping early is allowed but reduces effectiveness. The system works best when used as intended. Strictness is not punishment. It is structure that removes ambiguity about what constitutes work.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 2: Work within the session boundary -->
+                <section id="step-2" style="margin-bottom: 4rem;">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary);">Work within the session boundary</h2>
+                    
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-left: 4px solid var(--accent-blue); margin-bottom: 2rem;">
+                        <p style="font-size: 16px; line-height: 1.6; color: var(--text-primary); margin: 0;">
+                            The session defines the work window. Multitasking and task switching are discouraged. Work on the selected task until the timer ends.
+                        </p>
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div class="detail-section" id="set-sprints">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>What counts as work</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Work is any deliberate action toward completing the selected task. Research, writing, coding, planning, and focused reading all count. Checking unrelated notifications, browsing without purpose, and switching tasks do not.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" id="set-priority">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>What should be avoided during a session</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Avoid starting new tasks, responding to non-urgent messages, and opening unrelated tools or websites. If something interrupts you, log it and decide whether to continue or stop the session. Do not allow undocumented drift.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" id="drag-drop">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>How interruptions are handled</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Interruptions happen. Log them when they occur. If the interruption requires action, decide whether to pause the session or continue after handling it. The system tracks both planned and unplanned breaks in focus.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 3: End and review -->
+                <section id="step-3" style="margin-bottom: 4rem;">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary);">End and review</h2>
+                    
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-left: 4px solid var(--success); margin-bottom: 2rem;">
+                        <p style="font-size: 16px; line-height: 1.6; color: var(--text-primary); margin: 0;">
+                            When a session ends, record what happened. Review is part of the system, not an afterthought. Session history shows patterns that improve future focus.
+                        </p>
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div class="detail-section">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>How session history is used</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Session history tracks completed sessions, distractions logged, and tasks worked on. This data is used to calculate performance metrics and identify patterns in focus behavior over time.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" id="review-history">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>What patterns users should look for</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Look for recurring distractions, times of day when focus holds or breaks, and task types that require more or fewer sessions. Patterns reveal where structure helps and where adjustment is needed.</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <button class="detail-toggle" aria-expanded="false">
+                            <span>How review supports better future sessions</span>
+                            <svg class="detail-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="detail-content" hidden>
+                            <p>Review clarifies what actually happened versus what was intended. This awareness reduces self-deception and allows for realistic planning. Better sessions come from understanding actual behavior, not idealizing future effort.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <div class="guide-section">
-                <h2>2. Set Your Baseline Sprint Target</h2>
-                <p>This is your minimum daily commitment. Default is 5 sprints. Tasks will add to this based on priority. Think of it as your floor, not your ceiling.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Start conservative. Better to exceed 5 sprints than fail at 10. Build momentum with wins, not guilt from missing targets.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>3. Brain Dump Everything</h2>
-                <p>Type tasks into the Brain Dump. One at a time or paste a list. Don't organize yet. Just capture. The Holding Area is your external hard drive.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Dump first, decide later. If it's in your head taking up space, it goes in the dump. Sorting comes after capture.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>4. Sort Into Buckets & Set Priorities</h2>
-                <p><strong>Step 1:</strong> Drag tasks from Holding into three buckets:</p>
-                <ul>
-                    <li><strong>🔥 Admin (1 sprint):</strong> Quick admin, emails, calls</li>
-                    <li><strong>🎯 Deep Work (2 sprints):</strong> Writing, coding, focused creation</li>
-                    <li><strong>♟️ Strategic (3 sprints):</strong> Big moves, hard problems, avoidance work</li>
-                </ul>
-                <p><strong>Step 2:</strong> Click the colored dot on each task to set priority <em>within that bucket:</em></p>
-                <ul>
-                    <li><strong>🔴 High Priority:</strong> Do first (counts 1.5x toward target)</li>
-                    <li><strong>🟡 Medium Priority:</strong> Normal importance (counts 1x)</li>
-                    <li><strong>🟢 Low Priority:</strong> Can wait (counts 0.5x)</li>
-                </ul>
-                <p>Watch your sprint target increase automatically as you add tasks. High-priority Strategic tasks = maximum value (4.5 sprints!).</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Mark your most important work as High Priority. The system rewards you for tackling hard stuff first, not busy work.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>5. Run Your First Sprint</h2>
-                <p>Pick a task. Hit the timer button for your energy level. Work until it beeps. No task-switching. No "quick checks." Focus means focus.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Timer runs even if you switch tabs. That's intentional. You can't hide from the clock. Finish the sprint or log the distraction. No middle ground.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>6. Log Distractions Immediately</h2>
-                <p>Phone buzz? Coworker interrupt? Thought spiral about dinner? Type it in Distraction Parking. Check "I'll handle this" if you plan to deal with it. This feeds the Intention vs Reality tracker.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Patterns emerge fast. Three "Slack" distractions by 11am? That's not random. That's a signal. The parking lot shows you where your focus leaks.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>7. Choose Your Tough Love Level</h2>
-                <p>The AI Agent gives real-time feedback based on your progress. Pick your coaching style:</p>
-                <ul>
-                    <li><strong>Supportive:</strong> Encouraging, gentle nudges</li>
-                    <li><strong>Balanced:</strong> Realistic assessment, no coddling</li>
-                    <li><strong>Tough:</strong> Blunt truth, calls out patterns</li>
-                </ul>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Try all three. Some days you need support. Other days you need someone to tell you to stop scrolling and get to work.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>8. Track Your Progress</h2>
-                <p>Today's Progress card shows sprints completed, tasks done, and distractions logged. The Current Grade updates in real-time based on your performance.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Grade drops with distractions (5% penalty each). Three distractions = 15% grade drop. The system doesn't lie about where your focus went.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>9. Use Meeting Tracker</h2>
-                <p>Click "Meeting" button when you enter a meeting. Clock starts. Click again when done. Meeting time is tracked separately from sprint time.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> If you're in 4 hours of meetings, your sprint target shouldn't be 8. The system tracks meeting reality so you can plan accordingly.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>10. Grade Your Day (End of Day)</h2>
-                <p>Hit END DAY when you're done. System shows its grade. You choose yours using letter buttons (A+, A, A-, B+, B, etc.). Write a reflection if you want. Then complete the day.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> One C doesn't matter. Five Cs in a row is a pattern. The Mission Control dashboard shows your weekly rhythm. Use it to spot slips before they become spirals.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>11. Check Mission Control Dashboard</h2>
-                <p>Visit the home page to see your cumulative stats: total sprints, day streak (B+ or better), performance index, and Intention vs Reality gap.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Weekly chart shows your consistency. One bad day in a streak of good ones? You're fine. Three bad days in a row? Time to reassess your baseline or task estimates.
-                </div>
-            </div>
-
-            <div class="guide-section">
-                <h2>12. Complete Tasks, Track Wins</h2>
-                <p>Check the box on any task to complete it. It moves to Today's Wins automatically. Visual proof you're not failing, even when it feels like it.</p>
-                <div class="pro-tip">
-                    <strong>Pro tip:</strong> Finished 2 tasks but feel like you did nothing? Check your wins list. Your brain lies about productivity. The list doesn't.
+            <!-- Right Column: Quick Access Navigation -->
+            <div style="position: sticky; top: 100px;">
+                <div style="border: 1px solid var(--border-medium); background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px;">
+                    <h3 style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; text-transform: uppercase;">
+                        Quick access
+                    </h3>
+                    
+                    <nav id="quickNav">
+                        <a href="#start-timer" class="nav-item" data-section="start-timer">Start timer</a>
+                        <a href="#set-sprints" class="nav-item" data-section="set-sprints">Set sprints for tasks</a>
+                        <a href="#set-priority" class="nav-item" data-section="set-priority">Set task priority</a>
+                        <a href="#drag-drop" class="nav-item" data-section="drag-drop">Drag and drop tasks</a>
+                        <a href="#review-history" class="nav-item" data-section="review-history">Review session history</a>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="app-footer">
-        <a href="app.html">🎯 Workspace</a>
-        <span class="footer-separator">|</span>
-        <a href="overview.html">📊 Dashboard</a>
-        <span class="footer-separator">|</span>
-        <a href="faq.html">💬 Support</a>
-    </footer>
-
+    <!-- Styles -->
     <style>
-        .guide-container {
-            max-width: 900px;
-            margin: 0 auto;
+        /* Detail Sections */
+        .detail-section {
+            border: 1px solid var(--border-medium);
+            background: var(--bg-secondary);
+            margin-bottom: 1px;
         }
 
-        .guide-section {
-            background: var(--card-white);
-            border: 2px solid var(--border-medium);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .guide-section h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent-blue);
-            margin-bottom: 1rem;
-        }
-
-        .guide-section p {
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            line-height: 1.8;
+        .detail-toggle {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
             font-size: 15px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .guide-section ul {
-            margin: 1rem 0 1rem 2rem;
+        .detail-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-toggle:focus {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: -2px;
+        }
+
+        .detail-icon {
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .detail-toggle[aria-expanded="true"] .detail-icon {
+            transform: rotate(180deg);
+        }
+
+        .detail-content {
+            padding: 0 1.5rem 1rem;
             color: var(--text-secondary);
-            line-height: 1.8;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
-        .guide-section ul li {
-            margin-bottom: 0.5rem;
+        .detail-content p {
+            margin: 0;
         }
 
-        .pro-tip {
-            background: rgba(37, 99, 235, 0.05);
-            border-left: 4px solid var(--accent-blue);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
+        /* Quick Nav */
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
         }
 
-        .pro-tip strong {
-            color: var(--accent-blue);
-            font-weight: 700;
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--text-secondary);
+        }
+
+        .nav-item.active {
+            border-left-color: var(--industrial-orange);
+            background: rgba(245, 91, 7, 0.1);
+            font-weight: 600;
+        }
+
+        /* Mobile */
+        @media (max-width: 1024px) {
+            [style*="grid-template-columns: 2fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            #quickNav {
+                display: none !important;
+            }
+            
+            #mobileJumpMenu {
+                display: block !important;
+            }
         }
     </style>
 
+    <!-- JavaScript -->
     <script>
-        // Theme detection and logo swap
-        function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
-            const howToLogo = document.getElementById('howToLogo');
-            
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                if (howToLogo) howToLogo.src = 'FocusHub_vertdark.svg';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                if (howToLogo) howToLogo.src = 'FocusHub_vertnorm.svg';
-            }
-        }
-
-        // Check session state and update button
-        function checkSessionState() {
-            const sessionState = localStorage.getItem('focushub_session_state');
-            const dailyStats = localStorage.getItem('focushub_daily_stats');
-            const button = document.getElementById('howToWorkspaceBtn');
-            
-            if (!button) return;
-            
-            // If session is active (not ended and has data)
-            if (sessionState !== 'ended' && dailyStats) {
-                const stats = JSON.parse(dailyStats);
-                const today = new Date().toDateString();
+        // Detail Toggle
+        document.querySelectorAll('.detail-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const expanded = button.getAttribute('aria-expanded') === 'true';
+                const content = button.nextElementSibling;
                 
-                // Check if stats are from today
-                if (stats.date === today) {
-                    button.textContent = 'Return to Workspace';
+                button.setAttribute('aria-expanded', !expanded);
+                content.hidden = expanded;
+            });
+        });
+
+        // Quick Nav - Scroll to section and expand
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('data-section');
+                const section = document.getElementById(sectionId);
+                
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Expand the detail section
+                    const toggle = section.querySelector('.detail-toggle');
+                    if (toggle && toggle.getAttribute('aria-expanded') !== 'true') {
+                        toggle.click();
+                    }
+                    
+                    // Update active state
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
                 }
-            }
+            });
+        });
+
+        // Mobile Jump Menu
+        const jumpSelect = document.getElementById('jumpSelect');
+        if (jumpSelect) {
+            jumpSelect.addEventListener('change', (e) => {
+                const sectionId = e.target.value;
+                if (sectionId) {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const toggle = section.querySelector('.detail-toggle');
+                        if (toggle && toggle.getAttribute('aria-expanded') !== 'true') {
+                            toggle.click();
+                        }
+                    }
+                    e.target.value = '';
+                }
+            });
         }
 
-        initTheme();
-        checkSessionState();
+        // Scroll spy for active nav item
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        if (item.getAttribute('data-section') === id) {
+                            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[id^="set-"], [id^="start-"], [id^="review-"], [id^="drag-"]').forEach(section => {
+            observer.observe(section);
+        });
     </script>
+
 </body>
 </html>
