@@ -1,0 +1,26 @@
+<!-- AUTH GUARD - Add to top of app.html and overview.html after Supabase scripts -->
+
+<script>
+// Authentication guard - redirect if not logged in
+async function checkAuthRequired() {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
+    if (error || !user) {
+        console.log('Not authenticated, redirecting to login...');
+        window.location.href = 'start.html';
+        return false;
+    }
+    
+    return true;
+}
+
+// Run auth check immediately
+checkAuthRequired();
+
+// Also check on auth state changes
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+        window.location.href = 'logout.html';
+    }
+});
+</script>

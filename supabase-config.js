@@ -27,11 +27,28 @@ async function isLoggedIn() {
 }
 
 async function signOut() {
+    // Save today's stats before logging out
+    try {
+        const stats = localStorage.getItem('focushub_daily_stats');
+        if (stats) {
+            const data = JSON.parse(stats);
+            const logoutData = {
+                sprints: data.sprintCount || 0,
+                tasks: data.tasksCompleted || 0,
+                grade: data.currentGrade || '—'
+            };
+            sessionStorage.setItem('focushub_logout_stats', JSON.stringify(logoutData));
+        }
+    } catch (e) {
+        console.error('Error saving logout stats:', e);
+    }
+    
     const { error } = await supabaseClient.auth.signOut()
     if (error) {
         console.error('Sign out error:', error)
     } else {
-        window.location.href = 'index.html'
+        // Redirect to logout page
+        window.location.href = 'logout.html'
     }
 }
 
