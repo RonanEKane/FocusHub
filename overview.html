@@ -6,7 +6,7 @@
     <title>Mission Control - FocusHub</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-dark">
+<body>
     <!-- Technical Status Bar -->
     <div class="status-bar">
         <div class="status-left">
@@ -449,7 +449,7 @@
 
         // Theme detection and logo swap
         function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const theme = localStorage.getItem('focushub_theme') || 'dark';
             const dashboardLogo = document.getElementById('dashboardLogo');
             
             if (theme === 'dark') {

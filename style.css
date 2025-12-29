@@ -51,7 +51,7 @@
 .theme-dark {
     --bg-primary: #16181d;
     --bg-secondary: #1f2937;
-    --card-white: #ffffff;
+    --card-white: #1f2937;
     --text-primary: #ffffff;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
@@ -73,7 +73,7 @@
 [data-theme="dark"] {
     --bg-primary: #16181d;
     --bg-secondary: #1f2937;
-    --card-white: #ffffff;
+    --card-white: #1f2937;
     --text-primary: #ffffff;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
@@ -3575,4 +3575,43 @@ code, .monospace {
 .pro-tip strong {
     color: var(--industrial-orange);
     font-weight: 700;
+}
+
+/* Dark Theme Input Field Improvements */
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .task-textarea {
+    background: #2d3748;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+[data-theme="dark"] input[type="email"]:focus,
+[data-theme="dark"] input[type="password"]:focus,
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .task-textarea:focus {
+    background: #374151;
+    border-color: var(--accent-blue);
+    outline: none;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #6b7280;
+}
+
+/* Dark Theme Container Improvements */
+[data-theme="dark"] .holding-area {
+    background: #1a1f2e;
+    border-color: #374151;
+}
+
+[data-theme="dark"] .task-input {
+    background: #2d3748;
+    border-color: #4b5563;
 }

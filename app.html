@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
 </head>
-<body class="theme-dark">
+<body>
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
@@ -2287,7 +2287,7 @@
         const appLogo = document.getElementById('appLogo');
         
         function initTheme() {
-            const savedTheme = localStorage.getItem('focushub_theme') || 'light';
+            const savedTheme = localStorage.getItem('focushub_theme') || 'dark';
             setTheme(savedTheme);
         }
         
