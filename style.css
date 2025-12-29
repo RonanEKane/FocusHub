@@ -14,53 +14,72 @@
     box-sizing: border-box;
 }
 
+/* ============================================
+   DUAL THEME SYSTEM
+   Light Marketing / Dark App Architecture
+   ============================================ */
 :root {
-    /* Light Industrial Colors (Default Light Mode) */
-    --bg-primary: #F8FAFC;
-    --bg-secondary: #F1F5F9;
-    --card-white: #FFFFFF;
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #94A3B8;
+    /* LIGHT THEME - Default (Marketing Pages) */
+    /* Clean white backgrounds, high-contrast black text, 1px gray borders */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --card-white: #ffffff;
+    --text-primary: #16181d;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
     
-    /* Accents */
-    --accent-blue: #2563EB;
-    --accent-red: #DC2626;
-    --accent-green: #22C55E;
-    --accent-orange: #F59E0B;
-    --accent-purple: #9333EA;
+    /* Brand Colors (Consistent Across Themes) */
+    --accent-blue: #2563eb;
+    --accent-red: #ef4444;
+    --success: #22c55e;
+    --industrial-orange: #f45b07;  /* CRITICAL: Primary action color */
+    --accent-purple: #9333ea;
     
-    /* Borders & Lines */
-    --border-light: #E2E8F0;
-    --border-medium: #CBD5E1;
-    --border-heavy: #94A3B8;
+    /* Light Theme Borders */
+    --border-light: #e5e7eb;
+    --border-medium: #d1d5db;
+    --border-heavy: #9ca3af;
     
-    /* Shadows */
+    /* Light Theme Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-    
-    /* Technical Grid */
-    --grid-color: rgba(148, 163, 184, 0.15);
 }
 
-/* Dark Mode */
-[data-theme="dark"] {
-    --bg-primary: #0a0e14;
-    --bg-secondary: #111827;
-    --card-white: #1a202c;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a8a8a8;
+/* DARK THEME - App Pages Only */
+/* Applied via .theme-dark class on <body> */
+.theme-dark {
+    --bg-primary: #16181d;
+    --bg-secondary: #1f2937;
+    --card-white: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
     --text-muted: #6b7280;
     
-    /* Accents stay the same */
+    /* Brand colors stay the same */
     
-    /* Borders */
-    --border-light: #2d3748;
-    --border-medium: #374151;
-    --border-heavy: #4b5563;
+    /* Dark Theme Borders */
+    --border-light: #374151;
+    --border-medium: #4b5563;
+    --border-heavy: #6b7280;
     
-    /* Shadows */
+    /* Dark Theme Shadows */
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Legacy dark mode support (for backwards compatibility) */
+[data-theme="dark"] {
+    --bg-primary: #16181d;
+    --bg-secondary: #1f2937;
+    --card-white: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border-light: #374151;
+    --border-medium: #4b5563;
+    --border-heavy: #6b7280;
     --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.5);

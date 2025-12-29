@@ -2,277 +2,288 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>FocusHub - The Productivity OS for ADHD Brains</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="Built for Brains That Wander, but Still Want to Win. Productivity system designed specifically for ADHD.">
-    <meta name="theme-color" content="#f45b07">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FocusHub">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - Built for Brains That Wander</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        // Auth-based routing
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for(let i=0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0)==' ') c = c.substring(1,c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-            }
-            return null;
-        }
-        
-        // Check if user is logged in
-        const currentUser = localStorage.getItem('focushub_current_user');
-        
-        if (currentUser) {
-            // User is logged in, redirect to dashboard
-            window.location.href = 'overview.html';
-        }
-        // If not logged in, show landing page
-    </script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then((registration) => {
-                        console.log('ServiceWorker registered:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
-            });
-        }
-    </script>
 </head>
-<body class="landing-page">
-    <header class="landing-header">
-        <div class="container">
-            <div class="header-content">
-                <div style="position: relative; display: inline-block;">
-                    <img src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-large" style="height: 56px; width: auto;">
-                    <span style="position: absolute; top: -8px; right: -45px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
-                </div>
-                <a href="start.html" class="btn btn-primary">Get Started</a>
+<body class="theme-light">
+    <!-- Header -->
+    <header style="border-bottom: 1px solid #e5e7eb; padding: 1.5rem 0; background: #ffffff;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; filter: brightness(0);">
+                <span style="background: #f45b07; color: white; font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; padding: 3px 8px; letter-spacing: 0.5px;">BETA</span>
             </div>
+            <a href="signup.html" style="background: #f45b07; color: white; padding: 0.75rem 1.5rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid #16181d;">
+                JOIN BETA
+            </a>
         </div>
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>Built for Brains That Wander, but Still Want to Win</h1>
-            <p class="tagline">The only productivity system that doesn't lie to you about your ADHD</p>
-            
-            <p class="hero-description">
-                Stop fighting your brain. FocusHub gives you Swiss-precision task management, 
-                realistic sprint tracking, and an AI agent that actually understands executive dysfunction.
-                No more aspirational garbage. Just results.
-            </p>
-
-            <div class="cta-buttons">
-                <a href="start.html" class="btn btn-primary btn-large">Start Working</a>
-                <a href="#features" class="btn btn-secondary btn-large">See Features</a>
+    <!-- Hero Section -->
+    <section style="padding: 6rem 0 5rem; background: #ffffff; border-bottom: 1px solid #e5e7eb;">
+        <div class="container" style="max-width: 900px; margin: 0 auto; padding: 0 2rem; text-align: center;">
+            <div style="display: inline-block; border: 1px solid #e5e7eb; padding: 0.5rem 1.25rem; margin-bottom: 2rem;">
+                <span style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #16181d;">
+                    BETA ACCESS AVAILABLE
+                </span>
             </div>
-        </div>
-    </section>
-
-    <section id="features" class="features-section">
-        <div class="container">
-            <h2 class="section-title">What Makes FocusHub Different</h2>
             
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Baseline Sprint Targets</h3>
-                    <p>Set your minimum daily sprints, then let task weights auto-calculate the rest. No more overwhelm from unrealistic goals.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Energy-Adaptive Timers</h3>
-                    <p>Low energy? 15-minute sprints. Crushing it? 30 minutes. The system adapts to your actual state, not fantasy productivity.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">♟️</div>
-                    <h3>Strategic Task Buckets</h3>
-                    <p>Urgent (1 sprint), Deep Work (2 sprints), Strategic (3 sprints). Weighted planning that reflects real effort.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Mission Control Dashboard</h3>
-                    <p>Technical-grade data visualization. See your total sprints, day streak, focus score, and Intention vs. Reality gap.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🤖</div>
-                    <h3>Tough Love AI Agent</h3>
-                    <p>Choose Supportive, Balanced, or Tough coaching. Real-time feedback that doesn't sugarcoat your distraction patterns.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3>Button-Based Self-Grading</h3>
-                    <p>End-of-day grades (A+ to F) using actual buttons. Compare your grade to the system's calculation. Build self-awareness.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About the Author Section -->
-    <section class="author-section">
-        <div class="container">
-            <h2 class="section-title">About the Author</h2>
+            <h1 style="font-size: 56px; font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem; color: #16181d;">
+                Built for Brains<br>That Wander
+            </h1>
             
-            <div class="author-content">
-                <img src="ronan-headshot.jpg" alt="Ronan E. Kane" class="author-photo">
-                
-                <div class="author-text">
-                    <h3>Ronan E. Kane</h3>
-                    <p class="author-subtitle">Author of "AI for ADHD & Anxiety"</p>
-                    
-                    <div class="author-bio">
-                        <p>Ronan E. Kane writes for people whose brains don't cooperate with standard productivity advice.</p>
-                        
-                        <p>He has ADHD. He tried the planners, the apps, the morning routines. Most of it didn't work because it assumed his brain could estimate time, start tasks without massive resistance, and maintain systems when he missed a day.</p>
-                        
-                        <p>So he built different systems. External scaffolding. AI as assistive technology. Tools that survive missed days and bad weeks.</p>
-                        
-                        <p><strong>You won't find inspiration here. You'll find instructions.</strong></p>
-                    </div>
-                    
-                    <a href="https://www.amazon.com/AI-ADHD-Anxiety-Overthinking-Finishing-ebook/dp/B0G511WKVS" target="_blank" class="book-link">
-                        📖 Read the Book on Amazon
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="pricing-section">
-        <div class="container">
-            <h2 class="section-title">Choose Your Plan</h2>
-            <p class="pricing-subtitle">
-                Start free. Upgrade when you need more power.
+            <p style="font-size: 20px; color: #6b7280; line-height: 1.6; max-width: 600px; margin: 0 auto 3rem;">
+                The productivity system designed for ADHD. No gamification. No gentle encouragement. Just ruthless simplicity and honest feedback.
             </p>
             
-            <div class="pricing-grid">
-                <!-- Lite (Free) -->
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <h3>Lite</h3>
-                        <div class="price">Free</div>
-                        <p class="price-description">Perfect for getting started</p>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>✓ Professional OR Student (HS) mode</li>
-                        <li>✓ Core sprint timer system</li>
-                        <li>✓ 3 task buckets + subject tracking</li>
-                        <li>✓ Energy-adaptive timers</li>
-                        <li>✓ Distraction parking</li>
-                        <li>✓ Daily grading system</li>
-                        <li>✓ Mission Control dashboard</li>
-                        <li>✓ Local data storage only</li>
-                    </ul>
-                    <a href="start.html" class="btn btn-primary btn-block">Start Free</a>
-                </div>
-                
-                <!-- Student HS (Coming Soon) -->
-                <div class="pricing-card coming-soon">
-                    <div class="pricing-header">
-                        <h3>Student - High School</h3>
-                        <div class="price">$XX<span class="price-period"> one-time</span></div>
-                        <p class="price-description">Built for high schoolers</p>
-                        <span class="coming-soon-badge">Coming Soon</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>✓ Everything in Lite</li>
-                        <li>✓ Cloud sync across devices</li>
-                        <li>✓ 90-day history retention</li>
-                        <li>✓ Export data to CSV</li>
-                        <li>✓ Email support</li>
-                    </ul>
-                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
-                </div>
-                
-                <!-- Student College (Coming Soon) -->
-                <div class="pricing-card coming-soon">
-                    <div class="pricing-header">
-                        <h3>Student - College/Grad</h3>
-                        <div class="price">$X<span class="price-period">/month</span></div>
-                        <p class="price-description">For serious students</p>
-                        <span class="coming-soon-badge">Coming Soon</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>✓ Everything in Student HS</li>
-                        <li>✓ College-specific subjects</li>
-                        <li>✓ Unlimited history</li>
-                        <li>✓ Advanced analytics</li>
-                        <li>✓ Priority support</li>
-                    </ul>
-                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
-                </div>
-                
-                <!-- Professional (Coming Soon) -->
-                <div class="pricing-card coming-soon">
-                    <div class="pricing-header">
-                        <h3>Professional</h3>
-                        <div class="price">$X<span class="price-period">/month</span></div>
-                        <p class="price-description">For professionals</p>
-                        <span class="coming-soon-badge">Coming Soon</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>✓ Professional mode features</li>
-                        <li>✓ Cloud sync across devices</li>
-                        <li>✓ Unlimited history</li>
-                        <li>✓ Advanced analytics & trends</li>
-                        <li>✓ Export to multiple formats</li>
-                        <li>✓ Priority email support</li>
-                    </ul>
-                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
-                </div>
-                
-                <!-- Premium (Coming Soon) -->
-                <div class="pricing-card coming-soon">
-                    <div class="pricing-header">
-                        <h3>Premium</h3>
-                        <div class="price">$XX<span class="price-period">/month</span></div>
-                        <p class="price-description">Full power & customization</p>
-                        <span class="coming-soon-badge">Coming Soon</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li>✓ Switch between all modes</li>
-                        <li>✓ Custom task bucket types</li>
-                        <li>✓ Custom sprint durations</li>
-                        <li>✓ Custom AI persona messages</li>
-                        <li>✓ Unlimited everything</li>
-                        <li>✓ API access (future)</li>
-                        <li>✓ Priority support & feature requests</li>
-                    </ul>
-                    <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
-                </div>
-            </div>
+            <a href="signup.html" style="display: inline-block; background: #f45b07; color: white; padding: 1.25rem 3rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid #16181d; margin-bottom: 1rem;">
+                START FREE BETA →
+            </a>
             
-            <div class="pricing-cta" style="margin-top: 3rem;">
-                <p class="pricing-note">No credit card required to start. Upgrade anytime.</p>
+            <div style="font-family: 'Courier New', monospace; font-size: 12px; color: #6b7280; margin-top: 1rem;">
+                2-4 WEEKS • 50-100 TESTERS • ALL FEATURES FREE
             </div>
         </div>
     </section>
 
-    <footer class="landing-footer">
-        <div class="container">
-            <p>&copy; 2025 FocusHub. Built for brains that wander.</p>
-            <p>Created by Ronan E. Kane</p>
+    <!-- Mission Brief -->
+    <section style="padding: 5rem 0; background: #f9fafb;">
+        <div class="container" style="max-width: 900px; margin: 0 auto; padding: 0 2rem;">
+            <div style="border: 1px solid #e5e7eb; padding: 3rem; background: #ffffff;">
+                <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 1.5rem;">
+                    MISSION BRIEF
+                </div>
+                
+                <h2 style="font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 1.5rem; color: #16181d;">
+                    Why FocusHub Exists
+                </h2>
+                
+                <div style="color: #374151; line-height: 1.8; font-size: 16px;">
+                    <p style="margin-bottom: 1.5rem;">
+                        Traditional productivity tools fail ADHD brains. They're built for neurotypical minds—full of features, gentle encouragement, and gamified streaks that trigger dopamine without delivering results.
+                    </p>
+                    
+                    <p style="margin-bottom: 1.5rem;">
+                        FocusHub takes a different approach: <strong>ruthless simplicity</strong> and <strong>honest accountability</strong>. No participation trophies. No daily affirmations. Just a system that adapts to your energy, tracks your reality, and delivers direct feedback.
+                    </p>
+                    
+                    <p style="margin-bottom: 0;">
+                        Built by someone with ADHD, for people with ADHD. Tested in the trenches of entrepreneurship, research, and real work. This is the external brain you've been looking for.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section style="padding: 5rem 0; background: #ffffff; border-top: 1px solid #e5e7eb;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 1rem;">
+                    SYSTEM PROTOCOL
+                </div>
+                <h2 style="font-size: 40px; font-weight: 700; color: #16181d;">
+                    How It Works
+                </h2>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
+                <!-- Step 01 -->
+                <div style="border: 1px solid #e5e7eb; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #6b7280; margin-bottom: 1.5rem;">
+                        STEP 01
+                    </div>
+                    <div style="width: 48px; height: 48px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; background: #f9fafb;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16181d" stroke-width="2">
+                            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem; color: #16181d;">
+                        Energy Check
+                    </h3>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Start with a spiritual reflection. Rate your energy level. System calculates your baseline sprint target.
+                    </p>
+                </div>
+
+                <!-- Step 02 -->
+                <div style="border: 1px solid #e5e7eb; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #6b7280; margin-bottom: 1.5rem;">
+                        STEP 02
+                    </div>
+                    <div style="width: 48px; height: 48px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; background: #f9fafb;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16181d" stroke-width="2">
+                            <path d="M9 11H3v2h6v-2zm0 4H3v2h6v-2zm0-8H3v2h6V7zm10 0h-6v2h6V7zm0 4h-6v2h6v-2zm0 4h-6v2h6v-2z"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem; color: #16181d;">
+                        Brain Dump
+                    </h3>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Dump all tasks. Organize into priority buckets. Assign weight with priority dots (1-3).
+                    </p>
+                </div>
+
+                <!-- Step 03 -->
+                <div style="border: 1px solid #e5e7eb; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #6b7280; margin-bottom: 1.5rem;">
+                        STEP 03
+                    </div>
+                    <div style="width: 48px; height: 48px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; background: #f9fafb;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16181d" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem; color: #16181d;">
+                        Run Sprints
+                    </h3>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Work in focused sprints. Log distractions. Declare intentions. AI coaches in real-time.
+                    </p>
+                </div>
+
+                <!-- Step 04 -->
+                <div style="border: 1px solid #e5e7eb; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #6b7280; margin-bottom: 1.5rem;">
+                        STEP 04
+                    </div>
+                    <div style="width: 48px; height: 48px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; background: #f9fafb;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16181d" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <path d="M14 2v6h6"/>
+                            <path d="M9 13h6"/>
+                            <path d="M9 17h6"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem; color: #16181d;">
+                        Get Graded
+                    </h3>
+                    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        End with honest performance grade (A-F). Direct coaching. Track streaks. No participation trophies.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mobile Note -->
+            <style>
+                @media (max-width: 768px) {
+                    [style*="grid-template-columns: repeat(4, 1fr)"] {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+            </style>
+        </div>
+    </section>
+
+    <!-- What Makes It Different -->
+    <section style="padding: 5rem 0; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+        <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 1rem;">
+                    COMPETITIVE ANALYSIS
+                </div>
+                <h2 style="font-size: 40px; font-weight: 700; color: #16181d;">
+                    Built Different
+                </h2>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                <!-- Traditional -->
+                <div style="border: 1px solid #e5e7eb; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #6b7280; margin-bottom: 1.5rem;">
+                        TRADITIONAL TOOLS
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: #6b7280; font-size: 14px; line-height: 2;">
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #ef4444;">✗</span>
+                            Feature overload
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #ef4444;">✗</span>
+                            One-size-fits-all
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #ef4444;">✗</span>
+                            Ignore energy levels
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #ef4444;">✗</span>
+                            Gentle motivation
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #ef4444;">✗</span>
+                            No distraction framework
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- FocusHub -->
+                <div style="border: 2px solid #16181d; padding: 2rem; background: #ffffff;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #16181d; margin-bottom: 1.5rem;">
+                        FOCUSHUB
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: #16181d; font-size: 14px; line-height: 2; font-weight: 500;">
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #22c55e;">✓</span>
+                            Ruthlessly simplified
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #22c55e;">✓</span>
+                            ADHD-specific design
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #22c55e;">✓</span>
+                            Energy-adaptive targets
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #22c55e;">✓</span>
+                            Tough-love accountability
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #22c55e;">✓</span>
+                            Intention-first distractions
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section style="padding: 6rem 0; background: #16181d; border-top: 1px solid #000;">
+        <div class="container" style="max-width: 700px; margin: 0 auto; padding: 0 2rem; text-align: center;">
+            <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 1.5rem;">
+                BETA ACCESS OPEN
+            </div>
+            
+            <h2 style="font-size: 48px; font-weight: 700; margin-bottom: 1.5rem; color: #ffffff; line-height: 1.2;">
+                Ready to Stop<br>Wandering?
+            </h2>
+            
+            <p style="font-size: 18px; color: #9ca3af; margin-bottom: 3rem; line-height: 1.6;">
+                Join 50-100 beta testers shaping the future of ADHD productivity.
+            </p>
+            
+            <a href="signup.html" style="display: inline-block; background: #f45b07; color: white; padding: 1.25rem 3rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid #ffffff; margin-bottom: 1.5rem;">
+                JOIN BETA NOW →
+            </a>
+            
+            <div style="font-family: 'Courier New', monospace; font-size: 12px; color: #6b7280;">
+                FREE FOR 2-4 WEEKS • ALL FEATURES UNLOCKED
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding: 3rem 0; background: #16181d; border-top: 1px solid #374151;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; text-align: center;">
+            <p style="font-family: 'Courier New', monospace; font-size: 11px; color: #6b7280; letter-spacing: 0.5px;">
+                © 2025 FOCUSHUB BY RONAN E. KANE • BUILT FOR BRAINS THAT WANDER
+            </p>
         </div>
     </footer>
+
 </body>
 </html>

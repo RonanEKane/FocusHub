@@ -1,0 +1,57 @@
+🚀 FOCUSHUB REFACTOR - QUICK UPLOAD CHECKLIST
+
+═══════════════════════════════════════════════════════════
+
+📤 UPLOAD THESE FILES (5 files):
+   1. ✅ index.html (NEW - merged landing page)
+   2. ✅ logout.html (NEW - re-engagement experience)
+   3. ✅ style.css (UPDATED - theme variables)
+   4. ✅ supabase-config.js (UPDATED - security comment)
+   5. ✅ guide.html (RENAMED - was faq.html)
+
+═══════════════════════════════════════════════════════════
+
+🗑️ DELETE THESE FILES (4 files):
+   1. ❌ beta-welcome.html (merged into index.html)
+   2. ❌ faq.html (renamed to guide.html)
+   3. ❌ app-FINAL-v2.html (deprecated)
+   4. ❌ app-SUPABASE.html (deprecated)
+
+═══════════════════════════════════════════════════════════
+
+✏️ UPDATE THESE FILES (2 files):
+   Add class="theme-dark" to <body> tag:
+   
+   1. app.html
+      <body class="theme-dark">
+   
+   2. overview.html
+      <body class="theme-dark">
+
+═══════════════════════════════════════════════════════════
+
+✅ VERIFICATION STEPS:
+
+   1. Visit index.html
+      → Light theme, clean white background
+      → "JOIN BETA" button is orange (#f45b07)
+      → Monospace labels visible
+   
+   2. Sign in → app.html
+      → Dark theme automatically
+      → High contrast text
+   
+   3. Logout
+      → See "SESSION TERMINATED"
+      → Schedule next session options work
+      → Downloads .ics file
+   
+   4. Check all buttons
+      → Primary actions = Orange (#f45b07)
+      → Success states = Green (#22c55e)
+
+═══════════════════════════════════════════════════════════
+
+📖 FULL GUIDE: See REFACTOR_COMPLETE_GUIDE.md
+
+═══════════════════════════════════════════════════════════
