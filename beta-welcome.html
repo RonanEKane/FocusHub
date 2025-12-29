@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to FocusHub BETA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="FocusHub_logo.svg" alt="FocusHub" style="height: 40px;">
+                <span style="background: #f45b07; color: white; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
+            </div>
+            <a href="start.html" class="btn btn-primary" style="text-decoration: none;">Get Started</a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" style="padding: 5rem 0 4rem; background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1d29 100%);">
+        <div class="container" style="max-width: 900px; text-align: center;">
+            <div style="display: inline-block; background: rgba(37, 99, 235, 0.1); border: 2px solid var(--accent-blue); padding: 0.5rem 1.25rem; border-radius: 30px; margin-bottom: 2rem;">
+                <span style="color: var(--accent-blue); font-weight: 600; font-size: 14px;">YOU'RE INVITED TO THE BETA</span>
+            </div>
+            
+            <h1 style="font-size: 48px; font-weight: 700; margin-bottom: 1.5rem; line-height: 1.1;">
+                Welcome to <span style="color: var(--accent-blue);">FocusHub</span>
+            </h1>
+            
+            <p style="font-size: 20px; color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.6; max-width: 700px; margin-left: auto; margin-right: auto;">
+                The productivity system built for brains that wander — but still want to win.
+            </p>
+            
+            <a href="start.html" class="btn btn-primary" style="text-decoration: none; font-size: 18px; padding: 1rem 2.5rem;">
+                Start Your First Session
+            </a>
+        </div>
+    </section>
+
+    <!-- What is FocusHub -->
+    <section style="padding: 4rem 0; background: var(--bg-secondary);">
+        <div class="container" style="max-width: 1000px;">
+            <h2 style="font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 3rem;">
+                What is FocusHub?
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <!-- ADHD-Optimized Simplicity -->
+                <div class="card" style="padding: 2rem; background: var(--card-white);">
+                    <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(37, 99, 235, 0.1); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 1rem;">ADHD-Optimized Simplicity</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        Traditional tools overwhelm with features. FocusHub is ruthlessly simplified — only what ADHD brains actually need to stay on track.
+                    </p>
+                </div>
+                
+                <!-- Energy-Aware System -->
+                <div class="card" style="padding: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%); border: 2px solid var(--success);">
+                    <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 2px solid var(--success); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 1rem;">Energy-Aware System</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        Start each day by checking in with your energy level. The system adapts your sprint targets and expectations to match your actual capacity today.
+                    </p>
+                </div>
+                
+                <!-- Tough-Love AI Coaching -->
+                <div class="card" style="padding: 2rem; background: linear-gradient(135deg, rgba(245, 91, 7, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); border: 2px solid #f45b07;">
+                    <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(245, 91, 7, 0.2); border: 2px solid #f45b07; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f45b07" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 1rem;">Tough-Love AI Coaching</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        No sugarcoating. The AI "Agent" grades your performance (A-F) and delivers direct, actionable coaching. Plus morning reflections grounded in virtue and purpose.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section style="padding: 4rem 0;">
+        <div class="container" style="max-width: 900px;">
+            <h2 style="font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 3rem;">
+                How FocusHub Works
+            </h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <!-- Step 1 -->
+                <div class="card" style="padding: 2rem; display: flex; gap: 2rem; align-items: start;">
+                    <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;">
+                        01
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 0.75rem;">Morning Reflection & Energy Check</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 15px;">
+                            Start with a spiritual reflection (virtue-based, Catholic-focused by default). Then rate your energy level (low/medium/high). The system calculates your baseline sprint target accordingly.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="card" style="padding: 2rem; display: flex; gap: 2rem; align-items: start;">
+                    <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;">
+                        02
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 0.75rem;">Brain Dump & Prioritize</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 15px;">
+                            Dump all tasks from your brain. Organize into priority buckets: Urgent, Deep Work, Strategic, or Quick Wins. Assign priority dots (1-3) to weight importance within each bucket.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="card" style="padding: 2rem; display: flex; gap: 2rem; align-items: start; background: rgba(37, 99, 235, 0.05);">
+                    <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;">
+                        03
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 0.75rem;">Run Sprints & Track Reality</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 15px;">
+                            Work in focused sprints (15-90 min). When distractions happen, log them — declare your INTENTION before following through. The AI coaches you in real-time as you track progress.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 4 -->
+                <div class="card" style="padding: 2rem; display: flex; gap: 2rem; align-items: start;">
+                    <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 8px; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;">
+                        04
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 0.75rem;">Get Graded & Build Streaks</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 15px;">
+                            End your day with an honest performance grade (A-F). The Agent delivers direct feedback. Track your streak and consistency over time. No participation trophies.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What Makes It Different -->
+    <section style="padding: 4rem 0; background: var(--bg-secondary);">
+        <div class="container" style="max-width: 1000px;">
+            <h2 style="font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 3rem;">
+                Built Different, Built Better
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                <div class="card" style="padding: 2rem; background: var(--bg-primary); border: 2px solid var(--border-medium);">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; letter-spacing: 0.5px;">TRADITIONAL TOOLS</div>
+                    <ul style="color: var(--text-secondary); line-height: 2; list-style: none; padding: 0; font-size: 15px;">
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--accent-red);">✗</span>
+                            Feature overload
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--accent-red);">✗</span>
+                            One-size-fits-all
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--accent-red);">✗</span>
+                            Ignore energy fluctuations
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--accent-red);">✗</span>
+                            Gentle, motivational tone
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--accent-red);">✗</span>
+                            No distraction framework
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="padding: 2rem; border: 3px solid var(--accent-blue); background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, var(--card-white) 100%);">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 1rem; letter-spacing: 0.5px;">FOCUSHUB</div>
+                    <ul style="color: var(--text-primary); line-height: 2; list-style: none; padding: 0; font-size: 15px;">
+                        <li style="padding-left: 1.5rem; position: relative; font-weight: 500;">
+                            <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                            Ruthlessly simplified
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative; font-weight: 500;">
+                            <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                            ADHD-specific design
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative; font-weight: 500;">
+                            <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                            Energy-adaptive targets
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative; font-weight: 500;">
+                            <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                            Tough-love accountability
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative; font-weight: 500;">
+                            <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                            Intention-first distractions
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Beta Program -->
+    <section style="padding: 4rem 0;">
+        <div class="container" style="max-width: 900px;">
+            <div class="card" style="padding: 3rem; border: 3px solid var(--accent-blue); background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background: var(--accent-blue); color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        🚀
+                    </div>
+                    <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 0.5rem;">
+                        Join the Beta Program
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 16px;">
+                        Shape the future of ADHD-focused productivity
+                    </p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 2.5rem;">
+                    <div>
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 1rem; color: var(--accent-blue);">
+                            What You Get
+                        </h3>
+                        <ul style="color: var(--text-secondary); line-height: 1.8; font-size: 15px; padding-left: 1.25rem;">
+                            <li>Free unlimited access during beta</li>
+                            <li>Early adopter pricing at launch</li>
+                            <li>Direct product influence</li>
+                            <li>Priority support</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 1rem; color: var(--accent-blue);">
+                            What We Need
+                        </h3>
+                        <ul style="color: var(--text-secondary); line-height: 1.8; font-size: 15px; padding-left: 1.25rem;">
+                            <li>Use it regularly (real usage data)</li>
+                            <li>Report bugs via feedback button</li>
+                            <li>Share feature ideas</li>
+                            <li>Patience with rough edges</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="padding: 1.5rem; background: rgba(37, 99, 235, 0.1); border-left: 4px solid var(--accent-blue); border-radius: 6px;">
+                    <p style="margin: 0; font-size: 15px; color: var(--text-primary); line-height: 1.6;">
+                        <strong>Beta Timeline:</strong> 2-4 weeks intensive testing before public launch. Looking for 50-100 active testers who will use FocusHub daily and provide honest feedback.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding: 5rem 0; background: var(--accent-blue); text-align: center;">
+        <div class="container" style="max-width: 700px;">
+            <h2 style="font-size: 40px; font-weight: 700; margin-bottom: 1rem; color: white;">
+                Ready to Get Started?
+            </h2>
+            <p style="font-size: 18px; color: rgba(255,255,255,0.9); margin-bottom: 2.5rem; line-height: 1.6;">
+                Join the beta, run your first sprint, and experience productivity built for ADHD brains.
+            </p>
+            <a href="start.html" class="btn" style="text-decoration: none; background: white; color: var(--accent-blue); font-size: 18px; padding: 1rem 3rem; font-weight: 600;">
+                Sign Up for Beta
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding: 3rem 0; background: var(--bg-primary); border-top: 1px solid var(--border-medium);">
+        <div class="container" style="max-width: 1200px; text-align: center;">
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 1rem;">
+                Questions? <a href="mailto:ronanekane@gmail.com" style="color: var(--accent-blue); text-decoration: none;">Contact us</a>
+            </p>
+            <p style="color: var(--text-secondary); font-size: 13px;">
+                © 2025 FocusHub by Ronan E. Kane • Built for Brains That Wander
+            </p>
+        </div>
+    </footer>
+
+
+    <!-- Contact Form Section -->
+    <section style="padding: 4rem 0; background: var(--bg-secondary);">
+        <div class="container" style="max-width: 600px;">
+            <div class="card" style="padding: 2.5rem;">
+                <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 1rem; text-align: center;">
+                    Have Questions?
+                </h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 15px;">
+                    Send us a message and we'll get back to you quickly.
+                </p>
+                
+                <form id="contactForm" action="https://formsubmit.co/ronanekane@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="FocusHub Beta - Contact">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="box">
+                    <input type="text" name="_honey" style="display:none">
+                    
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="contactName" class="form-label">Your Name</label>
+                        <input type="text" id="contactName" name="name" class="form-input" required placeholder="Enter your name">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="contactEmail" class="form-label">Your Email</label>
+                        <input type="email" id="contactEmail" name="email" class="form-input" required placeholder="you@example.com">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea id="contactMessage" name="message" class="form-input" rows="5" required placeholder="What's on your mind?" style="resize: vertical;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 16px;">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding: 3rem 0; background: var(--bg-primary); border-top: 1px solid var(--border-medium);">
+        <div class="container" style="max-width: 1200px; text-align: center;">
+            <p style="color: var(--text-secondary); font-size: 13px;">
+                © 2025 FocusHub by Ronan E. Kane • Built for Brains That Wander
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
