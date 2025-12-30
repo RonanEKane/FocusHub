@@ -106,35 +106,37 @@
             <!-- Main Content (Left Column) -->
             <div class="main-content">
                 <!-- Sprint Timer -->
-                <div class="card sprint-timer">
+                <div class="card sprint-timer" style="margin-bottom: 2rem; border: 2px solid var(--border-medium); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
                     <div class="card-header">
                         <h3 class="card-title" id="timerTitle">🎯 SPRINT TIMER</h3>
-                        <div class="timer-meeting">
-                            <button id="meetingBtn" class="btn-meeting" data-label="meeting">📅 Meeting</button>
-                            <span id="meetingTime" class="meeting-time hidden">0m</span>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Energy:</label>
+                                <select id="energySelect" style="padding: 0.375rem 0.5rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer;">
+                                    <option value="high">🔋 Full Power</option>
+                                    <option value="medium" selected>⚡ Kinda 'Meh'</option>
+                                    <option value="low">🪫 On Fumes</option>
+                                </select>
+                            </div>
+                            <div class="timer-meeting">
+                                <button id="meetingBtn" class="btn-meeting" data-label="meeting">📅 Meeting</button>
+                                <span id="meetingTime" class="meeting-time hidden">0m</span>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="card-content">
                         <div id="timerSetup" class="timer-setup">
-                            <label style="display: block; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; color: var(--text-primary);">⚡ Energy Check-In</label>
-                            <div class="energy-selector">
-                                <button class="energy-btn-small" data-energy="high">
-                                    🔋 <span>Full Power</span>
-                                </button>
-                                <button class="energy-btn-small active" data-energy="medium">
-                                    😐 <span>Kinda 'Meh'</span>
-                                </button>
-                                <button class="energy-btn-small" data-energy="low">
-                                    🪫 <span>On Fumes</span>
-                                </button>
-                            </div>
-                            
-                            <div class="duration-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                            <div class="duration-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;">
                                 <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
                                 <button class="duration-btn recommended" data-duration="20" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">20 min</button>
                                 <button class="duration-btn" data-duration="30" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">30 min</button>
                                 <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1 1 100%; font-size: 1.1rem; padding: 1rem; margin-top: 0.5rem; background: var(--success); color: white;">☕ Take a Break (5 min)</button>
+                            </div>
+                            
+                            <!-- First-run helper text -->
+                            <div id="firstRunTimerHelper" class="first-run-helper" style="display: none; text-align: center; margin-top: 1rem; padding: 0.75rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); font-size: 14px; color: var(--text-secondary);">
+                                Start a session to begin working.
                             </div>
                         </div>
 
@@ -180,6 +182,11 @@
                         <label data-label="brainDump">🧠 BRAIN DUMP</label>
                         <p class="brain-dump-hint">Paste your task list below (one task per line)</p>
                         <textarea id="taskInput" class="task-textarea" data-label="taskEntry" placeholder="What needs doing?" rows="4"></textarea>
+                        
+                        <!-- First-run helper text -->
+                        <div id="firstRunTaskHelper" class="first-run-helper" style="display: none; margin-top: 0.5rem; padding: 0.5rem; font-size: 13px; color: var(--text-secondary); font-style: italic;">
+                            Tasks define what sessions are for.
+                        </div>
                         
                         <!-- Subject Selection (Student Mode Only) -->
                         <div id="subjectSection" class="subject-section hidden" style="margin-top: 0.75rem;">
@@ -326,7 +333,7 @@
             <span class="footer-separator">|</span>
             <a href="how-to.html">📖 How-to</a>
             <span class="footer-separator">|</span>
-            <a href="faq.html">💬 Support</a>
+            <a href="guide.html">💬 Support</a>
         </footer>
     </div>
 
@@ -518,7 +525,6 @@
     <!-- Keyboard Shortcuts -->
     <script src="keyboard-shortcuts.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         // ============================================
         // LOCALSTORAGE AUTHENTICATION CHECK
@@ -641,6 +647,9 @@
             setupEventListeners();
             initDragDrop();
             checkSessionState();
+            
+            // Check and show first-run helpers
+            checkFirstRunState();
         }
 
         async function loadState() {
@@ -911,14 +920,14 @@
             });
             
             // Energy buttons in timer views (small buttons)
-            document.querySelectorAll('.energy-btn-small').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.energy-btn-small').forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                    state.energyLevel = e.currentTarget.dataset.energy;
+            // Energy level dropdown
+            const energySelect = document.getElementById('energySelect');
+            if (energySelect) {
+                energySelect.addEventListener('change', (e) => {
+                    state.energyLevel = e.target.value;
                     renderAll(); // Update recommended duration
                 });
-            });
+            }
 
             document.getElementById('decreaseBaseline').addEventListener('click', () => {
                 const current = parseInt(document.getElementById('baselineValue').textContent);
@@ -1139,7 +1148,15 @@
             
             if (state.timer.timerType === 'focus') {
                 state.sprintCount++;
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                
+                // Show industrial completion celebration
+                showCompletionCelebration();
+                
+                // Mark first session complete (first-run helper removal)
+                if (state.sprintCount === 1) {
+                    localStorage.setItem('focushub_first_session_complete', 'true');
+                    hideFirstRunHelpers();
+                }
                 
                 // Show timer setup so user can choose break duration
                 resetTimer();
@@ -2251,14 +2268,11 @@
             document.getElementById('breaksProgress').textContent = state.breaksCount;
             document.getElementById('distractionProgress').textContent = state.distractionCount;
             
-            // Sync energy button states across all views
-            document.querySelectorAll('.energy-btn-small').forEach(btn => {
-                if (btn.dataset.energy === state.energyLevel) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
+            // Sync energy dropdown state
+            const energySelect = document.getElementById('energySelect');
+            if (energySelect) {
+                energySelect.value = state.energyLevel;
+            }
             
             // Set recommended timer button
             const recommendedDuration = ENERGY_DURATIONS[state.energyLevel];
@@ -2386,7 +2400,7 @@
                 attribution: "On Stewardship of Attention"
             },
             {
-                text: "Today, you may fail. You may fall short of your target, succumb to distraction, or lose focus. This does not make you a failure. It makes you human. What matters is not perfection, but the choice to return tomorrow and try again. Persistence outlasts talent.",
+                text: "Today, you may fail. You may fall short of your target, succumb to distraction, or lose focus. This does not make you a failure. It makes you human. What matters is not perfection, but the choice to return tomorrow. Persistence outlasts talent.",
                 attribution: "On Failure and Persistence"
             },
             {
@@ -2451,7 +2465,127 @@
             }
         }, 1000);
         
+        // ============================================
+        // SPRINT COMPLETION CELEBRATION
+        // ============================================
+        
+        function showCompletionCelebration() {
+            // Create celebration overlay
+            const celebration = document.createElement('div');
+            celebration.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10000;
+                pointer-events: none;
+            `;
+            
+            // Create checkbox element
+            const checkbox = document.createElement('div');
+            checkbox.style.cssText = `
+                width: 120px;
+                height: 120px;
+                background: #000000;
+                border: 4px solid #f45b07;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 8px 24px rgba(245, 91, 7, 0.4);
+            `;
+            checkbox.innerHTML = '<span style="font-size: 72px; color: white;">✓</span>';
+            
+            // Create pulse ring
+            const pulse = document.createElement('div');
+            pulse.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 120px;
+                height: 120px;
+                border: 3px solid #f45b07;
+                border-radius: 8px;
+                opacity: 0.8;
+                animation: celebrationPulse 0.6s ease-out;
+            `;
+            
+            celebration.appendChild(pulse);
+            celebration.appendChild(checkbox);
+            document.body.appendChild(celebration);
+            
+            // Fade out after 300ms
+            setTimeout(() => {
+                celebration.style.transition = 'opacity 0.3s ease-out';
+                celebration.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(celebration);
+                }, 300);
+            }, 300);
+        }
+        
+        // Add CSS animation for pulse
+        if (!document.getElementById('celebrationStyles')) {
+            const style = document.createElement('style');
+            style.id = 'celebrationStyles';
+            style.textContent = `
+                @keyframes celebrationPulse {
+                    0% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) scale(1.8);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // ============================================
+        // FIRST-RUN EXPERIENCE
+        // ============================================
+        
+        function checkFirstRunState() {
+            const firstSessionComplete = localStorage.getItem('focushub_first_session_complete');
+            
+            if (!firstSessionComplete) {
+                showFirstRunHelpers();
+            }
+        }
+        
+        function showFirstRunHelpers() {
+            // Show timer helper (near start session control)
+            const timerHelper = document.getElementById('firstRunTimerHelper');
+            if (timerHelper) {
+                timerHelper.style.display = 'block';
+            }
+            
+            // Show task helper only if no tasks exist
+            if (state.tasks.length === 0) {
+                const taskHelper = document.getElementById('firstRunTaskHelper');
+                if (taskHelper) {
+                    taskHelper.style.display = 'block';
+                }
+            }
+        }
+        
+        function hideFirstRunHelpers() {
+            const timerHelper = document.getElementById('firstRunTimerHelper');
+            const taskHelper = document.getElementById('firstRunTaskHelper');
+            
+            if (timerHelper) {
+                timerHelper.style.display = 'none';
+            }
+            if (taskHelper) {
+                taskHelper.style.display = 'none';
+            }
+        }
+        
         // Initialize the app (handled by checkAuthAndInit() in auth section)
     </script>
+
 </body>
 </html>

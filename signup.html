@@ -10,380 +10,119 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
 </head>
-<body>
+<body class="theme-dark">
     <div class="auth-container">
         <div class="auth-box" style="max-width: 1000px; position: relative;">
             <!-- BETA badge -->
             <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
             
-            <img src="FocusHub_vertnorm.svg" alt="FocusHub" class="auth-logo" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
+            <img src="FocusHub_icon.svg" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
             
-            <h1 style="text-align: center; font-size: 26px; margin-bottom: 0.25rem;">Join FocusHub BETA</h1>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 15px;">
-                Built for brains that wander, but still want to win.
-            </p>
-            
-            <!-- Beta Notice -->
-            <div style="background: rgba(37, 99, 235, 0.1); border-left: 4px solid var(--accent-blue); padding: 0.875rem; margin-bottom: 1.5rem; border-radius: 6px; text-align: center;">
-                <p style="margin: 0; font-size: 14px; color: var(--text-primary);">
-                    <strong>🎉 All features FREE during beta</strong> — Your feedback shapes the final product
-                </p>
-            </div>
-            
-            <!-- Horizontal Plan Selection -->
-            <div class="pricing-tiers">
-                <!-- Professional -->
-                <div class="tier-card tier-popular active" data-plan="professional">
-                    <div class="popular-badge">RECOMMENDED</div>
-                    <div class="tier-header">
-                        <h3>Professional</h3>
-                        <div class="tier-price">
-                            <span class="current">FREE</span>
-                            <span class="future">$10/mo after beta</span>
-                        </div>
-                    </div>
-                    <ul class="tier-features">
-                        <li>✓ Energy-based sprint timers</li>
-                        <li>✓ Priority task system</li>
-                        <li>✓ Distraction tracking</li>
-                        <li>✓ Tough-love AI coaching</li>
-                        <li>✓ Daily performance grading</li>
-                        <li>✓ Multi-device sync</li>
-                        <li>✓ Weekly reports</li>
-                    </ul>
-                    <div class="tier-ideal">Ideal for: Professionals, entrepreneurs, knowledge workers</div>
-                </div>
-                
-                <!-- Student -->
-                <div class="tier-card" data-plan="student">
-                    <div class="tier-header">
-                        <h3>Student</h3>
-                        <div class="tier-price">
-                            <span class="current">FREE</span>
-                            <span class="future">$5/mo after beta</span>
-                        </div>
-                    </div>
-                    <ul class="tier-features">
-                        <li>✓ All Professional features</li>
-                        <li>✓ Subject-based organization</li>
-                        <li>✓ Assignment deadline tracking</li>
-                        <li>✓ Study session optimization</li>
-                        <li>✓ Academic coaching style</li>
-                        <li>✓ Semester planning tools</li>
-                    </ul>
-                    <div class="tier-ideal">Ideal for: Students, researchers, academics</div>
-                </div>
-            </div>
-            
-            <!-- Note about future tiers -->
-            <div style="text-align: center; margin-bottom: 2rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 6px;">
-                <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
-                    💡 <strong>Coming soon:</strong> Lite ($6/mo) and Premium ($15/mo) tiers with additional features
-                </p>
-            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Create account</h2>
             
             <!-- Signup Form -->
-            <form id="signupForm" style="max-width: 450px; margin: 0 auto;">
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="email" class="form-label">Email</label>
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
                     <input 
                         type="email" 
                         id="email" 
-                        class="form-input" 
-                        placeholder="you@example.com"
                         required
                         autocomplete="email"
                     >
                 </div>
                 
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="password" class="form-label">Password</label>
+                <div class="form-group">
+                    <label for="password">Password</label>
                     <input 
                         type="password" 
                         id="password" 
-                        class="form-input" 
-                        placeholder="At least 8 characters"
                         required
                         minlength="8"
                         autocomplete="new-password"
                     >
                 </div>
                 
-                <div style="margin-bottom: 1.25rem;">
-                    <label for="confirmPassword" class="form-label">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        class="form-input" 
-                        placeholder="Re-enter password"
-                        required
-                        minlength="8"
-                        autocomplete="new-password"
-                    >
-                </div>
+                <div id="signupError" class="auth-error hidden"></div>
                 
-                <!-- Terms -->
-                <div style="margin-bottom: 1.25rem;">
-                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
-                        <input 
-                            type="checkbox" 
-                            id="agreeTerms" 
-                            required
-                            style="margin-top: 0.25rem; width: 16px; height: 16px; cursor: pointer;"
-                        >
-                        <span style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
-                            I agree to participate in the beta program. I understand this is beta software and my feedback will help shape the final product.
-                        </span>
-                    </label>
-                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create account</button>
                 
-                <!-- Submit -->
-                <button 
-                    type="submit" 
-                    class="btn btn-primary" 
-                    id="signupBtn"
-                    style="width: 100%; font-size: 16px; padding: 0.875rem; margin-bottom: 1rem;"
-                >
-                    Create Account & Start Free Beta
-                </button>
-                
-                <div id="errorMessage" class="error-message hidden"></div>
-                <div id="successMessage" class="success-message hidden"></div>
+                <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
+                    This creates your FocusHub account.
+                </p>
             </form>
             
-            <!-- Sign In Link -->
-            <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
-                <p style="color: var(--text-secondary); font-size: 14px;">
-                    Already have an account? 
-                    <a href="start.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">
-                        Sign In
-                    </a>
-                </p>
-            </div>
+            <p class="auth-switch">
+                <a href="start.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.875rem;">Log in</a>
+            </p>
         </div>
     </div>
 
-<style>
-/* Horizontal Pricing Tiers */
-.pricing-tiers {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
-.tier-card {
-    border: 2px solid var(--border-medium);
-    border-radius: 10px;
-    padding: 1.5rem 1.25rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--bg-secondary);
-    position: relative;
-}
-
-.tier-card:hover {
-    border-color: var(--accent-blue);
-    transform: translateY(-2px);
-}
-
-.tier-card.active {
-    border-color: var(--accent-blue);
-    border-width: 3px;
-    padding: calc(1.5rem - 1px) calc(1.25rem - 1px); /* Compensate for thicker border */
-    background: var(--card-white);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-}
-
-.tier-popular {
-    border-color: var(--accent-blue);
-}
-
-.popular-badge {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--accent-blue);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 10px;
-    letter-spacing: 0.5px;
-}
-
-.tier-header {
-    text-align: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.875rem;
-    border-bottom: 2px solid var(--border-light);
-}
-
-.tier-header h3 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.tier-price {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-}
-
-.tier-price .current {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--accent-blue);
-}
-
-.tier-price .future {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-decoration: line-through;
-}
-
-.tier-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1rem 0;
-    min-height: 160px;
-}
-
-.tier-features li {
-    padding: 0.4rem 0;
-    font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.4;
-}
-
-.tier-ideal {
-    font-size: 13px;
-    color: var(--text-secondary);
-    padding: 0.625rem;
-    background: var(--bg-primary);
-    border-radius: 6px;
-    text-align: center;
-    line-height: 1.4;
-}
-
-/* Mobile: Stack vertically */
-@media (max-width: 768px) {
-    .pricing-tiers {
-        grid-template-columns: 1fr;
-    }
-    
-    .tier-features {
-        min-height: auto;
-    }
-}
-
-/* Error/Success Messages */
-.error-message {
-    background: rgba(239, 68, 68, 0.1);
-    border-left: 4px solid var(--accent-red);
-    padding: 0.875rem;
-    margin-bottom: 1rem;
-    border-radius: 6px;
-    color: var(--accent-red);
-    font-size: 14px;
-}
-
-.success-message {
-    background: rgba(34, 197, 94, 0.1);
-    border-left: 4px solid var(--success);
-    padding: 0.875rem;
-    margin-bottom: 1rem;
-    border-radius: 6px;
-    color: var(--success);
-    font-size: 14px;
-}
-
-.hidden {
-    display: none;
-}
-</style>
-
 <script>
-let selectedPlan = 'professional';
-
-// Plan selection
-document.querySelectorAll('.tier-card').forEach(card => {
-    card.addEventListener('click', () => {
-        document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        selectedPlan = card.dataset.plan;
-    });
-});
-
 // Form submission
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const agreeTerms = document.getElementById('agreeTerms').checked;
     
-    const errorDiv = document.getElementById('errorMessage');
-    const successDiv = document.getElementById('successMessage');
-    const submitBtn = document.getElementById('signupBtn');
+    const errorDiv = document.getElementById('signupError');
+    const submitBtn = document.querySelector('#signupForm button[type="submit"]');
     
     errorDiv.classList.add('hidden');
-    successDiv.classList.add('hidden');
     
-    if (!email || !password || !confirmPassword) {
-        errorDiv.textContent = 'Please fill in all fields.';
+    if (!name || !email || !password) {
+        errorDiv.textContent = 'All fields required.';
         errorDiv.classList.remove('hidden');
         return;
     }
     
     if (password.length < 8) {
-        errorDiv.textContent = 'Password must be at least 8 characters.';
-        errorDiv.classList.remove('hidden');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        errorDiv.textContent = 'Passwords do not match.';
-        errorDiv.classList.remove('hidden');
-        return;
-    }
-    
-    if (!agreeTerms) {
-        errorDiv.textContent = 'Please agree to participate in the beta program.';
+        errorDiv.textContent = 'Password must meet minimum length.';
         errorDiv.classList.remove('hidden');
         return;
     }
     
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating Account...';
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Creating account...';
     
     try {
-        const result = await handleSignup(email, password, selectedPlan);
+        const result = await handleSignup(email, password, 'professional');
         
         if (result.success) {
-            successDiv.textContent = 'Account created! Check your email to verify, then sign in.';
-            successDiv.classList.remove('hidden');
-            document.getElementById('signupForm').reset();
+            // Store name for profile
+            if (result.user) {
+                await supabaseClient
+                    .from('user_profiles')
+                    .update({ name: name })
+                    .eq('id', result.user.id);
+            }
             
-            setTimeout(() => {
-                window.location.href = 'start.html?signup=success';
-            }, 3000);
+            window.location.href = 'app.html';
         } else {
-            errorDiv.textContent = result.error || 'Failed to create account. Please try again.';
+            errorDiv.textContent = result.error || 'Account creation failed.';
             errorDiv.classList.remove('hidden');
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Account & Start Free Beta';
+            submitBtn.textContent = originalText;
         }
     } catch (error) {
         console.error('Signup error:', error);
-        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.textContent = 'An error occurred.';
         errorDiv.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Account & Start Free Beta';
+        submitBtn.textContent = originalText;
     }
 });
 

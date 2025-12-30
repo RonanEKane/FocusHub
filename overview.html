@@ -52,6 +52,13 @@
             
             <!-- Bento Grid -->
             <div class="bento-grid">
+                <!-- Empty State (shown when no sessions) -->
+                <div id="overviewEmptyState" class="bento-card" style="grid-column: 1 / -1; display: none; text-align: center; padding: 3rem;">
+                    <div style="font-size: 48px; margin-bottom: 1rem; opacity: 0.5;">📊</div>
+                    <h3 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">No sessions recorded.</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Sessions appear here once completed.</p>
+                </div>
+                
                 <!-- Total Sprints -->
                 <div class="bento-card activity-flow">
                     <div class="card-micro-label">LIVE_TICKER_01</div>
@@ -61,7 +68,7 @@
                         <div class="metric-label">Total Sprints</div>
                     </div>
                     <div class="activity-context">
-                        Total: <span id="totalSprintsContext">0</span> <span class="trend-up">(↑ Last 7 days)</span>
+                        Total: <span id="totalSprintsContext">0</span> <span style="color: var(--text-secondary); font-size: 0.875rem;">(Last 7 days)</span>
                     </div>
                 </div>
 
@@ -119,7 +126,7 @@
             <!-- Primary Action -->
             <button class="primary-action" onclick="window.location.href='app.html'">
                 <span class="action-icon">[ &gt; ]</span>
-                <span class="action-text">INITIALIZE NEW SESSION</span>
+                <span class="action-text">RETURN TO WORKSPACE</span>
             </button>
 
             <!-- Quick Stats Table -->
@@ -159,7 +166,7 @@
         <span class="footer-separator">|</span>
         <a href="how-to.html">📖 How-to</a>
         <span class="footer-separator">|</span>
-        <a href="faq.html">💬 Support</a>
+        <a href="guide.html">💬 Support</a>
     </footer>
 
     <!-- Mode Configuration System -->
@@ -285,7 +292,18 @@
             const history = JSON.parse(getUserItem('focushub_history') || '[]');
             
             if (history.length === 0) {
+                // Show empty state
+                const emptyState = document.getElementById('overviewEmptyState');
+                if (emptyState) {
+                    emptyState.style.display = 'block';
+                }
                 return;
+            }
+            
+            // Hide empty state if there's data
+            const emptyState = document.getElementById('overviewEmptyState');
+            if (emptyState) {
+                emptyState.style.display = 'none';
             }
 
             // Calculate total sprints
@@ -525,6 +543,95 @@
         checkSessionState();
         updateDashboardTimer();
         loadStats();
+    </script>
+
+    <!-- Floating AI Support Button -->
+    <button id="aiSupportToggle" style="position: fixed; bottom: 2rem; right: 2rem; width: 56px; height: 56px; border-radius: 50%; background: var(--industrial-orange); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 1000; font-size: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" aria-label="Open support chat">
+        💬
+    </button>
+
+    <!-- AI Support Panel (hidden by default) -->
+    <div id="aiSupportPanel" style="display: none; position: fixed; bottom: 5rem; right: 2rem; width: 360px; max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); z-index: 1000; overflow: hidden;">
+        <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">FocusHub Support</h3>
+                <button id="closeAiPanel" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 0;">×</button>
+            </div>
+        </div>
+        
+        <div id="aiChatMessages" style="height: 320px; overflow-y: auto; padding: 1rem; background: var(--bg-primary);">
+            <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; margin-bottom: 1rem;">
+                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Ask questions about how FocusHub works, its features, or troubleshooting.</p>
+            </div>
+        </div>
+
+        <div style="padding: 1rem; border-top: 1px solid var(--border-light);">
+            <div style="display: flex; gap: 0.5rem;">
+                <input 
+                    type="text" 
+                    id="aiChatInput" 
+                    placeholder="Type your question..."
+                    style="flex: 1; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-medium); color: var(--text-primary); font-size: 14px; border-radius: 4px;"
+                >
+                <button id="aiSendMessage" style="background: var(--industrial-orange); color: white; padding: 0.75rem 1rem; border: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AI Support Panel Toggle
+        const aiToggle = document.getElementById('aiSupportToggle');
+        const aiPanel = document.getElementById('aiSupportPanel');
+        const aiClose = document.getElementById('closeAiPanel');
+
+        if (aiToggle && aiPanel && aiClose) {
+            aiToggle.addEventListener('click', () => {
+                const isVisible = aiPanel.style.display !== 'none';
+                aiPanel.style.display = isVisible ? 'none' : 'block';
+            });
+
+            aiClose.addEventListener('click', () => {
+                aiPanel.style.display = 'none';
+            });
+
+            // Chat functionality
+            const sendBtn = document.getElementById('aiSendMessage');
+            const chatInput = document.getElementById('aiChatInput');
+            const chatMessages = document.getElementById('aiChatMessages');
+
+            if (sendBtn && chatInput && chatMessages) {
+                sendBtn.addEventListener('click', sendAiMessage);
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendAiMessage();
+                });
+
+                function sendAiMessage() {
+                    const message = chatInput.value.trim();
+                    if (!message) return;
+
+                    // Add user message
+                    const userMsg = document.createElement('div');
+                    userMsg.style.cssText = 'background: var(--industrial-orange); color: white; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; margin-left: 2rem; font-size: 14px;';
+                    userMsg.textContent = message;
+                    chatMessages.appendChild(userMsg);
+
+                    chatInput.value = '';
+
+                    // Simulate agent response
+                    setTimeout(() => {
+                        const agentMsg = document.createElement('div');
+                        agentMsg.style.cssText = 'background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; margin-right: 2rem; font-size: 14px;';
+                        agentMsg.textContent = 'Check the How-To guide or FAQ for detailed guidance.';
+                        chatMessages.appendChild(agentMsg);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 1000);
+
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }
+        }
     </script>
 </body>
 </html>
