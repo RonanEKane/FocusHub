@@ -136,7 +136,7 @@
                                 <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
                                 <button class="duration-btn recommended" data-duration="20" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">20 min</button>
                                 <button class="duration-btn" data-duration="30" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">30 min</button>
-                                <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1 1 100%; font-size: 1.1rem; padding: 1rem; margin-top: 0.5rem; background: var(--success); color: white;">☕ Take a Break (5 min)</button>
+                                <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1 1 100%; font-size: 1.1rem; padding: 1rem; margin-top: 0.5rem; background: var(--success); color: white;">Break (5 min)</button>
                             </div>
                             
                             <!-- First-run helper text -->
@@ -181,6 +181,11 @@
                             Target: <strong><span id="plannedSprints">5</span></strong> sprints
                         </div>
                     </div>
+                    
+                    <!-- Active List Message -->
+                    <div style="text-align: center; padding: 0.75rem; margin-bottom: 1rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); font-size: 0.875rem; color: var(--text-secondary); font-family: 'Courier New', monospace;">
+                        This list exists to be cleared.
+                    </div>
 
                     <!-- Brain Dump -->
                     <div class="brain-dump">
@@ -206,18 +211,18 @@
                         <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Parse & Add to <span data-label="holding">Holding</span></button>
                         
                         <!-- Holding Area -->
-                        <div id="holdingArea" class="holding-area" style="margin-top: 1rem;">
+                        <div id="holdingArea" class="holding-area" style="margin-top: 1rem; opacity: 0.7; padding: 1rem; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-light); border-radius: 4px;">
                             <div class="holding-header">
-                                <span>📋 <span data-label="holding">HOLDING AREA</span></span>
-                                <span class="task-count" id="holdingCount">0</span>
+                                <span style="font-size: 0.875rem; color: var(--text-secondary);">📋 <span data-label="holding">PARKING LOT</span></span>
+                                <span class="task-count" id="holdingCount" style="opacity: 0.7;">0</span>
                             </div>
                             <div id="holdingList" class="task-list" data-bucket="holding"></div>
                         </div>
                     </div>
 
                     <!-- Task Buckets -->
-                    <div class="task-buckets">
-                        <div class="task-bucket urgent" data-bucket="urgent">
+                    <div class="task-buckets" style="margin-top: 1.5rem; padding: 1rem; background: rgba(245, 91, 7, 0.03); border: 2px solid rgba(245, 91, 7, 0.3); border-radius: 8px;">
+                        <div class="task-bucket urgent" data-bucket="urgent" style="border-left: 3px solid var(--accent-red);">
                             <div class="bucket-header">
                                 <span class="bucket-icon">🔥</span>
                                 <h3 data-label="urgent">ADMIN</h3>
@@ -226,7 +231,7 @@
                             <div id="urgentList" class="task-list" data-bucket="urgent"></div>
                         </div>
 
-                        <div class="task-bucket deepwork" data-bucket="deepwork">
+                        <div class="task-bucket deepwork" data-bucket="deepwork" style="border-left: 3px solid var(--accent-blue);">
                             <div class="bucket-header">
                                 <span class="bucket-icon">🎯</span>
                                 <h3 data-label="deepwork">DEEP WORK</h3>
@@ -235,7 +240,7 @@
                             <div id="deepworkList" class="task-list" data-bucket="deepwork"></div>
                         </div>
 
-                        <div class="task-bucket strategic" data-bucket="strategic">
+                        <div class="task-bucket strategic" data-bucket="strategic" style="border-left: 3px solid var(--industrial-orange);">
                             <div class="bucket-header">
                                 <span class="bucket-icon">♟️</span>
                                 <h3 data-label="strategic">STRATEGIC</h3>
@@ -304,13 +309,16 @@
                 </div>
 
                 <!-- Distraction Logger with Intention Tracking -->
-                <div class="card distraction-logger" style="border: 1px solid var(--border-light);">
-                    <div class="card-header">
+                <div class="card distraction-logger collapsed" style="border: 1px solid var(--border-light);">
+                    <div class="card-header" onclick="toggleCard('distraction')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                         <h3 class="card-title">🚫 DISTRACTION PARKING</h3>
-                        <span class="distraction-count" id="distractionCount">0</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="distraction-count" id="distractionCount">0</span>
+                            <span class="toggle-indicator" id="distractionToggle" style="font-size: 0.75rem; color: var(--text-secondary);">▶</span>
+                        </div>
                     </div>
                     
-                    <div class="card-content">
+                    <div class="card-content" id="distractionContent" style="display: none;">
                         <!-- Add Intention Toggle -->
                         <div class="distraction-input-group">
                             <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
@@ -326,9 +334,12 @@
                 </div>
 
                 <!-- Grade Preview -->
-                <div class="card grade-preview" style="border: 1px solid var(--border-light);">
-                    <h3 class="card-title">📈 CURRENT GRADE</h3>
-                    <div class="grade-display">
+                <div class="card grade-preview collapsed" style="border: 1px solid var(--border-light);">
+                    <h3 class="card-title" onclick="toggleCard('grade')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📈 CURRENT GRADE</span>
+                        <span class="toggle-indicator" id="gradeToggle" style="font-size: 0.75rem; color: var(--text-secondary);">▶</span>
+                    </h3>
+                    <div class="grade-display" id="gradeContent" style="display: none;">
                         <div class="grade-large" id="currentGrade">-</div>
                         <div class="grade-context">Based on current progress</div>
                     </div>
@@ -656,8 +667,22 @@
             initDragDrop();
             checkSessionState();
             
+            // Remove unwanted duration buttons added by config.js
+            removeExtraButtons();
+            
             // Check and show first-run helpers
             checkFirstRunState();
+            
+            // Check for daily first-run prompt
+            checkDailyFirstRun();
+        }
+        
+        function removeExtraButtons() {
+            // Remove 25 and 45 minute buttons if config.js adds them
+            setTimeout(() => {
+                const extraButtons = document.querySelectorAll('.duration-btn[data-duration="25"], .duration-btn[data-duration="45"]');
+                extraButtons.forEach(btn => btn.remove());
+            }, 100);
         }
 
         async function loadState() {
@@ -1183,6 +1208,9 @@
                     localStorage.setItem('focushub_first_session_complete', 'true');
                     hideFirstRunHelpers();
                 }
+                
+                // Update break button based on Pomodoro rules
+                updateBreakButton();
                 
                 // Show timer setup so user can choose break duration
                 resetTimer();
@@ -2010,6 +2038,9 @@
             
             if (!text) return;
             
+            // Auto-expand card on first use
+            autoExpandDistraction();
+            
             const distraction = {
                 id: Date.now(),
                 text: text,
@@ -2314,6 +2345,90 @@
             const toughLoveSelect = document.getElementById('toughLoveSelect');
             if (toughLoveSelect) {
                 toughLoveSelect.value = state.toughLoveLevel;
+            }
+        }
+
+        // ============================================
+        // BREAK BUTTON - POMODORO RULES
+        // ============================================
+        function updateBreakButton() {
+            const breakBtn = document.getElementById('breakBtn');
+            if (!breakBtn) return;
+            
+            // Pomodoro rule: Long break after every 4 sprints
+            if (state.sprintCount > 0 && state.sprintCount % 4 === 0) {
+                breakBtn.setAttribute('data-duration', '15');
+                breakBtn.textContent = 'Long Break (15 min)';
+            } else {
+                breakBtn.setAttribute('data-duration', '5');
+                breakBtn.textContent = 'Break (5 min)';
+            }
+        }
+        
+        // ============================================
+        // COLLAPSIBLE CARDS
+        // ============================================
+        function toggleCard(cardType) {
+            let content, toggle;
+            
+            if (cardType === 'distraction') {
+                content = document.getElementById('distractionContent');
+                toggle = document.getElementById('distractionToggle');
+            } else if (cardType === 'grade') {
+                content = document.getElementById('gradeContent');
+                toggle = document.getElementById('gradeToggle');
+            }
+            
+            if (!content || !toggle) return;
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+        
+        // Auto-expand distraction card on first use
+        function autoExpandDistraction() {
+            const content = document.getElementById('distractionContent');
+            const toggle = document.getElementById('distractionToggle');
+            if (content && toggle && content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            }
+        }
+        
+        // ============================================
+        // DAILY FIRST-RUN PROMPT
+        // ============================================
+        function checkDailyFirstRun() {
+            const today = new Date().toDateString();
+            const lastPrompt = localStorage.getItem('focushub_last_daily_prompt');
+            
+            // If this is a new day and no timer running
+            if (lastPrompt !== today && !state.timer.isRunning) {
+                // Scroll to task section
+                setTimeout(() => {
+                    const taskSection = document.querySelector('.task-manager');
+                    if (taskSection) {
+                        taskSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        // Highlight task input briefly
+                        const taskInput = document.getElementById('taskInput');
+                        if (taskInput) {
+                            taskInput.style.border = '2px solid var(--industrial-orange)';
+                            taskInput.focus();
+                            setTimeout(() => {
+                                taskInput.style.border = '';
+                            }, 3000);
+                        }
+                    }
+                }, 500);
+                
+                // Mark prompt as shown
+                localStorage.setItem('focushub_last_daily_prompt', today);
             }
         }
 
