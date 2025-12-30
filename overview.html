@@ -40,7 +40,7 @@
     <!-- Mission Control Dashboard -->
     <div class="mission-control">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <h1 class="mission-title" data-label="missionControl">MISSION CONTROL</h1>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
@@ -49,6 +49,9 @@
                     <button onclick="window.WeeklyReports?.showReport()" class="btn btn-secondary" style="font-size: 0.875rem;">📊 Report</button>
                     <a href="upgrade.html" id="upgradeBtn" class="btn btn-primary hidden" style="font-size: 0.875rem;">✨ Upgrade</a>
                 </div>
+            </div>
+            
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 2rem;">Overview of recent focus performance.</p>
             
             <!-- Bento Grid -->
             <div class="bento-grid">

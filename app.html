@@ -126,6 +126,11 @@
                     </div>
                     
                     <div class="card-content">
+                        <!-- System State Indicator -->
+                        <div id="systemState" style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">
+                            System idle. Start a sprint to begin.
+                        </div>
+                        
                         <div id="timerSetup" class="timer-setup">
                             <div class="duration-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;">
                                 <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
@@ -140,7 +145,7 @@
                             </div>
                         </div>
 
-                        <div id="timerActive" class="timer-active hidden">
+                        <div id="timerActive" class="timer-active hidden" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 8px;">
                             <label style="display: block; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; color: var(--text-primary);">⚡ Energy Check-In</label>
                             <div class="energy-selector">
                                 <button class="energy-btn-small" data-energy="high">
@@ -155,7 +160,7 @@
                             </div>
                             
                             <div class="timer-display">
-                                <div class="timer-time" id="timerTime">20:00</div>
+                                <div class="timer-time" id="timerTime" style="font-size: 5rem; font-weight: 700;">20:00</div>
                                 <div class="timer-progress">
                                     <div class="progress-bar" id="progressBar"></div>
                                 </div>
@@ -169,7 +174,7 @@
                 </div>
 
                 <!-- Task Manager -->
-                <div class="card task-manager">
+                <div class="card task-manager" style="border: 1px solid var(--border-light);">
                     <div class="task-header">
                         <h2>⚡ TASK COMMAND CENTER</h2>
                         <div class="sprint-target">
@@ -257,19 +262,19 @@
             <!-- Sidebar (Right Column - NOT STICKY) -->
             <div class="sidebar-column">
                 <!-- NEW: Tough Love Toggle -->
-                <div class="card tough-love-card">
-                    <h3 class="card-title">💪 TOUGH LOVE MODE</h3>
-                    <div class="tough-love-selector">
-                        <button class="tough-love-btn" data-level="supportive">Supportive</button>
-                        <button class="tough-love-btn active" data-level="balanced">Balanced</button>
-                        <button class="tough-love-btn" data-level="tough">Tough</button>
+                <!-- System Intelligence with Focus Control -->
+                <div class="card ai-agent" style="border: 1px solid var(--border-light);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <h3 class="card-title" style="margin-bottom: 0.25rem; font-weight: 700;">System Intelligence</h3>
+                            <div style="font-style: italic; font-size: 0.875rem; color: var(--text-secondary);">Focus Control</div>
+                        </div>
+                        <select id="toughLoveSelect" style="padding: 0.375rem 0.5rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer;">
+                            <option value="supportive">Supportive</option>
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="tough">Tough</option>
+                        </select>
                     </div>
-                    <p class="tough-love-desc">Changes how the AI Agent talks to you</p>
-                </div>
-
-                <!-- AI Agent with Progress Tracking -->
-                <div class="card ai-agent">
-                    <h3 class="card-title">🤖 AI AGENT</h3>
                     <div class="agent-message">
                         <div class="agent-text" id="agentText">Start your first sprint to get feedback.</div>
                     </div>
@@ -296,7 +301,7 @@
                 </div>
 
                 <!-- Distraction Logger with Intention Tracking -->
-                <div class="card distraction-logger">
+                <div class="card distraction-logger" style="border: 1px solid var(--border-light);">
                     <div class="card-header">
                         <h3 class="card-title">🚫 DISTRACTION PARKING</h3>
                         <span class="distraction-count" id="distractionCount">0</span>
@@ -318,7 +323,7 @@
                 </div>
 
                 <!-- Grade Preview -->
-                <div class="card grade-preview">
+                <div class="card grade-preview" style="border: 1px solid var(--border-light);">
                     <h3 class="card-title">📈 CURRENT GRADE</h3>
                     <div class="grade-display">
                         <div class="grade-large" id="currentGrade">-</div>
@@ -992,15 +997,15 @@
             });
 
             // Tough Love
-            document.querySelectorAll('.tough-love-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.tough-love-btn').forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                    state.toughLoveLevel = e.currentTarget.dataset.level;
+            // Tough love dropdown
+            const toughLoveSelect = document.getElementById('toughLoveSelect');
+            if (toughLoveSelect) {
+                toughLoveSelect.addEventListener('change', (e) => {
+                    state.toughLoveLevel = e.target.value;
                     saveState();
                     updateAgentMessage();
                 });
-            });
+            }
             
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1073,9 +1078,13 @@
             document.getElementById('timerSetup').classList.add('hidden');
             document.getElementById('timerActive').classList.remove('hidden');
             
+            // Update system state
+            const stateEl = document.getElementById('systemState');
             if (timerType === 'focus') {
+                stateEl.textContent = 'Sprint active. Focus mode engaged.';
                 document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
             } else {
+                stateEl.textContent = 'Break active.';
                 document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
             }
 
@@ -1121,6 +1130,9 @@
             clearInterval(state.timer.interval);
             document.getElementById('pauseBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.remove('hidden');
+            
+            // Update system state
+            document.getElementById('systemState').textContent = 'Sprint paused.';
         }
 
         function resumeTimer() {
@@ -1133,6 +1145,14 @@
             state.timer.interval = setInterval(updateTimer, 1000);
             document.getElementById('pauseBtn').classList.remove('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
+            
+            // Update system state
+            const timerType = state.timer.timerType;
+            if (timerType === 'focus') {
+                document.getElementById('systemState').textContent = 'Sprint active. Focus mode engaged.';
+            } else {
+                document.getElementById('systemState').textContent = 'Break active.';
+            }
         }
 
         function resetTimer() {
@@ -1141,6 +1161,9 @@
             state.timer.isRunning = false;
             document.getElementById('timerSetup').classList.remove('hidden');
             document.getElementById('timerActive').classList.add('hidden');
+            
+            // Update system state
+            document.getElementById('systemState').textContent = 'System idle. Start a sprint to begin.';
         }
 
         function completeTimer() {
@@ -2284,14 +2307,11 @@
                 }
             });
 
-            // Set tough love active button
-            document.querySelectorAll('.tough-love-btn').forEach(btn => {
-                if (btn.dataset.level === state.toughLoveLevel) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
+            // Sync tough love dropdown
+            const toughLoveSelect = document.getElementById('toughLoveSelect');
+            if (toughLoveSelect) {
+                toughLoveSelect.value = state.toughLoveLevel;
+            }
         }
 
         // ============================================
