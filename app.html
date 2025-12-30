@@ -364,7 +364,86 @@
             <a href="how-to.html">📖 How-to</a>
             <span class="footer-separator">|</span>
             <a href="guide.html">💬 Support</a>
+            <span class="footer-separator">|</span>
+            <a href="#" onclick="openFeedbackModal(); return false;" style="color: var(--industrial-orange);">🎯 Beta Feedback</a>
         </footer>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal-overlay hidden">
+        <div class="modal feedback-modal">
+            <div class="modal-header">
+                <h2>🎯 Beta Feedback</h2>
+                <button class="modal-close" onclick="closeFeedbackModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+                    Your feedback helps make FocusHub better for everyone with ADHD.
+                </p>
+                
+                <!-- Feedback Type -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label">What's this about?</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                        <button class="feedback-type-btn active" data-type="bug" style="padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 6px; background: var(--bg-secondary); cursor: pointer; transition: all 0.2s; font-size: 0.875rem;">
+                            🐛 Bug Report
+                        </button>
+                        <button class="feedback-type-btn" data-type="feature" style="padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 6px; background: var(--bg-secondary); cursor: pointer; transition: all 0.2s; font-size: 0.875rem;">
+                            💡 Feature Request
+                        </button>
+                        <button class="feedback-type-btn" data-type="praise" style="padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 6px; background: var(--bg-secondary); cursor: pointer; transition: all 0.2s; font-size: 0.875rem;">
+                            ❤️ Something Works
+                        </button>
+                        <button class="feedback-type-btn" data-type="other" style="padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 6px; background: var(--bg-secondary); cursor: pointer; transition: all 0.2s; font-size: 0.875rem;">
+                            💬 General
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Feedback Text -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="feedbackText" class="form-label">Details:</label>
+                    <textarea 
+                        id="feedbackText" 
+                        class="form-input"
+                        rows="6"
+                        placeholder="Be specific! What happened? What did you expect?&#10;&#10;For bugs: Steps to reproduce help.&#10;For features: What problem would this solve?"
+                        style="resize: vertical; min-height: 150px; font-size: 14px;"
+                    ></textarea>
+                </div>
+                
+                <!-- Email (Optional) -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="feedbackEmail" class="form-label">Your email (optional - for replies)</label>
+                    <input 
+                        type="email" 
+                        id="feedbackEmail" 
+                        class="form-input"
+                        placeholder="your.email@example.com"
+                    >
+                </div>
+                
+                <!-- Submit Buttons -->
+                <div style="display: flex; gap: 1rem;">
+                    <button 
+                        class="btn btn-secondary" 
+                        onclick="closeFeedbackModal()"
+                        style="flex: 1;"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        class="btn btn-primary" 
+                        onclick="submitFeedback()"
+                        id="feedbackSubmitBtn"
+                        style="flex: 2;"
+                    >
+                        Send Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Morning Reflection Modal -->
@@ -2309,10 +2388,17 @@
             history.push(report);
             localStorage.setItem('focushub_history', JSON.stringify(history));
             
+            // Track total sessions for feedback prompts
+            const totalSessions = parseInt(localStorage.getItem('focushub_total_sessions') || '0') + 1;
+            localStorage.setItem('focushub_total_sessions', totalSessions.toString());
+            
             // Save state so tasks persist in holding for tomorrow
             saveState();
             
             localStorage.setItem('focushub_session_state', 'ended');
+            
+            // Check if should prompt for feedback
+            checkEndOfDayFeedbackPrompt();
             
             window.location.href = 'overview.html';
         }
@@ -2735,6 +2821,154 @@
         
         // Initialize the app (handled by checkAuthAndInit() in auth section)
     </script>
+
+<script>
+// ============================================
+// BETA FEEDBACK SYSTEM
+// ============================================
+let currentFeedbackType = 'bug';
+
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+    document.getElementById('feedbackText').focus();
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    // Reset form
+    document.getElementById('feedbackText').value = '';
+    document.getElementById('feedbackEmail').value = '';
+    // Reset type selection
+    document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.feedback-type-btn[data-type="bug"]').classList.add('active');
+    currentFeedbackType = 'bug';
+}
+
+// Feedback type selection
+document.querySelectorAll('.feedback-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.feedback-type-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.background = 'var(--bg-secondary)';
+            b.style.borderColor = 'var(--border-light)';
+            b.style.color = 'var(--text-primary)';
+        });
+        btn.classList.add('active');
+        btn.style.background = 'var(--industrial-orange)';
+        btn.style.borderColor = 'var(--industrial-orange)';
+        btn.style.color = 'white';
+        currentFeedbackType = btn.dataset.type;
+    });
+});
+
+// Submit feedback
+async function submitFeedback() {
+    const text = document.getElementById('feedbackText').value.trim();
+    const email = document.getElementById('feedbackEmail').value.trim();
+    const submitBtn = document.getElementById('feedbackSubmitBtn');
+    
+    if (!text) {
+        alert('Please tell us what\'s on your mind!');
+        return;
+    }
+    
+    // Disable button
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    // Collect feedback data
+    const feedbackData = {
+        type: currentFeedbackType,
+        text: text,
+        email: email || 'anonymous',
+        page: document.title,
+        timestamp: new Date().toISOString(),
+        browser: navigator.userAgent,
+        screenSize: `${window.innerWidth}x${window.innerHeight}`,
+        userId: window.currentFirebaseUser ? window.currentFirebaseUser.email : 'not-logged-in',
+        sessionCount: state.sprintCount || 0
+    };
+    
+    try {
+        // Send to your email via FormSubmit.co
+        const response = await fetch('https://formsubmit.co/ajax/watersjb@gmail.com', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                _subject: `FocusHub BETA: ${currentFeedbackType}`,
+                _template: 'table',
+                Type: currentFeedbackType,
+                Feedback: text,
+                Email: email || 'No email provided',
+                Page: feedbackData.page,
+                Timestamp: feedbackData.timestamp,
+                Browser: feedbackData.browser,
+                Screen: feedbackData.screenSize,
+                UserID: feedbackData.userId,
+                SessionCount: feedbackData.sessionCount
+            })
+        });
+        
+        if (response.ok) {
+            // Success!
+            submitBtn.textContent = '✓ Sent!';
+            submitBtn.style.background = 'var(--success)';
+            
+            setTimeout(() => {
+                closeFeedbackModal();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Feedback';
+                submitBtn.style.background = '';
+            }, 2000);
+        } else {
+            throw new Error('Failed to send');
+        }
+        
+    } catch (error) {
+        console.error('Feedback submission error:', error);
+        
+        // Fallback: Save to localStorage
+        const savedFeedback = JSON.parse(localStorage.getItem('focushub_feedback') || '[]');
+        savedFeedback.push(feedbackData);
+        localStorage.setItem('focushub_feedback', JSON.stringify(savedFeedback));
+        
+        alert('Feedback saved locally! We\'ll collect it when you\'re back online.');
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Feedback';
+        closeFeedbackModal();
+    }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const feedbackModal = document.getElementById('feedbackModal');
+        if (feedbackModal && !feedbackModal.classList.contains('hidden')) {
+            closeFeedbackModal();
+        }
+    }
+});
+
+// End-of-day feedback prompt (after 3 sessions)
+function checkEndOfDayFeedbackPrompt() {
+    const totalSessions = parseInt(localStorage.getItem('focushub_total_sessions') || '0');
+    const hasPrompted = localStorage.getItem('focushub_eod_feedback_prompted');
+    
+    // After 3 days of use, prompt once
+    if (totalSessions >= 3 && !hasPrompted) {
+        setTimeout(() => {
+            if (confirm('Quick feedback on FocusHub? (Takes 30 seconds)')) {
+                openFeedbackModal();
+            }
+            localStorage.setItem('focushub_eod_feedback_prompted', 'true');
+        }, 1000);
+    }
+}
+</script>
 
 </body>
 </html>
