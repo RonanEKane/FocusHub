@@ -269,11 +269,14 @@
                             <h3 class="card-title" style="margin-bottom: 0.25rem; font-weight: 700;">System Intelligence</h3>
                             <div style="font-style: italic; font-size: 0.875rem; color: var(--text-secondary);">Focus Control</div>
                         </div>
-                        <select id="toughLoveSelect" style="padding: 0.375rem 0.5rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer;">
-                            <option value="supportive">Supportive</option>
-                            <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough</option>
-                        </select>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                            <label for="toughLoveSelect" style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Tone</label>
+                            <select id="toughLoveSelect" style="padding: 0.375rem 0.5rem; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer;">
+                                <option value="supportive">Supportive</option>
+                                <option value="balanced" selected>Balanced</option>
+                                <option value="tough">Tough</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="agent-message">
                         <div class="agent-text" id="agentText">Start your first sprint to get feedback.</div>

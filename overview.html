@@ -363,7 +363,8 @@
             const last7 = history.slice(-7);
             const chartHTML = last7.map(day => {
                 const percentage = Math.min((day.sprintCount / day.plannedSprints) * 100, 100);
-                const color = percentage >= 100 ? '#22C55E' : '#ef4444';
+                // Muted gray default, brand orange for 100%+ completion
+                const color = percentage >= 100 ? '#f45b07' : '#6b7280';
                 const date = new Date(day.date);
                 const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
                 return `
