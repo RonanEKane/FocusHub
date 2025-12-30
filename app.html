@@ -17,14 +17,17 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img id="startDayLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1rem; display: block;">
-            <h1 class="start-title">Ready to Win Today?</h1>
-            <p class="start-subtitle">Built for Brains That Wander, but Still Want to Win</p>
+            <img id="startDayLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1.5rem; display: block;">
+            <h1 class="start-title">Prepare your session</h1>
+            <p class="start-subtitle">Define today's work requirements. The system enforces them.</p>
+            <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin: 0 auto 2rem; max-width: 500px; line-height: 1.5;">
+                This step defines the structure for today's session. Once started, the execution environment is locked.
+            </p>
 
             <div class="start-form">
                 <div class="form-group">
                     <label class="form-label" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">⚡ Energy Check-In</label>
-                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">How are you feeling today? Click one:</p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">Your current energy level adjusts sprint expectations.</p>
                     <div class="energy-options">
                         <button class="energy-btn" data-energy="high" style="cursor: pointer; transition: all 0.2s;">
                             <div class="energy-emoji">🔋</div>
@@ -45,16 +48,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Baseline Sprint Target</label>
+                    <label class="form-label">Sprint Configuration</label>
                     <div class="baseline-input-row">
                         <button class="baseline-btn" id="decreaseBaseline">−</button>
                         <div class="baseline-value"><span id="baselineValue">5</span> sprints</div>
                         <button class="baseline-btn" id="increaseBaseline">+</button>
                     </div>
-                    <div class="form-hint">Minimum sprints before task weights are added</div>
+                    <div class="form-hint">Sprint count defines the amount of focused work required today.</div>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0.75rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); font-size: 0.875rem; color: var(--text-secondary);">
+                    Tasks added here become your active execution list.
                 </div>
 
-                <button class="btn btn-primary btn-start" id="startDayBtn">Start My Day</button>
+                <button class="btn btn-primary btn-start" id="startDayBtn">Start session</button>
+                
+                <p style="text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; opacity: 0.7;">
+                    Session settings can be adjusted later if needed.
+                </p>
             </div>
         </div>
     </div>
