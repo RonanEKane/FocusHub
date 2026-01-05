@@ -157,19 +157,6 @@
                         </div>
 
                         <div id="timerActive" class="timer-active hidden" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 8px;">
-                            <label style="display: block; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; color: var(--text-primary);">⚡ Energy Check-In</label>
-                            <div class="energy-selector">
-                                <button class="energy-btn-small" data-energy="high">
-                                    🔋 <span>Full Power</span>
-                                </button>
-                                <button class="energy-btn-small active" data-energy="medium">
-                                    😐 <span>Kinda 'Meh'</span>
-                                </button>
-                                <button class="energy-btn-small" data-energy="low">
-                                    🪫 <span>On Fumes</span>
-                                </button>
-                            </div>
-                            
                             <div class="timer-display">
                                 <div class="timer-time" id="timerTime" style="font-size: 5rem; font-weight: 700;">20:00</div>
                                 <div class="timer-progress">
@@ -895,9 +882,19 @@
                     document.getElementById('timerSetup').classList.add('hidden');
                     document.getElementById('timerActive').classList.remove('hidden');
                     
+                    // Hide energy dropdown during active timer
+                    const energySelect = document.getElementById('energySelect');
+                    if (energySelect && energySelect.parentElement) {
+                        energySelect.parentElement.style.display = 'none';
+                    }
+                    
+                    // Update system state and title
+                    const stateEl = document.getElementById('systemState');
                     if (timerData.timerType === 'focus') {
+                        stateEl.textContent = 'Sprint active. Focus mode engaged.';
                         document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
                     } else {
+                        stateEl.textContent = 'Break active.';
                         document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
                     }
                     
@@ -908,6 +905,8 @@
                     // Timer expired while away, complete it
                     if (timerData.timerType === 'focus') {
                         state.sprintCount++;
+                        showCompletionCelebration();
+                        updateBreakButton();
                     } else {
                         state.breaksCount++;
                     }
@@ -1196,11 +1195,20 @@
             document.getElementById('timerSetup').classList.add('hidden');
             document.getElementById('timerActive').classList.remove('hidden');
             
+            // Hide energy dropdown during active timer
+            const energySelect = document.getElementById('energySelect');
+            if (energySelect && energySelect.parentElement) {
+                energySelect.parentElement.style.display = 'none';
+            }
+            
             // Update system state
             const stateEl = document.getElementById('systemState');
             if (timerType === 'focus') {
                 stateEl.textContent = 'Sprint active. Focus mode engaged.';
                 document.getElementById('timerTitle').textContent = '🎯 SPRINT TIMER';
+                
+                // Trigger AI feedback immediately on sprint start
+                generateAgentFeedback();
             } else {
                 stateEl.textContent = 'Break active.';
                 document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
@@ -1279,6 +1287,12 @@
             state.timer.isRunning = false;
             document.getElementById('timerSetup').classList.remove('hidden');
             document.getElementById('timerActive').classList.add('hidden');
+            
+            // Show energy dropdown again
+            const energySelect = document.getElementById('energySelect');
+            if (energySelect && energySelect.parentElement) {
+                energySelect.parentElement.style.display = 'flex';
+            }
             
             // Update system state
             document.getElementById('systemState').textContent = 'System idle. Start a sprint to begin.';
@@ -2240,6 +2254,50 @@
         // ============================================
         // AI AGENT
         // ============================================
+        function generateAgentFeedback() {
+            // Check time of day for late start feedback
+            const currentHour = new Date().getHours();
+            const config = loadModeConfig();
+            const aiMessages = config.ai || state.aiMessages;
+            
+            if (!aiMessages) {
+                updateAgentMessage();
+                return;
+            }
+            
+            const level = state.toughLoveLevel || 'balanced';
+            const messages = aiMessages[level];
+            
+            let message = "";
+            
+            // Late start detection (after 11am)
+            if (currentHour >= 11 && state.sprintCount === 0) {
+                if (level === 'tough') {
+                    message = "Starting at " + currentHour + ":00? The morning's gone. Better late than never, but this isn't optimal.";
+                } else if (level === 'balanced') {
+                    message = "Starting after 11am. Not ideal, but let's make the rest of the day count.";
+                } else {
+                    message = "Starting your day now. That's okay - let's focus on what we can accomplish from here.";
+                }
+            }
+            // Early/on-time start
+            else if (currentHour < 11) {
+                if (level === 'tough') {
+                    message = messages.welcome || "Let's execute. No excuses.";
+                } else if (level === 'balanced') {
+                    message = messages.welcome || "Ready to execute. Let's go.";
+                } else {
+                    message = messages.welcome || "You've got this. Let's begin.";
+                }
+            }
+            // Default
+            else {
+                message = messages.welcome || "Sprint started. Stay focused.";
+            }
+            
+            document.getElementById('agentText').textContent = message;
+        }
+        
         function updateAgentMessage() {
             // Get AI messages from mode config
             const config = loadModeConfig();
@@ -2968,6 +3026,63 @@ function checkEndOfDayFeedbackPrompt() {
         }, 1000);
     }
 }
+
+// ============================================
+// BACKGROUND TIMER PERSISTENCE
+// ============================================
+// Handle tab/app switching to keep timer accurate
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Tab hidden - save current state
+        if (window.state && window.state.timer.isRunning) {
+            const timerState = {
+                timeLeft: window.state.timer.timeLeft,
+                duration: window.state.timer.duration,
+                isRunning: window.state.timer.isRunning,
+                timerType: window.state.timer.timerType,
+                lastUpdated: Date.now()
+            };
+            localStorage.setItem('focushub_timer', JSON.stringify(timerState));
+            console.log('🌙 Timer saved (tab hidden)');
+        }
+    } else {
+        // Tab visible again - restore and adjust timer
+        if (window.state && window.state.timer.isRunning) {
+            const savedTimer = localStorage.getItem('focushub_timer');
+            if (savedTimer) {
+                const timerData = JSON.parse(savedTimer);
+                const elapsed = Math.floor((Date.now() - timerData.lastUpdated) / 1000);
+                const adjustedTimeLeft = Math.max(0, timerData.timeLeft - elapsed);
+                
+                if (adjustedTimeLeft > 0) {
+                    window.state.timer.timeLeft = adjustedTimeLeft;
+                    console.log(`🔄 Timer adjusted: -${elapsed}s (${adjustedTimeLeft}s remaining)`);
+                } else {
+                    // Timer expired while away
+                    console.log('✅ Timer completed while tab was hidden');
+                    clearInterval(window.state.timer.interval);
+                    if (typeof completeTimer === 'function') {
+                        completeTimer();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Save timer state periodically even when tab is active
+setInterval(() => {
+    if (window.state && window.state.timer.isRunning) {
+        const timerState = {
+            timeLeft: window.state.timer.timeLeft,
+            duration: window.state.timer.duration,
+            isRunning: window.state.timer.isRunning,
+            timerType: window.state.timer.timerType,
+            lastUpdated: Date.now()
+        };
+        localStorage.setItem('focushub_timer', JSON.stringify(timerState));
+    }
+}, 2000); // Save every 2 seconds
 </script>
 
 </body>
