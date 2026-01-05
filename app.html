@@ -1581,6 +1581,12 @@
             document.querySelectorAll('.task-list').forEach(list => {
                 list.classList.remove('drag-over');
             });
+            // Don't clear draggedTask/draggedBucket here - let handleDrop do it
+            // Or clear after a small delay to ensure drop event fires first
+            setTimeout(() => {
+                draggedTask = null;
+                draggedBucket = null;
+            }, 50);
         }
         
         function handleDragOver(e) {
@@ -1596,8 +1602,11 @@
         
         function handleDrop(e) {
             e.preventDefault();
+            e.stopPropagation();
             e.currentTarget.classList.remove('drag-over');
             const targetBucket = e.currentTarget.dataset.bucket;
+            
+            console.log('Drop detected:', { targetBucket, draggedTask, draggedBucket, draggedDistraction });
             
             // Check if dropping a distraction
             if (draggedDistraction) {
@@ -1628,9 +1637,20 @@
                 renderDistractions();
             }
             // Check if dropping a task
-            else if (draggedTask) {
+            else if (draggedTask && draggedBucket) {
                 const taskId = parseFloat(draggedTask.dataset.taskId);
-                moveTask(taskId, draggedBucket, targetBucket);
+                console.log('Moving task:', { taskId, from: draggedBucket, to: targetBucket });
+                
+                if (taskId && draggedBucket && targetBucket) {
+                    moveTask(taskId, draggedBucket, targetBucket);
+                    // Clear dragged items
+                    draggedTask = null;
+                    draggedBucket = null;
+                } else {
+                    console.error('Missing data for task move:', { taskId, draggedBucket, targetBucket });
+                }
+            } else {
+                console.warn('No valid drag data found');
             }
         }
         
