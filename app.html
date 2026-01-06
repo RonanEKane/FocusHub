@@ -720,7 +720,8 @@
                 duration: 0,
                 isRunning: false,
                 timerType: 'focus',
-                interval: null
+                interval: null,
+                endTime: null  // NEW: Track when timer should end
             },
             meeting: {
                 active: false,
@@ -1076,6 +1077,8 @@
                     state.timer.timeLeft = adjustedTimeLeft;
                     state.timer.isRunning = true;
                     state.timer.timerType = timerData.timerType;
+                    // Set endTime based on adjusted time left
+                    state.timer.endTime = Date.now() + (adjustedTimeLeft * 1000);
                     
                     // Update UI
                     document.getElementById('timerSetup').classList.add('hidden');
@@ -1423,6 +1426,7 @@
             state.timer.timeLeft = duration * 60;
             state.timer.isRunning = true;
             state.timer.timerType = timerType;
+            state.timer.endTime = Date.now() + (duration * 60 * 1000);  // NEW: Set end timestamp
 
             document.getElementById('timerSetup').classList.add('hidden');
             document.getElementById('timerActive').classList.remove('hidden');
@@ -1472,8 +1476,14 @@
         }
 
         function updateTimer() {
+            if (!state.timer.isRunning || !state.timer.endTime) return;
+            
+            // Calculate time left based on endTime (timestamp-based, not setInterval-based)
+            const now = Date.now();
+            const timeLeftMs = state.timer.endTime - now;
+            state.timer.timeLeft = Math.max(0, Math.ceil(timeLeftMs / 1000));
+            
             if (state.timer.timeLeft > 0) {
-                state.timer.timeLeft--;
                 renderTimer();
                 
                 // Save timer state every 5 seconds for persistence
@@ -1561,6 +1571,8 @@
             }
             
             state.timer.isRunning = true;
+            // Recalculate endTime based on current timeLeft
+            state.timer.endTime = Date.now() + (state.timer.timeLeft * 1000);
             state.timer.interval = setInterval(updateTimer, 1000);
             
             const pauseBtn = document.getElementById('pauseBtn');
