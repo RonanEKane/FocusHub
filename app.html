@@ -106,6 +106,7 @@
                 
                 <div class="header-controls">
                     <a href="overview.html" class="btn-home">📊 Dashboard</a>
+                    <button id="exportDataBtn" class="btn-home" title="Export backup of all your data">💾 Backup</button>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
                     <button id="logoutBtn" class="btn-home" style="color: var(--text-secondary);">Logout</button>
                     <button id="endDayBtn" class="btn-end-day" data-label="endDay">END DAY</button>
@@ -147,7 +148,7 @@
                                 <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
                                 <button class="duration-btn recommended" data-duration="20" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">20 min</button>
                                 <button class="duration-btn" data-duration="30" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">30 min</button>
-                                <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1 1 100%; font-size: 1.1rem; padding: 1rem; margin-top: 0.5rem; background: var(--success); color: white;">Break (5 min)</button>
+                                <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem; background: var(--success); color: white;">Break (5 min)</button>
                             </div>
                             
                             <!-- First-run helper text -->
@@ -165,7 +166,20 @@
                             </div>
                             
                             <div class="timer-controls">
-                                <button id="resetBtn" class="btn btn-danger">🔄 Reset (Won't Count)</button>
+                                <button id="pauseBtn" class="btn" style="background: var(--warning); color: var(--bg-primary); font-weight: 600; flex: 1;">⏸ PAUSE</button>
+                                <button id="resetBtn" class="btn btn-danger" style="flex: 1;">🔄 RESET</button>
+                                <button id="completeBreakBtn" class="btn btn-success hidden" style="flex: 1;">✓ End Break</button>
+                            </div>
+                            
+                            <!-- Pause Confirmation (hidden by default) -->
+                            <div id="pauseConfirm" class="pause-confirm hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(251, 191, 36, 0.1); border: 2px solid var(--warning); border-radius: 6px;">
+                                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; font-weight: 500;">
+                                    Pausing breaks momentum. Are you sure you can't push through?
+                                </p>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button id="confirmPauseBtn" class="btn btn-secondary" style="flex: 1; font-size: 0.875rem;">Yes, Pause</button>
+                                    <button id="cancelPauseBtn" class="btn btn-primary" style="flex: 2; font-size: 0.875rem;">No, Keep Going</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -214,7 +228,7 @@
                                 <span style="font-size: 0.875rem; color: var(--text-secondary);">📋 <span data-label="holding">PARKING LOT</span></span>
                                 <span class="task-count" id="holdingCount" style="opacity: 0.7;">0</span>
                             </div>
-                            <div id="holdingList" class="task-list" data-bucket="holding"></div>
+                            <div id="holdingList" class="task-list" data-bucket="holding" style="min-height: 60px; padding: 0.5rem; border-radius: 4px; transition: background 0.2s;"></div>
                         </div>
                     </div>
 
@@ -226,7 +240,7 @@
                                 <h3 data-label="urgent">ADMIN</h3>
                                 <span class="task-count" id="urgentCount">0</span>
                             </div>
-                            <div id="urgentList" class="task-list" data-bucket="urgent"></div>
+                            <div id="urgentList" class="task-list" data-bucket="urgent" style="min-height: 60px; padding: 0.5rem; border-radius: 4px; transition: background 0.2s;"></div>
                         </div>
 
                         <div class="task-bucket deepwork" data-bucket="deepwork" style="border-left: 3px solid var(--accent-blue);">
@@ -235,7 +249,7 @@
                                 <h3 data-label="deepwork">DEEP WORK</h3>
                                 <span class="task-count" id="deepworkCount">0</span>
                             </div>
-                            <div id="deepworkList" class="task-list" data-bucket="deepwork"></div>
+                            <div id="deepworkList" class="task-list" data-bucket="deepwork" style="min-height: 60px; padding: 0.5rem; border-radius: 4px; transition: background 0.2s;"></div>
                         </div>
 
                         <div class="task-bucket strategic" data-bucket="strategic" style="border-left: 3px solid var(--industrial-orange);">
@@ -244,7 +258,7 @@
                                 <h3 data-label="strategic">STRATEGIC</h3>
                                 <span class="task-count" id="strategicCount">0</span>
                             </div>
-                            <div id="strategicList" class="task-list" data-bucket="strategic"></div>
+                            <div id="strategicList" class="task-list" data-bucket="strategic" style="min-height: 60px; padding: 0.5rem; border-radius: 4px; transition: background 0.2s;"></div>
                         </div>
                     </div>
 
@@ -686,6 +700,11 @@
         // ============================================
         // STATE MANAGEMENT
         // ============================================
+        
+        // Data version for migration tracking
+        const DATA_VERSION = 1;
+        const APP_VERSION = '1.0.0';
+        
         const state = {
             energyLevel: 'medium',
             baselineSprints: 5,
@@ -735,6 +754,11 @@
         // INITIALIZATION
         // ============================================
         async function init() {
+            // DATA PROTECTION: Check versions and validate data
+            checkDataVersion();
+            checkAppVersion();
+            validateAndRepairData();
+            
             // Apply mode configuration FIRST
             applyModeConfig();
             
@@ -760,6 +784,170 @@
                 const extraButtons = document.querySelectorAll('.duration-btn[data-duration="25"], .duration-btn[data-duration="45"]');
                 extraButtons.forEach(btn => btn.remove());
             }, 100);
+        }
+        
+        // ============================================
+        // DATA PERSISTENCE ENHANCEMENTS
+        // ============================================
+        
+        function checkDataVersion() {
+            const savedVersion = parseInt(localStorage.getItem('focushub_data_version') || '0');
+            
+            if (savedVersion < DATA_VERSION) {
+                console.log(`📦 Migrating data from v${savedVersion} to v${DATA_VERSION}`);
+                migrateData(savedVersion, DATA_VERSION);
+            }
+            
+            // Always save current version
+            localStorage.setItem('focushub_data_version', DATA_VERSION);
+        }
+        
+        function migrateData(fromVersion, toVersion) {
+            // Future migrations go here
+            // Example:
+            // if (fromVersion === 0 && toVersion === 1) {
+            //     // Add new field to tasks
+            //     const tasks = JSON.parse(localStorage.getItem('focushub_tasks') || '{}');
+            //     // ... migration logic
+            // }
+            
+            console.log(`✅ Migration complete: v${fromVersion} → v${toVersion}`);
+        }
+        
+        function validateTaskStructure(tasks) {
+            // Validate task data integrity
+            if (!tasks || typeof tasks !== 'object') {
+                console.error('❌ Invalid tasks structure, resetting');
+                return false;
+            }
+            
+            // Check required buckets
+            const requiredBuckets = ['holding', 'urgent', 'deepwork', 'strategic', 'wins'];
+            for (const bucket of requiredBuckets) {
+                if (!Array.isArray(tasks[bucket])) {
+                    console.error(`❌ Missing or invalid bucket: ${bucket}`);
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function getDefaultTaskStructure() {
+            return {
+                holding: [],
+                urgent: [],
+                deepwork: [],
+                strategic: [],
+                wins: []
+            };
+        }
+        
+        function exportUserData() {
+            // Create comprehensive backup
+            const backup = {
+                version: DATA_VERSION,
+                appVersion: APP_VERSION,
+                timestamp: new Date().toISOString(),
+                data: {
+                    tasks: localStorage.getItem('focushub_tasks'),
+                    daily_stats: localStorage.getItem('focushub_daily_stats'),
+                    history: localStorage.getItem('focushub_history'),
+                    distractions: localStorage.getItem('focushub_distractions'),
+                    intentions: localStorage.getItem('focushub_intentions'),
+                    preferences: {
+                        energy: localStorage.getItem('focushub_energy'),
+                        baseline: localStorage.getItem('focushub_baseline'),
+                        tough_love: localStorage.getItem('focushub_tough_love'),
+                        mode: localStorage.getItem('focushub_mode'),
+                        theme: localStorage.getItem('focushub_theme')
+                    }
+                }
+            };
+            
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `focushub-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('✅ Data exported successfully');
+            return backup;
+        }
+        
+        function importUserData(backupData) {
+            try {
+                // Validate backup structure
+                if (!backupData.version || !backupData.data) {
+                    throw new Error('Invalid backup format');
+                }
+                
+                // Restore data
+                if (backupData.data.tasks) {
+                    localStorage.setItem('focushub_tasks', backupData.data.tasks);
+                }
+                if (backupData.data.history) {
+                    localStorage.setItem('focushub_history', backupData.data.history);
+                }
+                if (backupData.data.distractions) {
+                    localStorage.setItem('focushub_distractions', backupData.data.distractions);
+                }
+                if (backupData.data.intentions) {
+                    localStorage.setItem('focushub_intentions', backupData.data.intentions);
+                }
+                
+                // Restore preferences
+                if (backupData.data.preferences) {
+                    const prefs = backupData.data.preferences;
+                    if (prefs.energy) localStorage.setItem('focushub_energy', prefs.energy);
+                    if (prefs.baseline) localStorage.setItem('focushub_baseline', prefs.baseline);
+                    if (prefs.tough_love) localStorage.setItem('focushub_tough_love', prefs.tough_love);
+                    if (prefs.mode) localStorage.setItem('focushub_mode', prefs.mode);
+                    if (prefs.theme) localStorage.setItem('focushub_theme', prefs.theme);
+                }
+                
+                console.log('✅ Data imported successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Import failed:', error);
+                return false;
+            }
+        }
+        
+        function checkAppVersion() {
+            const lastVersion = localStorage.getItem('focushub_app_version');
+            
+            if (lastVersion !== APP_VERSION) {
+                console.log(`🎉 Updated from ${lastVersion || 'initial'} to ${APP_VERSION}`);
+                
+                // Could show "What's New" modal here in future
+                // showUpdateModal(lastVersion, APP_VERSION);
+                
+                localStorage.setItem('focushub_app_version', APP_VERSION);
+            }
+        }
+        
+        function validateAndRepairData() {
+            // Run validation on load
+            try {
+                const tasksData = localStorage.getItem('focushub_tasks');
+                if (tasksData) {
+                    const tasks = JSON.parse(tasksData);
+                    if (!validateTaskStructure(tasks)) {
+                        console.warn('⚠️ Corrupted task data detected, repairing...');
+                        const defaultTasks = getDefaultTaskStructure();
+                        localStorage.setItem('focushub_tasks', JSON.stringify(defaultTasks));
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Data validation error:', error);
+                // Initialize with defaults if parsing fails
+                const defaultTasks = getDefaultTaskStructure();
+                localStorage.setItem('focushub_tasks', JSON.stringify(defaultTasks));
+            }
         }
 
         async function loadState() {
@@ -837,7 +1025,18 @@
 
             const savedTasks = localStorage.getItem('focushub_tasks');
             if (savedTasks) {
-                state.tasks = JSON.parse(savedTasks);
+                try {
+                    const tasks = JSON.parse(savedTasks);
+                    if (validateTaskStructure(tasks)) {
+                        state.tasks = tasks;
+                    } else {
+                        console.warn('⚠️ Invalid task structure, using defaults');
+                        state.tasks = getDefaultTaskStructure();
+                    }
+                } catch (error) {
+                    console.error('❌ Task parse error:', error);
+                    state.tasks = getDefaultTaskStructure();
+                }
             }
 
             const savedDistractions = localStorage.getItem('focushub_distractions');
@@ -969,6 +1168,9 @@
             localStorage.setItem('focushub_baseline', state.baselineSprints.toString());
             localStorage.setItem('focushub_tough_love', state.toughLoveLevel);
             
+            // Save data version
+            localStorage.setItem('focushub_data_version', DATA_VERSION);
+            
             // Save timer state (local only)
             const timerState = {
                 timeLeft: state.timer.timeLeft,
@@ -1084,18 +1286,42 @@
 
             // Timer controls with null checks
             const pauseBtn = document.getElementById('pauseBtn');
-            const resumeBtn = document.getElementById('resumeBtn');
             const resetBtn = document.getElementById('resetBtn');
+            const confirmPauseBtn = document.getElementById('confirmPauseBtn');
+            const cancelPauseBtn = document.getElementById('cancelPauseBtn');
+            const completeBreakBtn = document.getElementById('completeBreakBtn');
             
             if (pauseBtn) pauseBtn.addEventListener('click', pauseTimer);
-            if (resumeBtn) resumeBtn.addEventListener('click', resumeTimer);
             if (resetBtn) resetBtn.addEventListener('click', resetTimer);
+            if (confirmPauseBtn) confirmPauseBtn.addEventListener('click', confirmPause);
+            if (cancelPauseBtn) cancelPauseBtn.addEventListener('click', cancelPause);
+            if (completeBreakBtn) completeBreakBtn.addEventListener('click', completeBreak);
 
             // Meeting
             document.getElementById('meetingBtn').addEventListener('click', toggleMeeting);
 
             // Tasks
             document.getElementById('addTaskBtn').addEventListener('click', addTask);
+            
+            // Clear placeholder on paste
+            const taskInput = document.getElementById('taskInput');
+            if (taskInput) {
+                taskInput.addEventListener('paste', (e) => {
+                    // Clear placeholder attribute so it doesn't show through pasted text
+                    setTimeout(() => {
+                        if (taskInput.value.trim().length > 0) {
+                            taskInput.placeholder = '';
+                        }
+                    }, 10);
+                });
+                
+                // Restore placeholder when cleared
+                taskInput.addEventListener('input', (e) => {
+                    if (taskInput.value.trim().length === 0) {
+                        taskInput.placeholder = 'What needs doing?';
+                    }
+                });
+            }
             
             // Subject dropdown (student mode)
             const subjectSelect = document.getElementById('subjectSelect');
@@ -1129,6 +1355,12 @@
                 if (window.handleFirebaseLogout) {
                     window.handleFirebaseLogout();
                 }
+            });
+            
+            // Export Data Backup
+            document.getElementById('exportDataBtn').addEventListener('click', () => {
+                const backup = exportUserData();
+                alert('✅ Backup downloaded! Save this file in a safe place.');
             });
 
             // End of Day
@@ -1201,6 +1433,23 @@
                 energySelect.parentElement.style.display = 'none';
             }
             
+            // Show/hide appropriate buttons based on timer type
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const completeBreakBtn = document.getElementById('completeBreakBtn');
+            
+            if (timerType === 'focus') {
+                // Focus timer: show PAUSE and RESET
+                if (pauseBtn) pauseBtn.classList.remove('hidden');
+                if (resetBtn) resetBtn.classList.remove('hidden');
+                if (completeBreakBtn) completeBreakBtn.classList.add('hidden');
+            } else {
+                // Break timer: hide PAUSE and RESET, show COMPLETE BREAK
+                if (pauseBtn) pauseBtn.classList.add('hidden');
+                if (resetBtn) resetBtn.classList.add('hidden');
+                if (completeBreakBtn) completeBreakBtn.classList.remove('hidden');
+            }
+            
             // Update system state
             const stateEl = document.getElementById('systemState');
             if (timerType === 'focus') {
@@ -1210,7 +1459,7 @@
                 // Trigger AI feedback immediately on sprint start
                 generateAgentFeedback();
             } else {
-                stateEl.textContent = 'Break active.';
+                stateEl.textContent = 'Break active. Recharge and return.';
                 document.getElementById('timerTitle').textContent = '☕ BREAK TIME';
             }
 
@@ -1252,13 +1501,57 @@
         }
 
         function pauseTimer() {
+            // Show confirmation instead of pausing immediately
+            const pauseConfirm = document.getElementById('pauseConfirm');
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (pauseConfirm && pauseBtn) {
+                pauseConfirm.classList.remove('hidden');
+                pauseBtn.disabled = true;
+                pauseBtn.style.opacity = '0.5';
+            }
+        }
+        
+        function confirmPause() {
+            // Actually pause after confirmation
             state.timer.isRunning = false;
             clearInterval(state.timer.interval);
-            document.getElementById('pauseBtn').classList.add('hidden');
-            document.getElementById('resumeBtn').classList.remove('hidden');
+            
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const pauseConfirm = document.getElementById('pauseConfirm');
+            
+            if (pauseBtn) {
+                pauseBtn.textContent = '▶ RESUME';
+                pauseBtn.disabled = false;
+                pauseBtn.style.opacity = '1';
+                pauseBtn.style.background = 'var(--success)';
+                // Change click handler to resume
+                pauseBtn.onclick = resumeTimer;
+            }
+            
+            if (pauseConfirm) {
+                pauseConfirm.classList.add('hidden');
+            }
             
             // Update system state
-            document.getElementById('systemState').textContent = 'Sprint paused.';
+            document.getElementById('systemState').textContent = 'Sprint paused. Resume to continue.';
+            saveState();
+        }
+        
+        function cancelPause() {
+            // User chose to keep going - hide confirmation
+            const pauseConfirm = document.getElementById('pauseConfirm');
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (pauseConfirm) {
+                pauseConfirm.classList.add('hidden');
+            }
+            
+            if (pauseBtn) {
+                pauseBtn.disabled = false;
+                pauseBtn.style.opacity = '1';
+            }
         }
 
         function resumeTimer() {
@@ -1269,8 +1562,14 @@
             
             state.timer.isRunning = true;
             state.timer.interval = setInterval(updateTimer, 1000);
-            document.getElementById('pauseBtn').classList.remove('hidden');
-            document.getElementById('resumeBtn').classList.add('hidden');
+            
+            const pauseBtn = document.getElementById('pauseBtn');
+            if (pauseBtn) {
+                pauseBtn.textContent = '⏸ PAUSE';
+                pauseBtn.style.background = 'var(--warning)';
+                // Change click handler back to pause
+                pauseBtn.onclick = pauseTimer;
+            }
             
             // Update system state
             const timerType = state.timer.timerType;
@@ -1327,6 +1626,18 @@
             saveState();
             renderAll();
             updateAgentMessage();
+        }
+        
+        function completeBreak() {
+            // End break early but count it as full break
+            if (state.timer.timerType === 'break') {
+                clearInterval(state.timer.interval);
+                state.breaksCount++;
+                resetTimer();
+                saveState();
+                renderAll();
+                updateAgentMessage();
+            }
         }
 
         // ============================================
@@ -1594,10 +1905,17 @@
             e.dataTransfer.dropEffect = 'move';
             const list = e.currentTarget;
             list.classList.add('drag-over');
+            // Enhanced visual feedback
+            list.style.background = 'rgba(37, 99, 235, 0.1)';
+            list.style.borderColor = 'var(--accent-blue)';
         }
         
         function handleDragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
+            const list = e.currentTarget;
+            list.classList.remove('drag-over');
+            // Remove visual feedback
+            list.style.background = '';
+            list.style.borderColor = '';
         }
         
         function handleDrop(e) {
