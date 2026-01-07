@@ -106,7 +106,6 @@
                 
                 <div class="header-controls">
                     <a href="overview.html" class="btn-home">📊 Dashboard</a>
-                    <button id="exportDataBtn" class="btn-home" title="Export backup of all your data">💾 Backup</button>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
                     <button id="logoutBtn" class="btn-home" style="color: var(--text-secondary);">Logout</button>
                     <button id="endDayBtn" class="btn-end-day" data-label="endDay">END DAY</button>
@@ -143,6 +142,9 @@
                             System idle. Start a sprint to begin.
                         </div>
                         
+                        <!-- Current Task Display -->
+                        <div id="currentTaskDisplay" class="hidden" style="text-align: center; padding: 0.75rem; background: rgba(74, 144, 226, 0.1); border: 1px solid var(--accent-blue); border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+                        
                         <div id="timerSetup" class="timer-setup">
                             <div class="duration-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;">
                                 <button class="duration-btn" data-duration="15" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">15 min</button>
@@ -166,7 +168,7 @@
                             </div>
                             
                             <div class="timer-controls">
-                                <button id="pauseBtn" class="btn" style="background: var(--warning); color: var(--bg-primary); font-weight: 600; flex: 1;">⏸ PAUSE</button>
+                                <button id="pauseBtn" class="btn" style="background: var(--warning); color: #1a1a1a; font-weight: 600; flex: 1;">⏸ PAUSE</button>
                                 <button id="resetBtn" class="btn btn-danger" style="flex: 1;">🔄 RESET</button>
                                 <button id="completeBreakBtn" class="btn btn-success hidden" style="flex: 1;">✓ End Break</button>
                             </div>
@@ -317,6 +319,12 @@
                             <div class="progress-label">Distractions</div>
                             <div class="progress-value" id="distractionProgress">0</div>
                         </div>
+                    </div>
+                    
+                    <!-- Today's Wins Detail -->
+                    <div id="winsDetail" class="wins-detail" style="margin-top: 1rem; padding: 1rem; background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 6px; max-height: 200px; overflow-y: auto; display: none;">
+                        <div style="font-weight: 600; color: var(--success); margin-bottom: 0.5rem; font-size: 0.875rem;">🏆 Today's Wins:</div>
+                        <div id="winsDetailList" style="font-size: 0.8rem; color: var(--text-secondary);"></div>
                     </div>
                 </div>
 
@@ -735,7 +743,9 @@
                 wins: []
             },
             distractions: [],
-            intentions: []
+            intentions: [],
+            taskHistory: [],  // NEW: Detailed task completion history
+            currentSprintTask: null  // NEW: Track which task user is working on
         };
 
         const TASK_WEIGHTS = {
@@ -777,6 +787,9 @@
             
             // Check for daily first-run prompt
             checkDailyFirstRun();
+            
+            // Update current task display
+            updateCurrentTaskDisplay();
         }
         
         function removeExtraButtons() {
@@ -842,6 +855,57 @@
                 strategic: [],
                 wins: []
             };
+        }
+        
+        // ============================================
+        // AUTOMATIC BACKUP SYSTEM (Silent, Professional)
+        // ============================================
+        
+        function autoBackup() {
+            // Automatic rolling backup - keeps last 7 days
+            // Runs silently on every save, user never sees it
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Create snapshot
+                const snapshot = {
+                    date: today,
+                    timestamp: Date.now(),
+                    tasks: localStorage.getItem('focushub_tasks'),
+                    stats: localStorage.getItem('focushub_daily_stats'),
+                    distractions: localStorage.getItem('focushub_distractions'),
+                    intentions: localStorage.getItem('focushub_intentions'),
+                    taskHistory: JSON.stringify(state.taskHistory || [])
+                };
+                
+                // Get existing backups
+                let backups = {};
+                try {
+                    const stored = localStorage.getItem('focushub_auto_backups');
+                    if (stored) backups = JSON.parse(stored);
+                } catch (e) {
+                    backups = {};
+                }
+                
+                // Add today's backup
+                backups[today] = snapshot;
+                
+                // Keep only last 7 days
+                const dates = Object.keys(backups).sort();
+                if (dates.length > 7) {
+                    const toDelete = dates.slice(0, dates.length - 7);
+                    toDelete.forEach(date => delete backups[date]);
+                }
+                
+                // Save silently
+                localStorage.setItem('focushub_auto_backups', JSON.stringify(backups));
+                
+                // Log for debugging (user won't see this)
+                console.log(`✅ Auto-backup: ${Object.keys(backups).length} days stored`);
+            } catch (error) {
+                // Fail silently - never interrupt user experience
+                console.error('Auto-backup error (non-critical):', error);
+            }
         }
         
         function exportUserData() {
@@ -1174,6 +1238,9 @@
             // Save data version
             localStorage.setItem('focushub_data_version', DATA_VERSION);
             
+            // AUTOMATIC ROLLING BACKUP: Keep last 7 days silently
+            autoBackup();
+            
             // Save timer state (local only)
             const timerState = {
                 timeLeft: state.timer.timeLeft,
@@ -1360,12 +1427,6 @@
                 }
             });
             
-            // Export Data Backup
-            document.getElementById('exportDataBtn').addEventListener('click', () => {
-                const backup = exportUserData();
-                alert('✅ Backup downloaded! Save this file in a safe place.');
-            });
-
             // End of Day
             document.getElementById('endDayBtn').addEventListener('click', showEndOfDayModal);
             document.querySelectorAll('.grade-btn').forEach(btn => {
@@ -1579,6 +1640,7 @@
             if (pauseBtn) {
                 pauseBtn.textContent = '⏸ PAUSE';
                 pauseBtn.style.background = 'var(--warning)';
+                pauseBtn.style.color = '#1a1a1a';
                 // Change click handler back to pause
                 pauseBtn.onclick = pauseTimer;
             }
@@ -1615,6 +1677,11 @@
             if (state.timer.timerType === 'focus') {
                 state.sprintCount++;
                 
+                // Track sprint completion for current task
+                if (state.currentSprintTask) {
+                    trackSprintForTask(state.currentSprintTask);
+                }
+                
                 // Show industrial completion celebration
                 showCompletionCelebration();
                 
@@ -1649,6 +1716,98 @@
                 saveState();
                 renderAll();
                 updateAgentMessage();
+            }
+        }
+        
+        // ============================================
+        // TASK SPRINT TRACKING
+        // ============================================
+        
+        function trackSprintForTask(taskId) {
+            // Find task across all buckets
+            let task = null;
+            let bucket = null;
+            
+            for (const b of ['urgent', 'deepwork', 'strategic', 'holding']) {
+                const found = state.tasks[b].find(t => t.id === taskId);
+                if (found) {
+                    task = found;
+                    bucket = b;
+                    break;
+                }
+            }
+            
+            if (!task) return;
+            
+            // Initialize tracking fields if needed
+            if (!task.actualSprints) task.actualSprints = 0;
+            if (!task.sprintSessions) task.sprintSessions = [];
+            if (!task.startedAt) task.startedAt = new Date().toISOString();
+            if (!task.estimatedSprints) task.estimatedSprints = task.sprints || 0;
+            
+            // Increment actual sprints
+            task.actualSprints++;
+            
+            // Record this sprint session
+            task.sprintSessions.push({
+                completedAt: new Date().toISOString(),
+                sprintNumber: state.sprintCount,
+                duration: state.timer.duration / 60  // minutes
+            });
+            
+            // Save state
+            saveState();
+            
+            // Update UI to reflect progress
+            renderTasks();
+        }
+        
+        function setCurrentTask(taskId) {
+            state.currentSprintTask = taskId;
+            saveState();
+            updateCurrentTaskDisplay();
+        }
+        
+        function clearCurrentTask() {
+            state.currentSprintTask = null;
+            saveState();
+            updateCurrentTaskDisplay();
+        }
+        
+        function updateCurrentTaskDisplay() {
+            const display = document.getElementById('currentTaskDisplay');
+            if (!display) return;
+            
+            if (state.currentSprintTask) {
+                // Find the task
+                let task = null;
+                for (const b of ['urgent', 'deepwork', 'strategic', 'holding']) {
+                    const found = state.tasks[b].find(t => t.id === state.currentSprintTask);
+                    if (found) {
+                        task = found;
+                        break;
+                    }
+                }
+                
+                if (task) {
+                    const actual = task.actualSprints || 0;
+                    const estimated = task.estimatedSprints || task.sprints || 0;
+                    const progress = estimated > 0 ? `${actual}/${estimated}` : `${actual}`;
+                    
+                    display.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: var(--accent-blue);">🎯 Working on:</span>
+                            <strong>${task.text}</strong>
+                            <span style="color: var(--text-secondary);">(${progress} sprints)</span>
+                            <button onclick="clearCurrentTask()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Clear</button>
+                        </div>
+                    `;
+                    display.classList.remove('hidden');
+                } else {
+                    display.classList.add('hidden');
+                }
+            } else {
+                display.classList.add('hidden');
             }
         }
 
@@ -1727,7 +1886,12 @@
                     // Student mode fields (Phase 3)
                     subject: subject,
                     customSubject: customSubject,
-                    deadline: null
+                    deadline: null,
+                    // NEW: Sprint tracking
+                    actualSprints: 0,  // Sprints actually spent on this task
+                    estimatedSprints: 0,  // Will be set when moved to bucket
+                    startedAt: null,  // When user started working on it
+                    sprintSessions: []  // Track each sprint session
                 };
                 
                 state.tasks.holding.push(newTask);
@@ -1868,6 +2032,27 @@
             textSpan.textContent = task.text;
             div.appendChild(textSpan);
             
+            // Sprint progress indicator (if task is being worked on)
+            if (bucket !== 'holding' && bucket !== 'wins' && task.actualSprints > 0) {
+                const progressBadge = document.createElement('span');
+                const actual = task.actualSprints;
+                const estimated = task.estimatedSprints || task.sprints || 0;
+                const isOnTrack = actual <= estimated;
+                progressBadge.textContent = estimated > 0 ? `${actual}/${estimated}` : `${actual}`;
+                progressBadge.style.cssText = `
+                    display: inline-block;
+                    margin-left: 0.5rem;
+                    padding: 0.125rem 0.5rem;
+                    background: ${isOnTrack ? 'var(--success)' : 'var(--warning)'};
+                    color: white;
+                    border-radius: 12px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                `;
+                progressBadge.title = isOnTrack ? 'On track!' : 'Over estimate';
+                div.appendChild(progressBadge);
+            }
+            
             // Subject badge (if subject exists)
             if (task.subject) {
                 const subjectBadge = document.createElement('span');
@@ -1875,6 +2060,33 @@
                 subjectBadge.textContent = task.subject;
                 subjectBadge.style.cssText = 'display: inline-block; margin-left: 0.5rem; padding: 0.125rem 0.5rem; background: var(--primary-color); color: white; border-radius: 12px; font-size: 0.75rem; font-weight: 600;';
                 div.appendChild(subjectBadge);
+            }
+            
+            // "Work on this" button (only in active buckets)
+            if (bucket !== 'holding' && bucket !== 'wins') {
+                const workBtn = document.createElement('button');
+                const isCurrentTask = state.currentSprintTask === task.id;
+                workBtn.textContent = isCurrentTask ? '✓' : '▶';
+                workBtn.title = isCurrentTask ? 'Currently working on this' : 'Work on this task';
+                workBtn.style.cssText = `
+                    padding: 0.25rem 0.5rem;
+                    margin-left: 0.5rem;
+                    font-size: 0.8rem;
+                    background: ${isCurrentTask ? 'var(--success)' : 'var(--accent-blue)'};
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                `;
+                workBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isCurrentTask) {
+                        clearCurrentTask();
+                    } else {
+                        setCurrentTask(task.id);
+                    }
+                });
+                div.appendChild(workBtn);
             }
             
             // Delete button
@@ -1999,6 +2211,10 @@
                 if (task.sprints === 0 || task.sprints === undefined) {
                     task.sprints = TASK_WEIGHTS[toBucket] || 0;
                 }
+                // Set estimated sprints if not already set
+                if (!task.estimatedSprints) {
+                    task.estimatedSprints = task.sprints;
+                }
             }
             
             state.tasks[toBucket].push(task);
@@ -2006,6 +2222,7 @@
             saveState();
             renderTasks();
             updateSprintTarget();
+            updateCurrentTaskDisplay();  // Update in case current task was moved
         }
         
         // Adjust sprint count for individual task
@@ -2014,6 +2231,8 @@
             if (!task) return;
             
             task.sprints = Math.max(0, (task.sprints || 0) + delta);
+            // Update estimate when user manually adjusts
+            task.estimatedSprints = task.sprints;
             
             saveState();
             renderTasks();
@@ -2031,12 +2250,59 @@
             task.completed = true;
             task.bucket = 'wins';
             task.completedAt = new Date().toISOString();
+            
+            // Calculate efficiency metrics
+            const estimatedSprints = task.estimatedSprints || task.sprints || 0;
+            const actualSprints = task.actualSprints || 0;
+            const efficiency = estimatedSprints > 0 ? (estimatedSprints / Math.max(actualSprints, 1)) : 1;
+            const variance = actualSprints - estimatedSprints;
+            
+            // Create detailed completion record
+            const completionRecord = {
+                id: task.id,
+                text: task.text,
+                bucket: bucket,
+                subject: task.subject,
+                completedAt: task.completedAt,
+                createdAt: task.createdAt,
+                estimatedSprints: estimatedSprints,
+                actualSprints: actualSprints,
+                efficiency: efficiency,  // > 1 = faster than expected, < 1 = slower
+                variance: variance,  // negative = beat estimate, positive = over estimate
+                sprintSessions: task.sprintSessions || [],
+                duration: task.startedAt ? 
+                    Math.floor((new Date(task.completedAt) - new Date(task.startedAt)) / 1000 / 60) : 
+                    null  // minutes
+            };
+            
+            // Add to history
+            state.taskHistory.push(completionRecord);
+            
+            // Keep only wins from today in tasks.wins for UI
+            task.completionRecord = completionRecord;  // Store reference
             state.tasks.wins.push(task);
             
             state.tasksCompleted++;
+            
+            // Track with analytics
+            if (window.FocusHubAnalytics) {
+                FocusHubAnalytics.trackFeature('task_completed', {
+                    bucket: bucket,
+                    estimatedSprints: estimatedSprints,
+                    actualSprints: actualSprints,
+                    efficiency: efficiency.toFixed(2),
+                    beatEstimate: variance < 0
+                });
+            }
+            
             saveState();
             renderTasks();
             updateAgentMessage();
+            
+            // Show brief completion message if task beat estimate
+            if (variance < 0) {
+                console.log(`🎉 Completed "${task.text}" in ${actualSprints} sprints (estimated ${estimatedSprints})!`);
+            }
         }
         
         // Delete task
@@ -2663,12 +2929,44 @@
             const messages = aiMessages[level];
             
             let message = messages.welcome || "Start your first sprint to get feedback.";
+            
+            // Calculate wins efficiency
+            const completedTasks = state.tasks.wins || [];
+            const tasksWithData = completedTasks.filter(t => t.actualSprints > 0 && t.estimatedSprints > 0);
+            let avgEfficiency = 1;
+            if (tasksWithData.length > 0) {
+                avgEfficiency = tasksWithData.reduce((sum, t) => {
+                    return sum + (t.estimatedSprints / t.actualSprints);
+                }, 0) / tasksWithData.length;
+            }
+            const beatEstimateCount = tasksWithData.filter(t => t.actualSprints <= t.estimatedSprints).length;
 
             // Determine which message to show based on state
             if (state.sprintCount > 0) {
-                if (state.sprintCount >= state.plannedSprints) {
+                // Reference wins in messages
+                if (state.tasksCompleted > 0 && avgEfficiency >= 1.2) {
+                    // Crushing estimates
+                    if (level === 'tough') {
+                        message = `${state.tasksCompleted} wins, beating estimates. This is what execution looks like. Keep going.`;
+                    } else if (level === 'balanced') {
+                        message = `${state.tasksCompleted} tasks done, ${beatEstimateCount} ahead of schedule. Strong work.`;
+                    } else {
+                        message = `Great progress! ${state.tasksCompleted} completed, and you're finishing faster than expected.`;
+                    }
+                } else if (state.sprintCount >= state.plannedSprints) {
                     // Met or exceeded target
-                    message = messages.sprintComplete || message;
+                    if (state.tasksCompleted > 0) {
+                        message = messages.sprintComplete?.replace('sprint target', `${state.tasksCompleted} wins`) || message;
+                    } else {
+                        message = messages.sprintComplete || message;
+                    }
+                } else if (state.tasksCompleted > 3 && state.sprintCount < state.plannedSprints * 0.7) {
+                    // Solid wins but behind sprint target
+                    if (level === 'tough') {
+                        message = `${state.tasksCompleted} wins is good, but you're ${state.plannedSprints - state.sprintCount} sprints behind target. Close the gap.`;
+                    } else {
+                        message = `${state.tasksCompleted} tasks completed. Keep pushing to hit your sprint target.`;
+                    }
                 } else if (state.distractionCount > 5) {
                     // Too many distractions
                     message = messages.distraction || message;
@@ -2677,7 +2975,11 @@
                     message = messages.behindPace || message;
                 } else {
                     // Making progress
-                    message = messages.sprintComplete || message;
+                    if (state.tasksCompleted > 0) {
+                        message = `${state.tasksCompleted} wins so far. ${messages.sprintComplete || 'Keep executing.'}`;
+                    } else {
+                        message = messages.sprintComplete || message;
+                    }
                 }
             }
 
@@ -2829,6 +3131,23 @@
             document.getElementById('taskProgress').textContent = state.tasksCompleted;
             document.getElementById('breaksProgress').textContent = state.breaksCount;
             document.getElementById('distractionProgress').textContent = state.distractionCount;
+            
+            // Update wins detail list
+            const winsDetail = document.getElementById('winsDetail');
+            const winsDetailList = document.getElementById('winsDetailList');
+            if (state.tasks.wins.length > 0) {
+                winsDetail.style.display = 'block';
+                winsDetailList.innerHTML = state.tasks.wins.map(task => {
+                    const actual = task.actualSprints || 0;
+                    const estimated = task.estimatedSprints || task.sprints || 0;
+                    const sprintText = actual > 0 ? ` (${actual}${estimated > 0 ? '/' + estimated : ''} sprints)` : '';
+                    const efficiency = estimated > 0 && actual > 0 ? (estimated / actual) : 1;
+                    const icon = efficiency >= 1 ? '✨' : '✓';
+                    return `<div style="padding: 0.25rem 0; border-bottom: 1px solid rgba(34, 197, 94, 0.1);">${icon} ${task.text}${sprintText}</div>`;
+                }).join('');
+            } else {
+                winsDetail.style.display = 'none';
+            }
             
             // Sync energy dropdown state
             const energySelect = document.getElementById('energySelect');
