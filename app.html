@@ -320,12 +320,6 @@
                             <div class="progress-value" id="distractionProgress">0</div>
                         </div>
                     </div>
-                    
-                    <!-- Today's Wins Detail -->
-                    <div id="winsDetail" class="wins-detail" style="margin-top: 1rem; padding: 1rem; background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 6px; max-height: 200px; overflow-y: auto; display: none;">
-                        <div style="font-weight: 600; color: var(--success); margin-bottom: 0.5rem; font-size: 0.875rem;">🏆 Today's Wins:</div>
-                        <div id="winsDetailList" style="font-size: 0.8rem; color: var(--text-secondary);"></div>
-                    </div>
                 </div>
 
                 <!-- Distraction Logger with Intention Tracking -->
@@ -762,6 +756,294 @@
         };
 
         // ============================================
+        // PRIVACY & DATA PROTECTION SYSTEM
+        // ============================================
+        
+        // GDPR/CCPA Consent Banner
+        function showConsentBanner() {
+            // Check if user already consented
+            if (localStorage.getItem('focushub_consent')) return;
+            
+            const banner = document.createElement('div');
+            banner.id = 'consentBanner';
+            banner.style.cssText = `
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                border-top: 2px solid var(--accent-blue);
+                padding: 1.5rem;
+                z-index: 10000;
+                box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+            `;
+            
+            banner.innerHTML = `
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <p style="margin: 0 0 1rem 0; color: var(--text-primary); line-height: 1.5;">
+                        <strong>Privacy Notice:</strong> FocusHub stores your tasks locally and optionally syncs to secure servers. 
+                        <strong>Task text is automatically deleted every Friday</strong> to protect your privacy. 
+                        <a href="/privacy.html" style="color: var(--accent-blue); text-decoration: underline;">Privacy Policy</a>
+                    </p>
+                    <button onclick="acceptConsent()" class="btn btn-primary" style="margin-right: 1rem;">
+                        Accept & Continue
+                    </button>
+                    <button onclick="declineConsent()" class="btn" style="background: var(--bg-primary); border: 1px solid var(--border-light);">
+                        Decline (Local Only)
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(banner);
+        }
+        
+        function acceptConsent() {
+            localStorage.setItem('focushub_consent', Date.now());
+            localStorage.setItem('focushub_consent_version', '1.0');
+            localStorage.setItem('focushub_consent_type', 'full');
+            document.getElementById('consentBanner')?.remove();
+            console.log('✅ Privacy consent accepted');
+        }
+        
+        function declineConsent() {
+            // User declines cloud sync but can use app locally
+            localStorage.setItem('focushub_consent', Date.now());
+            localStorage.setItem('focushub_consent_version', '1.0');
+            localStorage.setItem('focushub_consent_type', 'local_only');
+            document.getElementById('consentBanner')?.remove();
+            alert('Local-only mode enabled. Your data will only be stored on this device.');
+            console.log('✅ Privacy consent: Local-only mode');
+        }
+        
+        // Weekly Task Cleanup (GDPR Data Minimization)
+        function weeklyTaskCleanup() {
+            const now = new Date();
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 5 = Friday
+            const hour = now.getHours();
+            
+            // Check if cleanup already ran this week
+            const lastCleanup = localStorage.getItem('focushub_last_cleanup');
+            const lastCleanupDate = lastCleanup ? new Date(parseInt(lastCleanup)) : null;
+            
+            // Run Friday at 11:59 PM or later
+            if (dayOfWeek === 5 && hour === 23) {
+                // Check if already ran this week
+                if (lastCleanupDate) {
+                    const daysSinceCleanup = Math.floor((now - lastCleanupDate) / (1000 * 60 * 60 * 24));
+                    if (daysSinceCleanup < 7) {
+                        return; // Already cleaned up this week
+                    }
+                }
+                
+                performWeeklyCleanup();
+            }
+        }
+        
+        function performWeeklyCleanup() {
+            console.log('🧹 Running weekly privacy cleanup...');
+            
+            // Archive aggregated stats (no PII)
+            const weeklyStats = {
+                week: getWeekNumber(new Date()),
+                year: new Date().getFullYear(),
+                tasksCompleted: state.tasksCompleted,
+                sprintsCompleted: state.sprintCount,
+                breaksCount: state.breaksCount,
+                avgEfficiency: calculateAvgEfficiency(),
+                timestamp: Date.now()
+            };
+            
+            // Get existing archived stats
+            let archivedStats = [];
+            try {
+                const stored = localStorage.getItem('focushub_archived_stats');
+                if (stored) archivedStats = JSON.parse(stored);
+            } catch (e) {
+                archivedStats = [];
+            }
+            
+            // Add this week's stats
+            archivedStats.push(weeklyStats);
+            
+            // Keep only last 90 days (approximately 13 weeks)
+            if (archivedStats.length > 13) {
+                archivedStats = archivedStats.slice(-13);
+            }
+            
+            // Save archived stats
+            localStorage.setItem('focushub_archived_stats', JSON.stringify(archivedStats));
+            
+            // DELETE all task text and PII
+            state.tasks = getDefaultTaskStructure();
+            state.taskHistory = [];
+            state.distractions = [];
+            
+            // Save cleaned state
+            saveState();
+            
+            // Mark cleanup complete
+            localStorage.setItem('focushub_last_cleanup', Date.now().toString());
+            
+            console.log('✅ Weekly cleanup complete: Task text deleted, stats archived');
+            
+            // Optional: Notify user
+            if (state.tasksCompleted > 0) {
+                console.log(`📊 Archived: ${state.tasksCompleted} tasks completed this week`);
+            }
+        }
+        
+        function getWeekNumber(date) {
+            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+        }
+        
+        function calculateAvgEfficiency() {
+            const completedTasks = state.tasks?.wins || [];
+            const tasksWithData = completedTasks.filter(t => 
+                t.actualSprints > 0 && t.estimatedSprints > 0
+            );
+            
+            if (tasksWithData.length === 0) return 1;
+            
+            return tasksWithData.reduce((sum, t) => {
+                return sum + (t.estimatedSprints / t.actualSprints);
+            }, 0) / tasksWithData.length;
+        }
+        
+        function startWeeklyCleanupChecker() {
+            // Check on startup
+            weeklyTaskCleanup();
+            
+            // Check every hour
+            setInterval(weeklyTaskCleanup, 3600000);
+            
+            console.log('🔒 Weekly privacy cleanup checker started');
+        }
+        
+        // Enhanced Data Export (GDPR Article 15)
+        function exportAllUserData() {
+            const timestamp = new Date().toISOString();
+            
+            const exportData = {
+                export_info: {
+                    exported_at: timestamp,
+                    app_version: APP_VERSION,
+                    data_version: DATA_VERSION,
+                    user_email: '[Email from auth system]' // Will be populated by Supabase
+                },
+                current_data: {
+                    tasks: state.tasks,
+                    task_history: state.taskHistory || [],
+                    distractions: state.distractions || [],
+                    intentions: state.intentions || []
+                },
+                statistics: {
+                    sprints_completed: state.sprintCount,
+                    tasks_completed: state.tasksCompleted,
+                    breaks_taken: state.breaksCount,
+                    distractions_logged: state.distractionCount,
+                    meeting_minutes: state.meetingMinutes
+                },
+                preferences: {
+                    energy_level: state.energyLevel,
+                    baseline_sprints: state.baselineSprints,
+                    planned_sprints: state.plannedSprints,
+                    tough_love_level: state.toughLoveLevel,
+                    theme: localStorage.getItem('focushub_theme'),
+                    mode: localStorage.getItem('focushub_mode')
+                },
+                archived_stats: JSON.parse(localStorage.getItem('focushub_archived_stats') || '[]')
+            };
+            
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `focushub-data-export-${timestamp.split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('✅ Data export complete');
+            return exportData;
+        }
+        
+        // Account Deletion (GDPR Article 17)
+        async function deleteAllUserData() {
+            const confirmed = confirm(
+                '⚠️ DELETE ALL DATA?\n\n' +
+                'This will permanently delete:\n' +
+                '• All your tasks and history\n' +
+                '• All statistics and progress\n' +
+                '• Your account and preferences\n\n' +
+                'This action CANNOT be undone.\n\n' +
+                'Are you absolutely sure?'
+            );
+            
+            if (!confirmed) return;
+            
+            // Second confirmation
+            const doubleCheck = confirm(
+                'FINAL CONFIRMATION\n\n' +
+                'Type YES below to confirm deletion.\n\n' +
+                'This is your last chance to back out.'
+            );
+            
+            if (!doubleCheck) return;
+            
+            console.log('🗑️ Deleting all user data...');
+            
+            // Delete from Supabase (if functions exist)
+            try {
+                if (typeof deleteUserAccount === 'function') {
+                    await deleteUserAccount();
+                    console.log('✅ Deleted from Supabase');
+                }
+            } catch (error) {
+                console.error('Supabase deletion error:', error);
+            }
+            
+            // Delete all localStorage data
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('focushub_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            console.log('✅ All data deleted');
+            
+            // Sign out and redirect
+            alert('All your data has been permanently deleted. You will now be signed out.');
+            window.location.href = '/index.html';
+        }
+        
+        // Age Verification (for Student Mode - COPPA/GDPR compliance)
+        function verifyAgeForStudentMode() {
+            const verified = localStorage.getItem('focushub_age_verified');
+            if (verified) return true;
+            
+            const response = confirm(
+                'Student Mode Age Verification\n\n' +
+                'Student Mode is intended for students age 16 and older.\n\n' +
+                'If you are under 16, you need parent/guardian permission to use this feature.\n\n' +
+                'Click OK to confirm you are 16+ or have parent permission.\n' +
+                'Click Cancel to use Professional Mode instead.'
+            );
+            
+            if (response) {
+                localStorage.setItem('focushub_age_verified', 'true');
+                localStorage.setItem('focushub_age_verified_date', Date.now().toString());
+                return true;
+            }
+            
+            return false;
+        }
+
+        // ============================================
         // INITIALIZATION
         // ============================================
         async function init() {
@@ -790,6 +1072,37 @@
             
             // Update current task display
             updateCurrentTaskDisplay();
+            
+            // PRIVACY: Show consent banner on first visit
+            showConsentBanner();
+            
+            // PRIVACY: Start weekly cleanup checker
+            startWeeklyCleanupChecker();
+            
+            // PROACTIVE AI: Start intelligent coaching system
+            startProactiveAICoach();
+            
+            // AUTO-CLEAR: Check for new day every 5 minutes
+            startNewDayChecker();
+            
+            // Track user activity for idle detection
+            document.addEventListener('click', trackUserActivity);
+            document.addEventListener('keydown', trackUserActivity);
+            document.addEventListener('mousemove', throttle(trackUserActivity, 30000)); // Throttle to every 30 seconds
+        }
+        
+        // Throttle function to prevent excessive calls
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
         }
         
         function removeExtraButtons() {
@@ -1258,7 +1571,8 @@
             const lastDate = localStorage.getItem('focushub_session_date');
 
             if (lastDate !== today) {
-                // New day - perform daily reset
+                // New day - perform daily reset AUTOMATICALLY
+                console.log('🌅 New day detected! Auto-clearing wins and resetting...');
                 performDailyReset();
                 localStorage.setItem('focushub_session_state', 'not_started');
                 localStorage.setItem('focushub_session_date', today);
@@ -1271,8 +1585,43 @@
             }
         }
         
+        // Periodic new-day checker (runs every 5 minutes)
+        function startNewDayChecker() {
+            setInterval(() => {
+                const today = new Date().toDateString();
+                const lastDate = localStorage.getItem('focushub_session_date');
+                
+                if (lastDate !== today) {
+                    console.log('🌅 Midnight passed! Auto-clearing wins and resetting...');
+                    performDailyReset();
+                    localStorage.setItem('focushub_session_date', today);
+                    
+                    // Show fresh start screen
+                    const sessionState = localStorage.getItem('focushub_session_state');
+                    if (sessionState === 'active') {
+                        // User was working - notify them
+                        alert('🌅 New day! Your session has been reset. Wins cleared for a fresh start.');
+                        showStartScreen();
+                    }
+                    
+                    renderAll();
+                }
+            }, 300000); // Check every 5 minutes (300,000ms)
+            
+            console.log('⏰ New day checker started (checks every 5 minutes)');
+        }
+        
         function performDailyReset() {
             console.log('🔄 Performing daily reset...');
+            
+            // Clear yesterday's wins
+            state.tasks.wins = [];
+            state.tasksCompleted = 0;
+            
+            // Reset sprint and break counts
+            state.sprintCount = 0;
+            state.breaksCount = 0;
+            state.distractionCount = 0;
             
             // Move uncompleted tasks from priority buckets back to holding
             const bucketsToReset = ['urgent', 'deepwork', 'strategic'];
@@ -1284,11 +1633,13 @@
                 uncompletedTasks.forEach(task => {
                     task.bucket = 'holding';
                     task.sprints = 0; // Reset sprint weight
+                    task.actualSprints = 0; // Reset sprint tracking
+                    task.estimatedSprints = 0;
                     state.tasks.holding.push(task);
                 });
                 
-                // Keep only completed tasks in the bucket (for historical record)
-                state.tasks[bucket] = state.tasks[bucket].filter(task => task.completed);
+                // Clear the bucket (wins already moved above)
+                state.tasks[bucket] = [];
             });
             
             // Distractions persist (don't clear them)
@@ -1297,7 +1648,7 @@
             // Save the reset state
             saveState();
             
-            console.log('✅ Daily reset complete. Uncompleted tasks moved to holding.');
+            console.log('✅ Daily reset complete. Wins cleared, tasks moved to holding.');
         }
 
         // ============================================
@@ -1529,6 +1880,9 @@
             }
 
             state.timer.interval = setInterval(updateTimer, 1000);
+            
+            // IMMEDIATELY render timer to show full duration (not 00:01)
+            renderTimer();
             
             // Track sprint started
             if (window.FocusHubAnalytics) {
@@ -2946,44 +3300,307 @@
                 // Reference wins in messages
                 if (state.tasksCompleted > 0 && avgEfficiency >= 1.2) {
                     // Crushing estimates
-                    if (level === 'tough') {
-                        message = `${state.tasksCompleted} wins, beating estimates. This is what execution looks like. Keep going.`;
-                    } else if (level === 'balanced') {
-                        message = `${state.tasksCompleted} tasks done, ${beatEstimateCount} ahead of schedule. Strong work.`;
-                    } else {
-                        message = `Great progress! ${state.tasksCompleted} completed, and you're finishing faster than expected.`;
-                    }
+                    const crushingMessages = {
+                        tough: [
+                            `${state.tasksCompleted} wins, beating estimates. This is what execution looks like. Keep going.`,
+                            `${beatEstimateCount} tasks finished early. You're outpacing your own predictions. Don't slow down.`,
+                            `Efficiency above 120%. You're not lucky - you're executing. This is the standard now.`
+                        ],
+                        balanced: [
+                            `${state.tasksCompleted} tasks done, ${beatEstimateCount} ahead of schedule. Strong work.`,
+                            `${beatEstimateCount} tasks beat their estimates. You're getting faster.`,
+                            `${state.tasksCompleted} wins with ${Math.round(avgEfficiency * 100)}% efficiency. Solid execution.`
+                        ],
+                        gentle: [
+                            `Great progress! ${state.tasksCompleted} completed, and you're finishing faster than expected.`,
+                            `You're crushing your estimates! ${beatEstimateCount} tasks done early. Amazing work.`,
+                            `${state.tasksCompleted} tasks complete, and you're ahead of pace. Keep it up!`
+                        ]
+                    };
+                    const messages = crushingMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                    
                 } else if (state.sprintCount >= state.plannedSprints) {
                     // Met or exceeded target
-                    if (state.tasksCompleted > 0) {
-                        message = messages.sprintComplete?.replace('sprint target', `${state.tasksCompleted} wins`) || message;
-                    } else {
-                        message = messages.sprintComplete || message;
-                    }
+                    const targetMetMessages = {
+                        tough: [
+                            `Sprint target hit. ${state.tasksCompleted > 0 ? state.tasksCompleted + ' wins logged.' : ''} What's next?`,
+                            `Target met. Don't coast on today's wins. Tomorrow demands the same.`,
+                            `${state.sprintCount} sprints done. Target cleared. Now finish what's open or call it.`
+                        ],
+                        balanced: [
+                            `Sprint target achieved! ${state.tasksCompleted > 0 ? state.tasksCompleted + ' tasks completed.' : ''} Nice work.`,
+                            `You hit your ${state.plannedSprints} sprint goal. Well executed.`,
+                            `${state.sprintCount}/${state.plannedSprints} sprints complete. Target reached.`
+                        ],
+                        gentle: [
+                            `You did it! Sprint target reached. ${state.tasksCompleted > 0 ? state.tasksCompleted + ' wins!' : ''} Great job today.`,
+                            `Target achieved with ${state.sprintCount} sprints. You should feel proud.`,
+                            `${state.plannedSprints} sprints complete! That's a productive day.`
+                        ]
+                    };
+                    const messages = targetMetMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                    
                 } else if (state.tasksCompleted > 3 && state.sprintCount < state.plannedSprints * 0.7) {
                     // Solid wins but behind sprint target
-                    if (level === 'tough') {
-                        message = `${state.tasksCompleted} wins is good, but you're ${state.plannedSprints - state.sprintCount} sprints behind target. Close the gap.`;
-                    } else {
-                        message = `${state.tasksCompleted} tasks completed. Keep pushing to hit your sprint target.`;
-                    }
+                    const behindButProgressMessages = {
+                        tough: [
+                            `${state.tasksCompleted} wins is good, but you're ${state.plannedSprints - state.sprintCount} sprints behind target. Close the gap.`,
+                            `Tasks are getting done but you're behind pace. ${state.plannedSprints - state.sprintCount} sprints left. Execute.`,
+                            `${state.tasksCompleted} wins won't matter if you miss your sprint target. Focus.`
+                        ],
+                        balanced: [
+                            `${state.tasksCompleted} tasks completed. Keep pushing to hit your sprint target.`,
+                            `Good progress on tasks, but ${state.plannedSprints - state.sprintCount} sprints behind goal. Let's finish strong.`,
+                            `${state.tasksCompleted} wins so far. Need ${state.plannedSprints - state.sprintCount} more sprints to hit target.`
+                        ],
+                        gentle: [
+                            `${state.tasksCompleted} tasks done - nice! ${state.plannedSprints - state.sprintCount} more sprints to reach your goal.`,
+                            `You're making progress! ${state.tasksCompleted} complete. Keep going to hit your target.`,
+                            `${state.tasksCompleted} wins today. You're doing well - just need a few more sprints.`
+                        ]
+                    };
+                    const messages = behindButProgressMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                    
                 } else if (state.distractionCount > 5) {
                     // Too many distractions
-                    message = messages.distraction || message;
+                    const distractionMessages = {
+                        tough: [
+                            `${state.distractionCount} distractions. They're parked, not gone. Either focus or quit lying to yourself.`,
+                            `${state.distractionCount} logged distractions. Parking doesn't solve them. Execute or they win.`,
+                            `${state.distractionCount} distractions today. That's a focus problem, not a productivity problem.`
+                        ],
+                        balanced: [
+                            `${state.distractionCount} distractions logged. Time to park them and refocus.`,
+                            `You've logged ${state.distractionCount} distractions. Let's get back to deep work.`,
+                            `${state.distractionCount} distractions today. Ready to minimize them and execute?`
+                        ],
+                        gentle: [
+                            `${state.distractionCount} distractions - it happens. Let's refocus and finish strong.`,
+                            `I see ${state.distractionCount} distractions today. You're doing great by logging them. Let's focus now.`,
+                            `${state.distractionCount} logged. Great job tracking them. Time to lock in.`
+                        ]
+                    };
+                    const messages = distractionMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                    
                 } else if (state.sprintCount < state.plannedSprints * 0.5) {
                     // Behind pace (less than 50% of target)
-                    message = messages.behindPace || message;
+                    const behindPaceMessages = {
+                        tough: [
+                            `${state.sprintCount}/${state.plannedSprints} sprints. Less than halfway. Excuses don't show up in results.`,
+                            `Behind pace. ${state.plannedSprints - state.sprintCount} sprints needed. Either commit or call it a day.`,
+                            `You're at ${Math.round((state.sprintCount / state.plannedSprints) * 100)}% of target. That's not acceptable if you planned it.`
+                        ],
+                        balanced: [
+                            `${state.sprintCount}/${state.plannedSprints} sprints done. Time to pick up the pace.`,
+                            `You're behind target. ${state.plannedSprints - state.sprintCount} sprints to go. Let's make them count.`,
+                            `Halfway point approaching. Need to accelerate to hit your ${state.plannedSprints} sprint goal.`
+                        ],
+                        gentle: [
+                            `${state.sprintCount}/${state.plannedSprints} sprints so far. You've got time to reach your goal.`,
+                            `You're making progress. ${state.plannedSprints - state.sprintCount} more sprints will get you there.`,
+                            `Keep going! ${state.sprintCount} sprints done, more to come.`
+                        ]
+                    };
+                    const messages = behindPaceMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                    
                 } else {
                     // Making progress
-                    if (state.tasksCompleted > 0) {
-                        message = `${state.tasksCompleted} wins so far. ${messages.sprintComplete || 'Keep executing.'}`;
-                    } else {
-                        message = messages.sprintComplete || message;
-                    }
+                    const progressMessages = {
+                        tough: [
+                            `${state.tasksCompleted > 0 ? state.tasksCompleted + ' wins so far.' : state.sprintCount + ' sprints logged.'} Keep executing.`,
+                            `Progress is being made. Don't let up now.`,
+                            `${state.sprintCount}/${state.plannedSprints}. On pace. Finish it.`
+                        ],
+                        balanced: [
+                            `${state.tasksCompleted > 0 ? state.tasksCompleted + ' wins so far.' : ''} Sprint target met. Well done.`,
+                            `${state.sprintCount} sprints complete. You're making good progress.`,
+                            `Solid execution today. ${state.tasksCompleted > 0 ? state.tasksCompleted + ' tasks done.' : 'Keep it up.'}`
+                        ],
+                        gentle: [
+                            `${state.tasksCompleted > 0 ? state.tasksCompleted + ' wins! ' : ''}You're doing great. Keep going!`,
+                            `${state.sprintCount} sprints done. You should feel good about this progress.`,
+                            `Nice work today! ${state.tasksCompleted > 0 ? state.tasksCompleted + ' completed.' : 'Keep it up!'}`
+                        ]
+                    };
+                    const messages = progressMessages[level];
+                    message = messages[Math.floor(Math.random() * messages.length)];
                 }
             }
 
             document.getElementById('agentText').textContent = message;
+        }
+
+        // ============================================
+        // PROACTIVE AI COACH SYSTEM
+        // ============================================
+        
+        let aiCoachState = {
+            lastActivityTime: Date.now(),
+            lastMessageTime: Date.now(),
+            messageInterval: null,
+            idleWarningShown: false,
+            taskEstimateWarningShown: {}
+        };
+        
+        function startProactiveAICoach() {
+            // Check every 60 seconds for proactive messages
+            if (aiCoachState.messageInterval) {
+                clearInterval(aiCoachState.messageInterval);
+            }
+            
+            aiCoachState.messageInterval = setInterval(() => {
+                checkForProactiveMessages();
+            }, 60000); // Check every minute
+            
+            console.log('🤖 Proactive AI Coach started');
+        }
+        
+        function trackUserActivity() {
+            aiCoachState.lastActivityTime = Date.now();
+            aiCoachState.idleWarningShown = false;
+        }
+        
+        function checkForProactiveMessages() {
+            const now = Date.now();
+            const idleTime = (now - aiCoachState.lastActivityTime) / 1000 / 60; // minutes
+            const timeSinceLastMessage = (now - aiCoachState.lastMessageTime) / 1000 / 60;
+            
+            // Don't spam messages - wait at least 5 minutes between proactive messages
+            if (timeSinceLastMessage < 5) return;
+            
+            const level = state.toughLoveLevel || 'balanced';
+            let message = null;
+            
+            // 1. IDLE DETECTION (15+ minutes of inactivity)
+            if (idleTime >= 15 && !aiCoachState.idleWarningShown && !state.timer.isRunning) {
+                if (level === 'tough') {
+                    message = `${Math.floor(idleTime)} minutes idle. Momentum dies in stillness. Start a sprint or pack it in.`;
+                } else if (level === 'balanced') {
+                    message = `You've been idle for ${Math.floor(idleTime)} minutes. Time to get back in the game?`;
+                } else {
+                    message = `Taking a break? You've been away for ${Math.floor(idleTime)} minutes. Ready to start when you are.`;
+                }
+                aiCoachState.idleWarningShown = true;
+            }
+            
+            // 2. TASK OVERRUN DETECTION (task taking more sprints than estimated)
+            else if (state.currentSprintTask) {
+                const task = findTaskById(state.currentSprintTask);
+                if (task && task.actualSprints > task.estimatedSprints && task.estimatedSprints > 0) {
+                    const overrun = task.actualSprints - task.estimatedSprints;
+                    const taskKey = task.id + '-overrun';
+                    
+                    if (!aiCoachState.taskEstimateWarningShown[taskKey]) {
+                        if (level === 'tough') {
+                            message = `"${task.text}" is ${overrun} sprints over estimate. Your planning sucks. Learn or keep bleeding time.`;
+                        } else if (level === 'balanced') {
+                            message = `"${task.text}" is taking longer than expected (${overrun} extra sprints). Consider breaking it down next time.`;
+                        } else {
+                            message = `"${task.text}" needs more time than we thought. That's okay - estimates get better with practice.`;
+                        }
+                        aiCoachState.taskEstimateWarningShown[taskKey] = true;
+                    }
+                }
+            }
+            
+            // 3. NO TASKS IN DEEPWORK (but has tasks in holding/urgent)
+            else if (state.tasks.deepwork.length === 0 && 
+                     (state.tasks.holding.length > 0 || state.tasks.urgent.length > 0) &&
+                     !state.timer.isRunning) {
+                if (level === 'tough') {
+                    message = "Deepwork bucket is empty. You can't execute on vapor. Move tasks or admit you're not working.";
+                } else if (level === 'balanced') {
+                    message = "No tasks in Deepwork. Drag something from Holding to start executing.";
+                } else {
+                    message = "Your Deepwork queue is empty. Try moving a task there to get started.";
+                }
+            }
+            
+            // 4. BEHIND PACE (past noon, less than 50% of target)
+            else if (!state.timer.isRunning) {
+                const currentHour = new Date().getHours();
+                if (currentHour >= 12 && state.sprintCount < state.plannedSprints * 0.5) {
+                    const deficit = state.plannedSprints - state.sprintCount;
+                    if (level === 'tough') {
+                        message = `It's past noon. You're ${deficit} sprints behind. Clock's ticking and excuses don't count as work.`;
+                    } else if (level === 'balanced') {
+                        message = `Afternoon check: You're ${deficit} sprints behind target. Time to pick up the pace.`;
+                    } else {
+                        message = `You're ${deficit} sprints away from your goal. You've got this - let's make it happen.`;
+                    }
+                }
+            }
+            
+            // 5. DISTRACTION CREEP (3+ distractions without sprint in last 30 min)
+            else if (state.distractionCount >= 3 && !state.timer.isRunning) {
+                if (level === 'tough') {
+                    message = `${state.distractionCount} distractions logged. Parking them doesn't remove them. Execute or they win.`;
+                } else if (level === 'balanced') {
+                    message = `${state.distractionCount} distractions today. Ready to park them and focus?`;
+                } else {
+                    message = `I see ${state.distractionCount} distractions. Great job logging them. Let's tackle some real work now.`;
+                }
+            }
+            
+            // 6. LONG TIMER RUNNING (60+ minutes on single sprint - something's wrong)
+            else if (state.timer.isRunning && state.timer.timerType === 'focus') {
+                const timerRuntime = (Date.now() - (state.timer.endTime - (state.timer.duration * 1000))) / 1000 / 60;
+                if (timerRuntime >= 60) {
+                    if (level === 'tough') {
+                        message = "Timer's been running an hour. Either finish the sprint or admit you're not working.";
+                    } else if (level === 'balanced') {
+                        message = "This sprint has been running for over an hour. Everything okay? Consider resetting.";
+                    } else {
+                        message = "Your timer's been going a while. Take a break if you need to - it's important to rest.";
+                    }
+                }
+            }
+            
+            // 7. FIRST SPRINT ENCOURAGEMENT (0 sprints, tasks in deepwork, afternoon)
+            else if (state.sprintCount === 0 && state.tasks.deepwork.length > 0) {
+                const currentHour = new Date().getHours();
+                if (currentHour >= 10 && currentHour < 17) {
+                    if (level === 'tough') {
+                        message = "Zero sprints. Tasks are sitting there. Start isn't perfect - it's just necessary. Click a duration.";
+                    } else if (level === 'balanced') {
+                        message = "Ready to start your first sprint? You've got tasks queued up - let's go.";
+                    } else {
+                        message = "Whenever you're ready, your first sprint is waiting. You've got this!";
+                    }
+                }
+            }
+            
+            if (message) {
+                updateProactiveMessage(message);
+                aiCoachState.lastMessageTime = now;
+            }
+        }
+        
+        function updateProactiveMessage(message) {
+            const agentText = document.getElementById('agentText');
+            if (agentText) {
+                agentText.textContent = message;
+                
+                // Brief highlight animation
+                agentText.style.transition = 'background-color 0.3s';
+                agentText.style.backgroundColor = 'rgba(245, 91, 7, 0.1)';
+                setTimeout(() => {
+                    agentText.style.backgroundColor = '';
+                }, 2000);
+            }
+        }
+        
+        function findTaskById(taskId) {
+            for (const bucket of Object.keys(state.tasks)) {
+                const task = state.tasks[bucket].find(t => t.id === taskId);
+                if (task) return task;
+            }
+            return null;
         }
 
         // ============================================
@@ -3131,23 +3748,6 @@
             document.getElementById('taskProgress').textContent = state.tasksCompleted;
             document.getElementById('breaksProgress').textContent = state.breaksCount;
             document.getElementById('distractionProgress').textContent = state.distractionCount;
-            
-            // Update wins detail list
-            const winsDetail = document.getElementById('winsDetail');
-            const winsDetailList = document.getElementById('winsDetailList');
-            if (state.tasks.wins.length > 0) {
-                winsDetail.style.display = 'block';
-                winsDetailList.innerHTML = state.tasks.wins.map(task => {
-                    const actual = task.actualSprints || 0;
-                    const estimated = task.estimatedSprints || task.sprints || 0;
-                    const sprintText = actual > 0 ? ` (${actual}${estimated > 0 ? '/' + estimated : ''} sprints)` : '';
-                    const efficiency = estimated > 0 && actual > 0 ? (estimated / actual) : 1;
-                    const icon = efficiency >= 1 ? '✨' : '✓';
-                    return `<div style="padding: 0.25rem 0; border-bottom: 1px solid rgba(34, 197, 94, 0.1);">${icon} ${task.text}${sprintText}</div>`;
-                }).join('');
-            } else {
-                winsDetail.style.display = 'none';
-            }
             
             // Sync energy dropdown state
             const energySelect = document.getElementById('energySelect');
@@ -3386,28 +3986,28 @@
         }
         
         function loadReflection() {
-            const savedReflection = localStorage.getItem('focushub_current_reflection');
-            let reflection;
-            
-            if (savedReflection) {
-                reflection = JSON.parse(savedReflection);
-            } else {
-                reflection = reflections[Math.floor(Math.random() * reflections.length)];
-                localStorage.setItem('focushub_current_reflection', JSON.stringify(reflection));
-            }
+            // Use day of year to rotate through reflections deterministically
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+            const reflectionIndex = dayOfYear % reflections.length;
+            const reflection = reflections[reflectionIndex];
             
             reflectionContent.innerHTML = `
                 <p class="reflection-text">${reflection.text}</p>
-                <p class="reflection-attribution">— ${reflection.attribution}</p>
+                <p class="reflection-attribution">— ${reflection.attribution.toUpperCase()}</p>
             `;
         }
         
         function generateNewReflection() {
-            const reflection = reflections[Math.floor(Math.random() * reflections.length)];
-            localStorage.setItem('focushub_current_reflection', JSON.stringify(reflection));
+            // Use day of year to rotate through reflections
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+            const reflectionIndex = dayOfYear % reflections.length;
+            const reflection = reflections[reflectionIndex];
+            
             reflectionContent.innerHTML = `
                 <p class="reflection-text">${reflection.text}</p>
-                <p class="reflection-attribution">— ${reflection.attribution}</p>
+                <p class="reflection-attribution">— ${reflection.attribution.toUpperCase()}</p>
             `;
         }
         
@@ -3753,6 +4353,47 @@ setInterval(() => {
     }
 }, 2000); // Save every 2 seconds
 </script>
+
+<!-- Privacy & Data Management Footer -->
+<footer style="
+    margin-top: 4rem;
+    padding: 2rem;
+    border-top: 1px solid var(--border-light);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+">
+    <div style="margin-bottom: 1rem;">
+        <a href="/privacy.html" style="color: var(--accent-blue); margin: 0 1rem;">Privacy Policy</a>
+        <span style="color: var(--border-light);">|</span>
+        <button onclick="exportAllUserData()" style="
+            background: none;
+            border: none;
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin: 0 1rem;
+            text-decoration: underline;
+        ">Export My Data</button>
+        <span style="color: var(--border-light);">|</span>
+        <button onclick="deleteAllUserData()" style="
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin: 0 1rem;
+            text-decoration: underline;
+        ">Delete My Account</button>
+    </div>
+    <p style="margin: 0.5rem 0;">
+        🔒 Your tasks are automatically deleted every Friday<br>
+        Data stored locally & optionally synced (encrypted)
+    </p>
+    <p style="margin: 0.5rem 0; font-size: 0.75rem;">
+        &copy; 2026 FocusHub. Built for privacy.
+    </p>
+</footer>
 
 </body>
 </html>

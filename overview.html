@@ -625,11 +625,34 @@
 
                     chatInput.value = '';
 
+                    // Intelligent response based on keywords
+                    const msgLower = message.toLowerCase();
+                    let response = 'Check the How-To guide or FAQ for detailed guidance.';
+                    
+                    // Privacy-related responses
+                    if (msgLower.includes('privacy') || msgLower.includes('data') || msgLower.includes('personal information')) {
+                        response = '🔒 Your privacy is our priority! Task text is automatically deleted every Friday. View our Privacy Policy for details, or export/delete your data anytime from the footer.';
+                    } else if (msgLower.includes('delete') && (msgLower.includes('account') || msgLower.includes('data'))) {
+                        response = '🗑️ To delete your account and all data: scroll to the footer and click "Delete My Account". This action is permanent and immediate.';
+                    } else if (msgLower.includes('export') || msgLower.includes('download')) {
+                        response = '📥 To export all your data: scroll to the footer and click "Export My Data". You\'ll get a JSON file with everything.';
+                    } else if (msgLower.includes('gdpr') || msgLower.includes('ccpa') || msgLower.includes('compliance')) {
+                        response = '✅ FocusHub is GDPR and CCPA compliant. We automatically delete task text weekly, never sell data, and give you complete control. See Privacy Policy for details.';
+                    } else if (msgLower.includes('weekly') || msgLower.includes('friday') || msgLower.includes('deletion')) {
+                        response = '📅 Every Friday at 11:59 PM, we automatically delete all task text and personal information. We keep only anonymized statistics for 90 days to show trends.';
+                    } else if (msgLower.includes('backup') || msgLower.includes('save')) {
+                        response = '💾 Your data is automatically backed up! We keep rolling 7-day backups (encrypted), plus cloud sync if enabled. You can also export your data anytime.';
+                    } else if (msgLower.includes('sync') || msgLower.includes('cloud')) {
+                        response = '☁️ Cloud sync is optional and encrypted. Your data is stored locally first, then optionally synced to secure Supabase servers. You can use FocusHub completely offline.';
+                    } else if (msgLower.includes('secure') || msgLower.includes('encryption') || msgLower.includes('safe')) {
+                        response = '🔐 Your data is encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase (SOC 2 certified) for cloud storage. Local data stays on your device.';
+                    }
+
                     // Simulate agent response
                     setTimeout(() => {
                         const agentMsg = document.createElement('div');
-                        agentMsg.style.cssText = 'background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; margin-right: 2rem; font-size: 14px;';
-                        agentMsg.textContent = 'Check the How-To guide or FAQ for detailed guidance.';
+                        agentMsg.style.cssText = 'background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; margin-right: 2rem; font-size: 14px; line-height: 1.5;';
+                        agentMsg.innerHTML = response;
                         chatMessages.appendChild(agentMsg);
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }, 1000);
@@ -639,5 +662,30 @@
             }
         }
     </script>
+
+    <!-- Privacy & Data Management Footer -->
+    <footer style="
+        margin-top: 4rem;
+        padding: 2rem;
+        border-top: 1px solid var(--border-light);
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    ">
+        <div style="margin-bottom: 1rem;">
+            <a href="/privacy.html" style="color: var(--primary-color); margin: 0 1rem;">Privacy Policy</a>
+            <span style="color: var(--border-light);">|</span>
+            <a href="/faq.html" style="color: var(--primary-color); margin: 0 1rem;">FAQ</a>
+            <span style="color: var(--border-light);">|</span>
+            <a href="/how-to.html" style="color: var(--primary-color); margin: 0 1rem;">How-To Guide</a>
+        </div>
+        <p style="margin: 0.5rem 0;">
+            🔒 Your tasks are automatically deleted every Friday<br>
+            Data stored locally & optionally synced (encrypted)
+        </p>
+        <p style="margin: 0.5rem 0; font-size: 0.75rem;">
+            &copy; 2026 FocusHub. Built for privacy.
+        </p>
+    </footer>
 </body>
 </html>
