@@ -1055,6 +1055,9 @@
             // Apply mode configuration FIRST
             applyModeConfig();
             
+            // CHECK FOR NEW DAY *BEFORE* LOADING STATE
+            checkForNewDayBeforeLoad();
+            
             await loadState();
             restoreTimer();
             setupEventListeners();
@@ -1565,6 +1568,68 @@
             localStorage.setItem('focushub_timer', JSON.stringify(timerState));
         }
 
+        function checkForNewDayBeforeLoad() {
+            const today = new Date().toDateString();
+            const lastDate = localStorage.getItem('focushub_session_date');
+            
+            if (lastDate && lastDate !== today) {
+                console.log('🌅 NEW DAY DETECTED DURING INIT - Clearing old data BEFORE load');
+                
+                // Clear all counter data from localStorage
+                const stats = {
+                    sprintCount: 0,
+                    breaksCount: 0,
+                    distractionCount: 0,
+                    tasksCompleted: 0,
+                    meetingMinutes: 0,
+                    plannedSprints: 5,
+                    date: today
+                };
+                localStorage.setItem('focushub_daily_stats', JSON.stringify(stats));
+                
+                // Clear wins from tasks
+                const savedTasks = localStorage.getItem('focushub_tasks');
+                if (savedTasks) {
+                    try {
+                        const tasks = JSON.parse(savedTasks);
+                        tasks.wins = []; // Clear wins
+                        
+                        // Move uncompleted priority tasks to holding
+                        const bucketsToReset = ['urgent', 'deepwork', 'strategic'];
+                        bucketsToReset.forEach(bucket => {
+                            if (tasks[bucket]) {
+                                const uncompletedTasks = tasks[bucket].filter(task => !task.completed);
+                                uncompletedTasks.forEach(task => {
+                                    task.bucket = 'holding';
+                                    task.sprints = 0;
+                                    task.actualSprints = 0;
+                                    task.estimatedSprints = 0;
+                                    tasks.holding.push(task);
+                                });
+                                tasks[bucket] = []; // Clear the bucket
+                            }
+                        });
+                        
+                        localStorage.setItem('focushub_tasks', JSON.stringify(tasks));
+                    } catch (error) {
+                        console.error('Error resetting tasks:', error);
+                    }
+                }
+                
+                // Clear distractions and intentions for new day
+                localStorage.setItem('focushub_distractions', JSON.stringify([]));
+                localStorage.setItem('focushub_intentions', JSON.stringify([]));
+                
+                // Reset session state to not_started
+                localStorage.setItem('focushub_session_state', 'not_started');
+                
+                // Update session date
+                localStorage.setItem('focushub_session_date', today);
+                
+                console.log('✅ All counters reset for new day');
+            }
+        }
+        
         function checkSessionState() {
             const sessionState = localStorage.getItem('focushub_session_state');
             const today = new Date().toDateString();
