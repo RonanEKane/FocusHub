@@ -12,6 +12,13 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="reflections-expanded.js"></script>
+    <script src="reflections-catholic.js"></script>
+    <script src="reflections-christian.js"></script>
+    <script src="reflections-jewish.js"></script>
+    <script src="reflections-islamic.js"></script>
+    <script src="reflections-hindu.js"></script>
+    <script src="reflections-buddhist.js"></script>
 </head>
 <body>
     <!-- Start Day Screen -->
@@ -45,6 +52,22 @@
                             <div class="energy-desc" data-energy-desc="low">15min sprints</div>
                         </button>
                     </div>
+                </div>
+
+                <!-- PREMIUM: Reflection Tradition Selector -->
+                <div class="form-group" id="reflectionTraditionGroup" style="display: none;">
+                    <label class="form-label" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">🙏 Daily Reflection Type</label>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">Choose reflections aligned with your spiritual tradition.</p>
+                    <select id="reflectionTraditionSelect" style="width: 100%; padding: 0.75rem; font-size: 1rem; border: 2px solid var(--border-medium); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+                        <option value="universal">Non-Denominational (Universal Wisdom)</option>
+                        <option value="catholic">Catholic (Saints, Scripture, Church Teaching)</option>
+                        <option value="christian">Christian (Protestant Traditions)</option>
+                        <option value="jewish">Jewish (Torah, Talmud, Rabbinical Wisdom)</option>
+                        <option value="islamic">Islamic (Quran, Hadith, Scholars)</option>
+                        <option value="hindu">Hindu (Bhagavad Gita, Upanishads)</option>
+                        <option value="buddhist">Buddhist (Dhammapada, Zen, Teachers)</option>
+                    </select>
+                    <div class="form-hint">Premium feature - Beta users get this forever!</div>
                 </div>
 
                 <div class="form-group">
@@ -458,10 +481,10 @@
             
             <div class="modal-body">
                 <div class="reflection-content" id="reflectionContent">
-                    <p class="reflection-text">
+                    <p class="reflection-headline" style="font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; color: var(--industrial-orange); letter-spacing: 1.5px; margin-bottom: 1rem; text-align: center;">MONASTIC DISCIPLINE</p>
+                    <p class="reflection-text" style="font-size: 1.125rem; line-height: 1.8; color: var(--text-primary); font-weight: 400; font-style: italic;">
                         The day stretches before you like an empty canvas. What you choose to place on it reflects not just your plans, but your character. Discipline is not a burden placed upon you by others—it is the gift you give to your future self. Today, you have the power to honor your commitments or to excuse your failures. Choose deliberately.
                     </p>
-                    <p class="reflection-attribution">— On Discipline and Duty</p>
                 </div>
                 
                 <button id="generateReflection" class="btn btn-secondary" style="width: 100%; margin: 1rem 0;">Generate New Reflection</button>
@@ -1064,6 +1087,9 @@
             initDragDrop();
             checkSessionState();
             
+            // Check premium status and show/hide reflection selector
+            await checkPremiumStatus();
+            
             // Remove unwanted duration buttons added by config.js
             removeExtraButtons();
             
@@ -1566,6 +1592,44 @@
                 lastUpdated: Date.now()
             };
             localStorage.setItem('focushub_timer', JSON.stringify(timerState));
+        }
+
+        async function checkPremiumStatus() {
+            try {
+                // Check if user has premium access
+                const hasPremium = await isPremiumUser();
+                const reflectionGroup = document.getElementById('reflectionTraditionGroup');
+                const reflectionSelect = document.getElementById('reflectionTraditionSelect');
+                
+                if (hasPremium) {
+                    // Show reflection selector for premium users
+                    if (reflectionGroup) {
+                        reflectionGroup.style.display = 'block';
+                    }
+                    
+                    // Load user's saved tradition preference
+                    const savedTradition = await getReflectionTradition();
+                    if (reflectionSelect && savedTradition) {
+                        reflectionSelect.value = savedTradition;
+                    }
+                    
+                    // Listen for changes
+                    if (reflectionSelect) {
+                        reflectionSelect.addEventListener('change', async (e) => {
+                            const newTradition = e.target.value;
+                            await setReflectionTradition(newTradition);
+                            console.log(`✅ Reflection tradition changed to: ${newTradition}`);
+                        });
+                    }
+                } else {
+                    // Hide for free users
+                    if (reflectionGroup) {
+                        reflectionGroup.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking premium status:', error);
+            }
         }
 
         function checkForNewDayBeforeLoad() {
@@ -4050,30 +4114,124 @@
             morningModal.classList.remove('hidden');
         }
         
-        function loadReflection() {
-            // Use day of year to rotate through reflections deterministically
-            const today = new Date();
-            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-            const reflectionIndex = dayOfYear % reflections.length;
-            const reflection = reflections[reflectionIndex];
+        async function loadReflection() {
+            // Use smart selection from appropriate tradition
+            const reflection = await getSmartReflectionByTradition();
             
             reflectionContent.innerHTML = `
-                <p class="reflection-text">${reflection.text}</p>
-                <p class="reflection-attribution">— ${reflection.attribution.toUpperCase()}</p>
+                <p class="reflection-headline" style="font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; color: var(--industrial-orange); letter-spacing: 1.5px; margin-bottom: 1rem; text-align: center;">${reflection.headline}</p>
+                <p class="reflection-text" style="font-size: 1.125rem; line-height: 1.8; color: var(--text-primary); font-weight: 400; font-style: italic;">${reflection.text}</p>
             `;
         }
         
-        function generateNewReflection() {
-            // Use day of year to rotate through reflections
-            const today = new Date();
-            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-            const reflectionIndex = dayOfYear % reflections.length;
-            const reflection = reflections[reflectionIndex];
+        async function generateNewReflection() {
+            // Use smart selection from appropriate tradition
+            const reflection = await getSmartReflectionByTradition();
             
             reflectionContent.innerHTML = `
-                <p class="reflection-text">${reflection.text}</p>
-                <p class="reflection-attribution">— ${reflection.attribution.toUpperCase()}</p>
+                <p class="reflection-headline" style="font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; color: var(--industrial-orange); letter-spacing: 1.5px; margin-bottom: 1rem; text-align: center;">${reflection.headline}</p>
+                <p class="reflection-text" style="font-size: 1.125rem; line-height: 1.8; color: var(--text-primary); font-weight: 400; font-style: italic;">${reflection.text}</p>
             `;
+        }
+        
+        async function getSmartReflectionByTradition() {
+            // Get user's selected tradition  
+            let tradition = 'universal';
+            try {
+                const hasPremium = await isPremiumUser();
+                if (hasPremium) {
+                    tradition = await getReflectionTradition();
+                }
+            } catch (error) {
+                console.log('Using default universal reflections');
+            }
+            
+            // Select appropriate reflection set
+            let reflectionSet = EXPANDED_REFLECTIONS; // Default universal
+            
+            switch(tradition) {
+                case 'catholic':
+                    if (typeof REFLECTIONS_CATHOLIC !== 'undefined') {
+                        reflectionSet = REFLECTIONS_CATHOLIC;
+                    }
+                    break;
+                case 'christian':
+                    if (typeof REFLECTIONS_CHRISTIAN !== 'undefined') {
+                        reflectionSet = REFLECTIONS_CHRISTIAN;
+                    }
+                    break;
+                case 'jewish':
+                    if (typeof REFLECTIONS_JEWISH !== 'undefined') {
+                        reflectionSet = REFLECTIONS_JEWISH;
+                    }
+                    break;
+                case 'islamic':
+                    if (typeof REFLECTIONS_ISLAMIC !== 'undefined') {
+                        reflectionSet = REFLECTIONS_ISLAMIC;
+                    }
+                    break;
+                case 'hindu':
+                    if (typeof REFLECTIONS_HINDU !== 'undefined') {
+                        reflectionSet = REFLECTIONS_HINDU;
+                    }
+                    break;
+                case 'buddhist':
+                    if (typeof REFLECTIONS_BUDDHIST !== 'undefined') {
+                        reflectionSet = REFLECTIONS_BUDDHIST;
+                    }
+                    break;
+            }
+            
+            // Use existing smart selection algorithm
+            return getSmartReflectionFromSet(reflectionSet);
+        }
+        
+        function getSmartReflectionFromSet(reflectionSet) {
+            // Get today's context
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const hour = now.getHours();
+            
+            // Get user's recent patterns
+            const lastEnergy = localStorage.getItem('focushub_energy') || 'medium';
+            const streak = parseInt(localStorage.getItem('focushub_streak') || '0');
+            
+            // Get reflection history
+            const history = JSON.parse(localStorage.getItem('focushub_reflection_history') || '[]');
+            const recentThemes = history.slice(-7).map(h => h.theme);
+            const recentIds = history.slice(-10).map(h => h.id);
+            
+            // Filter out recently seen
+            const available = reflectionSet.filter(r => !recentIds.includes(r.id));
+            
+            if (available.length < 5) {
+                localStorage.setItem('focushub_reflection_history', JSON.stringify([]));
+                return reflectionSet[Math.floor(Math.random() * reflectionSet.length)];
+            }
+            
+            // Score each reflection
+            const scored = available.map(reflection => {
+                let score = 0;
+                if (dayOfWeek === 1 && reflection.tags.includes('monday')) score += 5;
+                if (dayOfWeek === 5 && reflection.tags.includes('friday')) score += 3;
+                if (hour < 11 && reflection.tags.includes('morning')) score += 3;
+                if (streak === 0 && reflection.tags.includes('fresh-start')) score += 4;
+                if (streak >= 7 && reflection.tags.includes('long-streak')) score += 4;
+                if (lastEnergy === 'low' && reflection.tags.includes('low-energy')) score += 3;
+                if (recentThemes.includes(reflection.theme)) score -= 2;
+                if (reflection.tags.includes('any-day')) score += 0.5;
+                return { ...reflection, score };
+            });
+            
+            scored.sort((a, b) => b.score - a.score);
+            const topCandidates = scored.slice(0, 5);
+            const selected = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+            
+            // Record selection
+            history.push({ id: selected.id, theme: selected.theme, date: new Date().toDateString() });
+            localStorage.setItem('focushub_reflection_history', JSON.stringify(history.slice(-30)));
+            
+            return selected;
         }
         
         function closeMorningReflection() {

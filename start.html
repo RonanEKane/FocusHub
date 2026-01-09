@@ -5,6 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sign In - FocusHub</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+        
+        .auth-box {
+            width: 100%;
+            max-width: 450px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            padding: 3rem 2.5rem;
+        }
+        
+        .auth-form { margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-medium);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-btn-primary {
+            background: var(--industrial-orange);
+            color: white;
+        }
+        .auth-btn-primary:hover {
+            opacity: 0.9;
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-link a {
+            color: var(--industrial-orange);
+            text-decoration: none;
+        }
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+        .auth-text {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body class="theme-dark">
     <div class="auth-container">

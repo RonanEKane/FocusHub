@@ -1,403 +1,405 @@
 // ============================================
 // FOCUSHUB - EXPANDED REFLECTIONS LIBRARY
-// 50 Reflections with Smart Contextual Selection
+// 50 Catholic-Rooted Reflections (Presented Universally)
+// Smart Contextual Selection
 // ============================================
 
 const EXPANDED_REFLECTIONS = [
-    // ORIGINAL 10 - Core Themes
+    // DISCIPLINE & FOUNDATION (10)
     {
         id: 1,
-        text: "The day stretches before you like an empty canvas. What you choose to place on it reflects not just your plans, but your character. Discipline is not a burden placed upon you by others—it is the gift you give to your future self. Today, you have the power to honor your commitments or to excuse your failures. Choose deliberately.",
-        attribution: "On Discipline and Duty",
+        headline: "MONASTIC DISCIPLINE",
+        text: "The day begins in silence, not chaos. Before the demands come, before the noise rises, there is this moment. Use it to set your intention. What you do in the first hour shapes what follows. Begin with purpose, not with panic.",
         theme: "discipline",
-        tags: ["foundation", "any-day"]
+        tags: ["foundation", "morning", "any-day"]
     },
     {
         id: 2,
-        text: "You will be tempted to drift. Your attention will be pulled in a dozen directions. This is not a moral failing—this is the nature of the mind. But you are not merely your impulses. You possess the capacity to redirect, to refocus, to persist. Use it. The scattered mind achieves nothing. The focused mind moves mountains.",
-        attribution: "On Focus and Perseverance",
+        headline: "DESERT WISDOM",
+        text: "Distraction is not your enemy—it is your teacher. Each time your mind wanders, you have a choice: follow it into the wilderness, or bring it back to the work. Attention is a muscle. Strengthen it with practice, not punishment.",
         theme: "focus",
-        tags: ["adhd", "any-day", "distraction-prone"]
+        tags: ["adhd", "distraction-prone", "any-day"]
     },
     {
         id: 3,
-        text: "Today, you will face resistance. The voice that says 'later' or 'not now' or 'this doesn't matter.' That voice is not wisdom. It is entropy. Progress requires you to act against comfort, against ease, against the path of least resistance. This is not punishment. This is the price of growth.",
-        attribution: "On Resistance and Growth",
-        theme: "resistance",
-        tags: ["low-energy", "any-day"]
+        headline: "CONTEMPLATIVE PRACTICE",
+        text: "Small things done with great love become extraordinary. The task before you may feel insignificant, but nothing done with intention is wasted. Excellence is not about the size of the work—it is about the quality of your presence within it.",
+        theme: "presence",
+        tags: ["meaning", "any-day"]
     },
     {
         id: 4,
-        text: "You are not here to feel productive. You are here to produce. Feelings follow action, not the other way around. Start before you feel ready. Work before you feel motivated. The path forward is not paved with perfect conditions—it is built by imperfect effort, repeated daily.",
-        attribution: "On Action Over Feeling",
-        theme: "action",
-        tags: ["low-energy", "procrastination", "any-day"]
-    },
-    {
-        id: 5,
-        text: "Each task before you is an opportunity to practice integrity. Not the integrity of grand gestures, but the integrity of small promises kept. When you say you will do something, and then you do it, you build trust with yourself. This is the foundation of all achievement.",
-        attribution: "On Integrity and Trust",
+        headline: "CLASSICAL VIRTUE",
+        text: "Character is built in moments no one sees. When you keep a promise to yourself, even a small one, you reinforce the foundation of who you are becoming. Today, be someone you can trust.",
         theme: "integrity",
         tags: ["foundation", "any-day"]
     },
     {
+        id: 5,
+        headline: "ANCIENT WISDOM",
+        text: "You cannot control outcomes. You can only control effort. Release your grip on results and focus on what is within your power: showing up, doing the work, choosing well. Let the rest unfold as it will.",
+        theme: "surrender",
+        tags: ["anxiety", "control", "any-day"]
+    },
+    {
         id: 6,
-        text: "The work you avoid today does not disappear—it compounds. Every delay adds weight to tomorrow's burden. But the inverse is also true: every task completed today lightens tomorrow's load. You control which future you create. Choose wisely.",
-        attribution: "On Time and Consequence",
+        headline: "SPIRITUAL DISCIPLINE",
+        text: "Resistance is not a sign you are on the wrong path. Often, it is confirmation you are on the right one. What matters will always demand something of you. Do it anyway.",
+        theme: "resistance",
+        tags: ["low-energy", "procrastination", "any-day"]
+    },
+    {
+        id: 7,
+        headline: "MEDIEVAL PHILOSOPHY",
+        text: "The body tires. The mind resists. This is expected. What distinguishes those who accomplish from those who merely intend is the willingness to work despite discomfort. Progress is not made in perfect conditions—it is made in spite of imperfect ones.",
+        theme: "perseverance",
+        tags: ["low-energy", "any-day"]
+    },
+    {
+        id: 8,
+        headline: "CONTEMPLATIVE TRADITION",
+        text: "Silence is not emptiness. It is clarity. Before you fill your day with noise and tasks, sit with the silence. Ask yourself: what truly matters today? Then build your hours around that answer.",
+        theme: "clarity",
+        tags: ["morning", "planning", "any-day"]
+    },
+    {
+        id: 9,
+        headline: "MONASTIC TEACHING",
+        text: "Each task is a prayer, whether you recognize it as such or not. You sanctify your work not through grandiose gestures but through simple attention. Do what is in front of you. Do it well. This is enough.",
+        theme: "work",
+        tags: ["any-day", "meaning"]
+    },
+    {
+        id: 10,
+        headline: "CLASSICAL STOICISM",
+        text: "You will not feel ready. You will not feel inspired. These feelings are irrelevant. Action creates momentum. Momentum creates results. Waiting for readiness is waiting for nothing. Begin now.",
+        theme: "action",
+        tags: ["low-energy", "procrastination", "any-day"]
+    },
+
+    // TIME & CONSEQUENCE (10)
+    {
+        id: 11,
+        headline: "DESERT FATHERS",
+        text: "Today is not practice for tomorrow. This is your life, happening now. The hours you waste will not return. The effort you withhold will not be stored for later. Spend your time as you would spend your last coin—carefully and with purpose.",
         theme: "time",
         tags: ["procrastination", "any-day"]
     },
     {
-        id: 7,
-        text: "Excellence is not a destination. It is a practice. Today, you will not achieve perfection. You will achieve effort. String enough days of effort together, and you will look back surprised at what you have built. But first, you must begin.",
-        attribution: "On Excellence Through Practice",
-        theme: "excellence",
-        tags: ["perfectionism", "any-day"]
-    },
-    {
-        id: 8,
-        text: "Your energy is finite. Your attention is finite. Every distraction is not merely a loss of time—it is a theft of potential. Guard your focus as you would guard your most valuable possession. Because it is.",
-        attribution: "On Stewardship of Attention",
-        theme: "attention",
-        tags: ["adhd", "distraction-prone", "any-day"]
-    },
-    {
-        id: 9,
-        text: "Today, you may fail. You may fall short of your target, succumb to distraction, or lose focus. This does not make you a failure. It makes you human. What matters is not perfection, but the choice to return tomorrow. Persistence outlasts talent.",
-        attribution: "On Failure and Persistence",
-        theme: "failure",
-        tags: ["recovering", "compassion", "any-day"]
-    },
-    {
-        id: 10,
-        text: "The tasks before you are not obstacles to your life. They are your life. This moment, this work, this effort—this is not the preamble to something greater. This is it. Be here. Do this. Make it count.",
-        attribution: "On Presence and Purpose",
-        theme: "presence",
-        tags: ["meaning", "any-day"]
-    },
-    
-    // NEW - Monday / New Week (5)
-    {
-        id: 11,
-        text: "The week ahead is not a burden to survive but territory to claim. Monday's resistance is predictable—expect it, acknowledge it, then work anyway. The momentum you build today will carry you through Wednesday's doubt and Friday's fatigue. Begin.",
-        attribution: "On Weekly Rhythm",
-        theme: "momentum",
-        tags: ["monday", "new-week", "fresh-start"]
-    },
-    {
         id: 12,
-        text: "Monday is not the enemy. Inertia is. The hardest part of any week is the transition from rest to motion. Once you start, continuation becomes easier. Don't focus on the week—focus on the next hour. Then the hour after that.",
-        attribution: "On Overcoming Inertia",
+        headline: "ANCIENT TEACHING",
+        text: "The work you avoid compounds like debt. Each delay adds weight to what must eventually be faced. But the inverse is also true: each task completed today lightens tomorrow's burden. Choose which future you are building.",
+        theme: "consequence",
+        tags: ["procrastination", "any-day"]
+    },
+    {
+        id: 13,
+        headline: "CONTEMPLATIVE WISDOM",
+        text: "You have been given this day as a gift. What you do with it reflects not just your plans, but your values. Will you squander it on distraction and delay, or will you honor it with effort and intention? The choice is yours alone.",
+        theme: "stewardship",
+        tags: ["any-day", "morning"]
+    },
+    {
+        id: 14,
+        headline: "MEDIEVAL THOUGHT",
+        text: "There is no later. There is only now, and the consequences of now. Every moment you defer action is a vote for who you are becoming. Cast your votes wisely.",
+        theme: "urgency",
+        tags: ["procrastination", "any-day"]
+    },
+    {
+        id: 15,
+        headline: "MONASTIC RHYTHM",
+        text: "The hours are given equally to all, yet some build cathedrals while others build excuses. The difference is not in the time available but in the discipline with which it is spent. What will you build today?",
+        theme: "time-use",
+        tags: ["any-day", "planning"]
+    },
+    {
+        id: 16,
+        headline: "SPIRITUAL PRACTICE",
+        text: "You cannot redeem yesterday. You cannot secure tomorrow. All you have is this present moment and what you choose to do within it. Stop dwelling on what was or worrying about what might be. Be here. Do this.",
+        theme: "presence",
+        tags: ["anxiety", "any-day"]
+    },
+    {
+        id: 17,
+        headline: "CLASSICAL VIRTUE",
+        text: "Procrastination is not a scheduling problem. It is a character problem. When you delay what matters, you train yourself in weakness. When you act despite resistance, you train yourself in strength. Which person are you becoming?",
+        theme: "character",
+        tags: ["procrastination", "any-day"]
+    },
+    {
+        id: 18,
+        headline: "CONTEMPLATIVE TRADITION",
+        text: "The tyranny of the urgent drowns out the importance of the essential. Pause. Ask: what truly matters? Then give that your time, even if a hundred lesser things clamor for attention. Protect what is sacred.",
+        theme: "priorities",
+        tags: ["planning", "any-day"]
+    },
+    {
+        id: 19,
+        headline: "DESERT WISDOM",
+        text: "You will be tempted to mistake motion for progress. Busyness is not the same as effectiveness. Before you scatter your energy across a dozen tasks, choose the one that matters most. Then do that.",
+        theme: "focus",
+        tags: ["any-day", "distraction-prone"]
+    },
+    {
+        id: 20,
+        headline: "ANCIENT PHILOSOPHY",
+        text: "Time is the one resource you cannot recover. Money can be earned again. Relationships can be repaired. But hours, once spent, are gone forever. Treat them accordingly.",
+        theme: "time-value",
+        tags: ["any-day"]
+    },
+
+    // ENERGY & MOMENTUM (10)
+    {
+        id: 21,
+        headline: "MONASTIC PRACTICE",
+        text: "Monday is not your enemy. Inertia is. The hardest part of any journey is the first step. Once you begin, continuation becomes easier. Do not focus on the week ahead—focus on the next hour. Then the hour after that.",
         theme: "starting",
         tags: ["monday", "low-energy"]
     },
     {
-        id: 13,
-        text: "Seven days. What will you build? Each week is both long enough to accomplish something meaningful and short enough that wasting it is inexcusable. Set your targets clearly. Then exceed them.",
-        attribution: "On the Week as a Unit",
-        theme: "planning",
-        tags: ["monday", "new-week", "goal-setting"]
-    },
-    {
-        id: 14,
-        text: "You start this week with empty stats and an open road. Last week's failures do not follow you here. Last week's wins do not entitle you to rest. You begin again, as you must, with nothing but intention and effort.",
-        attribution: "On Fresh Starts",
-        theme: "renewal",
-        tags: ["monday", "fresh-start", "recovering"]
-    },
-    {
-        id: 15,
-        text: "Monday is for builders. While others complain about the start of the week, you are already moving. This gives you a 24-hour head start on everyone who waited until Tuesday to care. Use it.",
-        attribution: "On Early Momentum",
-        theme: "advantage",
-        tags: ["monday", "competitive"]
-    },
-    
-    // NEW - Energy States (8)
-    {
-        id: 16,
-        text: "You don't feel ready. You won't. Energy follows action, not the other way around. Start with the smallest possible step—open the file, write one sentence, make one call. The engine turns over slowly, but it turns. Trust the process more than the feeling.",
-        attribution: "On Starting Despite Resistance",
-        theme: "low-energy",
-        tags: ["low-energy", "starting", "any-day"]
-    },
-    {
-        id: 17,
-        text: "Low energy is not an excuse. It is a condition. Adjust your approach, not your commitment. Take shorter sprints. Choose easier tasks first. Move slower if you must, but keep moving. Stagnation is the only true failure.",
-        attribution: "On Working Through Fatigue",
-        theme: "adaptation",
-        tags: ["low-energy", "compassion"]
-    },
-    {
-        id: 18,
-        text: "You're sharp today. Alert. Clear-headed. This is rare—don't squander it on email or shallow work. Tackle the hardest problem first. Do the deep work that requires your full capacity. Tomorrow you may not have this clarity. Use it now.",
-        attribution: "On Capitalizing on Peak Energy",
-        theme: "optimization",
-        tags: ["high-energy", "strategic"]
-    },
-    {
-        id: 19,
-        text: "Energy comes in waves. You cannot maintain peak performance all day. The goal is not constant output—it is strategic bursts. Work hard when you're sharp. Rest strategically when you're not. This is wisdom, not weakness.",
-        attribution: "On Energy Management",
-        theme: "sustainability",
-        tags: ["any-day", "strategic"]
-    },
-    {
-        id: 20,
-        text: "Tired is not the same as done. Your body wants rest but your commitments remain. Push through this resistance—not recklessly, but deliberately. Often what you think is exhaustion is merely discomfort. Test the boundary.",
-        attribution: "On Distinguishing Fatigue from Resistance",
-        theme: "endurance",
-        tags: ["low-energy", "afternoon"]
-    },
-    {
-        id: 21,
-        text: "Friday afternoon is when discipline matters most. The week is almost done. The temptation to coast is strong. But these final hours separate those who finish from those who merely endure. Complete what you started.",
-        attribution: "On Finishing Strong",
-        theme: "completion",
-        tags: ["friday", "afternoon", "endurance"]
-    },
-    {
         id: 22,
-        text: "The afternoon slump is not unexpected. Plan for it. Stack your easier tasks here. Use systems instead of willpower. Design your day around your energy, not against it.",
-        attribution: "On Designing Around Energy",
-        theme: "systems",
-        tags: ["afternoon", "strategic"]
+        headline: "CLASSICAL TEACHING",
+        text: "Your energy is finite. Your attention is limited. Every distraction is not merely lost time—it is stolen potential. Guard your focus as you would guard your most valuable possession. Because it is.",
+        theme: "attention",
+        tags: ["adhd", "distraction-prone", "any-day"]
     },
     {
         id: 23,
-        text: "Morning energy is a gift. Treat it as such. The first hours of your day have disproportionate value. What you accomplish before lunch determines the tone of what follows. Start strong.",
-        attribution: "On Morning Priority",
-        theme: "timing",
-        tags: ["morning", "high-energy"]
+        headline: "SPIRITUAL DISCIPLINE",
+        text: "Low energy is not an excuse—it is a constraint to work within. Adjust your expectations without abandoning your standards. Do what you can with what you have. This is all that has ever been asked of anyone.",
+        theme: "energy",
+        tags: ["low-energy", "compassion"]
     },
-    
-    // NEW - Streaks & Momentum (7)
     {
         id: 24,
-        text: "Three days. Five days. Ten. This is not luck—this is the compound interest of consistency. But streaks are fragile. They end the moment you believe you've earned a break. Don't celebrate yet. Keep moving.",
-        attribution: "On Maintaining Momentum",
-        theme: "streaks",
-        tags: ["momentum", "streak"]
+        headline: "DESERT FATHERS",
+        text: "The mind that chases every impulse accomplishes nothing. The mind that returns, again and again, to what matters achieves the impossible. Your power is not in never being distracted—it is in always coming back.",
+        theme: "persistence",
+        tags: ["adhd", "any-day"]
     },
     {
         id: 25,
-        text: "Every streak starts with day one. Yesterday doesn't matter. Last month doesn't matter. You show up today and you begin counting. The first step is always the hardest and always the most important.",
-        attribution: "On Starting the Count",
-        theme: "beginning",
-        tags: ["fresh-start", "streak-zero"]
+        headline: "CONTEMPLATIVE WISDOM",
+        text: "You cannot think your way into action. You must act your way into clarity. Start before you feel ready. The path reveals itself to those who walk it, not to those who stand still planning the perfect route.",
+        theme: "momentum",
+        tags: ["procrastination", "any-day"]
     },
     {
         id: 26,
-        text: "You broke your streak. So what? Streaks are tools, not identities. You did not lose progress—you lost a number. The work you completed still exists. Start again today. The gap only matters if you let it.",
-        attribution: "On Recovering from Breaks",
-        theme: "recovery",
-        tags: ["recovering", "compassion", "fresh-start"]
+        headline: "MEDIEVAL THOUGHT",
+        text: "Rest is not laziness. Fatigue ignored becomes burnout. Know the difference between resistance that must be pushed through and exhaustion that must be honored. Wisdom is knowing which you face today.",
+        theme: "rest",
+        tags: ["low-energy", "compassion"]
     },
     {
         id: 27,
-        text: "Consistency is not perfection. It is showing up more often than you don't. It is choosing the work more days than you avoid it. Three out of five is better than zero out of seven. Progress, not perfection.",
-        attribution: "On Imperfect Consistency",
-        theme: "realistic-progress",
-        tags: ["compassion", "any-day"]
+        headline: "ANCIENT WISDOM",
+        text: "Peak energy is a gift. Do not waste it on trivialities. When you feel strong, tackle what is hardest. When you feel weak, do what is possible. Match your energy to your tasks, and you will accomplish more than those who ignore their limits.",
+        theme: "energy-management",
+        tags: ["high-energy", "planning"]
     },
     {
         id: 28,
-        text: "Day thirty. Day sixty. Day ninety. At some point, the streak stops being a motivation and becomes an identity. You are not someone trying to show up—you are someone who shows up. This is the transformation.",
-        attribution: "On Identity Through Repetition",
-        theme: "identity",
-        tags: ["momentum", "long-streak"]
+        headline: "MONASTIC RHYTHM",
+        text: "The week is a rhythm, not a race. Monday builds. Tuesday sustains. Wednesday tests. Thursday persists. Friday completes. Honor the rhythm. Do not demand Friday's energy on Monday, nor Monday's ambition on Friday.",
+        theme: "weekly-rhythm",
+        tags: ["any-day", "planning"]
     },
     {
         id: 29,
-        text: "Momentum is easier to maintain than to create. You've built velocity. Don't let a single day of rest become three. The hardest part is behind you—now simply continue.",
-        attribution: "On Protecting Momentum",
-        theme: "maintenance",
-        tags: ["momentum", "any-day"]
+        headline: "SPIRITUAL PRACTICE",
+        text: "You are not a machine. You cannot produce at the same level every day. This is not failure—this is humanity. What matters is not perfect consistency but persistent return. Show up, even when diminished. It is enough.",
+        theme: "compassion",
+        tags: ["low-energy", "recovering"]
     },
     {
         id: 30,
-        text: "You're building something here. Not just completing tasks, but constructing a pattern. Each day adds another stone to the foundation. You won't see the structure for months. Build it anyway.",
-        attribution: "On Long-Term Construction",
-        theme: "patience",
-        tags: ["momentum", "meaning"]
+        headline: "CLASSICAL VIRTUE",
+        text: "Discipline without wisdom becomes rigidity. Push when you should, but do not break yourself in the pursuit of productivity. A cracked vessel serves no one. Tend to your capacity as carefully as you tend to your output.",
+        theme: "balance",
+        tags: ["high-energy", "burnout-risk"]
     },
-    
-    // NEW - Overwhelm & Challenge (7)
+
+    // FAILURE & RECOVERY (10)
     {
         id: 31,
-        text: "Everything feels urgent. None of it probably is. True urgency is rare. Most 'urgent' work is simply loud. Step back. Identify the one task that actually matters. Do that. Let the noise wait.",
-        attribution: "On Distinguishing Urgent from Loud",
-        theme: "prioritization",
-        tags: ["overwhelm", "strategic"]
+        headline: "DESERT WISDOM",
+        text: "You will fail today. Perhaps small failures, perhaps large ones. This does not make you a failure. It makes you human. What separates those who grow from those who quit is not the absence of failure but the response to it. Return tomorrow.",
+        theme: "failure",
+        tags: ["recovering", "compassion", "any-day"]
     },
     {
         id: 32,
-        text: "Twenty tasks. Forty tasks. The number doesn't matter if you're only working on one at a time. Pick one. Complete it. Pick another. The size of the pile is irrelevant to the work in front of you right now.",
-        attribution: "On Working Despite Scale",
-        theme: "focus",
-        tags: ["overwhelm", "adhd"]
+        headline: "CONTEMPLATIVE TRADITION",
+        text: "Perfection is not the goal. Progress is. You will stumble. You will fall short. These are not disqualifications—they are data points. Learn from them. Adjust. Continue. This is how all meaningful work gets done.",
+        theme: "progress",
+        tags: ["perfectionism", "any-day"]
     },
     {
         id: 33,
-        text: "Overwhelm is not a planning problem—it is a commitment problem. You have said yes to too many things. The solution is not better organization. It is ruthless elimination. Choose what matters. Abandon the rest.",
-        attribution: "On Elimination Over Organization",
-        theme: "saying-no",
-        tags: ["overwhelm", "strategic"]
+        headline: "MONASTIC TEACHING",
+        text: "The streak is broken. The goal is missed. The plan has failed. And yet, you remain. You can still choose today. Yesterday's failure does not bind tomorrow's possibility. Begin again. Begin better. But begin.",
+        theme: "fresh-start",
+        tags: ["fresh-start", "recovering", "monday"]
     },
     {
         id: 34,
-        text: "You cannot do everything today. But you can do something. One meaningful task completed is infinitely more valuable than ten tasks started. Finish one thing. Then decide what comes next.",
-        attribution: "On Sequential Progress",
-        theme: "completion",
-        tags: ["overwhelm", "any-day"]
+        headline: "ANCIENT TEACHING",
+        text: "You are harder on yourself than you need to be. The voice that condemns every imperfection does not make you better—it makes you brittle. Excellence requires both effort and grace. Extend yourself the same patience you extend to others.",
+        theme: "self-compassion",
+        tags: ["perfectionism", "compassion"]
     },
     {
         id: 35,
-        text: "The interruptions will not stop. Accept this. Your task is not to eliminate them but to return faster. Every return is a victory. Every refocus is progress. Perfection is not the goal. Resilience is.",
-        attribution: "On Managing Interruption",
-        theme: "resilience",
-        tags: ["interruptions", "adhd"]
+        headline: "SPIRITUAL DISCIPLINE",
+        text: "The worst day of effort is better than the best day of excuses. Even if you accomplish half of what you planned, you have accomplished something. Do not let the perfect become the enemy of the good. Do what you can.",
+        theme: "effort",
+        tags: ["low-energy", "any-day"]
     },
     {
         id: 36,
-        text: "Hard days are where you prove what you're building. Anyone can work when it's easy. When everything is hard, when you don't want to, when you're tired—that's when the choice matters. This is the day that counts.",
-        attribution: "On Difficult Days",
-        theme: "adversity",
-        tags: ["hard-day", "low-energy"]
+        headline: "MEDIEVAL PHILOSOPHY",
+        text: "Shame is not motivation. Guilt does not produce excellence. These emotions may drive you briefly, but they will not sustain you. What sustains is purpose, not punishment. Remember why this matters. Then act from that place.",
+        theme: "motivation",
+        tags: ["recovering", "compassion"]
     },
     {
         id: 37,
-        text: "You're stuck. The task before you feels impossible. So break it into five smaller pieces. If those feel impossible, break them again. Keep dividing until you find something you can do right now. Then do it.",
-        attribution: "On Breaking Through Paralysis",
-        theme: "problem-solving",
-        tags: ["stuck", "adhd"]
+        headline: "CONTEMPLATIVE WISDOM",
+        text: "You are not starting over. You are starting again, with more knowledge than before. Every attempt teaches. Every failure refines. You are not back at the beginning—you are deeper into the process. This is progress, even when it doesn't feel like it.",
+        theme: "learning",
+        tags: ["fresh-start", "recovering"]
     },
-    
-    // NEW - Purpose & Meaning (6)
     {
         id: 38,
-        text: "This work matters. Maybe not globally. Maybe not historically. But it matters to the person who hired you, to the family that depends on you, to the future self who needs you to have done this. Small work, done well, has dignity.",
-        attribution: "On the Dignity of Work",
-        theme: "meaning",
-        tags: ["meaning", "any-day"]
+        headline: "CLASSICAL STOICISM",
+        text: "The gap between who you are and who you want to be is not crossed in a day. It is crossed in a thousand small decisions, made daily, often unremarkably. Today is one of those days. Make the choice. Again.",
+        theme: "growth",
+        tags: ["any-day", "momentum"]
     },
     {
         id: 39,
-        text: "You will spend years of your life on tasks that feel meaningless. This is part of being human. Meaning is not found in the task—it is brought to the task. You decide whether this matters. Choose to make it matter.",
-        attribution: "On Creating Meaning",
-        theme: "agency",
-        tags: ["meaning", "mundane"]
+        headline: "DESERT FATHERS",
+        text: "Persistence outlasts talent. Consistency defeats intensity. You do not need to be extraordinary today—you need to be present. Show up. Do the work. Return tomorrow. String enough of these days together, and you will surprise yourself.",
+        theme: "persistence",
+        tags: ["any-day", "long-streak"]
     },
     {
         id: 40,
-        text: "Excellence in small things prepares you for excellence in large things. How you do anything is how you do everything. The task before you may be trivial. Your approach to it is not.",
-        attribution: "On Universal Standards",
-        theme: "character",
+        headline: "MONASTIC PRACTICE",
+        text: "There is no shame in beginning again. The monk returns to prayer after distraction. The artist returns to the canvas after failure. You return to your work after falling short. This is not weakness—this is the work.",
+        theme: "return",
+        tags: ["recovering", "fresh-start"]
+    },
+
+    // MEANING & PURPOSE (10)
+    {
+        id: 41,
+        headline: "CONTEMPLATIVE TRADITION",
+        text: "You are not here merely to complete tasks. You are here to become someone. The work shapes you as much as you shape it. What kind of person are you becoming through your daily choices? Pay attention to this.",
+        theme: "formation",
         tags: ["meaning", "any-day"]
     },
     {
-        id: 41,
-        text: "Every professional was once an amateur. Every master was once a beginner. The distance between here and there is measured in hours of deliberate effort. You're adding to that count today. The work you do now builds what you become later.",
-        attribution: "On the Long View",
-        theme: "growth",
-        tags: ["meaning", "patience"]
-    },
-    {
         id: 42,
-        text: "Your work is a service. Someone needs what you produce. Someone benefits from your effort. This is not abstract—it is literal. The task before you has a recipient. Do it well for them.",
-        attribution: "On Service Through Work",
-        theme: "service",
+        headline: "SPIRITUAL PRACTICE",
+        text: "The ordinary is sacred if you treat it as such. There is no hierarchy of meaningful work—only work done with meaning or without it. Sanctify your day not through what you do but through how you do it.",
+        theme: "sanctification",
         tags: ["meaning", "any-day"]
     },
     {
         id: 43,
-        text: "You are building a body of work. Not a single task, not a single project, but a collection that spans years. Each day adds to this collection. What will yours show? Consistency? Excellence? Care? You're writing that story today.",
-        attribution: "On Building a Legacy",
+        headline: "ANCIENT WISDOM",
+        text: "Your legacy is not what you accomplish but who you become and how you treat others along the way. Let this shape your priorities. Success without character is not success at all.",
         theme: "legacy",
-        tags: ["meaning", "long-term"]
+        tags: ["meaning", "any-day"]
     },
-    
-    // NEW - Professional Growth (7)
     {
         id: 44,
-        text: "You're not as good at this as you want to be. Good. That gap between current and desired skill is called potential. The only way to close it is through repeated, focused effort. Today is one day of that effort.",
-        attribution: "On the Gap as Opportunity",
-        theme: "skill-development",
-        tags: ["growth", "any-day"]
+        headline: "MONASTIC TEACHING",
+        text: "Every task is an opportunity to practice virtue. Patience with tedious work. Diligence with complex work. Humility with simple work. You are not just completing tasks—you are training your character.",
+        theme: "virtue",
+        tags: ["any-day", "meaning"]
     },
     {
         id: 45,
-        text: "Mastery is not a destination you reach. It is a direction you face. Every day you can either move toward it or away from it. There is no standing still. Which direction are you facing today?",
-        attribution: "On Direction Over Distance",
-        theme: "mastery",
-        tags: ["growth", "any-day"]
+        headline: "MEDIEVAL THOUGHT",
+        text: "The work itself may not matter in a hundred years. But what it makes of you will matter forever. Approach each task not as a means to an end but as a means to becoming. This shifts everything.",
+        theme: "transformation",
+        tags: ["meaning", "any-day"]
     },
     {
         id: 46,
-        text: "You learn more from finishing bad work than from abandoning good ideas. Completion teaches judgment, reveals gaps, exposes weaknesses. Finish what you start, even if it's imperfect. Especially if it's imperfect.",
-        attribution: "On Learning Through Completion",
-        theme: "learning",
-        tags: ["completion", "perfectionism"]
+        headline: "DESERT WISDOM",
+        text: "Busyness is not holiness. Accomplishment is not virtue. What matters is not how much you do but why you do it and who you are becoming in the process. Check your motivations regularly.",
+        theme: "intention",
+        tags: ["any-day", "meaning"]
     },
     {
         id: 47,
-        text: "Quality is not about having more time—it is about using the time you have more carefully. You don't need extra hours. You need better focus during the hours you have. That starts now.",
-        attribution: "On Quality Through Focus",
-        theme: "quality",
-        tags: ["any-day", "focus"]
+        headline: "CLASSICAL VIRTUE",
+        text: "You will be remembered not for your productivity but for your integrity. Build both, but never sacrifice the latter for the former. Character is the foundation. Everything else is decoration.",
+        theme: "character",
+        tags: ["any-day", "foundation"]
     },
     {
         id: 48,
-        text: "Speed matters. Not recklessness, but velocity. The faster you complete work, the faster you receive feedback, the faster you improve. Slow perfection is often disguised procrastination. Move quickly and adjust.",
-        attribution: "On Velocity as Learning",
-        theme: "iteration",
-        tags: ["any-day", "perfectionism"]
+        headline: "CONTEMPLATIVE WISDOM",
+        text: "The tasks before you are not interruptions to your life—they are your life. This moment, this work, this effort. This is not the preamble to something greater. This is it. Be fully here.",
+        theme: "presence",
+        tags: ["any-day", "meaning"]
     },
     {
         id: 49,
-        text: "You are not paid to think about the work. You are paid to do the work. Thinking has its place, but that place is small. Most of what you need to know, you will learn through doing. Start doing.",
-        attribution: "On Bias Toward Action",
-        theme: "pragmatism",
-        tags: ["procrastination", "overthinking"]
+        headline: "SPIRITUAL DISCIPLINE",
+        text: "You cannot serve two masters. Choose: will you be driven by anxiety and ambition, or by purpose and peace? Both produce work, but only one produces a life worth living. Choose deliberately.",
+        theme: "priorities",
+        tags: ["anxiety", "any-day"]
     },
     {
         id: 50,
-        text: "The best work comes from the edge of your ability. Not so hard you fail, not so easy you coast. Find that edge and stay there. This is where growth happens. This is where you become more than you are.",
-        attribution: "On Working at the Edge",
-        theme: "challenge",
-        tags: ["growth", "any-day"]
+        headline: "ANCIENT TEACHING",
+        text: "At the end of your days, no one will ask how many tasks you completed or how busy you were. They will ask: were you kind? Were you faithful? Did you do what mattered? Let this question guide today's choices.",
+        theme: "perspective",
+        tags: ["meaning", "any-day", "friday"]
     }
 ];
 
 // ============================================
-// SMART SELECTION ALGORITHM
+// SMART REFLECTION SELECTION ALGORITHM
 // ============================================
 
-function selectContextualReflection() {
+function getSmartReflection() {
+    // Get today's context
     const now = new Date();
     const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const hour = now.getHours();
     
+    // Get user's recent patterns
+    const lastSession = JSON.parse(localStorage.getItem('focushub_daily_stats') || '{}');
+    const lastEnergy = localStorage.getItem('focushub_energy') || 'medium';
+    const streak = parseInt(localStorage.getItem('focushub_streak') || '0');
+    
     // Get reflection history
     const history = JSON.parse(localStorage.getItem('focushub_reflection_history') || '[]');
-    const recentThemes = history.slice(-7).map(r => r.theme);
-    const recentIds = history.slice(-10).map(r => r.id);
     
-    // Get user streak data
-    const userHistory = JSON.parse(localStorage.getItem('focushub_history') || '[]');
-    const streak = calculateStreak(userHistory);
+    // Get recent themes (last 7 reflections)
+    const recentThemes = history.slice(-7).map(h => h.theme);
     
-    // Filter out recently seen reflections
-    let available = EXPANDED_REFLECTIONS.filter(r => !recentIds.includes(r.id));
+    // Filter out recently seen reflections (last 10 days)
+    const recentIds = history.slice(-10).map(h => h.id);
+    const available = EXPANDED_REFLECTIONS.filter(r => !recentIds.includes(r.id));
     
-    // If we've seen everything recently, reset
+    // If we've exhausted the pool, reset
     if (available.length < 5) {
-        available = EXPANDED_REFLECTIONS;
+        localStorage.setItem('focushub_reflection_history', JSON.stringify([]));
+        return EXPANDED_REFLECTIONS[Math.floor(Math.random() * EXPANDED_REFLECTIONS.length)];
     }
     
     // Score each reflection based on context
     const scored = available.map(reflection => {
-        let score = 1;
+        let score = 0;
         
         // Day of week bonuses
         if (dayOfWeek === 1 && reflection.tags.includes('monday')) score += 5;
@@ -412,67 +414,40 @@ function selectContextualReflection() {
         if (streak >= 1 && streak <= 3 && reflection.tags.includes('momentum')) score += 3;
         if (streak >= 7 && reflection.tags.includes('long-streak')) score += 4;
         
-        // Energy-based (assume from last session or default to medium)
-        const lastEnergy = localStorage.getItem('focushub_energy') || 'medium';
+        // Energy-based bonuses
         if (lastEnergy === 'low' && reflection.tags.includes('low-energy')) score += 3;
         if (lastEnergy === 'high' && reflection.tags.includes('high-energy')) score += 2;
         
-        // Avoid recently seen themes
+        // Theme diversity bonus (avoid repeating recent themes)
         if (recentThemes.includes(reflection.theme)) score -= 2;
         
-        // Always-appropriate tags get slight bonus
+        // General applicability
         if (reflection.tags.includes('any-day')) score += 0.5;
         
         return { ...reflection, score };
     });
     
-    // Sort by score
+    // Sort by score (highest first)
     scored.sort((a, b) => b.score - a.score);
     
-    // Pick randomly from top 5
-    const topFive = scored.slice(0, 5);
-    const selected = topFive[Math.floor(Math.random() * topFive.length)];
+    // Pick from top 5 (add randomness to prevent predictability)
+    const topCandidates = scored.slice(0, 5);
+    const selected = topCandidates[Math.floor(Math.random() * topCandidates.length)];
     
-    // Track in history
+    // Record this selection
     history.push({
         id: selected.id,
         theme: selected.theme,
-        date: now.toISOString(),
-        dayOfWeek: dayOfWeek,
-        hour: hour
+        date: new Date().toDateString()
     });
     
-    // Keep last 30 days
+    // Keep last 30 reflections in history
     localStorage.setItem('focushub_reflection_history', JSON.stringify(history.slice(-30)));
     
     return selected;
 }
 
-function calculateStreak(history) {
-    if (!history || history.length === 0) return 0;
-    
-    const today = new Date().toDateString();
-    const sortedHistory = history.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    let streak = 0;
-    let checkDate = new Date();
-    
-    for (let i = 0; i < sortedHistory.length; i++) {
-        const entryDate = new Date(sortedHistory[i].date).toDateString();
-        const expectedDate = new Date(checkDate).toDateString();
-        
-        if (entryDate === expectedDate) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-        } else if (new Date(entryDate) < new Date(expectedDate)) {
-            break;
-        }
-    }
-    
-    return streak;
-}
-
 // Export for use in app.html
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { EXPANDED_REFLECTIONS, selectContextualReflection };
+    module.exports = { EXPANDED_REFLECTIONS, getSmartReflection };
 }
