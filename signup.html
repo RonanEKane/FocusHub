@@ -110,7 +110,7 @@
             <!-- BETA badge -->
             <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
             
-            <img src="FocusHub_icon.svg" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
+            <img id="authLogo" src="FocusHub_vertinv.svg" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
             
             <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Create account</h2>
             
@@ -220,7 +220,26 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     }
 });
 
+// Theme detection
+function initTheme() {
+    const theme = localStorage.getItem('focushub_theme') || 'dark';
+    const authLogo = document.getElementById('authLogo');
+    
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.body.classList.add('theme-dark');
+        document.body.classList.remove('theme-light');
+        if (authLogo) authLogo.src = 'FocusHub_vertinv.svg';
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.body.classList.add('theme-light');
+        document.body.classList.remove('theme-dark');
+        if (authLogo) authLogo.src = 'FocusHub_vertnorm.svg';
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     document.getElementById('email').focus();
 });
 </script>

@@ -99,7 +99,7 @@
             const theme = localStorage.getItem('focushub_theme') || 'light';
             const logo = document.getElementById('startDayLogo');
             if (logo) {
-                logo.src = theme === 'dark' ? 'FocusHub_vertdark.svg' : 'FocusHub_vertnorm.svg';
+                logo.src = theme === 'dark' ? 'FocusHub_vertinv.svg' : 'FocusHub_vertnorm.svg';
             }
         }
         
@@ -4006,8 +4006,8 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White text for dark theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertdark.svg';
+                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White logo for dark theme
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertinv.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
                 if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Orange text for light theme

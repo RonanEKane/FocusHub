@@ -87,7 +87,7 @@
             <!-- BETA badge in corner -->
             <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px; transform: rotate(0deg);">BETA</span>
             
-            <img src="FocusHub_icon.svg" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
+            <img id="authLogo" src="FocusHub_vertinv.svg" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
             
             <!-- Login Form -->
             <div id="loginForm" class="auth-form">
@@ -330,14 +330,18 @@
         
         // Theme detection
         function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const theme = localStorage.getItem('focushub_theme') || 'dark';
             const authLogo = document.querySelector('.auth-logo');
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.add('theme-dark');
+                document.body.classList.remove('theme-light');
                 authLogo.src = 'FocusHub_vertinv.svg';
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
+                document.body.classList.add('theme-light');
+                document.body.classList.remove('theme-dark');
                 authLogo.src = 'FocusHub_vertnorm.svg';
             }
         }
