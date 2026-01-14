@@ -523,15 +523,15 @@ Be concise, helpful, and direct. Use a supportive but no-nonsense tone that matc
 
         // Theme detection and logo swap
         function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const theme = localStorage.getItem('focushub_theme') || 'dark';
             const faqLogo = document.getElementById('faqLogo');
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertinv.svg';
+                if (faqLogo) faqLogo.src = 'FocusHub_vertinv.svg'; // Dark = white text
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertnorm.svg';
+                if (faqLogo) faqLogo.src = 'FocusHub_vertnorm.svg'; // Light = black text
             }
         }
 

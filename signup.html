@@ -183,6 +183,14 @@
     </div>
 
 <script>
+// Capture referral code from URL
+const urlParams = new URLSearchParams(window.location.search);
+const referralCode = urlParams.get('ref');
+if (referralCode) {
+    localStorage.setItem('focushub_referred_by', referralCode);
+    console.log('Referral tracked:', referralCode);
+}
+
 // Form submission
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -216,6 +224,14 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         const result = await handleSignup(email, password, 'professional');
         
         if (result.success) {
+            // Store referral if exists
+            const referredBy = localStorage.getItem('focushub_referred_by');
+            if (referredBy) {
+                // TODO: Save to Supabase user_profiles.referred_by
+                console.log('User signed up via referral:', referredBy);
+                localStorage.removeItem('focushub_referred_by'); // Clear after use
+            }
+            
             // Store name for profile
             if (result.user) {
                 await supabaseClient
@@ -249,12 +265,12 @@ function initTheme() {
         document.documentElement.setAttribute('data-theme', 'dark');
         document.body.classList.add('theme-dark');
         document.body.classList.remove('theme-light');
-        if (authLogo) authLogo.src = 'FocusHub_vertinv.svg';
+        if (authLogo) authLogo.src = 'FocusHub_vertinv.svg'; // Dark = white text
     } else {
         document.documentElement.setAttribute('data-theme', 'light');
         document.body.classList.add('theme-light');
         document.body.classList.remove('theme-dark');
-        if (authLogo) authLogo.src = 'FocusHub_vertnorm.svg';
+        if (authLogo) authLogo.src = 'FocusHub_vertnorm.svg'; // Light = black text
     }
 }
 

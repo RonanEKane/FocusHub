@@ -24,7 +24,7 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img id="startDayLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1.5rem; display: block;">
+            <img id="startDayLogo" src="FocusHub_vertinv.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1.5rem; display: block;">
             <h1 class="start-title">Prepare your session</h1>
             <p class="start-subtitle">Define today's work requirements. The system enforces them.</p>
             <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin: 0 auto 2rem; max-width: 500px; line-height: 1.5;">
@@ -96,10 +96,10 @@
     <script>
         // Update start screen logo based on theme
         function updateStartScreenLogo() {
-            const theme = localStorage.getItem('focushub_theme') || 'light';
+            const theme = localStorage.getItem('focushub_theme') || 'dark';
             const logo = document.getElementById('startDayLogo');
             if (logo) {
-                logo.src = theme === 'dark' ? 'FocusHub_vertinv.svg' : 'FocusHub_vertnorm.svg';
+                logo.src = theme === 'dark' ? 'FocusHub_vertinv.svg' : 'FocusHub_vertnorm.svg'; // Dark=white text, Light=black text
             }
         }
         
@@ -128,8 +128,13 @@
                 </div>
                 
                 <div class="header-controls">
+                    <span id="syncIndicator" class="sync-indicator" style="display: none; font-size: 0.75rem; color: var(--text-secondary); margin-right: 1rem;">
+                        <span id="syncIcon">☁️</span>
+                        <span id="syncText">Synced</span>
+                    </span>
                     <a href="overview.html" class="btn-home">📊 Dashboard</a>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
+                    <button id="exportDataBtn" class="btn-home" style="color: var(--text-secondary);">📥 Export</button>
                     <button id="logoutBtn" class="btn-home" style="color: var(--text-secondary);">Logout</button>
                     <button id="endDayBtn" class="btn-end-day" data-label="endDay">END DAY</button>
                 </div>
@@ -174,6 +179,24 @@
                                 <button class="duration-btn recommended" data-duration="20" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">20 min</button>
                                 <button class="duration-btn" data-duration="30" data-type="focus" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;">30 min</button>
                                 <button class="duration-btn" id="breakBtn" data-type="break" data-duration="5" style="flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem; background: var(--success); color: white;">Break (5 min)</button>
+                            </div>
+                            
+                            <!-- Premium Pomodoro Variations -->
+                            <div id="pomodoroVariations" class="hidden" style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">Pomodoro Method:</label>
+                                    <span style="font-size: 0.75rem; color: var(--industrial-orange); font-weight: 600;">✨ PREMIUM</span>
+                                </div>
+                                <select id="pomodoroMethodSelect" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-medium); border-radius: 4px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem;">
+                                    <option value="adaptive">Adaptive (Energy-based)</option>
+                                    <option value="classic">Classic Pomodoro (25/5/15)</option>
+                                    <option value="optimal">52/17 Method (Optimal)</option>
+                                    <option value="extended">Extended Focus (45/15)</option>
+                                    <option value="micro">Micro Sessions (10/2)</option>
+                                </select>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.4;">
+                                    <span id="pomodoroMethodDescription">Durations adjust based on your energy level. Perfect for ADHD brains.</span>
+                                </p>
                             </div>
                             
                             <!-- First-run helper text -->
@@ -391,6 +414,8 @@
             <span class="footer-separator">|</span>
             <a href="guide.html">💬 Support</a>
             <span class="footer-separator">|</span>
+            <a href="#" onclick="openShareModal(); return false;" style="color: var(--industrial-orange);">🎁 Share</a>
+            <span class="footer-separator">|</span>
             <a href="#" onclick="openFeedbackModal(); return false;" style="color: var(--industrial-orange);">🎯 Beta Feedback</a>
         </footer>
     </div>
@@ -468,6 +493,83 @@
                         Send Feedback
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share with Friend Modal -->
+    <div id="shareModal" class="modal-overlay hidden">
+        <div class="modal feedback-modal">
+            <div class="modal-header">
+                <h2>🎁 Share FocusHub</h2>
+                <button class="modal-close" onclick="closeShareModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+                    Help other ADHD brains discover a productivity tool that actually works for them.
+                </p>
+                
+                <!-- Referral Link -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Your Referral Link:</label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input 
+                            type="text" 
+                            id="referralLinkInput" 
+                            class="form-input"
+                            readonly
+                            value=""
+                            style="flex: 1; font-size: 14px; font-family: monospace; background: var(--bg-primary);"
+                        >
+                        <button 
+                            class="btn btn-primary" 
+                            onclick="copyReferralLink()"
+                            style="padding: 0.75rem 1.5rem; white-space: nowrap;"
+                        >
+                            📋 Copy
+                        </button>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Share this link with friends. We'll track signups via your code.
+                    </p>
+                </div>
+                
+                <!-- Referral Stats -->
+                <div style="background: var(--bg-primary); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-secondary);">People you've referred:</span>
+                        <span id="referralCount" style="font-size: 1.5rem; font-weight: 700; color: var(--industrial-orange);">0</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Share Buttons -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Quick Share:</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                        <button onclick="shareToTwitter()" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>𝕏</span> Twitter
+                        </button>
+                        <button onclick="shareToLinkedIn()" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>in</span> LinkedIn
+                        </button>
+                        <button onclick="shareViaEmail()" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>✉️</span> Email
+                        </button>
+                        <button onclick="shareNative()" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>📤</span> More
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Close Button -->
+                <button 
+                    class="btn btn-secondary" 
+                    onclick="closeShareModal()"
+                    style="width: 100%;"
+                >
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -715,6 +817,37 @@
             if (confirm('Are you sure you want to logout?')) {
                 await signOut()
             }
+        }
+        
+        // Export user data function
+        function exportUserData() {
+            // Gather all localStorage data
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                appVersion: '1.0.0',
+                state: JSON.parse(localStorage.getItem('focushub_state') || '{}'),
+                tasks: JSON.parse(localStorage.getItem('focushub_tasks') || '[]'),
+                distractions: JSON.parse(localStorage.getItem('focushub_distractions') || '[]'),
+                history: JSON.parse(localStorage.getItem('focushub_history') || '[]'),
+                streakData: JSON.parse(localStorage.getItem('focushub_streak') || '{}'),
+                reflectionHistory: JSON.parse(localStorage.getItem('focushub_reflection_history') || '[]'),
+                mode: localStorage.getItem('focushub_mode'),
+                theme: localStorage.getItem('focushub_theme')
+            };
+            
+            // Create downloadable JSON file
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `focushub-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Your data has been exported! Check your Downloads folder.');
         }
         
         // Start the app
@@ -1089,6 +1222,9 @@
             
             // Check premium status and show/hide reflection selector
             await checkPremiumStatus();
+            
+            // PREMIUM: Start multi-device sync polling
+            await startSyncPolling();
             
             // Remove unwanted duration buttons added by config.js
             removeExtraButtons();
@@ -1550,7 +1686,8 @@
                         distractions_logged: state.distractionCount,
                         meeting_minutes: state.meetingMinutes,
                         session_state: state.sessionState,
-                        current_grade: state.currentGrade
+                        current_grade: state.currentGrade,
+                        last_sync: new Date().toISOString() // Track sync time
                     });
                     
                     // Save all tasks
@@ -1563,9 +1700,13 @@
                     await saveAllIntentions(state.intentions);
                     
                     console.log('✅ Saved to Supabase');
+                    
+                    // Update last sync indicator
+                    updateSyncIndicator('synced');
                 }
             } catch (error) {
                 console.error('Supabase save error (will use localStorage):', error);
+                updateSyncIndicator('offline');
             }
             
             // ALSO save to localStorage as backup/offline cache
@@ -1593,6 +1734,128 @@
             };
             localStorage.setItem('focushub_timer', JSON.stringify(timerState));
         }
+        
+        // ============================================
+        // MULTI-DEVICE SYNC (Premium Feature)
+        // ============================================
+        
+        let syncCheckInterval = null;
+        let lastKnownSync = null;
+        
+        // Update sync indicator in UI
+        function updateSyncIndicator(status) {
+            const indicator = document.getElementById('syncIndicator');
+            const icon = document.getElementById('syncIcon');
+            const text = document.getElementById('syncText');
+            
+            if (!indicator || !icon || !text) return;
+            
+            // Show indicator for premium users only
+            if (status === 'synced') {
+                icon.textContent = '☁️';
+                text.textContent = 'Synced';
+                indicator.style.color = 'var(--success)';
+                indicator.style.display = 'flex';
+                indicator.style.alignItems = 'center';
+                indicator.style.gap = '0.25rem';
+            } else if (status === 'syncing') {
+                icon.textContent = '🔄';
+                text.textContent = 'Syncing...';
+                indicator.style.color = 'var(--industrial-orange)';
+                indicator.style.display = 'flex';
+            } else if (status === 'offline') {
+                icon.textContent = '📴';
+                text.textContent = 'Offline';
+                indicator.style.color = 'var(--text-secondary)';
+                indicator.style.display = 'flex';
+            }
+        }
+        
+        // Check for updates from other devices
+        async function checkForRemoteUpdates() {
+            try {
+                if (typeof getTodaySession !== 'function') return;
+                
+                // Get latest session data from Supabase
+                const remoteSession = await getTodaySession();
+                if (!remoteSession || !remoteSession.last_sync) return;
+                
+                const remoteSync = new Date(remoteSession.last_sync).getTime();
+                const localSync = lastKnownSync || 0;
+                
+                // If remote is newer, pull updates
+                if (remoteSync > localSync) {
+                    console.log('📥 Pulling updates from another device...');
+                    await pullRemoteState(remoteSession);
+                    lastKnownSync = remoteSync;
+                    updateSyncIndicator('synced');
+                }
+            } catch (error) {
+                console.error('Error checking remote updates:', error);
+            }
+        }
+        
+        // Pull state from Supabase and update local
+        async function pullRemoteState(remoteSession) {
+            // Update state with remote data
+            state.sprintCount = remoteSession.sprints_completed || 0;
+            state.tasksCompleted = remoteSession.tasks_completed || 0;
+            state.breaksCount = remoteSession.breaks_taken || 0;
+            state.distractionCount = remoteSession.distractions_logged || 0;
+            state.meetingMinutes = remoteSession.meeting_minutes || 0;
+            state.plannedSprints = remoteSession.planned_sprints || 5;
+            state.energyLevel = remoteSession.energy_level || 'medium';
+            
+            // Update UI
+            updateCounters();
+            updateCurrentGrade();
+            
+            // Pull tasks
+            if (typeof getAllTasks === 'function') {
+                const remoteTasks = await getAllTasks();
+                if (remoteTasks && remoteTasks.length > 0) {
+                    state.tasks = remoteTasks;
+                    renderTasks();
+                }
+            }
+            
+            // Pull distractions
+            if (typeof getAllDistractions === 'function') {
+                const remoteDistractions = await getAllDistractions();
+                if (remoteDistractions && remoteDistractions.length > 0) {
+                    state.distractions = remoteDistractions;
+                    renderDistractions();
+                }
+            }
+            
+            console.log('✅ Synced from cloud');
+        }
+        
+        // Start sync polling for premium users
+        async function startSyncPolling() {
+            try {
+                const hasPremium = await isPremiumUser();
+                if (!hasPremium) {
+                    // Hide sync indicator for free users
+                    const indicator = document.getElementById('syncIndicator');
+                    if (indicator) indicator.style.display = 'none';
+                    return;
+                }
+                
+                // Show sync indicator
+                updateSyncIndicator('synced');
+                
+                // Poll every 30 seconds
+                syncCheckInterval = setInterval(checkForRemoteUpdates, 30000);
+                
+                // Do initial check
+                await checkForRemoteUpdates();
+                
+                console.log('✅ Multi-device sync enabled (Premium)');
+            } catch (error) {
+                console.error('Error starting sync:', error);
+            }
+        }
 
         async function checkPremiumStatus() {
             try {
@@ -1600,6 +1863,8 @@
                 const hasPremium = await isPremiumUser();
                 const reflectionGroup = document.getElementById('reflectionTraditionGroup');
                 const reflectionSelect = document.getElementById('reflectionTraditionSelect');
+                const pomodoroVariations = document.getElementById('pomodoroVariations');
+                const pomodoroSelect = document.getElementById('pomodoroMethodSelect');
                 
                 if (hasPremium) {
                     // Show reflection selector for premium users
@@ -1607,10 +1872,23 @@
                         reflectionGroup.style.display = 'block';
                     }
                     
+                    // Show Pomodoro variations for premium users
+                    if (pomodoroVariations) {
+                        pomodoroVariations.classList.remove('hidden');
+                    }
+                    
                     // Load user's saved tradition preference
                     const savedTradition = await getReflectionTradition();
                     if (reflectionSelect && savedTradition) {
                         reflectionSelect.value = savedTradition;
+                    }
+                    
+                    // Load saved Pomodoro method
+                    const savedMethod = localStorage.getItem('focushub_pomodoro_method') || 'adaptive';
+                    if (pomodoroSelect) {
+                        pomodoroSelect.value = savedMethod;
+                        updatePomodoroDescription(savedMethod);
+                        applyPomodoroMethod(savedMethod);
                     }
                     
                     // Listen for changes
@@ -1621,14 +1899,125 @@
                             console.log(`✅ Reflection tradition changed to: ${newTradition}`);
                         });
                     }
+                    
+                    // Listen for Pomodoro method changes
+                    if (pomodoroSelect) {
+                        pomodoroSelect.addEventListener('change', (e) => {
+                            const method = e.target.value;
+                            localStorage.setItem('focushub_pomodoro_method', method);
+                            updatePomodoroDescription(method);
+                            applyPomodoroMethod(method);
+                            console.log(`✅ Pomodoro method changed to: ${method}`);
+                        });
+                    }
                 } else {
                     // Hide for free users
                     if (reflectionGroup) {
                         reflectionGroup.style.display = 'none';
                     }
+                    if (pomodoroVariations) {
+                        pomodoroVariations.classList.add('hidden');
+                    }
                 }
             } catch (error) {
                 console.error('Error checking premium status:', error);
+            }
+        }
+        
+        // Update Pomodoro method description
+        function updatePomodoroDescription(method) {
+            const descriptions = {
+                'adaptive': 'Durations adjust based on your energy level. Perfect for ADHD brains.',
+                'classic': '25 minutes focus, 5 minute breaks, 15 minute long break after 4 sessions.',
+                'optimal': '52 minutes focus, 17 minute breaks. Based on productivity research.',
+                'extended': '45 minutes focus, 15 minute breaks. For deep work sessions.',
+                'micro': '10 minutes focus, 2 minute breaks. For high-distraction environments.'
+            };
+            
+            const descEl = document.getElementById('pomodoroMethodDescription');
+            if (descEl) {
+                descEl.textContent = descriptions[method] || descriptions.adaptive;
+            }
+        }
+        
+        // Apply Pomodoro method to duration buttons
+        function applyPomodoroMethod(method) {
+            const durationButtons = document.querySelectorAll('.duration-btn[data-type="focus"]');
+            const breakBtn = document.getElementById('breakBtn');
+            
+            // Hide all current duration buttons
+            durationButtons.forEach(btn => btn.style.display = 'none');
+            
+            // Method-specific durations
+            const methods = {
+                'adaptive': {
+                    durations: [15, 20, 30],
+                    breakDuration: 5,
+                    recommended: 20 // Index of recommended duration
+                },
+                'classic': {
+                    durations: [25],
+                    breakDuration: 5,
+                    recommended: 0
+                },
+                'optimal': {
+                    durations: [52],
+                    breakDuration: 17,
+                    recommended: 0
+                },
+                'extended': {
+                    durations: [45],
+                    breakDuration: 15,
+                    recommended: 0
+                },
+                'micro': {
+                    durations: [10],
+                    breakDuration: 2,
+                    recommended: 0
+                }
+            };
+            
+            const config = methods[method] || methods.adaptive;
+            
+            // Show/create appropriate buttons
+            if (method === 'adaptive') {
+                // Show default buttons
+                durationButtons.forEach(btn => btn.style.display = 'flex');
+            } else {
+                // Create custom duration buttons
+                const container = document.querySelector('.duration-buttons');
+                if (container) {
+                    // Remove old custom buttons
+                    container.querySelectorAll('.custom-duration-btn').forEach(b => b.remove());
+                    
+                    // Add new custom buttons
+                    config.durations.forEach((duration, index) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'duration-btn custom-duration-btn';
+                        if (index === config.recommended) {
+                            btn.classList.add('recommended');
+                        }
+                        btn.setAttribute('data-duration', duration);
+                        btn.setAttribute('data-type', 'focus');
+                        btn.style.cssText = 'flex: 1; min-width: 120px; font-size: 1.1rem; padding: 1rem;';
+                        btn.textContent = `${duration} min`;
+                        
+                        // Add click handler
+                        btn.addEventListener('click', function() {
+                            const dur = parseInt(this.dataset.duration);
+                            const type = this.dataset.type;
+                            startTimer(dur, type);
+                        });
+                        
+                        container.insertBefore(btn, breakBtn);
+                    });
+                }
+            }
+            
+            // Update break duration
+            if (breakBtn) {
+                breakBtn.setAttribute('data-duration', config.breakDuration);
+                breakBtn.textContent = `Break (${config.breakDuration} min)`;
             }
         }
 
@@ -1899,6 +2288,9 @@
                     updateAgentMessage();
                 });
             }
+            
+            // Export Data
+            document.getElementById('exportDataBtn').addEventListener('click', exportUserData);
             
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -4006,12 +4398,12 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White logo for dark theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertinv.svg';
+                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // Dark = white text
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertinv.svg'; // Dark = white text
             } else {
                 themeToggle.textContent = '☀️ Light';
-                if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Orange text for light theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.svg';
+                if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Light = black text
+                if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.svg'; // Light = black text
             }
         }
         
@@ -4393,6 +4785,130 @@ function closeFeedbackModal() {
     document.querySelector('.feedback-type-btn[data-type="bug"]').classList.add('active');
     currentFeedbackType = 'bug';
 }
+
+// ============================================
+// SHARE WITH FRIEND FUNCTIONS
+// ============================================
+
+// Generate or get referral code
+function getReferralCode() {
+    let code = localStorage.getItem('focushub_referral_code');
+    if (!code) {
+        // Generate unique code from email or random string
+        const user = window.currentFirebaseUser;
+        if (user && user.email) {
+            // Use first part of email + random chars
+            const emailPrefix = user.email.split('@')[0].substring(0, 8).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const randomStr = Math.random().toString(36).substring(2, 6);
+            code = emailPrefix + randomStr;
+        } else {
+            // Fallback to random code
+            code = 'user' + Math.random().toString(36).substring(2, 10);
+        }
+        localStorage.setItem('focushub_referral_code', code);
+    }
+    return code;
+}
+
+// Open share modal
+function openShareModal() {
+    const modal = document.getElementById('shareModal');
+    modal.classList.remove('hidden');
+    
+    // Generate referral link
+    const code = getReferralCode();
+    const baseUrl = window.location.origin;
+    const referralLink = `${baseUrl}/?ref=${code}`;
+    document.getElementById('referralLinkInput').value = referralLink;
+    
+    // Load referral count from Supabase or localStorage
+    loadReferralCount(code);
+}
+
+// Close share modal
+function closeShareModal() {
+    document.getElementById('shareModal').classList.add('hidden');
+}
+
+// Copy referral link to clipboard
+async function copyReferralLink() {
+    const input = document.getElementById('referralLinkInput');
+    try {
+        await navigator.clipboard.writeText(input.value);
+        alert('✅ Link copied! Share it with friends.');
+    } catch (err) {
+        // Fallback for older browsers
+        input.select();
+        document.execCommand('copy');
+        alert('✅ Link copied! Share it with friends.');
+    }
+}
+
+// Load referral count
+async function loadReferralCount(code) {
+    try {
+        // Check localStorage for referral tracking
+        const referrals = JSON.parse(localStorage.getItem('focushub_referral_signups') || '[]');
+        document.getElementById('referralCount').textContent = referrals.length;
+        
+        // TODO: In future, query Supabase for actual signup count
+        // const { data, error } = await supabase
+        //     .from('user_profiles')
+        //     .select('id', { count: 'exact' })
+        //     .eq('referred_by', code);
+        // if (data) document.getElementById('referralCount').textContent = data.length;
+    } catch (err) {
+        console.error('Error loading referral count:', err);
+    }
+}
+
+// Share to Twitter
+function shareToTwitter() {
+    const code = getReferralCode();
+    const url = `${window.location.origin}/?ref=${code}`;
+    const text = encodeURIComponent('I\'m using FocusHub - a productivity app actually built for ADHD brains. No gamification BS, just tough-love accountability that works.');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank');
+}
+
+// Share to LinkedIn
+function shareToLinkedIn() {
+    const code = getReferralCode();
+    const url = `${window.location.origin}/?ref=${code}`;
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+}
+
+// Share via Email
+function shareViaEmail() {
+    const code = getReferralCode();
+    const url = `${window.location.origin}/?ref=${code}`;
+    const subject = encodeURIComponent('Try FocusHub - Productivity for ADHD Brains');
+    const body = encodeURIComponent(`Hey,\n\nI've been using FocusHub and it's actually working for me. It's built specifically for ADHD brains - no gamification, just tough-love accountability.\n\nThought you might find it useful:\n${url}\n\nLet me know what you think!`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+// Native share (mobile)
+async function shareNative() {
+    const code = getReferralCode();
+    const url = `${window.location.origin}/?ref=${code}`;
+    
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'FocusHub - Productivity for ADHD',
+                text: 'I\'m using FocusHub - a productivity app actually built for ADHD brains.',
+                url: url
+            });
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('Error sharing:', err);
+            }
+        }
+    } else {
+        // Fallback - just copy link
+        await copyReferralLink();
+    }
+}
+
 
 // Feedback type selection
 document.querySelectorAll('.feedback-type-btn').forEach(btn => {
