@@ -36,3 +36,84 @@ body.light-theme {
     --border-light: #e0e0e0;
     --border-medium: #cccccc;
 }
+
+/* Historical Analytics Styles */
+.period-btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.period-btn:hover {
+    background: var(--bg-primary);
+    border-color: var(--industrial-orange);
+    color: var(--text-primary);
+}
+
+.period-btn.active {
+    background: var(--industrial-orange);
+    border-color: var(--industrial-orange);
+    color: white;
+}
+
+#trendChart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.distraction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    border-left: 3px solid var(--industrial-orange);
+}
+
+.distraction-name {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.distraction-count {
+    font-size: 0.875rem;
+    color: var(--industrial-orange);
+    font-weight: 600;
+}
+
+/* Tier Badge Styles */
+.tier-badge {
+    transition: all 0.3s ease;
+}
+
+.tier-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus Mode Styles */
+body.focus-mode-active {
+    background: #000 !important;
+}
+
+body.focus-mode-active * {
+    transition: opacity 0.3s ease;
+}
+
+body.focus-mode-active #workingView {
+    padding-top: 10vh;
+}
+
+body.focus-mode-active #currentTaskDisplay {
+    font-size: 2rem !important;
+    text-align: center;
+    padding: 2rem;
+}

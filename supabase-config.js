@@ -78,6 +78,109 @@ async function isPremiumUser() {
     }
 }
 
+async function isProUser() {
+    try {
+        const membership = await getUserMembership();
+        if (!membership) return false;
+        
+        // Pro or higher (premium, beta)
+        if (membership.tier === 'pro' || membership.tier === 'premium' || membership.tier === 'beta') {
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error checking pro status:', error);
+        return false;
+    }
+}
+
+async function getUserTier() {
+    try {
+        const membership = await getUserMembership();
+        if (!membership) return 'trial';
+        
+        // Check if trial period is active
+        const trialStatus = await checkTrialStatus();
+        if (trialStatus.inTrial) {
+            return 'trial';
+        }
+        
+        return membership.tier || 'free';
+    } catch (error) {
+        console.error('Error getting user tier:', error);
+        return 'free';
+    }
+}
+
+async function checkTrialStatus() {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return { inTrial: false, daysRemaining: 0 };
+        
+        const membership = await getUserMembership();
+        if (!membership) return { inTrial: false, daysRemaining: 0 };
+        
+        // Check if user has ever subscribed
+        if (membership.stripe_subscription_id || membership.has_subscribed) {
+            return { inTrial: false, daysRemaining: 0 };
+        }
+        
+        // Calculate trial period based on tier
+        const signupDate = new Date(membership.created_at || user.created_at);
+        const now = new Date();
+        const daysSinceSignup = Math.floor((now - signupDate) / (1000 * 60 * 60 * 24));
+        
+        // Lite: 7 days free trial
+        // Pro: 14 days at $4.99
+        // Premium: 14 days at $9.99
+        const trialDays = membership.tier === 'lite' ? 7 : 14;
+        const daysRemaining = trialDays - daysSinceSignup;
+        
+        return {
+            inTrial: daysRemaining > 0,
+            daysRemaining: Math.max(0, daysRemaining),
+            trialEndsAt: new Date(signupDate.getTime() + trialDays * 24 * 60 * 60 * 1000)
+        };
+    } catch (error) {
+        console.error('Error checking trial status:', error);
+        return { inTrial: false, daysRemaining: 0 };
+    }
+}
+
+function getTierDisplayName(tier) {
+    const tierNames = {
+        'trial': 'Trial',
+        'lite': 'Lite',
+        'pro': 'Pro',
+        'premium': 'Premium',
+        'beta': 'Beta'
+    };
+    return tierNames[tier] || 'Free';
+}
+
+function getTierColor(tier) {
+    const tierColors = {
+        'trial': '#a855f7', // Purple
+        'lite': '#64748b',  // Gray
+        'pro': '#3b82f6',   // Blue
+        'premium': '#f59e0b', // Gold
+        'beta': '#22c55e'   // Green
+    };
+    return tierColors[tier] || '#64748b';
+}
+
+function getTierEmoji(tier) {
+    const tierEmojis = {
+        'trial': '⏱️',
+        'lite': '💡',
+        'pro': '⚡',
+        'premium': '⭐',
+        'beta': '🎖️'
+    };
+    return tierEmojis[tier] || '💡';
+}
+
 async function getReflectionTradition() {
     try {
         const user = await getCurrentUser();

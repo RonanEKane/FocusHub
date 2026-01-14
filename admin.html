@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+        
+        .admin-header h1 {
+            font-size: 2rem;
+            color: var(--industrial-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .admin-tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .admin-tab.active {
+            color: var(--industrial-orange);
+            border-bottom-color: var(--industrial-orange);
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-panel.active {
+            display: block;
+        }
+        
+        .admin-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .admin-card h3 {
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .admin-form {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .admin-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .admin-form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .admin-form-group input,
+        .admin-form-group select {
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+        
+        .admin-form-group input:focus,
+        .admin-form-group select:focus {
+            outline: none;
+            border-color: var(--industrial-orange);
+        }
+        
+        .admin-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--industrial-orange);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .admin-btn:hover {
+            background: #d94f06;
+            transform: translateY(-1px);
+        }
+        
+        .admin-btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        
+        .admin-btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .users-table th {
+            text-align: left;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border-light);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .users-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.875rem;
+        }
+        
+        .users-table tr:hover {
+            background: var(--bg-primary);
+        }
+        
+        .tier-badge-table {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .tier-lite { background: rgba(100, 116, 139, 0.2); color: #64748b; }
+        .tier-pro { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tier-premium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .tier-beta { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--industrial-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>🛠️ Admin Panel</h1>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">Manage users, tiers, and beta access</p>
+            <a href="overview.html" style="color: var(--industrial-orange); font-size: 0.875rem; text-decoration: none;">← Back to Dashboard</a>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchTab('overview')">Overview</button>
+            <button class="admin-tab" onclick="switchTab('users')">Users</button>
+            <button class="admin-tab" onclick="switchTab('manage')">Manage Tier</button>
+            <button class="admin-tab" onclick="switchTab('beta')">Beta Users</button>
+        </div>
+        
+        <!-- Overview Panel -->
+        <div id="overviewPanel" class="admin-panel active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="liteUsers">0</div>
+                    <div class="stat-label">Lite Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="proUsers">0</div>
+                    <div class="stat-label">Pro Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="premiumUsers">0</div>
+                    <div class="stat-label">Premium Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="betaUsers">0</div>
+                    <div class="stat-label">Beta Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="trialUsers">0</div>
+                    <div class="stat-label">In Trial</div>
+                </div>
+            </div>
+            
+            <div class="admin-card">
+                <h3>Quick Actions</h3>
+                <div class="btn-group">
+                    <button class="admin-btn" onclick="markBetaUsersByDate()">Mark Beta Users (Before Date)</button>
+                    <button class="admin-btn-secondary admin-btn" onclick="refreshStats()">Refresh Stats</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users Panel -->
+        <div id="usersPanel" class="admin-panel">
+            <div class="admin-card">
+                <h3>All Users</h3>
+                <div id="usersAlert"></div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Tier</th>
+                            <th>Beta</th>
+                            <th>Signup Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                Loading users...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Manage Tier Panel -->
+        <div id="managePanel" class="admin-panel">
+            <div class="admin-card">
+                <h3>Change User Tier</h3>
+                <div id="manageAlert"></div>
+                <form class="admin-form" onsubmit="changeUserTier(event)">
+                    <div class="admin-form-group">
+                        <label for="userEmail">User Email</label>
+                        <input type="email" id="userEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="newTier">New Tier</label>
+                        <select id="newTier" required>
+                            <option value="lite">💡 Lite</option>
+                            <option value="pro">⚡ Pro</option>
+                            <option value="premium">⭐ Premium</option>
+                            <option value="beta">🎖️ Beta (Forever Premium)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="admin-btn">Update Tier</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Beta Users Panel -->
+        <div id="betaPanel" class="admin-panel">
+            <div class="admin-card">
+                <h3>Mark Beta Users</h3>
+                <div id="betaAlert"></div>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                    Mark all users who signed up before a specific date as Beta users (forever Premium).
+                </p>
+                <form class="admin-form" onsubmit="markBetaUsers(event)">
+                    <div class="admin-form-group">
+                        <label for="betaDate">Signup Before Date</label>
+                        <input type="date" id="betaDate" required>
+                    </div>
+                    <button type="submit" class="admin-btn">Mark as Beta Users</button>
+                </form>
+            </div>
+            
+            <div class="admin-card">
+                <h3>Current Beta Users</h3>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Signup Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="betaUsersTableBody">
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                Loading beta users...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <script>
+        // Check admin access
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        if (!currentUser || currentUser.email !== 'watersjb@gmail.com') {
+            alert('Admin access only');
+            window.location.href = 'overview.html';
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update panels
+            document.querySelectorAll('.admin-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(tabName + 'Panel').classList.add('active');
+            
+            // Load data for the tab
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'beta') loadBetaUsers();
+            if (tabName === 'overview') loadStats();
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('user_memberships')
+                    .select('*');
+                
+                if (error) throw error;
+                
+                const stats = {
+                    total: users.length,
+                    lite: users.filter(u => u.tier === 'lite').length,
+                    pro: users.filter(u => u.tier === 'pro').length,
+                    premium: users.filter(u => u.tier === 'premium').length,
+                    beta: users.filter(u => u.tier === 'beta' || u.is_beta_user).length,
+                    trial: 0 // Would need to calculate trial status
+                };
+                
+                document.getElementById('totalUsers').textContent = stats.total;
+                document.getElementById('liteUsers').textContent = stats.lite;
+                document.getElementById('proUsers').textContent = stats.pro;
+                document.getElementById('premiumUsers').textContent = stats.premium;
+                document.getElementById('betaUsers').textContent = stats.beta;
+                document.getElementById('trialUsers').textContent = stats.trial;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load all users
+        async function loadUsers() {
+            try {
+                const { data: memberships, error: memberError } = await supabaseClient
+                    .from('user_memberships')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (memberError) throw memberError;
+                
+                // Get user emails
+                const { data: authUsers, error: authError } = await supabaseClient.auth.admin.listUsers();
+                
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                memberships.forEach(membership => {
+                    const authUser = authUsers?.users?.find(u => u.id === membership.user_id);
+                    const email = authUser?.email || 'Unknown';
+                    const signupDate = new Date(membership.created_at).toLocaleDateString();
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${email}</td>
+                        <td><span class="tier-badge-table tier-${membership.tier}">${membership.tier.toUpperCase()}</span></td>
+                        <td>${membership.is_beta_user ? '🎖️ Yes' : 'No'}</td>
+                        <td>${signupDate}</td>
+                        <td>
+                            <button class="admin-btn-secondary admin-btn" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="editUser('${email}')">
+                                Edit
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showAlert('usersAlert', 'Error loading users: ' + error.message, 'error');
+            }
+        }
+
+        // Change user tier
+        async function changeUserTier(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('userEmail').value;
+            const newTier = document.getElementById('newTier').value;
+            
+            try {
+                // Get user ID from email
+                const { data: users } = await supabaseClient.auth.admin.listUsers();
+                const user = users?.users?.find(u => u.email === email);
+                
+                if (!user) {
+                    showAlert('manageAlert', 'User not found', 'error');
+                    return;
+                }
+                
+                // Update membership
+                const { error } = await supabaseClient
+                    .from('user_memberships')
+                    .update({
+                        tier: newTier,
+                        is_beta_user: newTier === 'beta',
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', user.id);
+                
+                if (error) throw error;
+                
+                showAlert('manageAlert', `Successfully updated ${email} to ${newTier.toUpperCase()}`, 'success');
+                document.getElementById('userEmail').value = '';
+                
+            } catch (error) {
+                console.error('Error changing tier:', error);
+                showAlert('manageAlert', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        // Mark beta users by date
+        async function markBetaUsers(event) {
+            event.preventDefault();
+            
+            const cutoffDate = document.getElementById('betaDate').value;
+            
+            if (!confirm(`Mark all users who signed up before ${cutoffDate} as Beta users?`)) {
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('user_memberships')
+                    .update({
+                        tier: 'beta',
+                        is_beta_user: true
+                    })
+                    .lt('created_at', cutoffDate);
+                
+                if (error) throw error;
+                
+                showAlert('betaAlert', `Successfully marked users as Beta`, 'success');
+                loadBetaUsers();
+                loadStats();
+                
+            } catch (error) {
+                console.error('Error marking beta users:', error);
+                showAlert('betaAlert', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        // Load beta users
+        async function loadBetaUsers() {
+            try {
+                const { data: memberships, error } = await supabaseClient
+                    .from('user_memberships')
+                    .select('*')
+                    .or('tier.eq.beta,is_beta_user.eq.true')
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+                
+                const { data: authUsers } = await supabaseClient.auth.admin.listUsers();
+                
+                const tbody = document.getElementById('betaUsersTableBody');
+                tbody.innerHTML = '';
+                
+                if (memberships.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No beta users yet</td></tr>';
+                    return;
+                }
+                
+                memberships.forEach(membership => {
+                    const authUser = authUsers?.users?.find(u => u.id === membership.user_id);
+                    const email = authUser?.email || 'Unknown';
+                    const signupDate = new Date(membership.created_at).toLocaleDateString();
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${email}</td>
+                        <td>${signupDate}</td>
+                        <td>
+                            <button class="admin-btn-secondary admin-btn" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="revokeBeta('${email}', '${membership.user_id}')">
+                                Revoke Beta
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error loading beta users:', error);
+            }
+        }
+
+        // Helper functions
+        function showAlert(elementId, message, type) {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+
+        function editUser(email) {
+            switchTab('manage');
+            document.getElementById('userEmail').value = email;
+        }
+
+        async function revokeBeta(email, userId) {
+            if (!confirm(`Revoke Beta status for ${email}?`)) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('user_memberships')
+                    .update({
+                        tier: 'lite',
+                        is_beta_user: false
+                    })
+                    .eq('user_id', userId);
+                
+                if (error) throw error;
+                
+                showAlert('betaAlert', `Beta status revoked for ${email}`, 'success');
+                loadBetaUsers();
+                loadStats();
+                
+            } catch (error) {
+                console.error('Error revoking beta:', error);
+                showAlert('betaAlert', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function refreshStats() {
+            loadStats();
+        }
+
+        function markBetaUsersByDate() {
+            switchTab('beta');
+        }
+
+        // Initial load
+        loadStats();
+    </script>
+</body>
+</html>

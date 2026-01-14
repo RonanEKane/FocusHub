@@ -24,7 +24,7 @@
                 <span class="status-text">SYSTEM STATUS: ONLINE</span>
             </div>
             <div class="status-time" id="currentTime"></div>
-            <a href="settings.html" id="adminLink" class="btn-home hidden" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--primary-color); font-weight: 600; font-size: 0.875rem; text-decoration: none;">Admin</a>
+            <a href="admin.html" id="adminLink" class="btn-home hidden" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--primary-color); font-weight: 600; font-size: 0.875rem; text-decoration: none;">🛠️ Admin</a>
             <button id="logoutBtn" class="btn-home" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem;">Logout</button>
         </div>
     </div>
@@ -46,6 +46,10 @@
                     <div class="mode-indicator" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
                     MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>
                 </div>
+                    <div id="tierBadge" class="tier-badge" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="tierEmoji">💡</span>
+                        <span id="tierName" style="font-weight: 600; color: var(--text-primary);">LITE</span>
+                    </div>
                     <button onclick="window.WeeklyReports?.showReport()" class="btn btn-secondary" style="font-size: 0.875rem;">📊 Report</button>
                     <a href="upgrade.html" id="upgradeBtn" class="btn btn-primary hidden" style="font-size: 0.875rem;">✨ Upgrade</a>
                 </div>
@@ -160,6 +164,134 @@
                 <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 1rem;">
                     Based on completed tasks
                 </p>
+            </div>
+            
+            <!-- Premium Historical Analytics -->
+            <div id="premiumAnalyticsSection" class="stats-table hidden" style="margin-top: 3rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 class="stats-title">📈 HISTORICAL ANALYTICS</h3>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button onclick="exportAnalytics()" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">📥 Export CSV</button>
+                        <span style="font-size: 0.75rem; color: var(--industrial-orange); font-weight: 600; padding: 0.25rem 0.75rem; background: rgba(245, 91, 7, 0.1); border-radius: 4px;">⭐ PREMIUM</span>
+                    </div>
+                </div>
+                
+                <!-- Time Period Selector -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <button onclick="loadAnalyticsPeriod(30)" id="period30" class="period-btn active">30 Days</button>
+                    <button onclick="loadAnalyticsPeriod(60)" id="period60" class="period-btn">60 Days</button>
+                    <button onclick="loadAnalyticsPeriod(90)" id="period90" class="period-btn">90 Days</button>
+                    <button onclick="loadAnalyticsPeriod(0)" id="periodAll" class="period-btn">All Time</button>
+                </div>
+                
+                <!-- Analytics Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Productivity Trend -->
+                    <div>
+                        <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">📊 Productivity Trend</h4>
+                        <div id="trendChart" style="height: 200px; background: var(--bg-secondary); border-radius: 8px; padding: 1rem; position: relative;">
+                            <canvas id="trendCanvas" width="100%" height="100%"></canvas>
+                        </div>
+                        <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+                            Week-over-week grade performance
+                        </p>
+                    </div>
+                    
+                    <!-- Peak Performance -->
+                    <div>
+                        <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">⏰ Peak Performance</h4>
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="stat-label">Best Day of Week</td>
+                                <td class="stat-value" id="bestDayOfWeek">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Most Productive Hour</td>
+                                <td class="stat-value" id="bestHour">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Avg Sprints/Day</td>
+                                <td class="stat-value" id="avgSprintsPerDay">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Sprint Completion Rate</td>
+                                <td class="stat-value" id="sprintCompletionRate">-</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <!-- Task Patterns -->
+                    <div>
+                        <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">📋 Task Patterns</h4>
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="stat-label">Tasks Completed</td>
+                                <td class="stat-value" id="totalTasksCompleted">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Avg Tasks/Day</td>
+                                <td class="stat-value" id="avgTasksPerDay">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Task Completion Rate</td>
+                                <td class="stat-value" id="taskCompletionRate">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Most Productive Bucket</td>
+                                <td class="stat-value" id="bestBucket">-</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <!-- Distraction Analysis -->
+                    <div>
+                        <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">🚫 Top Distractions</h4>
+                        <div id="topDistractions" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Weekly Comparison -->
+                    <div>
+                        <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">📅 Week-over-Week</h4>
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="stat-label">This Week's Avg Grade</td>
+                                <td class="stat-value" id="thisWeekGrade">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Last Week's Avg Grade</td>
+                                <td class="stat-value" id="lastWeekGrade">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Trend</td>
+                                <td class="stat-value" id="weekTrend">-</td>
+                            </tr>
+                            <tr>
+                                <td class="stat-label">Best Week</td>
+                                <td class="stat-value" id="bestWeek">-</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Insights Summary -->
+                <div id="analyticsInsights" style="background: var(--bg-secondary); border-left: 3px solid var(--industrial-orange); padding: 1.5rem; border-radius: 4px; margin-top: 2rem;">
+                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">💡 Insights</h4>
+                    <p id="insightsText" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6; margin: 0;">
+                        Loading insights...
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Premium Upgrade CTA (shown for non-premium users) -->
+            <div id="premiumUpgradeCTA" class="stats-table hidden" style="margin-top: 3rem; text-align: center; background: linear-gradient(135deg, rgba(245, 91, 7, 0.1) 0%, rgba(245, 91, 7, 0.05) 100%); border: 2px dashed rgba(245, 91, 7, 0.3); padding: 3rem 2rem;">
+                <div style="font-size: 48px; margin-bottom: 1rem;">📈</div>
+                <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Unlock Historical Analytics</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    See your productivity patterns, peak performance times, and get AI-generated insights with Premium.
+                </p>
+                <a href="upgrade.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">⭐ Upgrade to Premium</a>
             </div>
         </div>
     </div>
@@ -549,6 +681,639 @@
         checkSessionState();
         updateDashboardTimer();
         loadStats();
+        loadUserTier();
+        initPremiumAnalytics();
+    </script>
+    
+    <script>
+        // ============================================
+        // USER TIER DISPLAY & MANAGEMENT
+        // ============================================
+        
+        async function loadUserTier() {
+            try {
+                // Get user tier from Supabase
+                const tier = await getUserTier();
+                const trialStatus = await checkTrialStatus();
+                
+                // Update tier badge
+                const tierBadge = document.getElementById('tierBadge');
+                const tierEmoji = document.getElementById('tierEmoji');
+                const tierName = document.getElementById('tierName');
+                
+                if (tierBadge && tierEmoji && tierName) {
+                    tierEmoji.textContent = getTierEmoji(tier);
+                    tierName.textContent = getTierDisplayName(tier).toUpperCase();
+                    tierBadge.style.borderColor = getTierColor(tier);
+                    tierName.style.color = getTierColor(tier);
+                }
+                
+                // Show upgrade button for non-premium users
+                const upgradeBtn = document.getElementById('upgradeBtn');
+                if (upgradeBtn) {
+                    const isPremium = await isPremiumUser();
+                    if (!isPremium) {
+                        upgradeBtn.classList.remove('hidden');
+                    }
+                }
+                
+                // Show trial banner if in trial
+                if (trialStatus.inTrial) {
+                    showTrialBanner(trialStatus.daysRemaining, tier);
+                }
+                
+                // Store tier in session for quick access
+                sessionStorage.setItem('focushub_user_tier', tier);
+                
+            } catch (error) {
+                console.error('Error loading user tier:', error);
+                // Fallback to lite tier display
+                const tierName = document.getElementById('tierName');
+                if (tierName) tierName.textContent = 'LITE';
+            }
+        }
+        
+        function showTrialBanner(daysRemaining, tier) {
+            // Create trial banner if it doesn't exist
+            let banner = document.getElementById('trialBanner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'trialBanner';
+                banner.style.cssText = `
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+                    border: 1px solid rgba(168, 85, 247, 0.3);
+                    padding: 1rem;
+                    text-align: center;
+                    margin-bottom: 1.5rem;
+                    border-radius: 8px;
+                `;
+                
+                const container = document.querySelector('.mission-control .container');
+                const firstChild = container.firstElementChild;
+                container.insertBefore(banner, firstChild);
+            }
+            
+            let message = '';
+            if (tier === 'lite') {
+                message = `⏱️ <strong>${daysRemaining} days left</strong> in your free trial. <a href="upgrade.html" style="color: var(--industrial-orange); font-weight: 600;">Subscribe to Lite ($3.99/mo)</a> to continue after trial.`;
+            } else {
+                const tierPrice = tier === 'pro' ? '$4.99' : '$9.99';
+                const fullPrice = tier === 'pro' ? '$9.99/mo' : '$19.99/mo';
+                message = `⏱️ <strong>${daysRemaining} days left</strong> at trial rate (${tierPrice}). <a href="upgrade.html" style="color: var(--industrial-orange); font-weight: 600;">Continue at ${fullPrice}</a> or downgrade.`;
+            }
+            
+            banner.innerHTML = `<p style="margin: 0; font-size: 0.875rem; color: var(--text-primary);">${message}</p>`;
+        }
+    </script>
+    
+    <script>
+        // ============================================
+        // PREMIUM HISTORICAL ANALYTICS
+        // ============================================
+        
+        let currentAnalyticsPeriod = 30; // Default to 30 days
+        
+        async function initPremiumAnalytics() {
+            // Check if user has premium access
+            const isPremium = await checkPremiumAccess();
+            
+            const analyticsSection = document.getElementById('premiumAnalyticsSection');
+            const upgradeCTA = document.getElementById('premiumUpgradeCTA');
+            
+            if (isPremium) {
+                // Show analytics, hide CTA
+                if (analyticsSection) analyticsSection.classList.remove('hidden');
+                if (upgradeCTA) upgradeCTA.classList.add('hidden');
+                
+                // Load analytics data
+                loadAnalyticsPeriod(30);
+            } else {
+                // Hide analytics, show CTA
+                if (analyticsSection) analyticsSection.classList.add('hidden');
+                if (upgradeCTA) upgradeCTA.classList.remove('hidden');
+            }
+        }
+        
+        async function checkPremiumAccess() {
+            // Check if user has premium tier from Supabase
+            try {
+                const isPremium = await isPremiumUser();
+                return isPremium;
+            } catch (error) {
+                console.error('Error checking premium access:', error);
+                return false;
+            }
+        }
+        
+        function loadAnalyticsPeriod(days) {
+            currentAnalyticsPeriod = days;
+            
+            // Update active button
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = days === 0 ? 'periodAll' : `period${days}`;
+            document.getElementById(activeBtn)?.classList.add('active');
+            
+            // Calculate date range
+            const endDate = new Date();
+            const startDate = days === 0 ? new Date('2020-01-01') : new Date(endDate - days * 24 * 60 * 60 * 1000);
+            
+            // Load data from history
+            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            const filteredHistory = history.filter(session => {
+                const sessionDate = new Date(session.date);
+                return sessionDate >= startDate && sessionDate <= endDate;
+            });
+            
+            // Calculate analytics
+            calculateAndDisplayAnalytics(filteredHistory, days);
+        }
+        
+        function calculateAndDisplayAnalytics(history, periodDays) {
+            if (history.length === 0) {
+                displayEmptyState();
+                return;
+            }
+            
+            // === 1. BEST DAY OF WEEK ===
+            const dayCount = {};
+            const dayGrades = {};
+            history.forEach(session => {
+                const dayOfWeek = new Date(session.date).toLocaleDateString('en-US', { weekday: 'long' });
+                dayCount[dayOfWeek] = (dayCount[dayOfWeek] || 0) + 1;
+                dayGrades[dayOfWeek] = dayGrades[dayOfWeek] || [];
+                dayGrades[dayOfWeek].push(gradeToNumber(session.grade));
+            });
+            
+            let bestDay = '-';
+            let bestDayScore = 0;
+            Object.keys(dayGrades).forEach(day => {
+                const avgGrade = dayGrades[day].reduce((a, b) => a + b, 0) / dayGrades[day].length;
+                if (avgGrade > bestDayScore) {
+                    bestDayScore = avgGrade;
+                    bestDay = day;
+                }
+            });
+            document.getElementById('bestDayOfWeek').textContent = bestDay;
+            
+            // === 2. MOST PRODUCTIVE HOUR ===
+            // Would need sprint-level timestamps - placeholder for now
+            document.getElementById('bestHour').textContent = 'Coming Soon';
+            
+            // === 3. AVG SPRINTS PER DAY ===
+            const totalSprints = history.reduce((sum, s) => sum + (s.sprintsCompleted || 0), 0);
+            const avgSprints = (totalSprints / history.length).toFixed(1);
+            document.getElementById('avgSprintsPerDay').textContent = avgSprints;
+            
+            // === 4. SPRINT COMPLETION RATE ===
+            const sprintsPlanned = history.reduce((sum, s) => sum + (s.sprintsPlanned || 0), 0);
+            const sprintsCompleted = history.reduce((sum, s) => sum + (s.sprintsCompleted || 0), 0);
+            const sprintCompletionRate = sprintsPlanned > 0 
+                ? ((sprintsCompleted / sprintsPlanned) * 100).toFixed(0) + '%'
+                : '-';
+            document.getElementById('sprintCompletionRate').textContent = sprintCompletionRate;
+            
+            // === 5. TASK PATTERNS ===
+            const totalTasksCompleted = history.reduce((sum, s) => sum + (s.tasksCompleted || 0), 0);
+            const avgTasksPerDay = (totalTasksCompleted / history.length).toFixed(1);
+            document.getElementById('totalTasksCompleted').textContent = totalTasksCompleted;
+            document.getElementById('avgTasksPerDay').textContent = avgTasksPerDay;
+            
+            // Task completion rate (completed vs total tasks)
+            const totalTasksAdded = history.reduce((sum, s) => sum + ((s.tasksCompleted || 0) + (s.tasksIncomplete || 0)), 0);
+            const taskCompletionRate = totalTasksAdded > 0
+                ? ((totalTasksCompleted / totalTasksAdded) * 100).toFixed(0) + '%'
+                : '-';
+            document.getElementById('taskCompletionRate').textContent = taskCompletionRate;
+            
+            // Most productive bucket (Strategic, Deep Work, Urgent)
+            const bucketCounts = { Strategic: 0, 'Deep Work': 0, Urgent: 0 };
+            history.forEach(session => {
+                if (session.tasksByBucket) {
+                    Object.keys(session.tasksByBucket).forEach(bucket => {
+                        bucketCounts[bucket] = (bucketCounts[bucket] || 0) + session.tasksByBucket[bucket];
+                    });
+                }
+            });
+            const bestBucket = Object.entries(bucketCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+            document.getElementById('bestBucket').textContent = bestBucket;
+            
+            // === 6. TOP DISTRACTIONS ===
+            const distractionCount = {};
+            history.forEach(session => {
+                if (session.distractions && Array.isArray(session.distractions)) {
+                    session.distractions.forEach(d => {
+                        const name = d.what || d;
+                        distractionCount[name] = (distractionCount[name] || 0) + 1;
+                    });
+                }
+            });
+            
+            const topDistractions = Object.entries(distractionCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const distractionsContainer = document.getElementById('topDistractions');
+            if (topDistractions.length === 0) {
+                distractionsContainer.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">No distractions logged</p>';
+            } else {
+                distractionsContainer.innerHTML = topDistractions.map(([name, count]) => `
+                    <div class="distraction-item">
+                        <span class="distraction-name">${name}</span>
+                        <span class="distraction-count">${count}x</span>
+                    </div>
+                `).join('');
+            }
+            
+            // === 7. WEEK-OVER-WEEK COMPARISON ===
+            const now = new Date();
+            const thisWeekStart = new Date(now);
+            thisWeekStart.setDate(now.getDate() - now.getDay()); // Start of this week (Sunday)
+            
+            const lastWeekStart = new Date(thisWeekStart);
+            lastWeekStart.setDate(thisWeekStart.getDate() - 7);
+            
+            const thisWeekSessions = history.filter(s => new Date(s.date) >= thisWeekStart);
+            const lastWeekSessions = history.filter(s => {
+                const d = new Date(s.date);
+                return d >= lastWeekStart && d < thisWeekStart;
+            });
+            
+            const thisWeekAvg = thisWeekSessions.length > 0
+                ? (thisWeekSessions.reduce((sum, s) => sum + gradeToNumber(s.grade), 0) / thisWeekSessions.length).toFixed(1)
+                : 0;
+            const lastWeekAvg = lastWeekSessions.length > 0
+                ? (lastWeekSessions.reduce((sum, s) => sum + gradeToNumber(s.grade), 0) / lastWeekSessions.length).toFixed(1)
+                : 0;
+            
+            document.getElementById('thisWeekGrade').textContent = thisWeekAvg > 0 ? numberToGrade(thisWeekAvg) : '-';
+            document.getElementById('lastWeekGrade').textContent = lastWeekAvg > 0 ? numberToGrade(lastWeekAvg) : '-';
+            
+            // Calculate trend
+            let trendText = '-';
+            let trendColor = 'var(--text-secondary)';
+            if (thisWeekAvg > 0 && lastWeekAvg > 0) {
+                const diff = thisWeekAvg - lastWeekAvg;
+                if (diff > 3) {
+                    trendText = '📈 Improving';
+                    trendColor = 'var(--success)';
+                } else if (diff < -3) {
+                    trendText = '📉 Declining';
+                    trendColor = '#ef4444';
+                } else {
+                    trendText = '➡️ Stable';
+                    trendColor = 'var(--industrial-orange)';
+                }
+            }
+            const trendEl = document.getElementById('weekTrend');
+            trendEl.textContent = trendText;
+            trendEl.style.color = trendColor;
+            
+            // Best week ever
+            const weeklyAverages = [];
+            let weekStart = new Date(history[0].date);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            
+            while (weekStart < now) {
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 7);
+                
+                const weekSessions = history.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= weekStart && d < weekEnd;
+                });
+                
+                if (weekSessions.length > 0) {
+                    const weekAvg = weekSessions.reduce((sum, s) => sum + gradeToNumber(s.grade), 0) / weekSessions.length;
+                    weeklyAverages.push({ start: new Date(weekStart), avg: weekAvg });
+                }
+                
+                weekStart.setDate(weekStart.getDate() + 7);
+            }
+            
+            if (weeklyAverages.length > 0) {
+                const bestWeekData = weeklyAverages.sort((a, b) => b.avg - a.avg)[0];
+                const bestWeekDate = bestWeekData.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                document.getElementById('bestWeek').textContent = bestWeekDate + ' (' + numberToGrade(bestWeekData.avg) + ')';
+            } else {
+                document.getElementById('bestWeek').textContent = '-';
+            }
+            
+            // === 8. GENERATE AI INSIGHTS ===
+            generateInsights(history, periodDays, bestDay, avgSprints, topDistractions, sprintCompletionRate, trendText);
+            
+            // === 9. DRAW TREND CHART ===
+            drawTrendChart(history);
+        }
+        
+        function generateInsights(history, days, bestDay, avgSprints, topDistractions, sprintCompletionRate, trendText) {
+            const insights = [];
+            
+            // Best day insight
+            if (bestDay !== '-') {
+                insights.push(`Your most productive day is ${bestDay}.`);
+            }
+            
+            // Sprint consistency
+            if (parseFloat(avgSprints) >= 5) {
+                insights.push(`You're averaging ${avgSprints} sprints per day - solid consistency.`);
+            } else if (parseFloat(avgSprints) < 3) {
+                insights.push(`You're averaging ${avgSprints} sprints per day. Consider setting a minimum daily target.`);
+            }
+            
+            // Sprint completion rate
+            const completionPercent = parseInt(sprintCompletionRate);
+            if (completionPercent >= 80) {
+                insights.push(`${sprintCompletionRate} sprint completion rate - excellent follow-through.`);
+            } else if (completionPercent < 60 && completionPercent > 0) {
+                insights.push(`${sprintCompletionRate} sprint completion. Try planning fewer sprints but finishing them all.`);
+            }
+            
+            // Distraction pattern
+            if (topDistractions.length > 0) {
+                const topDistraction = topDistractions[0][0];
+                const topCount = topDistractions[0][1];
+                if (topCount > 10) {
+                    insights.push(`"${topDistraction}" is your #1 distraction (${topCount}x). Consider blocking it during sprints.`);
+                }
+            }
+            
+            // Week-over-week trend
+            if (trendText.includes('Improving')) {
+                insights.push('Week-over-week performance is improving. Keep this momentum.');
+            } else if (trendText.includes('Declining')) {
+                insights.push('Recent week dipped. Consider adjusting sprint durations or reducing planned workload.');
+            }
+            
+            // Grade trend
+            const recentGrades = history.slice(-7).map(s => gradeToNumber(s.grade));
+            if (recentGrades.length >= 3) {
+                const avgRecent = recentGrades.reduce((a, b) => a + b, 0) / recentGrades.length;
+                if (avgRecent >= 85) {
+                    insights.push('Recent performance is strong.');
+                } else if (avgRecent < 70) {
+                    insights.push('Recent performance below your baseline. Take a break or adjust expectations.');
+                }
+            }
+            
+            const insightsText = insights.length > 0 
+                ? insights.join(' ') 
+                : 'Keep logging sessions to unlock personalized insights.';
+            
+            document.getElementById('insightsText').textContent = insightsText;
+        }
+        
+        function numberToGrade(num) {
+            if (num >= 97) return 'A+';
+            if (num >= 93) return 'A';
+            if (num >= 90) return 'A-';
+            if (num >= 87) return 'B+';
+            if (num >= 83) return 'B';
+            if (num >= 80) return 'B-';
+            if (num >= 77) return 'C+';
+            if (num >= 73) return 'C';
+            if (num >= 70) return 'C-';
+            if (num >= 67) return 'D+';
+            if (num >= 63) return 'D';
+            if (num >= 60) return 'D-';
+            return 'F';
+        }
+        
+        function drawTrendChart(history) {
+            // Enhanced line chart showing grade trend over time with color zones
+            const canvas = document.getElementById('trendCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            if (history.length < 2) {
+                ctx.fillStyle = '#666';
+                ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Need more data to show trend', width / 2, height / 2);
+                return;
+            }
+            
+            // Get data based on current period
+            let dataToShow = history;
+            if (currentAnalyticsPeriod === 30) {
+                dataToShow = history.slice(-30);
+            } else if (currentAnalyticsPeriod === 60) {
+                dataToShow = history.slice(-60);
+            } else if (currentAnalyticsPeriod === 90) {
+                dataToShow = history.slice(-90);
+            }
+            
+            // Limit to max 30 points for readability
+            if (dataToShow.length > 30) {
+                const step = Math.ceil(dataToShow.length / 30);
+                dataToShow = dataToShow.filter((_, i) => i % step === 0);
+            }
+            
+            const grades = dataToShow.map(s => gradeToNumber(s.grade));
+            
+            // Draw background grade zones
+            const yScale = (height - 50) / 100;
+            
+            // A zone (90-100) - Green
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.1)';
+            ctx.fillRect(40, 10, width - 50, (100 - 90) * yScale);
+            
+            // B zone (80-90) - Yellow
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
+            ctx.fillRect(40, 10 + (100 - 90) * yScale, width - 50, 10 * yScale);
+            
+            // C zone (70-80) - Orange
+            ctx.fillStyle = 'rgba(245, 91, 7, 0.1)';
+            ctx.fillRect(40, 10 + (100 - 80) * yScale, width - 50, 10 * yScale);
+            
+            // D/F zone (below 70) - Red
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
+            ctx.fillRect(40, 10 + (100 - 70) * yScale, width - 50, 70 * yScale);
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, 10);
+            ctx.lineTo(40, height - 30);
+            ctx.lineTo(width - 10, height - 30);
+            ctx.stroke();
+            
+            // Draw grade markers on Y axis
+            ctx.fillStyle = '#666';
+            ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.textAlign = 'right';
+            [100, 90, 80, 70, 60].forEach(grade => {
+                const y = height - 30 - (grade * yScale);
+                ctx.fillText(numberToGrade(grade), 35, y + 3);
+            });
+            
+            // Draw grade line with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#22c55e'); // Green at top
+            gradient.addColorStop(0.3, '#f59e0b'); // Yellow
+            gradient.addColorStop(0.6, '#f55b07'); // Orange
+            gradient.addColorStop(1, '#ef4444'); // Red at bottom
+            
+            ctx.strokeStyle = '#f55b07';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const xStep = (width - 60) / (grades.length - 1);
+            
+            grades.forEach((grade, i) => {
+                const x = 40 + (i * xStep);
+                const y = height - 30 - (grade * yScale);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Draw points with size based on performance
+            grades.forEach((grade, i) => {
+                const x = 40 + (i * xStep);
+                const y = height - 30 - (grade * yScale);
+                
+                // Color code points
+                let pointColor = '#ef4444'; // Red default
+                if (grade >= 90) pointColor = '#22c55e'; // Green
+                else if (grade >= 80) pointColor = '#f59e0b'; // Yellow
+                else if (grade >= 70) pointColor = '#f55b07'; // Orange
+                
+                ctx.fillStyle = pointColor;
+                ctx.beginPath();
+                const radius = grade >= 85 ? 5 : 3; // Bigger dots for good days
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // White border on points
+                ctx.strokeStyle = '#1a1a1a';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+            
+            // Draw trend line (moving average)
+            if (grades.length >= 5) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                
+                for (let i = 2; i < grades.length - 2; i++) {
+                    const avgGrade = (grades[i-2] + grades[i-1] + grades[i] + grades[i+1] + grades[i+2]) / 5;
+                    const x = 40 + (i * xStep);
+                    const y = height - 30 - (avgGrade * yScale);
+                    
+                    if (i === 2) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // Labels
+            ctx.fillStyle = '#666';
+            ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.textAlign = 'center';
+            const periodLabel = currentAnalyticsPeriod === 0 ? 'All Time' : `Last ${currentAnalyticsPeriod} Days`;
+            ctx.fillText(periodLabel, width / 2, height - 5);
+        }
+        
+        function gradeToNumber(grade) {
+            const gradeMap = {
+                'A+': 100, 'A': 95, 'A-': 90,
+                'B+': 87, 'B': 83, 'B-': 80,
+                'C+': 77, 'C': 73, 'C-': 70,
+                'D+': 67, 'D': 63, 'D-': 60,
+                'F': 50
+            };
+            return gradeMap[grade] || 50;
+        }
+        
+        function displayEmptyState() {
+            // Peak Performance
+            document.getElementById('bestDayOfWeek').textContent = '-';
+            document.getElementById('bestHour').textContent = '-';
+            document.getElementById('avgSprintsPerDay').textContent = '-';
+            document.getElementById('sprintCompletionRate').textContent = '-';
+            
+            // Task Patterns
+            document.getElementById('totalTasksCompleted').textContent = '-';
+            document.getElementById('avgTasksPerDay').textContent = '-';
+            document.getElementById('taskCompletionRate').textContent = '-';
+            document.getElementById('bestBucket').textContent = '-';
+            
+            // Distractions
+            document.getElementById('topDistractions').innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">No data yet</p>';
+            
+            // Week-over-Week
+            document.getElementById('thisWeekGrade').textContent = '-';
+            document.getElementById('lastWeekGrade').textContent = '-';
+            document.getElementById('weekTrend').textContent = '-';
+            document.getElementById('bestWeek').textContent = '-';
+            
+            // Insights
+            document.getElementById('insightsText').textContent = 'Complete more sessions to unlock insights.';
+        }
+        
+        // ============================================
+        // DATA EXPORT
+        // ============================================
+        
+        function exportAnalytics() {
+            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            
+            if (history.length === 0) {
+                alert('No data to export yet. Complete some sessions first!');
+                return;
+            }
+            
+            // Create CSV content
+            let csv = 'Date,Day of Week,Grade,Grade Number,Sprints Planned,Sprints Completed,Tasks Completed,Distractions,Notes\n';
+            
+            history.forEach(session => {
+                const date = session.date || '';
+                const dayOfWeek = date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+                const grade = session.grade || '';
+                const gradeNum = gradeToNumber(grade);
+                const sprintsPlanned = session.sprintsPlanned || 0;
+                const sprintsCompleted = session.sprintsCompleted || 0;
+                const tasksCompleted = session.tasksCompleted || 0;
+                const distractions = session.distractions ? session.distractions.length : 0;
+                const notes = (session.notes || '').replace(/"/g, '""'); // Escape quotes
+                
+                csv += `"${date}","${dayOfWeek}","${grade}",${gradeNum},${sprintsPlanned},${sprintsCompleted},${tasksCompleted},${distractions},"${notes}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const filename = `focushub_analytics_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('✅ Analytics exported:', filename);
+        }
     </script>
 
     <!-- Floating AI Support Button -->

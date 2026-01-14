@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subscription - FocusHub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+        }
+        
+        .subscription-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .subscription-header {
+            margin-bottom: 3rem;
+        }
+        
+        .subscription-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subscription-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .subscription-card h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .tier-badge-page {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .tier-lite { background: rgba(100, 116, 139, 0.2); color: #64748b; }
+        .tier-pro { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tier-premium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .tier-beta { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--industrial-orange);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #d94f06;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--industrial-orange);
+        }
+        
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+        
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+    </style>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+</head>
+<body>
+    <div class="subscription-container">
+        <!-- Header -->
+        <div class="subscription-header">
+            <h1>Manage Subscription</h1>
+            <a href="overview.html" style="color: var(--industrial-orange); font-size: 0.875rem; text-decoration: none;">← Back to Dashboard</a>
+        </div>
+        
+        <!-- Alerts -->
+        <div id="alertContainer"></div>
+        
+        <!-- Current Plan -->
+        <div class="subscription-card">
+            <h3>Current Plan</h3>
+            <div class="info-row">
+                <span class="info-label">Tier</span>
+                <span class="tier-badge-page" id="currentTierBadge">
+                    <span id="tierEmoji">💡</span>
+                    <span id="tierName">Loading...</span>
+                </span>
+            </div>
+            <div class="info-row" id="billingCycleRow" style="display: none;">
+                <span class="info-label">Billing Cycle</span>
+                <span class="info-value" id="billingCycle">-</span>
+            </div>
+            <div class="info-row" id="nextBillingRow" style="display: none;">
+                <span class="info-label">Next Billing Date</span>
+                <span class="info-value" id="nextBillingDate">-</span>
+            </div>
+            <div class="info-row" id="trialRow" style="display: none;">
+                <span class="info-label">Trial Status</span>
+                <span class="info-value" id="trialStatus">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value" id="subscriptionStatus">Active</span>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="subscription-card" id="actionsCard">
+            <h3>Manage Your Plan</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">
+                Change your subscription, update payment method, or cancel.
+            </p>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="upgradeBtn" onclick="window.location.href='upgrade.html'" style="display: none;">
+                    ⬆️ Upgrade Plan
+                </button>
+                <button class="btn btn-secondary" id="changePlanBtn" onclick="window.location.href='upgrade.html'" style="display: none;">
+                    🔄 Change Plan
+                </button>
+                <button class="btn btn-secondary" id="manageBillingBtn" onclick="openCustomerPortal()">
+                    💳 Manage Billing
+                </button>
+                <button class="btn btn-danger" id="cancelBtn" onclick="cancelSubscription()" style="display: none;">
+                    Cancel Subscription
+                </button>
+            </div>
+        </div>
+        
+        <!-- Beta User Info -->
+        <div class="subscription-card" id="betaCard" style="display: none;">
+            <h3>🎖️ Beta User</h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                You're a Beta user! You have lifetime Premium access at $0/mo. Thanks for being an early believer.
+            </p>
+        </div>
+        
+        <!-- Payment History -->
+        <div class="subscription-card">
+            <h3>Payment History</h3>
+            <div id="paymentHistory">
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Loading payment history...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        if (!currentUser) {
+            window.location.href = 'start.html';
+        }
+
+        async function loadSubscriptionData() {
+            try {
+                const tier = await getUserTier();
+                const membership = await getUserMembership();
+                const trialStatus = await checkTrialStatus();
+                
+                // Update tier badge
+                document.getElementById('tierEmoji').textContent = getTierEmoji(tier);
+                document.getElementById('tierName').textContent = getTierDisplayName(tier).toUpperCase();
+                
+                const badge = document.getElementById('currentTierBadge');
+                badge.className = 'tier-badge-page tier-' + tier;
+                
+                // Show trial info if in trial
+                if (trialStatus.inTrial) {
+                    document.getElementById('trialRow').style.display = 'flex';
+                    document.getElementById('trialStatus').textContent = 
+                        `${trialStatus.daysRemaining} days remaining`;
+                    
+                    showAlert('You are currently in trial period. ' + 
+                        (tier === 'lite' ? 'Enter card to continue after trial.' : 
+                        'You must actively choose to continue at full price when trial ends.'), 'info');
+                }
+                
+                // Show beta card for beta users
+                if (tier === 'beta' || membership.is_beta_user) {
+                    document.getElementById('betaCard').style.display = 'block';
+                    document.getElementById('actionsCard').style.display = 'none';
+                } else {
+                    // Show appropriate action buttons
+                    if (tier === 'lite') {
+                        document.getElementById('upgradeBtn').style.display = 'block';
+                    } else {
+                        document.getElementById('changePlanBtn').style.display = 'block';
+                        document.getElementById('cancelBtn').style.display = 'block';
+                    }
+                    
+                    // Show billing info if subscribed
+                    if (membership.stripe_subscription_id) {
+                        document.getElementById('billingCycleRow').style.display = 'flex';
+                        document.getElementById('nextBillingRow').style.display = 'flex';
+                        
+                        // TODO: Fetch actual billing info from Lemon Squeezy
+                        document.getElementById('billingCycle').textContent = 'Monthly';
+                        document.getElementById('nextBillingDate').textContent = 'Feb 14, 2026';
+                    }
+                }
+                
+                // Load payment history
+                loadPaymentHistory(membership);
+                
+            } catch (error) {
+                console.error('Error loading subscription:', error);
+                showAlert('Error loading subscription data. Please refresh the page.', 'warning');
+            }
+        }
+        
+        function loadPaymentHistory(membership) {
+            // TODO: Fetch actual payment history from Lemon Squeezy
+            const historyContainer = document.getElementById('paymentHistory');
+            
+            if (!membership.stripe_subscription_id) {
+                historyContainer.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">No payment history yet.</p>';
+                return;
+            }
+            
+            // Mock payment history
+            historyContainer.innerHTML = `
+                <table style="width: 100%; font-size: 0.875rem;">
+                    <tr style="border-bottom: 1px solid var(--border-light);">
+                        <td style="padding: 0.75rem 0;">Jan 14, 2026</td>
+                        <td style="padding: 0.75rem 0;">$9.99</td>
+                        <td style="padding: 0.75rem 0; color: #22c55e;">Paid</td>
+                        <td style="padding: 0.75rem 0;"><a href="#" style="color: var(--industrial-orange);">Invoice</a></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem 0;">Dec 14, 2025</td>
+                        <td style="padding: 0.75rem 0;">$9.99</td>
+                        <td style="padding: 0.75rem 0; color: #22c55e;">Paid</td>
+                        <td style="padding: 0.75rem 0;"><a href="#" style="color: var(--industrial-orange);">Invoice</a></td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+        }
+        
+        function openCustomerPortal() {
+            // TODO: Redirect to Lemon Squeezy customer portal
+            // This URL should be generated by your backend
+            const portalUrl = 'https://app.lemonsqueezy.com/my-orders';
+            window.open(portalUrl, '_blank');
+        }
+        
+        async function cancelSubscription() {
+            if (!confirm('Are you sure you want to cancel your subscription? You will lose access at the end of your billing period.')) {
+                return;
+            }
+            
+            try {
+                // TODO: Call backend endpoint to cancel via Lemon Squeezy API
+                showAlert('Cancellation request submitted. You will receive a confirmation email.', 'success');
+                
+                // Update UI
+                document.getElementById('subscriptionStatus').textContent = 'Canceling';
+                document.getElementById('subscriptionStatus').style.color = '#f59e0b';
+                document.getElementById('cancelBtn').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error canceling subscription:', error);
+                showAlert('Error canceling subscription. Please contact support.', 'warning');
+            }
+        }
+        
+        // Initialize
+        loadSubscriptionData();
+    </script>
+</body>
+</html>

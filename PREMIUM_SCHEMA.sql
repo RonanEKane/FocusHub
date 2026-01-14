@@ -14,8 +14,9 @@ ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP WITH TIME ZONE;
 CREATE TABLE IF NOT EXISTS user_memberships (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) NOT NULL UNIQUE,
-    tier VARCHAR(20) DEFAULT 'free' CHECK (tier IN ('free', 'premium', 'beta')),
+    tier VARCHAR(20) DEFAULT 'lite' CHECK (tier IN ('lite', 'pro', 'premium', 'beta')),
     is_beta_user BOOLEAN DEFAULT false,
+    has_subscribed BOOLEAN DEFAULT false,
     premium_expires_at TIMESTAMP WITH TIME ZONE,
     stripe_customer_id VARCHAR(255),
     stripe_subscription_id VARCHAR(255),

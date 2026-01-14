@@ -5,315 +5,522 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrade - FocusHub</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .upgrade-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        .upgrade-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .upgrade-header h1 {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upgrade-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .pricing-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .pricing-toggle button {
+            padding: 0.75rem 2rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pricing-toggle button.active {
+            background: var(--industrial-orange);
+            border-color: var(--industrial-orange);
+            color: white;
+        }
+        
+        .pricing-toggle .save-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--industrial-orange);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--industrial-orange);
+            border-width: 3px;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--industrial-orange);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .tier-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-tagline {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tier-price {
+            margin-bottom: 1.5rem;
+        }
+        
+        .price-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--industrial-orange);
+        }
+        
+        .price-period {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .price-trial {
+            font-size: 0.875rem;
+            color: var(--industrial-orange);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .tier-cta {
+            width: 100%;
+            padding: 1rem;
+            background: var(--industrial-orange);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tier-cta:hover {
+            background: #d94f06;
+            transform: translateY(-2px);
+        }
+        
+        .tier-cta.secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        
+        .tier-cta.secondary:hover {
+            border-color: var(--industrial-orange);
+            background: var(--bg-secondary);
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-check {
+            color: #22c55e;
+            font-weight: 700;
+        }
+        
+        .feature-x {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        
+        .comparison-section {
+            margin-top: 4rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: var(--bg-primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-light);
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .faq-section {
+            max-width: 800px;
+            margin: 4rem auto;
+        }
+        
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .faq-answer {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+    
+    <!-- Lemon Squeezy SDK -->
+    <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
 </head>
 <body>
-    <div class="admin-container">
+    <div class="upgrade-container">
         <!-- Header -->
-        <header class="admin-header">
-            <div class="admin-header-content">
-                <div>
-                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
-                    <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Upgrade Your Plan</h1>
+        <div class="upgrade-header">
+            <h1>Choose Your Plan</h1>
+            <p>Built for brains that wander, but still want to win. No games, no fluff—just structure that works.</p>
+        </div>
+        
+        <!-- Monthly/Annual Toggle -->
+        <div class="pricing-toggle">
+            <button id="monthlyBtn" class="active" onclick="showMonthly()">Monthly</button>
+            <button id="annualBtn" onclick="showAnnual()">Annual</button>
+            <span class="save-badge">Save 17%</span>
+        </div>
+        
+        <!-- Pricing Cards -->
+        <div class="pricing-grid">
+            <!-- Lite -->
+            <div class="pricing-card">
+                <div class="tier-emoji">💡</div>
+                <div class="tier-name">Lite</div>
+                <div class="tier-tagline">Core productivity, no frills</div>
+                
+                <div class="tier-price">
+                    <div class="price-amount" id="litePrice">$3.99</div>
+                    <div class="price-period">/month</div>
+                    <div class="price-trial">7 days free, no card required</div>
                 </div>
-                <div>
-                    <a href="overview.html" class="btn btn-secondary">← Dashboard</a>
+                
+                <button class="tier-cta secondary" onclick="selectPlan('lite', 'monthly')" id="liteCTA">
+                    Start Free Trial
+                </button>
+                
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> Sprint timer (energy-based)</li>
+                    <li><span class="feature-check">✓</span> Task management (3 buckets)</li>
+                    <li><span class="feature-check">✓</span> Distraction parking</li>
+                    <li><span class="feature-check">✓</span> AI tough-love coaching</li>
+                    <li><span class="feature-check">✓</span> Daily grading</li>
+                    <li><span class="feature-check">✓</span> Catholic-rooted reflections</li>
+                    <li><span class="feature-check">✓</span> Basic analytics (30 days)</li>
+                    <li><span class="feature-x">✗</span> Multi-device sync</li>
+                    <li><span class="feature-x">✗</span> Keyboard shortcuts</li>
+                    <li><span class="feature-x">✗</span> Data export</li>
+                </ul>
+            </div>
+            
+            <!-- Pro -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="tier-emoji">⚡</div>
+                <div class="tier-name">Pro</div>
+                <div class="tier-tagline">Sync everywhere, work anywhere</div>
+                
+                <div class="tier-price">
+                    <div class="price-amount" id="proPrice">$9.99</div>
+                    <div class="price-period">/month</div>
+                    <div class="price-trial">First 14 days: $4.99</div>
+                </div>
+                
+                <button class="tier-cta" onclick="selectPlan('pro', 'monthly')" id="proCTA">
+                    Start Trial at $4.99
+                </button>
+                
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> <strong>Everything in Lite</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Multi-device sync</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Premium keyboard shortcuts</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Data export (CSV/JSON)</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Pomodoro variations</strong></li>
+                    <li><span class="feature-check">✓</span> Unlimited analytics</li>
+                    <li><span class="feature-check">✓</span> Weekly summary emails</li>
+                    <li><span class="feature-x">✗</span> Reflection tradition choice</li>
+                    <li><span class="feature-x">✗</span> Advanced analytics</li>
+                </ul>
+            </div>
+            
+            <!-- Premium -->
+            <div class="pricing-card">
+                <div class="tier-emoji">⭐</div>
+                <div class="tier-name">Premium</div>
+                <div class="tier-tagline">Maximum focus, minimum distraction</div>
+                
+                <div class="tier-price">
+                    <div class="price-amount" id="premiumPrice">$19.99</div>
+                    <div class="price-period">/month</div>
+                    <div class="price-trial">First 14 days: $9.99</div>
+                </div>
+                
+                <button class="tier-cta" onclick="selectPlan('premium', 'monthly')" id="premiumCTA">
+                    Start Trial at $9.99
+                </button>
+                
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> <strong>Everything in Pro</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Choose reflection tradition</strong> (7 options)</li>
+                    <li><span class="feature-check">✓</span> <strong>Advanced analytics dashboard</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>AI coaching intensity control</strong></li>
+                    <li><span class="feature-check">✓</span> Custom sprint durations</li>
+                    <li><span class="feature-check">✓</span> Focus Mode (distraction-free)</li>
+                    <li><span class="feature-check">✓</span> Beta features early access</li>
+                    <li><span class="feature-check">✓</span> API access</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- FAQ -->
+        <div class="faq-section">
+            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">How do trials work?</div>
+                <div class="faq-answer">
+                    <strong>Lite:</strong> 7 days completely free, no card required. After trial, enter card to continue at $3.99/mo.<br><br>
+                    <strong>Pro:</strong> Enter card, charged $4.99 immediately for 14 days. On day 15, you must actively choose to continue at $9.99/mo (no auto-charge).<br><br>
+                    <strong>Premium:</strong> Enter card, charged $9.99 immediately for 14 days. On day 15, you must actively choose to continue at $19.99/mo (no auto-charge).
                 </div>
             </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="admin-content">
-            <div class="container">
-                <!-- Current Plan -->
-                <div class="admin-section">
-                    <h2>Your Current Plan</h2>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div id="currentPlanBadge"></div>
-                        <div>
-                            <div id="currentPlanName" style="font-size: 18px; font-weight: 600;"></div>
-                            <div id="currentPlanFeatures" style="color: var(--text-secondary); font-size: 14px;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Billing Toggle -->
-                <div style="text-align: center; margin: 2rem 0;">
-                    <div class="billing-toggle">
-                        <button id="monthlyBtn" class="billing-btn active" onclick="setBilling('monthly')">Monthly</button>
-                        <button id="yearlyBtn" class="billing-btn" onclick="setBilling('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
-                    </div>
-                </div>
-
-                <!-- Pricing Cards -->
-                <div class="pricing-grid" style="max-width: 1200px; margin: 0 auto;">
-                    <!-- Student HS -->
-                    <div class="pricing-card" id="card-student_hs">
-                        <div class="pricing-header">
-                            <h3>Student - High School</h3>
-                            <div class="price">
-                                <span class="price-monthly">$5</span>
-                                <span class="price-yearly hidden">$49</span>
-                                <span class="price-period">/month</span>
-                            </div>
-                            <p class="price-description">Perfect for high school students</p>
-                        </div>
-                        <ul class="pricing-features">
-                            <li>✓ Unlimited sprints & tasks</li>
-                            <li>✓ Subject tracking</li>
-                            <li>✓ Cloud sync across devices</li>
-                            <li>✓ 90-day history</li>
-                            <li>✓ Export to CSV</li>
-                            <li>✓ Email support</li>
-                        </ul>
-                        <button onclick="selectPlan('student_hs')" class="btn btn-primary btn-block">Upgrade Now</button>
-                        <div class="yearly-note hidden">Billed $49/year</div>
-                    </div>
-                    
-                    <!-- Student College -->
-                    <div class="pricing-card recommended" id="card-student_college">
-                        <div class="recommended-badge">MOST POPULAR</div>
-                        <div class="pricing-header">
-                            <h3>Student - College/Grad</h3>
-                            <div class="price">
-                                <span class="price-monthly">$8</span>
-                                <span class="price-yearly hidden">$79</span>
-                                <span class="price-period">/month</span>
-                            </div>
-                            <p class="price-description">For serious students</p>
-                        </div>
-                        <ul class="pricing-features">
-                            <li>✓ Everything in Student HS</li>
-                            <li>✓ College-specific subjects</li>
-                            <li>✓ Research & thesis tracking</li>
-                            <li>✓ Unlimited history</li>
-                            <li>✓ Advanced analytics</li>
-                            <li>✓ Priority support</li>
-                        </ul>
-                        <button onclick="selectPlan('student_college')" class="btn btn-primary btn-block">Upgrade Now</button>
-                        <div class="yearly-note hidden">Billed $79/year</div>
-                    </div>
-                    
-                    <!-- Professional -->
-                    <div class="pricing-card" id="card-professional">
-                        <div class="pricing-header">
-                            <h3>Professional</h3>
-                            <div class="price">
-                                <span class="price-monthly">$10</span>
-                                <span class="price-yearly hidden">$99</span>
-                                <span class="price-period">/month</span>
-                            </div>
-                            <p class="price-description">For professionals</p>
-                        </div>
-                        <ul class="pricing-features">
-                            <li>✓ Professional mode features</li>
-                            <li>✓ Cloud sync across devices</li>
-                            <li>✓ Unlimited history</li>
-                            <li>✓ Meeting time tracker</li>
-                            <li>✓ Advanced analytics & trends</li>
-                            <li>✓ Export to multiple formats</li>
-                            <li>✓ Priority email support</li>
-                        </ul>
-                        <button onclick="selectPlan('professional')" class="btn btn-primary btn-block">Upgrade Now</button>
-                        <div class="yearly-note hidden">Billed $99/year</div>
-                    </div>
-                    
-                    <!-- Premium -->
-                    <div class="pricing-card" id="card-premium">
-                        <div class="pricing-header">
-                            <h3>Premium</h3>
-                            <div class="price">
-                                <span class="price-monthly">$15</span>
-                                <span class="price-yearly hidden">$149</span>
-                                <span class="price-period">/month</span>
-                            </div>
-                            <p class="price-description">Full power & customization</p>
-                        </div>
-                        <ul class="pricing-features">
-                            <li>✓ Switch between all modes</li>
-                            <li>✓ Custom task bucket types</li>
-                            <li>✓ Custom sprint durations</li>
-                            <li>✓ Custom AI persona messages</li>
-                            <li>✓ Unlimited everything</li>
-                            <li>✓ API access (coming soon)</li>
-                            <li>✓ White-glove support</li>
-                        </ul>
-                        <button onclick="selectPlan('premium')" class="btn btn-primary btn-block">Upgrade Now</button>
-                        <div class="yearly-note hidden">Billed $149/year</div>
-                    </div>
-                </div>
-
-                <!-- FAQ -->
-                <div class="admin-section" style="max-width: 800px; margin: 3rem auto;">
-                    <h2>Frequently Asked Questions</h2>
-                    
-                    <div class="faq-item">
-                        <h4>Can I cancel anytime?</h4>
-                        <p>Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>What payment methods do you accept?</h4>
-                        <p>We accept all major credit cards (Visa, MasterCard, American Express) and debit cards through Stripe.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Can I switch plans later?</h4>
-                        <p>Yes! You can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Do you offer refunds?</h4>
-                        <p>We offer a 14-day money-back guarantee. If you're not satisfied, contact us for a full refund.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Is my data safe?</h4>
-                        <p>Yes! All data is encrypted in transit and at rest. We use industry-standard security practices and never sell your data.</p>
-                    </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Are charges automatic?</div>
+                <div class="faq-answer">
+                    <strong>No.</strong> We hate surprise charges. After your trial ends, you must actively click "Continue" to subscribe at the full price. If you do nothing, your access simply locks—no sneaky charges.
                 </div>
             </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Can I cancel anytime?</div>
+                <div class="faq-answer">
+                    Yes. Cancel from your account settings anytime. No questions, no hassle. Your access continues until the end of your billing period.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Can I downgrade?</div>
+                <div class="faq-answer">
+                    Yes. Downgrade from Premium → Pro or Pro → Lite anytime. Changes take effect at your next billing cycle, and you'll get the trial rate for the lower tier.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">What about refunds?</div>
+                <div class="faq-answer">
+                    We offer a 30-day money-back guarantee. If FocusHub isn't working for you, email us within 30 days for a full refund. No questions asked.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">I'm a Beta user—do I need to upgrade?</div>
+                <div class="faq-answer">
+                    <strong>No!</strong> Beta users get Premium features forever at $0/mo. Thanks for being an early believer. Your "BETA" badge stays forever.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="overview.html" style="color: var(--industrial-orange); font-size: 0.875rem; text-decoration: none;">← Back to Dashboard</a>
         </div>
     </div>
 
     <script>
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        let currentBillingCycle = 'monthly';
         
-        if (!currentUser) {
-            window.location.href = 'start.html';
+        // Check if user is already subscribed
+        async function checkCurrentTier() {
+            try {
+                const tier = await getUserTier();
+                const membership = await getUserMembership();
+                
+                // If user is already Premium or Beta, show message
+                if (tier === 'beta') {
+                    document.querySelector('.upgrade-header p').innerHTML = 
+                        '<strong style="color: var(--success);">🎖️ You\'re a Beta user — you have Premium forever!</strong>';
+                    // Disable all CTAs
+                    document.querySelectorAll('.tier-cta').forEach(btn => {
+                        btn.disabled = true;
+                        btn.textContent = 'You Have Access';
+                        btn.style.opacity = '0.5';
+                    });
+                } else if (tier === 'premium') {
+                    document.querySelector('.upgrade-header p').innerHTML = 
+                        '<strong style="color: var(--success);">⭐ You\'re already on Premium!</strong>';
+                } else if (tier === 'pro') {
+                    // Highlight only Premium upgrade
+                    document.getElementById('liteCTA').disabled = true;
+                    document.getElementById('liteCTA').textContent = 'Current Tier or Lower';
+                    document.getElementById('liteCTA').style.opacity = '0.5';
+                    
+                    document.getElementById('proCTA').disabled = true;
+                    document.getElementById('proCTA').textContent = 'Current Tier';
+                    document.getElementById('proCTA').style.opacity = '0.5';
+                }
+            } catch (error) {
+                console.error('Error checking tier:', error);
+            }
         }
         
-        const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-        const currentUserFull = users.find(u => u.id === currentUser.id);
+        function showMonthly() {
+            currentBillingCycle = 'monthly';
+            document.getElementById('monthlyBtn').classList.add('active');
+            document.getElementById('annualBtn').classList.remove('active');
+            
+            document.getElementById('litePrice').textContent = '$3.99';
+            document.getElementById('proPrice').textContent = '$9.99';
+            document.getElementById('premiumPrice').textContent = '$19.99';
+            
+            document.querySelectorAll('.price-period').forEach(el => el.textContent = '/month');
+        }
         
-        let billingInterval = 'monthly';
+        function showAnnual() {
+            currentBillingCycle = 'annual';
+            document.getElementById('annualBtn').classList.add('active');
+            document.getElementById('monthlyBtn').classList.remove('active');
+            
+            document.getElementById('litePrice').textContent = '$39';
+            document.getElementById('proPrice').textContent = '$99';
+            document.getElementById('premiumPrice').textContent = '$199';
+            
+            document.querySelectorAll('.price-period').forEach(el => el.textContent = '/year');
+        }
         
-        // Display current plan
-        function displayCurrentPlan() {
-            const planNames = {
-                'free': 'Free Plan',
-                'student_hs': 'Student - High School',
-                'student_college': 'Student - College/Grad',
-                'professional': 'Professional',
-                'premium': 'Premium',
-                'admin': 'Admin Account'
+        function selectPlan(tier, cycle) {
+            // Store selection
+            sessionStorage.setItem('selected_tier', tier);
+            sessionStorage.setItem('selected_cycle', cycle);
+            
+            // Redirect to Lemon Squeezy checkout
+            // TODO: Replace with actual Lemon Squeezy checkout URLs
+            const checkoutUrls = {
+                'lite-monthly': 'https://focushub.lemonsqueezy.com/checkout/buy/LITE-MONTHLY-ID',
+                'lite-annual': 'https://focushub.lemonsqueezy.com/checkout/buy/LITE-ANNUAL-ID',
+                'pro-monthly': 'https://focushub.lemonsqueezy.com/checkout/buy/PRO-MONTHLY-ID',
+                'pro-annual': 'https://focushub.lemonsqueezy.com/checkout/buy/PRO-ANNUAL-ID',
+                'premium-monthly': 'https://focushub.lemonsqueezy.com/checkout/buy/PREMIUM-MONTHLY-ID',
+                'premium-annual': 'https://focushub.lemonsqueezy.com/checkout/buy/PREMIUM-ANNUAL-ID'
             };
             
-            const planBadges = {
-                'free': '<span class="badge badge-gray">Free</span>',
-                'student_hs': '<span class="badge badge-blue">Student HS</span>',
-                'student_college': '<span class="badge badge-blue">Student College</span>',
-                'professional': '<span class="badge badge-green">Professional</span>',
-                'premium': '<span class="badge badge-purple">Premium</span>',
-                'admin': '<span class="badge badge-red">Admin</span>'
-            };
+            const checkoutKey = `${tier}-${cycle}`;
+            const checkoutUrl = checkoutUrls[checkoutKey];
             
-            const plan = currentUserFull.plan || 'free';
-            document.getElementById('currentPlanBadge').innerHTML = planBadges[plan];
-            document.getElementById('currentPlanName').textContent = planNames[plan];
-            
-            if (plan === 'free') {
-                document.getElementById('currentPlanFeatures').textContent = 'Local storage only • Limited features';
-            } else if (plan === 'admin') {
-                document.getElementById('currentPlanFeatures').textContent = 'Full admin access • All features unlocked';
+            if (checkoutUrl) {
+                // Open Lemon Squeezy checkout
+                window.location.href = checkoutUrl;
             } else {
-                document.getElementById('currentPlanFeatures').textContent = 'Cloud sync • Unlimited features';
-            }
-            
-            // Hide current plan from options
-            const currentCard = document.getElementById(`card-${plan}`);
-            if (currentCard) {
-                currentCard.style.opacity = '0.5';
-                currentCard.querySelector('button').textContent = 'Current Plan';
-                currentCard.querySelector('button').disabled = true;
+                alert(`Checkout for ${tier} ${cycle} is not yet configured. Please contact support.`);
             }
         }
         
-        // Set billing interval
-        function setBilling(interval) {
-            billingInterval = interval;
-            
-            // Update buttons
-            document.getElementById('monthlyBtn').classList.toggle('active', interval === 'monthly');
-            document.getElementById('yearlyBtn').classList.toggle('active', interval === 'yearly');
-            
-            // Update prices
-            document.querySelectorAll('.price-monthly').forEach(el => {
-                el.classList.toggle('hidden', interval === 'yearly');
-            });
-            document.querySelectorAll('.price-yearly').forEach(el => {
-                el.classList.toggle('hidden', interval === 'monthly');
-            });
-            document.querySelectorAll('.yearly-note').forEach(el => {
-                el.classList.toggle('hidden', interval === 'monthly');
-            });
-        }
-        
-        // Select plan (ready for Stripe integration)
-        function selectPlan(plan) {
-            // For now, show coming soon message
-            // In production, this would redirect to Stripe Checkout
-            
-            const planNames = {
-                'student_hs': 'Student - High School',
-                'student_college': 'Student - College/Grad',
-                'professional': 'Professional',
-                'premium': 'Premium'
-            };
-            
-            const prices = {
-                'student_hs': { monthly: 5, yearly: 49 },
-                'student_college': { monthly: 8, yearly: 79 },
-                'professional': { monthly: 10, yearly: 99 },
-                'premium': { monthly: 15, yearly: 149 }
-            };
-            
-            const price = prices[plan][billingInterval];
-            const interval = billingInterval === 'monthly' ? 'month' : 'year';
-            
-            alert(`Stripe integration coming soon!\n\nYou selected: ${planNames[plan]}\nPrice: $${price}/${interval}\n\nFor now, contact admin to upgrade your account.`);
-            
-            // Track analytics
-            if (window.FocusHubAnalytics) {
-                FocusHubAnalytics.trackEvent('upgrade_attempted', {
-                    plan: plan,
-                    interval: billingInterval,
-                    price: price
-                });
-            }
-            
-            /* STRIPE INTEGRATION (Ready to uncomment when Stripe is set up)
-            
-            // Create Stripe checkout session
-            fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    plan: plan,
-                    interval: billingInterval,
-                    userId: currentUser.id
-                })
-            })
-            .then(res => res.json())
-            .then(session => {
-                // Redirect to Stripe Checkout
-                return stripe.redirectToCheckout({ sessionId: session.id });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Something went wrong. Please try again.');
-            });
-            
-            */
-        }
-        
-        // Theme
-        const theme = localStorage.getItem('focushub_theme') || 'light';
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
-        }
-        
-        displayCurrentPlan();
+        // Initialize
+        checkCurrentTier();
     </script>
 </body>
 </html>

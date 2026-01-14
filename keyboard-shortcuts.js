@@ -5,18 +5,18 @@ let shortcutsEnabled = false;
 
 // Check premium status and enable shortcuts
 async function initializeKeyboardShortcuts() {
-    // Check if user is premium/beta
+    // Check if user is Pro or higher (Pro, Premium, Beta)
     try {
-        const isPremium = await isPremiumUser();
-        if (isPremium) {
+        const isPro = await isProUser();
+        if (isPro) {
             shortcutsEnabled = true;
-            console.log('✅ Keyboard shortcuts enabled (Premium)');
+            console.log('✅ Keyboard shortcuts enabled (Pro+)');
             showShortcutsHint();
         } else {
-            console.log('🔒 Keyboard shortcuts disabled (Premium only)');
+            console.log('🔒 Keyboard shortcuts disabled (Pro+ only)');
         }
     } catch (err) {
-        console.log('Could not check premium status for keyboard shortcuts');
+        console.log('Could not check tier status for keyboard shortcuts');
     }
 }
 
