@@ -244,3 +244,115 @@ async function isLoggedIn() {
     return !!user;
 }
 
+// Authentication functions
+async function handleSignin(email, password) {
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (error) {
+            console.error('Sign in error:', error);
+            return { success: false, error: error.message };
+        }
+        
+        console.log('✅ Sign in successful');
+        return { success: true, user: data.user };
+    } catch (error) {
+        console.error('Sign in error:', error);
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
+
+async function handleSignup(email, password, name) {
+    try {
+        // Sign up the user
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    name: name
+                }
+            }
+        });
+        
+        if (error) {
+            console.error('Sign up error:', error);
+            return { success: false, error: error.message };
+        }
+        
+        // Create user profile
+        if (data.user) {
+            const { error: profileError } = await supabaseClient
+                .from('user_profiles')
+                .insert({
+                    id: data.user.id,
+                    name: name,
+                    email: email,
+                    mode: 'default'
+                });
+            
+            if (profileError) {
+                console.error('Profile creation error:', profileError);
+            }
+            
+            // Create default membership
+            const { error: membershipError } = await supabaseClient
+                .from('user_memberships')
+                .insert({
+                    user_id: data.user.id,
+                    tier: 'lite',
+                    is_beta_user: false
+                });
+            
+            if (membershipError) {
+                console.error('Membership creation error:', membershipError);
+            }
+        }
+        
+        console.log('✅ Sign up successful');
+        return { success: true, user: data.user };
+    } catch (error) {
+        console.error('Sign up error:', error);
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
+
+async function handleSignout() {
+    try {
+        const { error } = await supabaseClient.auth.signOut();
+        
+        if (error) {
+            console.error('Sign out error:', error);
+            return { success: false, error: error.message };
+        }
+        
+        console.log('✅ Sign out successful');
+        return { success: true };
+    } catch (error) {
+        console.error('Sign out error:', error);
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
+
+async function handlePasswordReset(email) {
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/reset-password.html'
+        });
+        
+        if (error) {
+            console.error('Password reset error:', error);
+            return { success: false, error: error.message };
+        }
+        
+        console.log('✅ Password reset email sent');
+        return { success: true };
+    } catch (error) {
+        console.error('Password reset error:', error);
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
+
