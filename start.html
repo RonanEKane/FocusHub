@@ -307,6 +307,9 @@
                 }
             }
             
+            // CRITICAL: Remove new_user flag on login (only signup should set it)
+            localStorage.removeItem('focushub_new_user');
+            
             // Redirect to app
             window.location.href = 'app.html';
         }
