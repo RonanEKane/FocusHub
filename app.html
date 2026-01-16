@@ -2861,7 +2861,22 @@ ${analysis.suggestions}
                 document.getElementById('baselineValue').textContent = current + 1;
             });
 
-            document.getElementById('startDayBtn').addEventListener('click', startDay);
+            // Start Day Button
+            const startDayBtn = document.getElementById('startDayBtn');
+            if (startDayBtn) {
+                console.log('✅ Start Day button found, attaching listener');
+                startDayBtn.addEventListener('click', async () => {
+                    console.log('🔘 START DAY BUTTON CLICKED');
+                    try {
+                        await startDay();
+                    } catch (error) {
+                        console.error('❌ ERROR IN START DAY:', error);
+                        alert('Error starting session: ' + error.message);
+                    }
+                });
+            } else {
+                console.error('❌ START DAY BUTTON NOT FOUND!');
+            }
 
             // Timer controls
             document.querySelectorAll('.duration-btn').forEach(btn => {
@@ -2979,51 +2994,65 @@ ${analysis.suggestions}
         }
 
         async function startDay() {
-            console.log('startDay called');
+            console.log('🚀 START DAY BUTTON CLICKED');
             
-            // Check evening shutdown
-            if (checkEveningShutdown()) {
-                return;
+            try {
+                // Check evening shutdown
+                console.log('Checking evening shutdown...');
+                if (checkEveningShutdown()) {
+                    console.log('❌ Blocked by evening shutdown');
+                    return;
+                }
+                
+                // Check break enforcement
+                console.log('Checking break enforcement...');
+                if (checkBreakEnforcement()) {
+                    console.log('❌ Blocked by break enforcement');
+                    return;
+                }
+                
+                // Check intention lock
+                console.log('Checking intention lock...');
+                const intentionSet = await checkIntentionLock();
+                if (!intentionSet) {
+                    console.log('❌ Blocked by intention lock');
+                    return;
+                }
+                
+                console.log('✅ All checks passed!');
+                
+                state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
+                state.plannedSprints = state.baselineSprints;
+                state.sessionState = 'active';
+                
+                console.log('Baseline sprints:', state.baselineSprints);
+                
+                // Save session state to localStorage
+                localStorage.setItem('focushub_session_state', 'active');
+                localStorage.setItem('focushub_session_date', new Date().toDateString());
+                
+                // Save to Supabase
+                saveState();
+                
+                console.log('Hiding start screen...');
+                hideStartScreen();
+                
+                // Enter focus mode if enabled
+                enterFocusMode();
+                
+                // Increment consecutive sprints
+                consecutiveSprints++;
+            
+                console.log('Rendering all...');
+                renderAll();
+                updateAgentMessage();
+                
+                console.log('✅ startDay complete');
+            } catch (error) {
+                console.error('❌ CRITICAL ERROR IN startDay:', error);
+                console.error('Stack trace:', error.stack);
+                alert('Failed to start session: ' + error.message + '\n\nCheck console for details.');
             }
-            
-            // Check break enforcement
-            if (checkBreakEnforcement()) {
-                return;
-            }
-            
-            // Check intention lock
-            const intentionSet = await checkIntentionLock();
-            if (!intentionSet) {
-                return;
-            }
-            
-            state.baselineSprints = parseInt(document.getElementById('baselineValue').textContent);
-            state.plannedSprints = state.baselineSprints;
-            state.sessionState = 'active'; // FIX: Set session state
-            
-            console.log('Baseline sprints:', state.baselineSprints);
-            
-            // Save session state to localStorage (simple flag)
-            localStorage.setItem('focushub_session_state', 'active');
-            localStorage.setItem('focushub_session_date', new Date().toDateString());
-            
-            // Save to Supabase
-            saveState();
-            
-            console.log('Hiding start screen...');
-            hideStartScreen();
-            
-            // Enter focus mode if enabled
-            enterFocusMode();
-            
-            // Increment consecutive sprints
-            consecutiveSprints++;
-            
-            console.log('Rendering all...');
-            renderAll();
-            updateAgentMessage();
-            
-            console.log('startDay complete');
         }
 
         // ============================================
@@ -5945,6 +5974,14 @@ setInterval(() => {
         localStorage.setItem('focushub_timer', JSON.stringify(timerState));
     }
 }, 2000); // Save every 2 seconds
+
+// CRITICAL: Initialize the app when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    // DOM already loaded
+    init();
+}
 </script>
 
 <!-- Privacy & Data Management Footer -->
