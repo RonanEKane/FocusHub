@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub Demo - Real UI</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Dark theme variables */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --industrial-orange: #f45b07;
+            --accent-blue: #4a90e2;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --border-light: #2a2a2a;
+            --border-medium: #3a3a3a;
+            --success: #22c55e;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            color: var(--text-primary);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .demo-wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .demo-frame {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-medium);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+        
+        .scene.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        .scene-title {
+            position: absolute;
+            top: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .scene-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--industrial-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .scene-title p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Progress dots */
+        .progress-dots {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.75rem;
+            z-index: 100;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-medium);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot.active {
+            background: var(--industrial-orange);
+            width: 32px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="theme-dark">
+    <div class="demo-wrapper">
+        <div class="demo-frame">
+            
+            <!-- Scene 0: Full App Overview (NEW) -->
+            <div class="scene active" id="scene0">
+                <div class="scene-title" style="top: 1.5rem;">
+                    <h2>FocusHub</h2>
+                    <p>A complete productivity system for ADHD brains</p>
+                </div>
+                
+                <!-- Full App Screenshot Mock -->
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 5rem 2rem 3rem;">
+                    <div style="width: 100%; max-width: 1200px; background: var(--bg-primary); border: 1px solid var(--border-medium); border-radius: 8px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); transform: scale(0.85); animation: zoomPulse 8s ease-in-out infinite;">
+                        
+                        <!-- Mock App Header -->
+                        <div style="background: var(--bg-primary); padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border-medium); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span style="font-weight: 700; color: var(--industrial-orange); font-size: 1.1rem;">FocusHub</span>
+                                <span style="font-size: 0.7rem; color: var(--text-secondary);">Built for Brains That Wander</span>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; font-size: 0.7rem; color: var(--text-secondary);">
+                                <span>📊 Dashboard</span>
+                                <span>⚙️ Settings</span>
+                                <span style="background: var(--industrial-orange); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-weight: 600;">BETA</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Mock App Layout (2 columns) -->
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem; padding: 1.5rem; min-height: 400px;">
+                            
+                            <!-- Left Column -->
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Timer Card -->
+                                <div style="background: rgba(245, 91, 7, 0.05); border: 2px solid var(--industrial-orange); border-radius: 6px; padding: 1.25rem;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                                        <span style="font-size: 0.85rem; font-weight: 700;">🎯 SPRINT TIMER</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-secondary);">⚡ Medium</span>
+                                    </div>
+                                    <div style="text-align: center; font-size: 2.5rem; font-weight: 700; color: var(--industrial-orange); margin: 0.75rem 0;">18:42</div>
+                                    <div style="width: 100%; height: 6px; background: var(--border-medium); border-radius: 3px; overflow: hidden;">
+                                        <div style="width: 65%; height: 100%; background: var(--industrial-orange);"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task Buckets -->
+                                <div style="background: rgba(245, 91, 7, 0.03); border: 1px solid var(--border-medium); border-radius: 6px; padding: 1rem; flex: 1;">
+                                    <div style="display: grid; gap: 0.75rem;">
+                                        <!-- Admin -->
+                                        <div style="border-left: 3px solid #ef4444; padding-left: 0.75rem;">
+                                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem;">🔥 ADMIN · 2</div>
+                                            <div style="display: grid; gap: 0.5rem;">
+                                                <div style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">Finish client proposal</div>
+                                                <div style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">Call dentist</div>
+                                            </div>
+                                        </div>
+                                        <!-- Deep Work -->
+                                        <div style="border-left: 3px solid #4a90e2; padding-left: 0.75rem;">
+                                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem;">🎯 DEEP WORK · 2</div>
+                                            <div style="display: grid; gap: 0.5rem;">
+                                                <div style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">Review Q4 budget</div>
+                                                <div style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">Fix checkout bug</div>
+                                            </div>
+                                        </div>
+                                        <!-- Strategic -->
+                                        <div style="border-left: 3px solid var(--industrial-orange); padding-left: 0.75rem;">
+                                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem;">♟️ STRATEGIC · 1</div>
+                                            <div style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem;">Email Sarah</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Agent Card -->
+                                <div style="background: rgba(74, 144, 226, 0.05); border: 2px solid var(--accent-blue); border-radius: 6px; padding: 1rem;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem;">🤖 THE AGENT</div>
+                                    <div style="background: var(--bg-secondary); padding: 0.75rem; border-left: 3px solid var(--accent-blue); border-radius: 4px; font-size: 0.75rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                                        "You committed to 20 minutes. Keep this going."
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-medium);">
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.6rem; color: var(--text-secondary);">SPRINTS</div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: var(--industrial-orange);">4/8</div>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.6rem; color: var(--text-secondary);">WINS</div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: var(--success);">2</div>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.6rem; color: var(--text-secondary);">BREAKS</div>
+                                            <div style="font-size: 1rem; font-weight: 700;">1</div>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.6rem; color: var(--text-secondary);">PARKED</div>
+                                            <div style="font-size: 1rem; font-weight: 700;">2</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Distraction Logger -->
+                                <div style="background: var(--bg-primary); border: 1px solid var(--border-medium); border-radius: 6px; padding: 1rem;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem;">🚫 DISTRACTION PARKING</div>
+                                    <input type="text" placeholder="Park that distraction..." style="width: 100%; padding: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: 4px; color: var(--text-primary); font-size: 0.75rem; margin-bottom: 0.5rem;">
+                                    <button style="width: 100%; padding: 0.5rem; background: var(--industrial-orange); color: white; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Park It</button>
+                                </div>
+                                
+                                <!-- Grade Preview -->
+                                <div style="background: var(--bg-primary); border: 1px solid var(--border-medium); border-radius: 6px; padding: 1rem; text-align: center;">
+                                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.5rem;">CURRENT GRADE</div>
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--industrial-orange);">B+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <style>
+                    @keyframes zoomPulse {
+                        0%, 100% { transform: scale(0.85); }
+                        50% { transform: scale(0.88); }
+                    }
+                </style>
+            </div>
+            
+            <!-- Scene 1: Energy Check-In (REAL UI from app.html) -->
+            <div class="scene active" id="scene1">
+                <div class="scene-title">
+                    <h2>Energy Check-In</h2>
+                    <p>Match sprints to your actual capacity</p>
+                </div>
+                
+                <!-- This is the EXACT HTML from your Start Day screen -->
+                <div class="start-day-container" style="max-width: 700px;">
+                    <div class="start-form">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">⚡ Energy Check-In</label>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">Your current energy level adjusts sprint expectations.</p>
+                            <div class="energy-options">
+                                <button class="energy-btn" data-energy="high" style="cursor: pointer; transition: all 0.2s;">
+                                    <div class="energy-emoji">🔋</div>
+                                    <div style="font-weight: 600;">HIGH ENERGY</div>
+                                    <div class="energy-desc" data-energy-desc="high">30min sprints</div>
+                                </button>
+                                <button class="energy-btn active" data-energy="medium" style="cursor: pointer; transition: all 0.2s;">
+                                    <div class="energy-emoji">⚡</div>
+                                    <div style="font-weight: 600;">MEDIUM ENERGY</div>
+                                    <div class="energy-desc" data-energy-desc="medium">20min sprints</div>
+                                </button>
+                                <button class="energy-btn" data-energy="low" style="cursor: pointer; transition: all 0.2s;">
+                                    <div class="energy-emoji">🪫</div>
+                                    <div style="font-weight: 600;">LOW ENERGY</div>
+                                    <div class="energy-desc" data-energy-desc="low">15min sprints</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 2: Brain Dump (REAL UI from app.html) -->
+            <div class="scene" id="scene2">
+                <div class="scene-title">
+                    <h2>Brain Dump</h2>
+                    <p>Get it out of your head. We'll organize it.</p>
+                </div>
+                
+                <div class="card" style="max-width: 800px; width: 100%; background: var(--bg-primary); border: 2px solid var(--border-medium); border-radius: 8px; padding: 2rem;">
+                    <!-- This is the EXACT HTML from your app.html -->
+                    <div class="brain-dump">
+                        <label data-label="brainDump" style="font-size: 1.25rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">🧠 BRAIN DUMP</label>
+                        <p class="brain-dump-hint" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">Paste your task list below (one task per line)</p>
+                        <textarea class="task-textarea" rows="6" readonly style="width: 100%; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-medium); border-radius: 6px; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none;">finish client proposal by friday
+review Q4 budget numbers
+email sarah about project meeting
+call dentist for appointment
+fix website bug in checkout flow</textarea>
+                        
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 1rem; background: var(--industrial-orange); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer;">Parse & Add to Parking Lot</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 3: Task Buckets (REAL UI from app.html) -->
+            <div class="scene" id="scene3">
+                <div class="scene-title">
+                    <h2>Three Buckets</h2>
+                    <p>Admin. Deep Work. Strategic.</p>
+                </div>
+                
+                <div style="max-width: 900px; width: 100%;">
+                    <!-- This is the EXACT HTML from your app.html -->
+                    <div class="task-buckets" style="padding: 1rem; background: rgba(245, 91, 7, 0.03); border: 2px solid rgba(245, 91, 7, 0.3); border-radius: 8px;">
+                        
+                        <!-- ADMIN Bucket -->
+                        <div class="task-bucket urgent" style="border-left: 3px solid #ef4444; background: var(--bg-primary); padding: 1.25rem; margin-bottom: 1.5rem; border-radius: 8px;">
+                            <div class="bucket-header" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-medium);">
+                                <span class="bucket-icon" style="font-size: 1.5rem;">🔥</span>
+                                <h3 style="font-size: 1rem; font-weight: 700; flex: 1; margin: 0;">ADMIN</h3>
+                                <span class="task-count" style="background: var(--border-medium); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">2</span>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-card" style="background: var(--bg-secondary); padding: 1rem; margin-bottom: 0.75rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.2); color: #ef4444; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem;">🔴 HIGH</span>
+                                    <span>Finish client proposal by friday</span>
+                                </div>
+                                <div class="task-card" style="background: var(--bg-secondary); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem;">🟡 MED</span>
+                                    <span>Call dentist for appointment</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- DEEP WORK Bucket -->
+                        <div class="task-bucket deepwork" style="border-left: 3px solid #4a90e2; background: var(--bg-primary); padding: 1.25rem; margin-bottom: 1.5rem; border-radius: 8px;">
+                            <div class="bucket-header" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-medium);">
+                                <span class="bucket-icon" style="font-size: 1.5rem;">🎯</span>
+                                <h3 style="font-size: 1rem; font-weight: 700; flex: 1; margin: 0;">DEEP WORK</h3>
+                                <span class="task-count" style="background: var(--border-medium); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">2</span>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-card" style="background: var(--bg-secondary); padding: 1rem; margin-bottom: 0.75rem; border-radius: 6px; border-left: 3px solid #4a90e2;">
+                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background: rgba(239, 68, 68, 0.2); color: #ef4444; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem;">🔴 HIGH</span>
+                                    <span>Review Q4 budget numbers</span>
+                                </div>
+                                <div class="task-card" style="background: var(--bg-secondary); padding: 1rem; border-radius: 6px; border-left: 3px solid #4a90e2;">
+                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem;">🟡 MED</span>
+                                    <span>Fix website bug in checkout flow</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STRATEGIC Bucket -->
+                        <div class="task-bucket strategic" style="border-left: 3px solid var(--industrial-orange); background: var(--bg-primary); padding: 1.25rem; border-radius: 8px;">
+                            <div class="bucket-header" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-medium);">
+                                <span class="bucket-icon" style="font-size: 1.5rem;">♟️</span>
+                                <h3 style="font-size: 1rem; font-weight: 700; flex: 1; margin: 0;">STRATEGIC</h3>
+                                <span class="task-count" style="background: var(--border-medium); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">1</span>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-card" style="background: var(--bg-secondary); padding: 1rem; border-radius: 6px; border-left: 3px solid var(--industrial-orange);">
+                                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem;">🟡 MED</span>
+                                    <span>Email Sarah about project meeting</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 4: Sprint Timer (REAL UI from app.html) -->
+            <div class="scene" id="scene4">
+                <div class="scene-title">
+                    <h2>Sprint Timer</h2>
+                    <p>Simple. Measurable. Repeatable.</p>
+                </div>
+                
+                <div class="card" style="max-width: 700px; width: 100%; background: var(--bg-primary); border: 3px solid var(--industrial-orange); box-shadow: 0 4px 16px rgba(245, 91, 7, 0.3); border-radius: 8px; padding: 2rem;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-medium);">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">🎯 SPRINT TIMER</h3>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Energy:</span>
+                            <span style="color: var(--text-primary);">⚡ Medium</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Task Badge -->
+                    <div style="text-align: center; padding: 0.75rem; background: rgba(74, 144, 226, 0.1); border: 1px solid #4a90e2; border-radius: 6px; margin-bottom: 2rem; font-size: 0.875rem;">
+                        Working on: <strong style="color: var(--text-primary);">Finish client proposal by friday</strong>
+                    </div>
+                    
+                    <!-- This is the EXACT timer display from your app.html -->
+                    <div class="timer-active" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 8px;">
+                        <div class="timer-display" style="text-align: center;">
+                            <div class="timer-time" id="demoTimer" style="font-size: 5rem; font-weight: 700; color: var(--industrial-orange); font-variant-numeric: tabular-nums; margin-bottom: 1rem; text-shadow: 0 0 30px rgba(245, 91, 7, 0.3);">18:42</div>
+                            <div class="timer-progress" style="width: 100%; height: 8px; background: var(--border-medium); border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;">
+                                <div class="progress-bar" style="width: 65%; height: 100%; background: var(--industrial-orange); transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-controls" style="display: flex; gap: 0.75rem;">
+                            <button class="btn" style="background: #fbbf24; color: #1a1a1a; font-weight: 600; flex: 1; padding: 0.875rem; border: none; border-radius: 6px; cursor: pointer;">⏸ PAUSE</button>
+                            <button class="btn btn-danger" style="flex: 1; background: #ef4444; color: white; font-weight: 600; padding: 0.875rem; border: none; border-radius: 6px; cursor: pointer;">🔄 RESET</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scene 5: Distraction Parking (REAL UI from app.html) -->
+            <div class="scene" id="scene5">
+                <div class="scene-title">
+                    <h2>Distraction Parking</h2>
+                    <p>Don't fight them. Park them.</p>
+                </div>
+                
+                <!-- Timer in background (smaller) -->
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--industrial-orange); font-variant-numeric: tabular-nums;">16:23</div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">Working on: <strong>Finish client proposal by friday</strong></p>
+                </div>
+                
+                <!-- Distraction Popup - This is REAL UI from your app.html -->
+                <div style="position: relative; max-width: 400px; margin: 0 auto; animation: popIn 0.6s ease forwards;">
+                    <div class="card distraction-logger" style="border: 3px solid var(--industrial-orange); box-shadow: 0 8px 24px rgba(245, 91, 7, 0.4); background: var(--bg-primary);">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">🚫 DISTRACTION PARKING</h3>
+                        </div>
+                        
+                        <div class="card-content">
+                            <div style="background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+                                <p style="font-size: 1rem; color: var(--text-primary); line-height: 1.5; margin: 0;">
+                                    💭 "Need to check email about that meeting with Sarah..."
+                                </p>
+                            </div>
+                            
+                            <!-- This is the EXACT input from your app.html -->
+                            <div class="distraction-input-group">
+                                <input type="text" class="distraction-input" placeholder="Park that distraction here..." value="Check email about meeting" readonly style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 2px solid var(--border-medium); border-radius: 6px; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.75rem;">
+                                
+                                <label class="intention-checkbox" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+                                    <input type="checkbox" checked style="width: 18px; height: 18px;">
+                                    <span>I'll handle this</span>
+                                </label>
+                                
+                                <button class="btn btn-primary" style="width: 100%; padding: 0.875rem; background: var(--industrial-orange); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer;">🅿️ Park It</button>
+                            </div>
+                            
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; text-align: center; line-height: 1.5;">
+                                It'll be there after the sprint. You won't forget.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <style>
+                    @keyframes popIn {
+                        from {
+                            opacity: 0;
+                            transform: scale(0.9) translateY(-20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: scale(1) translateY(0);
+                        }
+                    }
+                </style>
+            </div>
+            
+            <!-- Scene 6: The Agent - KEY DIFFERENTIATOR -->
+            <div class="scene" id="scene6">
+                <div class="scene-title">
+                    <h2>The Agent</h2>
+                    <p>Tough-love accountability. No excuses. No coddling.</p>
+                </div>
+                
+                <div style="max-width: 900px; width: 100%; display: grid; gap: 1.5rem;">
+                    
+                    <!-- Main Agent Card - This is REAL UI from your app.html -->
+                    <div class="card ai-agent" style="border: 3px solid var(--industrial-orange); box-shadow: 0 4px 16px rgba(245, 91, 7, 0.4); background: rgba(245, 91, 7, 0.03); padding: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                            <div>
+                                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--industrial-orange);">🤖 THE AGENT</h3>
+                                <div style="font-style: italic; font-size: 0.95rem; color: var(--text-secondary);">Your Accountability Coach</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                                <label style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">TONE</label>
+                                <select style="padding: 0.5rem 0.75rem; border: 2px solid var(--border-medium); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; cursor: pointer; font-weight: 600;">
+                                    <option value="supportive">Supportive</option>
+                                    <option value="balanced" selected>Balanced</option>
+                                    <option value="tough">Tough</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Message -->
+                        <div class="agent-message" style="padding: 1.75rem; background: var(--bg-secondary); border-left: 4px solid var(--industrial-orange); border-radius: 6px; margin-bottom: 1.5rem;">
+                            <div style="font-size: 1.2rem; line-height: 1.7; font-weight: 500; color: var(--text-primary);">
+                                "You committed to 20 minutes. You delivered 20 minutes. That's execution. Keep this pattern going and you'll finish the proposal before lunch."
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Grid - REAL UI -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding-top: 1rem; border-top: 2px solid var(--border-medium);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Sprints</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--industrial-orange);">4 / 8</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Wins</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">2</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Breaks</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">1</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Parked</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);">2</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Secondary Agent Message - Pattern Recognition -->
+                    <div class="card" style="border: 2px solid var(--accent-blue); background: var(--bg-primary); padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">📊</span>
+                            <div style="font-size: 0.875rem; color: var(--accent-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Pattern Detected</div>
+                        </div>
+                        <div style="font-size: 1.05rem; line-height: 1.7; color: var(--text-primary);">
+                            "Two distractions parked today. Both were emails. Consider checking email at fixed times instead of interrupting sprints. Your call."
+                        </div>
+                    </div>
+                    
+                    <!-- What Makes The Agent Different -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div style="background: rgba(245, 91, 7, 0.1); border: 2px solid var(--industrial-orange); border-radius: 6px; padding: 1.25rem; text-align: center;">
+                            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅</div>
+                            <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--text-primary);">Direct Feedback</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">No sugar-coating. Just facts.</div>
+                        </div>
+                        <div style="background: rgba(245, 91, 7, 0.1); border: 2px solid var(--industrial-orange); border-radius: 6px; padding: 1.25rem; text-align: center;">
+                            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📈</div>
+                            <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--text-primary);">Pattern Recognition</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">Tracks your habits</div>
+                        </div>
+                        <div style="background: rgba(245, 91, 7, 0.1); border: 2px solid var(--industrial-orange); border-radius: 6px; padding: 1.25rem; text-align: center;">
+                            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎯</div>
+                            <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--text-primary);">Actionable Coaching</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">Specific next steps</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Scene 7: End of Day Report (REAL UI from app.html) -->
+            <div class="scene" id="scene7">
+                <div class="scene-title">
+                    <h2>End of Day Report</h2>
+                    <p>See what actually mattered</p>
+                </div>
+                
+                <div style="max-width: 800px; width: 100%;">
+                    
+                    <!-- Stats Grid - This is REAL UI from your app.html -->
+                    <div class="day-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="stat-card" style="background: var(--bg-primary); border: 2px solid var(--border-medium); border-radius: 8px; padding: 2rem; text-align: center;">
+                            <div class="stat-label" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Sprints</div>
+                            <div class="stat-value" style="font-size: 3rem; font-weight: 700; color: var(--industrial-orange); line-height: 1;">7 <span style="color: var(--text-secondary); font-size: 1.5rem;">/ 8</span></div>
+                        </div>
+                        <div class="stat-card" style="background: var(--bg-primary); border: 2px solid var(--border-medium); border-radius: 8px; padding: 2rem; text-align: center;">
+                            <div class="stat-label" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Focus Score</div>
+                            <div class="stat-value" style="font-size: 3rem; font-weight: 700; color: var(--industrial-orange); line-height: 1;">86<span style="font-size: 1.5rem;">%</span></div>
+                        </div>
+                        <div class="stat-card" style="background: var(--bg-primary); border: 2px solid var(--border-medium); border-radius: 8px; padding: 2rem; text-align: center;">
+                            <div class="stat-label" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Tasks Closed</div>
+                            <div class="stat-value" style="font-size: 3rem; font-weight: 700; color: var(--success); line-height: 1;">5</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grade Display - REAL UI -->
+                    <div class="grade-display" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="grade-section" style="background: var(--bg-primary); border: 2px solid var(--industrial-orange); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                            <div class="grade-label" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">System Grade</div>
+                            <div class="grade-value" style="font-size: 4rem; font-weight: 700; color: var(--industrial-orange); line-height: 1;">B+</div>
+                        </div>
+                        <div class="grade-section" style="background: var(--bg-primary); border: 2px solid var(--border-medium); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                            <div class="grade-label" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Your Grade</div>
+                            <div class="grade-value" style="font-size: 4rem; font-weight: 700; color: var(--text-primary); line-height: 1;">A-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Today's Wins -->
+                    <div class="wins-section">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--success); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>✅</span>
+                            <span>TODAY'S WINS</span>
+                        </h3>
+                        <div style="display: grid; gap: 0.75rem;">
+                            <div class="win-item" style="background: rgba(34, 197, 94, 0.1); border-left: 3px solid var(--success); padding: 1.25rem; border-radius: 6px; animation: fadeIn 0.6s ease forwards; animation-delay: 0.3s; opacity: 0;">
+                                <strong style="color: var(--text-primary); font-size: 1.05rem;">Finished client proposal by friday</strong>
+                            </div>
+                            <div class="win-item" style="background: rgba(34, 197, 94, 0.1); border-left: 3px solid var(--success); padding: 1.25rem; border-radius: 6px; animation: fadeIn 0.6s ease forwards; animation-delay: 0.5s; opacity: 0;">
+                                <strong style="color: var(--text-primary); font-size: 1.05rem;">Reviewed Q4 budget numbers</strong>
+                            </div>
+                            <div class="win-item" style="background: rgba(34, 197, 94, 0.1); border-left: 3px solid var(--success); padding: 1.25rem; border-radius: 6px; animation: fadeIn 0.6s ease forwards; animation-delay: 0.7s; opacity: 0;">
+                                <strong style="color: var(--text-primary); font-size: 1.05rem;">Fixed website bug in checkout flow</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <style>
+                    @keyframes fadeIn {
+                        to { opacity: 1; }
+                    }
+                </style>
+            </div>
+            
+            <!-- Scene 8: Final CTA -->
+            <div class="scene" id="scene8">
+                <div style="text-align: center; padding-top: 6rem;">
+                    <div style="font-size: 4.5rem; font-weight: 700; color: var(--industrial-orange); margin-bottom: 1rem; letter-spacing: -2px;">FocusHub</div>
+                    <p style="font-size: 1.5rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 3rem; line-height: 1.6;">
+                        Built for Brains That Wander, but Still Want to Win
+                    </p>
+                    
+                    <div style="display: grid; gap: 1rem; max-width: 500px; margin: 0 auto 3rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); border-radius: 6px;">
+                            <span style="font-size: 1.5rem;">⚡</span>
+                            <span style="text-align: left; font-size: 0.95rem; color: var(--text-primary);">Energy-adaptive sprint system</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); border-radius: 6px;">
+                            <span style="font-size: 1.5rem;">🤖</span>
+                            <span style="text-align: left; font-size: 0.95rem; color: var(--text-primary);">Tough-love accountability coaching</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); border-radius: 6px;">
+                            <span style="font-size: 1.5rem;">🎯</span>
+                            <span style="text-align: left; font-size: 0.95rem; color: var(--text-primary);">Three-bucket task system</span>
+                        </div>
+                    </div>
+                    
+                    <a href="https://focushub-6ah.pages.dev" style="display: inline-block; padding: 1.5rem 3rem; background: var(--industrial-orange); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 1.25rem; transition: all 0.3s; box-shadow: 0 4px 16px rgba(245, 91, 7, 0.4);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(245, 91, 7, 0.6)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(245, 91, 7, 0.4)'">
+                        Request Beta Access →
+                    </a>
+                    
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 2rem;">
+                        Limited beta spots available · No credit card required
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Progress Dots -->
+            <div class="progress-dots">
+                <div class="dot active" data-scene="0"></div>
+                <div class="dot" data-scene="1"></div>
+                <div class="dot" data-scene="2"></div>
+                <div class="dot" data-scene="3"></div>
+                <div class="dot" data-scene="4"></div>
+                <div class="dot" data-scene="5"></div>
+                <div class="dot" data-scene="6"></div>
+                <div class="dot" data-scene="7"></div>
+                <div class="dot" data-scene="8"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Scene management
+        const scenes = ['scene0', 'scene1', 'scene2', 'scene3', 'scene4', 'scene5', 'scene6', 'scene7', 'scene8'];
+        let currentScene = 0;
+        let timerInterval;
+        let autoAdvanceInterval;
+        
+        // Scene durations (in milliseconds)
+        const sceneDurations = {
+            'scene0': 6000,  // Full app overview - NEW
+            'scene1': 5000,  // Energy check-in
+            'scene2': 5000,  // Brain dump
+            'scene3': 6000,  // Task buckets
+            'scene4': 7000,  // Sprint timer
+            'scene5': 6000,  // Distraction parking
+            'scene6': 9000,  // The Agent - LONGER for key differentiator
+            'scene7': 8000,  // End of day report
+            'scene8': 7000   // Final CTA
+        };
+        
+        function showScene(index) {
+            // Hide all scenes
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.classList.remove('active');
+            });
+            
+            // Update dots
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            
+            // Show current scene
+            document.getElementById(scenes[index]).classList.add('active');
+            
+            // Start timer animation if on scene 4
+            if (scenes[index] === 'scene4') {
+                startTimerAnimation();
+            } else {
+                stopTimerAnimation();
+            }
+        }
+        
+        function startTimerAnimation() {
+            let minutes = 18;
+            let seconds = 42;
+            
+            timerInterval = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+                if (minutes < 0) {
+                    minutes = 18;
+                    seconds = 42;
+                }
+                
+                const timerEl = document.getElementById('demoTimer');
+                if (timerEl) {
+                    timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        
+        function stopTimerAnimation() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        function nextScene() {
+            currentScene = (currentScene + 1) % scenes.length;
+            showScene(currentScene);
+            scheduleNext();
+        }
+        
+        function scheduleNext() {
+            const duration = sceneDurations[scenes[currentScene]] || 5000;
+            if (autoAdvanceInterval) {
+                clearTimeout(autoAdvanceInterval);
+            }
+            autoAdvanceInterval = setTimeout(nextScene, duration);
+        }
+        
+        // Auto-advance with custom durations
+        scheduleNext();
+        
+        // Click dots to navigate
+        document.querySelectorAll('.dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentScene = index;
+                showScene(currentScene);
+                scheduleNext();
+            });
+        });
+    </script>
+</body>
+</html>
