@@ -21,6 +21,199 @@
     <script src="reflections-buddhist.js"></script>
 </head>
 <body>
+    <!-- ONBOARDING TUTORIAL MODAL -->
+    <div id="onboardingModal" class="modal hidden" style="z-index: 10000;">
+        <div class="modal-backdrop" onclick="skipOnboarding()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); cursor: pointer;"></div>
+        <div class="modal-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 0; background: var(--bg-primary); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+            
+            <!-- Onboarding Header -->
+            <div style="background: var(--industrial-orange); color: white; padding: 1.5rem; position: sticky; top: 0; z-index: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem 0; color: white;">Quick Start</h2>
+                        <p style="font-size: 0.875rem; margin: 0; opacity: 0.9;">Built for brains that wander. 3 minutes to master.</p>
+                    </div>
+                    <button onclick="skipOnboarding()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        Skip Tutorial
+                    </button>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <div class="onboarding-step-indicator" data-step="1" style="flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;"><div class="step-progress" style="height: 100%; background: white; width: 100%; transition: width 0.3s;"></div></div>
+                    <div class="onboarding-step-indicator" data-step="2" style="flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;"><div class="step-progress" style="height: 100%; background: white; width: 0%; transition: width 0.3s;"></div></div>
+                    <div class="onboarding-step-indicator" data-step="3" style="flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;"><div class="step-progress" style="height: 100%; background: white; width: 0%; transition: width 0.3s;"></div></div>
+                    <div class="onboarding-step-indicator" data-step="4" style="flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;"><div class="step-progress" style="height: 100%; background: white; width: 0%; transition: width 0.3s;"></div></div>
+                </div>
+            </div>
+            
+            <!-- Step 1: The Agent -->
+            <div class="onboarding-step" data-step="1" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🤖</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">Meet The Agent</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">Your tough-love accountability coach. No excuses.</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); border-left: 3px solid var(--industrial-orange); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="font-size: 0.875rem; line-height: 1.6; margin: 0; color: var(--text-primary);">
+                        <strong>The Agent doesn't coddle you.</strong> It tracks your promises, calls out your patterns, and holds you accountable. When you say you'll work for 25 minutes but switch tabs after 3, it notices. When you log a distraction for the fifth time today, it remembers.
+                    </p>
+                </div>
+                
+                <div style="display: grid; gap: 0.75rem; margin-bottom: 2rem;">
+                    <div style="display: flex; gap: 0.75rem; align-items: start;">
+                        <div style="font-size: 1.5rem;">✅</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">Direct feedback</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">"You said 25 minutes. You lasted 8. Try again."</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: start;">
+                        <div style="font-size: 1.5rem;">📊</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">Pattern recognition</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Tracks your distraction types and productivity trends</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: start;">
+                        <div style="font-size: 1.5rem;">🎯</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem;">Actionable coaching</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Specific next steps, not vague encouragement</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="nextOnboardingStep()" style="width: 100%; background: var(--industrial-orange); color: white; border: none; padding: 0.875rem; border-radius: 4px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    Got it. What's next?
+                </button>
+            </div>
+            
+            <!-- Step 2: Sprint System -->
+            <div class="onboarding-step hidden" data-step="2" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">⏱️</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">Energy-Adaptive Sprints</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">Your timer adjusts to your actual capacity</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 1.25rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="font-size: 2rem;">🔋</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">High Energy</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">30-minute sprints when you're on fire</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="font-size: 2rem;">⚡</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">Medium Energy</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">20-minute sprints for normal days</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="font-size: 2rem;">🪫</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">Low Energy</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">15-minute sprints when you're struggling</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="font-size: 0.875rem; line-height: 1.6; margin: 0;">
+                        <strong>ADHD-optimized:</strong> Shorter sprints aren't failure - they're tactical. Low energy? 15 minutes of focused work beats 60 minutes of scattered effort.
+                    </p>
+                </div>
+                
+                <button onclick="nextOnboardingStep()" style="width: 100%; background: var(--industrial-orange); color: white; border: none; padding: 0.875rem; border-radius: 4px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    Makes sense. Continue
+                </button>
+            </div>
+            
+            <!-- Step 3: Task Management -->
+            <div class="onboarding-step hidden" data-step="3" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📝</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">Three Buckets. That's It.</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">No 47-level priority systems. Just reality.</p>
+                </div>
+                
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px; border-left: 3px solid #ef4444;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700; color: #ef4444;">🔥 CRITICAL</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Weight: 3x</span>
+                        </div>
+                        <p style="font-size: 0.875rem; margin: 0; color: var(--text-secondary);">Deadline today. Can't be delayed. Career-level important.</p>
+                    </div>
+                    
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700; color: #f59e0b;">⚡ IMPORTANT</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Weight: 2x</span>
+                        </div>
+                        <p style="font-size: 0.875rem; margin: 0; color: var(--text-secondary);">This week's priorities. Matters, but has breathing room.</p>
+                    </div>
+                    
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px; border-left: 3px solid #6b7280;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 700; color: #6b7280;">📋 ROUTINE</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Weight: 1x</span>
+                        </div>
+                        <p style="font-size: 0.875rem; margin: 0; color: var(--text-secondary);">Maintenance work. Gets done when energy allows.</p>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="font-size: 0.875rem; line-height: 1.6; margin: 0;">
+                        <strong>Pro tip:</strong> The Agent will call you out if Critical tasks sit there for days. That's the point.
+                    </p>
+                </div>
+                
+                <button onclick="nextOnboardingStep()" style="width: 100%; background: var(--industrial-orange); color: white; border: none; padding: 0.875rem; border-radius: 4px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    I get it. What else?
+                </button>
+            </div>
+            
+            <!-- Step 4: Ready to Start -->
+            <div class="onboarding-step hidden" data-step="4" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🚀</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">You're Ready</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">Everything else you'll learn by doing</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0;">Your first session:</h4>
+                    <ol style="margin: 0; padding-left: 1.5rem; display: grid; gap: 0.75rem;">
+                        <li style="font-size: 0.875rem; line-height: 1.6;">Add one task (be specific: "Draft intro for client proposal")</li>
+                        <li style="font-size: 0.875rem; line-height: 1.6;">Click "Start Session" and pick your energy level</li>
+                        <li style="font-size: 0.875rem; line-height: 1.6;">Hit the timer and work for the full sprint</li>
+                        <li style="font-size: 0.875rem; line-height: 1.6;">The Agent will give you feedback at the end</li>
+                    </ol>
+                </div>
+                
+                <div style="background: rgba(245, 91, 7, 0.1); border-left: 3px solid var(--industrial-orange); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="font-size: 0.875rem; line-height: 1.6; margin: 0;">
+                        <strong>Remember:</strong> This system works because it's simple and it's tough. Don't overthink it. Just start.
+                    </p>
+                </div>
+                
+                <div style="display: grid; gap: 0.75rem;">
+                    <button onclick="finishOnboarding()" style="width: 100%; background: var(--industrial-orange); color: white; border: none; padding: 0.875rem; border-radius: 4px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                        Let's Go →
+                    </button>
+                    <button onclick="restartOnboarding()" style="width: 100%; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-medium); padding: 0.75rem; border-radius: 4px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--industrial-orange)'; this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='var(--border-medium)'; this.style.color='var(--text-secondary)'">
+                        ← Restart Tutorial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
@@ -217,6 +410,7 @@
                         <span id="syncText">Synced</span>
                     </span>
                     <a href="overview.html" class="btn-home">📊 Dashboard</a>
+                    <button onclick="replayOnboarding()" class="btn-home" style="color: var(--text-secondary);" title="Replay tutorial">🎓 Tutorial</button>
                     <button id="themeToggle" class="btn-home">☀️ Light</button>
                     <button id="exportDataBtn" class="btn-home" style="color: var(--text-secondary);">📥 Export</button>
                     <button id="logoutBtn" class="btn-home" style="color: var(--text-secondary);">Logout</button>
@@ -1318,6 +1512,9 @@
             
             // Check and show first-run helpers
             checkFirstRunState();
+            
+            // Check and show onboarding tutorial for new users
+            checkOnboarding();
             
             // Check for daily first-run prompt
             checkDailyFirstRun();
@@ -5219,6 +5416,117 @@ ${analysis.suggestions}
         // ============================================
         // FIRST-RUN EXPERIENCE
         // ============================================
+        
+        
+        // ============================================
+        // ONBOARDING TUTORIAL SYSTEM
+        // ============================================
+        
+        let currentOnboardingStep = 1;
+        
+        // Check if user should see onboarding
+        function checkOnboarding() {
+            const hasSeenOnboarding = localStorage.getItem('focushub_onboarding_complete');
+            const firstSessionComplete = localStorage.getItem('focushub_first_session_complete');
+            
+            // Show onboarding if they haven't seen it AND haven't completed first session
+            if (!hasSeenOnboarding && !firstSessionComplete) {
+                // Small delay so page loads first
+                setTimeout(() => {
+                    showOnboardingTutorial();
+                }, 500);
+            }
+        }
+        
+        function showOnboardingTutorial() {
+            const modal = document.getElementById('onboardingModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                currentOnboardingStep = 1;
+                updateOnboardingStep();
+            }
+        }
+        
+        function hideOnboarding() {
+            const modal = document.getElementById('onboardingModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        function nextOnboardingStep() {
+            currentOnboardingStep++;
+            if (currentOnboardingStep > 4) {
+                finishOnboarding();
+                return;
+            }
+            updateOnboardingStep();
+        }
+        
+        function previousOnboardingStep() {
+            if (currentOnboardingStep > 1) {
+                currentOnboardingStep--;
+                updateOnboardingStep();
+            }
+        }
+        
+        function restartOnboarding() {
+            currentOnboardingStep = 1;
+            updateOnboardingStep();
+        }
+        
+        function updateOnboardingStep() {
+            // Hide all steps
+            document.querySelectorAll('.onboarding-step').forEach(step => {
+                step.classList.add('hidden');
+            });
+            
+            // Show current step
+            const currentStep = document.querySelector(`.onboarding-step[data-step="${currentOnboardingStep}"]`);
+            if (currentStep) {
+                currentStep.classList.remove('hidden');
+            }
+            
+            // Update progress indicators
+            document.querySelectorAll('.onboarding-step-indicator').forEach((indicator, index) => {
+                const progress = indicator.querySelector('.step-progress');
+                if (progress) {
+                    if (index + 1 < currentOnboardingStep) {
+                        // Completed step
+                        progress.style.width = '100%';
+                    } else if (index + 1 === currentOnboardingStep) {
+                        // Current step
+                        progress.style.width = '100%';
+                    } else {
+                        // Future step
+                        progress.style.width = '0%';
+                    }
+                }
+            });
+        }
+        
+        function skipOnboarding() {
+            // Mark as completed so it doesn't show again
+            localStorage.setItem('focushub_onboarding_complete', 'true');
+            hideOnboarding();
+        }
+        
+        function finishOnboarding() {
+            // Mark as completed
+            localStorage.setItem('focushub_onboarding_complete', 'true');
+            hideOnboarding();
+            
+            // Show a brief success message using existing notification system
+            if (typeof showNotification === 'function') {
+                showNotification('🚀 Tutorial complete. Time to work.', 'success');
+            }
+        }
+        
+        // Add a button to help menu to replay onboarding
+        function replayOnboarding() {
+            currentOnboardingStep = 1;
+            showOnboardingTutorial();
+        }
         
         function checkFirstRunState() {
             const firstSessionComplete = localStorage.getItem('focushub_first_session_complete');
