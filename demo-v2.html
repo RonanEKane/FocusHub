@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub Demo - Built for Brains That Wander</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem 6rem;
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+
+        .hero-logo {
+            width: 200px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #f55b07;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: #ffffff;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Section Styling */
+        .section {
+            margin: 8rem 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-number {
+            font-size: 1rem;
+            color: #f55b07;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.25rem;
+            color: #a0a0a0;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Screenshot Display */
+        .screenshot-container {
+            background: #1a1a1a;
+            border: 2px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .screenshot-container img {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .screenshot-caption {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(245, 91, 7, 0.1);
+            border-left: 4px solid #f55b07;
+            border-radius: 4px;
+        }
+
+        .screenshot-caption h3 {
+            font-size: 1.25rem;
+            color: #f55b07;
+            margin-bottom: 0.75rem;
+        }
+
+        .screenshot-caption p {
+            font-size: 1rem;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: #1a1a1a;
+            border: 2px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #f55b07;
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: #f55b07;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        /* The Agent Quote */
+        .agent-quote {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-left: 6px solid #f55b07;
+            padding: 3rem;
+            margin: 4rem auto;
+            max-width: 900px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .agent-quote::before {
+            content: '🤖';
+            font-size: 3rem;
+            position: absolute;
+            top: -1.5rem;
+            left: 2rem;
+            background: #1a1a1a;
+            padding: 0 0.5rem;
+        }
+
+        .agent-quote-text {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .agent-quote-attribution {
+            font-size: 1rem;
+            color: #f55b07;
+            font-weight: 600;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 1000px;
+            margin: 3rem auto;
+        }
+
+        .comparison h3 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #f55b07;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: #0a0a0a;
+            border-radius: 8px;
+        }
+
+        .comparison-col h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .comparison-col.bad {
+            color: #ff6b6b;
+        }
+
+        .comparison-col.good {
+            color: #51cf66;
+        }
+
+        .comparison-col p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #f55b07 0%, #d94b05 100%);
+            border-radius: 12px;
+            margin: 6rem 0;
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.25rem 3rem;
+            background: #ffffff;
+            color: #f55b07;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.25rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <img src="FocusHub_vertinv.svg" alt="FocusHub" class="hero-logo">
+        <h1>Built for Brains That Wander,<br>but Still Want to Win</h1>
+        <p class="tagline">A complete productivity system for ADHD brains</p>
+        <p class="subtitle">Stop fighting your brain. FocusHub enforces the boundaries you need to actually get work done.</p>
+    </div>
+
+    <div class="demo-container">
+        
+        <!-- Section 1: Energy Check-In -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">STEP 1</div>
+                <h2 class="section-title">Energy-Adaptive Sprints</h2>
+                <p class="section-description">Your timer adjusts to your actual capacity. No more 25-minute sprints when you can barely focus for 10.</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshots/energy-checkin.png" alt="Energy Check-In Screen" onerror="this.style.display='none'">
+                <div class="screenshot-caption">
+                    <h3>⚡ Match Your Reality</h3>
+                    <p><strong>High Energy:</strong> 30-minute sprints when you're firing on all cylinders<br>
+                    <strong>Medium Energy:</strong> 20-minute sprints for normal days<br>
+                    <strong>Low Energy:</strong> 15-minute sprints when you're dragging</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Quote 1 -->
+        <div class="agent-quote">
+            <div class="agent-quote-text">"You said 20 minutes. You lasted 8. Try again."</div>
+            <div class="agent-quote-attribution">— The Agent</div>
+        </div>
+
+        <!-- Section 2: Three Buckets -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">STEP 2</div>
+                <h2 class="section-title">Three Buckets. That's It.</h2>
+                <p class="section-description">ADMIN. DEEP WORK. STRATEGIC. No endless lists. No complex hierarchies. Just what matters.</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshots/three-buckets.png" alt="Three Buckets System" onerror="this.style.display='none'">
+                <div class="screenshot-caption">
+                    <h3>🔥 Ruthless Prioritization</h3>
+                    <p><strong>ADMIN:</strong> Quick tasks that keep life running (pay bill, call dentist)<br>
+                    <strong>DEEP WORK:</strong> The hard stuff that moves your goals forward (finish proposal, review budget)<br>
+                    <strong>STRATEGIC:</strong> Planning and thinking (email Sarah, plan Q2)</p>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3>HIGH Priority</h3>
+                    <p>Red tags. Do these first. No excuses.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>MEDIUM Priority</h3>
+                    <p>Yellow tags. Important, but not urgent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📌</div>
+                    <h3>LOW Priority</h3>
+                    <p>Green tags. Do if time allows.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: The Timer -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">STEP 3</div>
+                <h2 class="section-title">Work. The Timer Enforces.</h2>
+                <p class="section-description">Pick a task. Start the timer. Work until it's done.</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshots/sprint-timer.png" alt="Sprint Timer" onerror="this.style.display='none'">
+                <div class="screenshot-caption">
+                    <h3>⏱️ Simple. Measurable. Repeatable.</h3>
+                    <p>The timer counts down. You work. When you get distracted, you park it. The Agent watches. Your grade reflects reality.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Quote 2 -->
+        <div class="agent-quote">
+            <div class="agent-quote-text">"You committed to 20 minutes. Keep this going."</div>
+            <div class="agent-quote-attribution">— The Agent</div>
+        </div>
+
+        <!-- Section 4: Distraction Parking -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">STEP 4</div>
+                <h2 class="section-title">Distraction Parking</h2>
+                <p class="section-description">Don't fight distractions. Park them.</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshots/distraction-parking.png" alt="Distraction Parking" onerror="this.style.display='none'">
+                <div class="screenshot-caption">
+                    <h3>🅿️ It'll Be There After the Sprint</h3>
+                    <p>Thought pops up? Write it down. Check the box if you'll handle it. Click "Park It." Get back to work. The Agent tracks how often this happens.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: End of Day Grading -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">STEP 5</div>
+                <h2 class="section-title">Brutal Honesty</h2>
+                <p class="section-description">Every day ends with a grade. From the system. And from you.</p>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="screenshots/end-of-day.png" alt="End of Day Report" onerror="this.style.display='none'">
+                <div class="screenshot-caption">
+                    <h3>📊 Performance Matters</h3>
+                    <p><strong>System Grade:</strong> Based on sprints completed, tasks closed, distractions logged<br>
+                    <strong>Your Grade:</strong> How you really feel about the day<br>
+                    <strong>Today's Wins:</strong> What actually got done</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison">
+            <h3>The Difference</h3>
+            
+            <div class="comparison-row">
+                <div class="comparison-col bad">
+                    <h4>❌ Other Apps</h4>
+                    <p>"Great job! You logged in today! 🎉"</p>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✅ FocusHub</h4>
+                    <p>"You said 8 sprints. You did 4. What happened?"</p>
+                </div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-col bad">
+                    <h4>❌ Other Apps</h4>
+                    <p>Gamification, badges, streaks, points</p>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✅ FocusHub</h4>
+                    <p>Real grades. Real feedback. Real results.</p>
+                </div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-col bad">
+                    <h4>❌ Other Apps</h4>
+                    <p>Endless customization and features</p>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✅ FocusHub</h4>
+                    <p>Three buckets. One timer. That's it.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Agent Quote -->
+        <div class="agent-quote">
+            <div class="agent-quote-text">"Another day wasted. Your goals don't wait for you."</div>
+            <div class="agent-quote-attribution">— The Agent (when you skip your session)</div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>Ready to Stop Wandering?</h2>
+            <p>Join beta users who are actually getting work done.</p>
+            <a href="signup.html" class="cta-button">Start Free Trial</a>
+        </div>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const sections = document.querySelectorAll('.section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

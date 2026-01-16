@@ -5427,10 +5427,10 @@ ${analysis.suggestions}
         // Check if user should see onboarding
         function checkOnboarding() {
             const hasSeenOnboarding = localStorage.getItem('focushub_onboarding_complete');
-            const firstSessionComplete = localStorage.getItem('focushub_first_session_complete');
+            const isNewUser = localStorage.getItem('focushub_new_user');
             
-            // Show onboarding if they haven't seen it AND haven't completed first session
-            if (!hasSeenOnboarding && !firstSessionComplete) {
+            // Only show onboarding to NEW users (from signup) who haven't seen it yet
+            if (isNewUser === 'true' && !hasSeenOnboarding) {
                 // Small delay so page loads first
                 setTimeout(() => {
                     showOnboardingTutorial();
@@ -5440,7 +5440,27 @@ ${analysis.suggestions}
         
         function showOnboardingTutorial() {
             const modal = document.getElementById('onboardingModal');
+            const startDayScreen = document.getElementById('startDayScreen');
+            const mainApp = document.getElementById('mainApp');
+            
             if (modal) {
+                // Hide everything else
+                if (startDayScreen) startDayScreen.classList.add('hidden');
+                if (mainApp) mainApp.classList.add('hidden');
+                
+                // Apply inverted theme to make tutorial visually distinct
+                const currentTheme = localStorage.getItem('focushub_theme') || 'dark';
+                const tutorialTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Save current theme to restore later
+                localStorage.setItem('focushub_theme_before_tutorial', currentTheme);
+                
+                // Apply inverted theme
+                document.body.classList.remove('theme-dark', 'theme-light');
+                document.body.classList.add(`theme-${tutorialTheme}`);
+                document.documentElement.setAttribute('data-theme', tutorialTheme);
+                
+                // Show onboarding
                 modal.classList.remove('hidden');
                 currentOnboardingStep = 1;
                 updateOnboardingStep();
@@ -5451,7 +5471,17 @@ ${analysis.suggestions}
             const modal = document.getElementById('onboardingModal');
             if (modal) {
                 modal.classList.add('hidden');
+                
+                // Restore original theme
+                const originalTheme = localStorage.getItem('focushub_theme_before_tutorial');
+                if (originalTheme) {
+                    document.body.classList.remove('theme-dark', 'theme-light');
+                    document.body.classList.add(`theme-${originalTheme}`);
+                    document.documentElement.setAttribute('data-theme', originalTheme);
+                    localStorage.removeItem('focushub_theme_before_tutorial');
+                }
             }
+        }
         }
         
         function nextOnboardingStep() {
@@ -5508,13 +5538,27 @@ ${analysis.suggestions}
         function skipOnboarding() {
             // Mark as completed so it doesn't show again
             localStorage.setItem('focushub_onboarding_complete', 'true');
+            localStorage.removeItem('focushub_new_user'); // Clear new user flag
             hideOnboarding();
+            
+            // Show start day screen
+            const startDayScreen = document.getElementById('startDayScreen');
+            if (startDayScreen) {
+                startDayScreen.classList.remove('hidden');
+            }
         }
         
         function finishOnboarding() {
             // Mark as completed
             localStorage.setItem('focushub_onboarding_complete', 'true');
+            localStorage.removeItem('focushub_new_user'); // Clear new user flag
             hideOnboarding();
+            
+            // Show start day screen
+            const startDayScreen = document.getElementById('startDayScreen');
+            if (startDayScreen) {
+                startDayScreen.classList.remove('hidden');
+            }
             
             // Show a brief success message using existing notification system
             if (typeof showNotification === 'function') {

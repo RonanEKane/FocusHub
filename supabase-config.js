@@ -313,6 +313,10 @@ async function handleSignup(email, password, name) {
         }
         
         console.log('✅ Sign up successful');
+        
+        // Mark as new user for onboarding
+        localStorage.setItem('focushub_new_user', 'true');
+        
         return { success: true, user: data.user };
     } catch (error) {
         console.error('Sign up error:', error);
