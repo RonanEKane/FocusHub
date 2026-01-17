@@ -1059,7 +1059,8 @@
             console.log('✅ User authenticated:', user.email)
             
             // Ensure user profile exists (creates if missing)
-            await ensureUserProfile();
+            // TODO: Add ensureUserProfile function if needed
+            // await ensureUserProfile();
             
             // Load user profile and set mode
             const { data: profile, error: profileError } = await supabaseClient
@@ -5510,7 +5511,6 @@ ${analysis.suggestions}
                     localStorage.removeItem('focushub_theme_before_tutorial');
                 }
             }
-        }
         }
         
         function nextOnboardingStep() {
