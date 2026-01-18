@@ -2983,6 +2983,24 @@ ${analysis.suggestions}
                 });
             });
             document.getElementById('completeDayBtn').addEventListener('click', completeDay);
+            
+            // Morning Reflection modal
+            const closeMorningBtn = document.getElementById('closeMorningBtn');
+            if (closeMorningBtn) {
+                closeMorningBtn.addEventListener('click', () => {
+                    const morningModal = document.getElementById('morningModal');
+                    if (morningModal) {
+                        morningModal.classList.add('hidden');
+                        const today = new Date().toDateString();
+                        localStorage.setItem('focushub_morning_reflection_date', today);
+                    }
+                });
+            }
+            
+            const generateReflection = document.getElementById('generateReflection');
+            if (generateReflection) {
+                generateReflection.addEventListener('click', generateNewReflection);
+            }
         }
 
         function showStartScreen() {
@@ -5167,9 +5185,10 @@ ${analysis.suggestions}
         // ============================================
         // MORNING REFLECTION
         // ============================================
-        const morningModal = document.getElementById('morningModal');
-        const closeMorningBtn = document.getElementById('closeMorningBtn');
-        const generateReflection = document.getElementById('generateReflection');
+        // NOTE: Event listeners are now in setupEventListeners()
+        // const morningModal = document.getElementById('morningModal');
+        // const closeMorningBtn = document.getElementById('closeMorningBtn');
+        // const generateReflection = document.getElementById('generateReflection');
         const reflectionContent = document.getElementById('reflectionContent');
         
         const reflections = [
@@ -5350,13 +5369,15 @@ ${analysis.suggestions}
         }
         
         function closeMorningReflection() {
+            const morningModal = document.getElementById('morningModal');
             morningModal.classList.add('hidden');
             const today = new Date().toDateString();
             localStorage.setItem('focushub_morning_reflection_date', today);
         }
         
-        closeMorningBtn.addEventListener('click', closeMorningReflection);
-        generateReflection.addEventListener('click', generateNewReflection);
+        // Event listeners moved to setupEventListeners()
+        // closeMorningBtn.addEventListener('click', closeMorningReflection);
+        // generateReflection.addEventListener('click', generateNewReflection);
         
         // Show morning reflection after day starts (if not shown today)
         setTimeout(() => {
