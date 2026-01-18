@@ -226,9 +226,307 @@ async function setReflectionTradition(tradition) {
     }
 }
 
-// Note: The full Supabase functions (getTodaySession, saveTodaySession, etc.) 
-// are defined in a separate file that was part of the Supabase migration.
-// If those functions are not available, the app will automatically fall back to localStorage.
+// ============================================
+// SUPABASE DATA SYNC FUNCTIONS
+// ============================================
+
+// Get today's session data
+async function getTodaySession() {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return null;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data, error } = await supabaseClient
+            .from('daily_sessions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('date', today)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error loading session:', error);
+            return null;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Get today session error:', error);
+        return null;
+    }
+}
+
+// Save today's session data
+async function saveTodaySession(sessionData) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return false;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { error } = await supabaseClient
+            .from('daily_sessions')
+            .upsert({
+                user_id: user.id,
+                date: today,
+                ...sessionData,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,date'
+            });
+        
+        if (error) {
+            console.error('Error saving session:', error);
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Save today session error:', error);
+        return false;
+    }
+}
+
+// Load all tasks
+async function loadAllTasks() {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return null;
+        
+        const { data, error } = await supabaseClient
+            .from('tasks')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Error loading tasks:', error);
+            return null;
+        }
+        
+        // Convert array to bucket structure
+        const tasks = {
+            holding: [],
+            urgent: [],
+            deepwork: [],
+            strategic: [],
+            wins: []
+        };
+        
+        if (data) {
+            data.forEach(task => {
+                if (tasks[task.bucket]) {
+                    tasks[task.bucket].push({
+                        id: task.id,
+                        text: task.text,
+                        bucket: task.bucket,
+                        completed: task.completed || false,
+                        completedAt: task.completed_at,
+                        createdAt: task.created_at
+                    });
+                }
+            });
+        }
+        
+        return tasks;
+    } catch (error) {
+        console.error('Load all tasks error:', error);
+        return null;
+    }
+}
+
+// Save all tasks
+async function saveAllTasks(tasks) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return false;
+        
+        // Delete all existing tasks for this user
+        await supabaseClient
+            .from('tasks')
+            .delete()
+            .eq('user_id', user.id);
+        
+        // Prepare tasks for insert
+        const taskRecords = [];
+        for (const [bucket, bucketTasks] of Object.entries(tasks)) {
+            bucketTasks.forEach(task => {
+                taskRecords.push({
+                    user_id: user.id,
+                    id: task.id,
+                    text: task.text,
+                    bucket: bucket,
+                    completed: task.completed || false,
+                    completed_at: task.completedAt || null,
+                    created_at: task.createdAt || new Date().toISOString()
+                });
+            });
+        }
+        
+        // Insert all tasks
+        if (taskRecords.length > 0) {
+            const { error } = await supabaseClient
+                .from('tasks')
+                .insert(taskRecords);
+            
+            if (error) {
+                console.error('Error saving tasks:', error);
+                return false;
+            }
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Save all tasks error:', error);
+        return false;
+    }
+}
+
+// Load all distractions
+async function loadAllDistractions() {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return [];
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data, error } = await supabaseClient
+            .from('distractions')
+            .select('*')
+            .eq('user_id', user.id)
+            .gte('created_at', today)
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Error loading distractions:', error);
+            return [];
+        }
+        
+        return data || [];
+    } catch (error) {
+        console.error('Load all distractions error:', error);
+        return [];
+    }
+}
+
+// Save all distractions
+async function saveAllDistractions(distractions) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return false;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Delete today's distractions
+        await supabaseClient
+            .from('distractions')
+            .delete()
+            .eq('user_id', user.id)
+            .gte('created_at', today);
+        
+        // Insert current distractions
+        if (distractions && distractions.length > 0) {
+            const distractionRecords = distractions.map(d => ({
+                user_id: user.id,
+                text: d.text,
+                category: d.category,
+                created_at: d.timestamp || new Date().toISOString()
+            }));
+            
+            const { error } = await supabaseClient
+                .from('distractions')
+                .insert(distractionRecords);
+            
+            if (error) {
+                console.error('Error saving distractions:', error);
+                return false;
+            }
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Save all distractions error:', error);
+        return false;
+    }
+}
+
+// Load all intentions
+async function loadAllIntentions() {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return [];
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data, error } = await supabaseClient
+            .from('intentions')
+            .select('*')
+            .eq('user_id', user.id)
+            .gte('created_at', today)
+            .order('created_at', { ascending: true });
+        
+        if (error) {
+            console.error('Error loading intentions:', error);
+            return [];
+        }
+        
+        return data ? data.map(i => i.text) : [];
+    } catch (error) {
+        console.error('Load all intentions error:', error);
+        return [];
+    }
+}
+
+// Save all intentions
+async function saveAllIntentions(intentions) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return false;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Delete today's intentions
+        await supabaseClient
+            .from('intentions')
+            .delete()
+            .eq('user_id', user.id)
+            .gte('created_at', today);
+        
+        // Insert current intentions
+        if (intentions && intentions.length > 0) {
+            const intentionRecords = intentions.map(text => ({
+                user_id: user.id,
+                text: text,
+                created_at: new Date().toISOString()
+            }));
+            
+            const { error } = await supabaseClient
+                .from('intentions')
+                .insert(intentionRecords);
+            
+            if (error) {
+                console.error('Error saving intentions:', error);
+                return false;
+            }
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Save all intentions error:', error);
+        return false;
+    }
+}
+
+// Get all tasks (for multi-device sync checks)
+async function getAllTasks() {
+    return await loadAllTasks();
+}
+
+// Get all distractions (for multi-device sync checks)
+async function getAllDistractions() {
+    return await loadAllDistractions();
+}
 
 async function getCurrentUser() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
