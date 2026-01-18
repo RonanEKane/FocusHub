@@ -4524,6 +4524,15 @@ ${analysis.suggestions}
             document.getElementById('agentText').textContent = message;
         }
         
+        // Load mode configuration (stub - returns empty config)
+        function loadModeConfig() {
+            return {
+                ai: null,
+                maxSprints: null,
+                theme: null
+            };
+        }
+        
         function updateAgentMessage() {
             // Get AI messages from mode config
             const config = loadModeConfig();
