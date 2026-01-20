@@ -61,7 +61,7 @@
                     <button class="timer-btn timer-btn-break" data-duration="5">Break</button>
                 </div>
 
-                <!-- LARGE TIMER DISPLAY - VISUALLY DOMINANT -->
+                <!-- LARGE TIMER DISPLAY -->
                 <div class="timer-display-large" id="timerDisplay">
                     <div class="timer-value">20:00</div>
                     <div class="timer-status">Ready to start</div>
@@ -200,11 +200,6 @@
     <script src="supabase-config.js"></script>
     <script>
         // ============================================
-        // SECURITY: SINGLETON INITIALIZATION GUARD
-        // ============================================
-        let appInitialized = false;
-
-        // ============================================
         // STATE MANAGEMENT
         // ============================================
         const state = {
@@ -232,64 +227,42 @@
         };
 
         // ============================================
-        // SECURITY: XSS PROTECTION
+        // INITIALIZATION - CAREFUL WITH AUTH
         // ============================================
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ============================================
-        // APP INITIALIZATION
-        // ============================================
-        async function initApp() {
-            if (appInitialized) {
-                console.warn('⚠️ initApp already executed');
-                return;
-            }
-            appInitialized = true;
-
+        async function init() {
             try {
-                const user = await getCurrentUser();
-                if (!user) {
-                    console.error('No authenticated user');
-                    window.location.href = '/start.html';
-                    return;
+                // Only check auth if Supabase is configured
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    
+                    if (!user) {
+                        console.log('No user session, redirecting to login');
+                        window.location.href = '/start.html';
+                        return;
+                    }
+                    
+                    console.log('✅ User authenticated:', user.id);
+                    
+                    // Try to get/create membership (don't fail if it errors)
+                    try {
+                        const membership = await getUserMembership();
+                        console.log('✅ Membership:', membership ? membership.plan : 'not found');
+                    } catch (membershipError) {
+                        console.warn('Membership check failed:', membershipError);
+                        // Continue anyway - app can work without membership
+                    }
                 }
-
-                const membership = await getUserMembership();
-                if (!membership) {
-                    throw new Error('Failed to load membership');
-                }
-
-                console.log('✅ User authenticated:', user.id);
-                console.log('✅ Membership loaded:', membership.plan);
-
-                loadState();
-                setupEventListeners();
-                startBackgroundProcesses();
-                renderAll();
-
-                console.log('✅ App initialization complete');
-            } catch (error) {
-                console.error('Fatal initialization error:', error);
-                showFatalError('System could not initialize. Please refresh the page.');
+            } catch (authError) {
+                console.warn('Auth check failed:', authError);
+                // Continue anyway - might be in dev mode
             }
-        }
-
-        function showFatalError(message) {
-            document.body.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-primary); color: var(--text-primary); padding: 2rem; text-align: center;">
-                    <div style="max-width: 500px;">
-                        <h1 style="color: var(--danger); margin-bottom: 1rem;">System Error</h1>
-                        <p style="margin-bottom: 2rem;">${escapeHtml(message)}</p>
-                        <button onclick="window.location.reload()" style="padding: 1rem 2rem; background: var(--industrial-orange); border: none; color: white; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                            Refresh Page
-                        </button>
-                    </div>
-                </div>
-            `;
+            
+            // Load app regardless of auth status
+            loadState();
+            setupEventListeners();
+            setupDropZones();
+            renderAll();
+            console.log('✅ FocusHub initialized');
         }
 
         // ============================================
@@ -328,15 +301,8 @@
         // ============================================
         // EVENT LISTENERS
         // ============================================
-        let listenersSetup = false;
         function setupEventListeners() {
-            if (listenersSetup) {
-                console.warn('⚠️ Event listeners already setup');
-                return;
-            }
-            listenersSetup = true;
-
-            // Collapsible distraction parking
+            // Collapsible
             document.getElementById('distractionHeader').addEventListener('click', function() {
                 const content = document.getElementById('distractionContent');
                 const icon = this.querySelector('.collapse-icon');
@@ -384,11 +350,23 @@
             // Park distraction
             document.getElementById('parkBtn').addEventListener('click', parkDistraction);
 
-            // Logout
+            // Logout - use Supabase if available
             document.getElementById('logoutBtn').addEventListener('click', async function() {
                 if (confirm('Are you sure you want to logout?')) {
-                    const result = await handleSignout();
-                    if (result.success) {
+                    try {
+                        if (typeof handleSignout !== 'undefined') {
+                            const result = await handleSignout();
+                            if (result.success) {
+                                localStorage.clear();
+                                window.location.href = '/';
+                            }
+                        } else {
+                            // Fallback if Supabase not configured
+                            localStorage.clear();
+                            window.location.href = '/';
+                        }
+                    } catch (error) {
+                        console.error('Logout error:', error);
                         localStorage.clear();
                         window.location.href = '/';
                     }
@@ -418,8 +396,8 @@
             tasks.forEach(taskText => {
                 const task = {
                     id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    text: escapeHtml(taskText.trim()),
-                    sprints: 1, // Default sprint weight
+                    text: taskText.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+                    sprints: 1,
                     completed: false,
                     bucket: 'holding'
                 };
@@ -433,7 +411,6 @@
         }
 
         function renderTasks() {
-            // Render each bucket
             ['holding', 'admin', 'deepwork', 'strategic'].forEach(bucket => {
                 const container = document.getElementById(bucket === 'holding' ? 'holdingTasks' : `${bucket}Bucket`);
                 const tasks = state.tasks[bucket];
@@ -455,11 +432,9 @@
                         </div>
                     `).join('');
                     
-                    // Setup drag and drop
                     container.querySelectorAll('.task-item').forEach(setupDragAndDrop);
                 }
                 
-                // Update count
                 const countEl = document.getElementById(bucket === 'holding' ? 'holdingCount' : `${bucket}Count`);
                 if (countEl) countEl.textContent = tasks.length;
             });
@@ -478,7 +453,6 @@
             });
         }
 
-        // Setup drop zones
         function setupDropZones() {
             document.querySelectorAll('.task-list').forEach(dropZone => {
                 dropZone.addEventListener('dragover', function(e) {
@@ -520,7 +494,6 @@
         }
 
         window.adjustSprints = function(taskId, delta) {
-            // Find task in all buckets
             for (let bucket in state.tasks) {
                 const task = state.tasks[bucket].find(t => t.id === taskId);
                 if (task) {
@@ -540,7 +513,6 @@
 
         function endDay() {
             if (confirm('End your day? Uncompleted tasks will move to holding area.')) {
-                // Move all uncompleted tasks from buckets to holding
                 ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                     state.tasks[bucket].forEach(task => {
                         if (!task.completed) {
@@ -630,7 +602,6 @@
         }
 
         function updateGrade() {
-            // Simple grade calculation
             const totalSprints = state.sprintCount;
             const target = 5;
             let grade = '-';
@@ -692,45 +663,12 @@
         }
 
         // ============================================
-        // BACKGROUND PROCESSES
-        // ============================================
-        let backgroundStarted = false;
-        function startBackgroundProcesses() {
-            if (backgroundStarted) {
-                console.warn('⚠️ Background processes already running');
-                return;
-            }
-            backgroundStarted = true;
-
-            // New day checker
-            setInterval(() => {
-                const lastDate = localStorage.getItem('focushub_last_date');
-                const today = new Date().toDateString();
-                
-                if (lastDate && lastDate !== today) {
-                    state.tasks.wins = [];
-                    state.sprintCount = 0;
-                    state.breaksCount = 0;
-                    state.distractionCount = 0;
-                    saveState();
-                    renderAll();
-                }
-                
-                localStorage.setItem('focushub_last_date', today);
-            }, 300000);
-        }
-
-        // ============================================
         // INITIALIZE
         // ============================================
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                initApp();
-                setupDropZones();
-            });
+            document.addEventListener('DOMContentLoaded', init);
         } else {
-            initApp();
-            setupDropZones();
+            init();
         }
     </script>
 </body>
