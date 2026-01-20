@@ -15,16 +15,11 @@ if (typeof window !== 'undefined' && window.supabase) {
 // PREMIUM MEMBERSHIP FUNCTIONS
 // ============================================
 
-// PART 1 & 4: Hardened membership handling with RLS awareness
 async function getUserMembership() {
     try {
         const user = await getCurrentUser();
-        if (!user) {
-            console.error('No authenticated user');
-            return null;
-        }
+        if (!user) return null;
         
-        // Query by user_id - RLS ensures user can only see their own membership
         const { data, error } = await supabaseClient
             .from('user_memberships')
             .select('*')
@@ -33,21 +28,28 @@ async function getUserMembership() {
         
         if (error) {
             if (error.code === 'PGRST116') {
-                // No membership exists - this will be handled by initApp()
-                // Do not create here - let initApp control the flow
-                console.log('No membership record found for user');
-                return null;
+                // No membership record yet, creating default...
+                console.log('No membership record yet, creating default...');
+                const { data: newMembership } = await supabaseClient
+                    .from('user_memberships')
+                    .insert({
+                        user_id: user.id,
+                        plan: 'beta',
+                        status: 'active'
+                    })
+                    .select()
+                    .single();
+                return newMembership;
             } else {
-                // Other errors should be reported up the chain
-                console.error('Membership query error:', error);
-                throw error;
+                console.error('Error getting membership:', error);
+                return null;
             }
         }
         
         return data;
     } catch (error) {
         console.error('Error getting membership:', error);
-        throw error; // Propagate errors to caller
+        return null;
     }
 }
 
@@ -56,16 +58,16 @@ async function isPremiumUser() {
         const membership = await getUserMembership();
         if (!membership) return false;
         
-        // Check if plan is beta, pro, or premium and status is active
+        // Check if plan is beta, pro, or premium with active status
         const premiumPlans = ['beta', 'pro', 'premium'];
         if (premiumPlans.includes(membership.plan) && membership.status === 'active') {
             return true;
         }
         
         // Check if premium hasn't expired
-        if (membership.premium_expires_at) {
+        if (membership.premium_expires_at && membership.status === 'active') {
             const expiresAt = new Date(membership.premium_expires_at);
-            if (expiresAt > new Date() && membership.status === 'active') {
+            if (expiresAt > new Date()) {
                 return true;
             }
         }
@@ -82,9 +84,8 @@ async function isProUser() {
         const membership = await getUserMembership();
         if (!membership) return false;
         
-        // Pro or higher (premium, beta) with active status
-        const proPlans = ['pro', 'premium', 'beta'];
-        if (proPlans.includes(membership.plan) && membership.status === 'active') {
+        // Pro or higher (premium, beta)
+        if (membership.tier === 'pro' || membership.tier === 'premium' || membership.tier === 'beta') {
             return true;
         }
         
@@ -98,9 +99,15 @@ async function isProUser() {
 async function getUserTier() {
     try {
         const membership = await getUserMembership();
-        if (!membership) return 'free';
+        if (!membership) return 'trial';
         
-        return membership.plan || 'free';
+        // Check if trial period is active
+        const trialStatus = await checkTrialStatus();
+        if (trialStatus.inTrial) {
+            return 'trial';
+        }
+        
+        return membership.tier || 'free';
     } catch (error) {
         console.error('Error getting user tier:', error);
         return 'free';
@@ -142,37 +149,37 @@ async function checkTrialStatus() {
     }
 }
 
-function getTierDisplayName(plan) {
-    const planNames = {
-        'free': 'Free',
+function getTierDisplayName(tier) {
+    const tierNames = {
+        'trial': 'Trial',
         'lite': 'Lite',
         'pro': 'Pro',
         'premium': 'Premium',
         'beta': 'Beta'
     };
-    return planNames[plan] || 'Free';
+    return tierNames[tier] || 'Free';
 }
 
-function getTierColor(plan) {
-    const planColors = {
-        'free': '#64748b',    // Gray
-        'lite': '#64748b',    // Gray
-        'pro': '#3b82f6',     // Blue
+function getTierColor(tier) {
+    const tierColors = {
+        'trial': '#a855f7', // Purple
+        'lite': '#64748b',  // Gray
+        'pro': '#3b82f6',   // Blue
         'premium': '#f59e0b', // Gold
-        'beta': '#22c55e'     // Green
+        'beta': '#22c55e'   // Green
     };
-    return planColors[plan] || '#64748b';
+    return tierColors[tier] || '#64748b';
 }
 
-function getTierEmoji(plan) {
-    const planEmojis = {
-        'free': '💡',
+function getTierEmoji(tier) {
+    const tierEmojis = {
+        'trial': '⏱️',
         'lite': '💡',
         'pro': '⚡',
         'premium': '⭐',
         'beta': '🎖️'
     };
-    return planEmojis[plan] || '💡';
+    return tierEmojis[tier] || '💡';
 }
 
 async function getReflectionTradition() {
@@ -354,58 +361,3 @@ async function handlePasswordReset(email) {
     }
 }
 
-
-// ============================================
-// PART 5: SECURITY EVENT LOGGING
-// ============================================
-
-async function logSecurityEvent(eventType, details) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return;
-        
-        // Log to security_events table (if exists)
-        // Non-blocking - failures are logged but don't interrupt user flow
-        await supabaseClient
-            .from('security_events')
-            .insert({
-                user_id: user.id,
-                event_type: eventType,
-                details: details,
-                created_at: new Date().toISOString()
-            });
-    } catch (error) {
-        // Silent failure - don't block user or show errors
-        console.log('Security event logged locally:', eventType);
-    }
-}
-
-// Helper functions for common security events
-async function logRapidSprintCompletion(sprintNumber, timeSinceLastSprint) {
-    if (timeSinceLastSprint < 60) { // Less than 1 minute between sprints
-        await logSecurityEvent('rapid_sprint_completion', {
-            sprint_number: sprintNumber,
-            seconds_since_last: timeSinceLastSprint,
-            timestamp: new Date().toISOString()
-        });
-    }
-}
-
-async function logExcessiveSessionReset(resetCount) {
-    if (resetCount > 5) { // More than 5 resets in a session
-        await logSecurityEvent('excessive_session_resets', {
-            reset_count: resetCount,
-            timestamp: new Date().toISOString()
-        });
-    }
-}
-
-async function logFeedbackSpam(feedbackCount, timeWindow) {
-    if (feedbackCount > 10) { // More than 10 feedback submissions in time window
-        await logSecurityEvent('feedback_spam', {
-            feedback_count: feedbackCount,
-            time_window_minutes: timeWindow,
-            timestamp: new Date().toISOString()
-        });
-    }
-}

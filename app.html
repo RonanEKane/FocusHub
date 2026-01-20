@@ -1088,13 +1088,16 @@
             }
             
             // Initialize the app
-            initApp()
+            init()
         }
         
         // User logout function
         window.handleFirebaseLogout = async function() {
             if (confirm('Are you sure you want to logout?')) {
-                await signOut()
+                const result = await handleSignout();
+                if (result.success) {
+                    window.location.href = '/';
+                }
             }
         }
         
@@ -1346,16 +1349,7 @@
             }, 0) / tasksWithData.length;
         }
         
-        // PART 2: SINGLETON-GUARDED BACKGROUND PROCESSES
-        let weeklyCleanupStarted = false;
-        
         function startWeeklyCleanupChecker() {
-            if (weeklyCleanupStarted) {
-                console.warn('Weekly cleanup checker already running');
-                return;
-            }
-            weeklyCleanupStarted = true;
-            
             // Check on startup
             weeklyTaskCleanup();
             
@@ -1490,156 +1484,65 @@
         // ============================================
         // INITIALIZATION
         // ============================================
-        // PART 1: HARDENED APP INITIALIZATION
-        // Singleton guard to prevent multiple initializations
-        let appInitialized = false;
-        
-        async function initApp() {
-            // Guard: Only run once per page load
-            if (appInitialized) {
-                console.warn('initApp already executed, skipping duplicate call');
-                return;
-            }
-            appInitialized = true;
+        async function init() {
+            // DATA PROTECTION: Check versions and validate data
+            checkDataVersion();
+            checkAppVersion();
+            validateAndRepairData();
             
-            try {
-                // Step 1: Confirm authenticated user
-                const user = await getCurrentUser();
-                if (!user) {
-                    showFatalError('Authentication required. Please refresh and log in.');
-                    return;
-                }
-                console.log('✅ User authenticated:', user.id);
-                
-                // Step 2: Load membership record
-                let membership = null;
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('user_memberships')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .single();
-                    
-                    if (error && error.code === 'PGRST116') {
-                        // Step 3: Create default membership if none exists
-                        console.log('No membership found, creating default beta membership...');
-                        const { data: newMembership, error: insertError } = await supabaseClient
-                            .from('user_memberships')
-                            .insert({
-                                user_id: user.id,
-                                plan: 'beta',
-                                status: 'active'
-                            })
-                            .select()
-                            .single();
-                        
-                        if (insertError) {
-                            console.error('Failed to create membership:', insertError);
-                            showFatalError('System could not initialize membership. Please refresh.');
-                            return;
-                        }
-                        membership = newMembership;
-                        console.log('✅ Created default membership:', membership.plan);
-                    } else if (error) {
-                        // Any other Supabase error - stop immediately
-                        console.error('Membership query error:', error);
-                        showFatalError('System could not initialize. Please refresh.');
-                        return;
-                    } else {
-                        membership = data;
-                        console.log('✅ Loaded membership:', membership.plan);
-                    }
-                } catch (membershipError) {
-                    console.error('Critical membership error:', membershipError);
-                    showFatalError('System could not initialize. Please refresh.');
-                    return;
-                }
-                
-                // Step 4: Initialize session and task state
-                checkDataVersion();
-                checkAppVersion();
-                validateAndRepairData();
-                checkForNewDayBeforeLoad();
-                
-                await loadState();
-                restoreTimer();
-                setupEventListeners();
-                initDragDrop();
-                checkSessionState();
-                checkTaskDecay();
-                
-                // Check premium status
-                await checkPremiumStatus();
-                
-                // Premium: Start multi-device sync polling
-                await startSyncPolling();
-                
-                // UI setup
-                removeExtraButtons();
-                checkFirstRunState();
-                checkOnboarding();
-                checkDailyFirstRun();
-                updateCurrentTaskDisplay();
-                showConsentBanner();
-                
-                // Step 5: Start background systems (singleton-guarded)
-                startWeeklyCleanupChecker();
-                startProactiveAICoach();
-                startNewDayChecker();
-                
-                // Track user activity for idle detection (single listener set)
-                document.addEventListener('click', trackUserActivity);
-                document.addEventListener('keydown', trackUserActivity);
-                document.addEventListener('mousemove', throttle(trackUserActivity, 30000));
-                
-                console.log('✅ App initialization complete');
-                
-            } catch (error) {
-                console.error('Fatal initialization error:', error);
-                showFatalError('System could not initialize. Please refresh.');
-            }
-        }
-        
-        function showFatalError(message) {
-            // Display critical error to user without allowing partial state
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: #1a1a1a;
-                border: 2px solid #ef4444;
-                color: white;
-                padding: 2rem;
-                border-radius: 8px;
-                z-index: 10000;
-                max-width: 400px;
-                text-align: center;
-                font-family: system-ui;
-            `;
-            errorDiv.innerHTML = `
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-                <h2 style="margin: 0 0 1rem 0; color: #ef4444;">System Error</h2>
-                <p style="margin: 0 0 1.5rem 0; line-height: 1.6;">${escapeHtml(message)}</p>
-                <button onclick="location.reload()" style="
-                    background: #ef4444;
-                    color: white;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 4px;
-                    font-size: 1rem;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">Refresh Page</button>
-            `;
-            document.body.appendChild(errorDiv);
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            // Apply mode configuration FIRST
+            // TODO: Add applyModeConfig if needed
+            // applyModeConfig();
+            
+            // CHECK FOR NEW DAY *BEFORE* LOADING STATE
+            checkForNewDayBeforeLoad();
+            
+            await loadState();
+            restoreTimer();
+            setupEventListeners();
+            initDragDrop();
+            checkSessionState();
+            
+            // Check for task decay (stale tasks >7 days)
+            checkTaskDecay();
+            
+            // Check premium status and show/hide reflection selector
+            await checkPremiumStatus();
+            
+            // PREMIUM: Start multi-device sync polling
+            await startSyncPolling();
+            
+            // Remove unwanted duration buttons added by config.js
+            removeExtraButtons();
+            
+            // Check and show first-run helpers
+            checkFirstRunState();
+            
+            // Check and show onboarding tutorial for new users
+            checkOnboarding();
+            
+            // Check for daily first-run prompt
+            checkDailyFirstRun();
+            
+            // Update current task display
+            updateCurrentTaskDisplay();
+            
+            // PRIVACY: Show consent banner on first visit
+            showConsentBanner();
+            
+            // PRIVACY: Start weekly cleanup checker
+            startWeeklyCleanupChecker();
+            
+            // PROACTIVE AI: Start intelligent coaching system
+            startProactiveAICoach();
+            
+            // AUTO-CLEAR: Check for new day every 5 minutes
+            startNewDayChecker();
+            
+            // Track user activity for idle detection
+            document.addEventListener('click', trackUserActivity);
+            document.addEventListener('keydown', trackUserActivity);
+            document.addEventListener('mousemove', throttle(trackUserActivity, 30000)); // Throttle to every 30 seconds
         }
         
         // Throttle function to prevent excessive calls
@@ -2218,15 +2121,7 @@
         }
         
         // Start sync polling for premium users
-        let syncPollingStarted = false;
-        
         async function startSyncPolling() {
-            if (syncPollingStarted) {
-                console.warn('Sync polling already running');
-                return;
-            }
-            syncPollingStarted = true;
-            
             try {
                 const hasPremium = await isPremiumUser();
                 if (!hasPremium) {
@@ -2871,15 +2766,7 @@ ${analysis.suggestions}
         }
         
         // Periodic new-day checker (runs every 5 minutes)
-        let newDayCheckerStarted = false;
-        
         function startNewDayChecker() {
-            if (newDayCheckerStarted) {
-                console.warn('New day checker already running');
-                return;
-            }
-            newDayCheckerStarted = true;
-            
             setInterval(() => {
                 const today = new Date().toDateString();
                 const lastDate = localStorage.getItem('focushub_session_date');
@@ -2904,20 +2791,8 @@ ${analysis.suggestions}
             console.log('⏰ New day checker started (checks every 5 minutes)');
         }
         
-        // State for tracking resets (Part 5: Security)
-        let dailyResetCount = 0;
-        
         function performDailyReset() {
             console.log('🔄 Performing daily reset...');
-            
-            // PART 5: Track excessive resets (security monitoring)
-            dailyResetCount++;
-            const resetCountToday = parseInt(localStorage.getItem('focushub_reset_count_today') || '0') + 1;
-            localStorage.setItem('focushub_reset_count_today', resetCountToday.toString());
-            
-            if (typeof logExcessiveSessionReset === 'function') {
-                logExcessiveSessionReset(resetCountToday);
-            }
             
             // Clear yesterday's wins
             state.tasks.wins = [];
@@ -3409,24 +3284,11 @@ ${analysis.suggestions}
             document.getElementById('systemState').textContent = 'System idle. Start a sprint to begin.';
         }
 
-        // State for tracking sprint timing (Part 5: Security)
-        let lastSprintCompletionTime = 0;
-        
         function completeTimer() {
             clearInterval(state.timer.interval);
             
             if (state.timer.timerType === 'focus') {
                 state.sprintCount++;
-                
-                // PART 5: Log rapid sprint completions (security monitoring)
-                const now = Date.now();
-                if (lastSprintCompletionTime > 0) {
-                    const timeSinceLastSprint = (now - lastSprintCompletionTime) / 1000;
-                    if (typeof logRapidSprintCompletion === 'function') {
-                        logRapidSprintCompletion(state.sprintCount, timeSinceLastSprint);
-                    }
-                }
-                lastSprintCompletionTime = now;
                 
                 // Track sprint completion for current task
                 if (state.currentSprintTask) {
@@ -4853,15 +4715,7 @@ ${analysis.suggestions}
             taskEstimateWarningShown: {}
         };
         
-        let proactiveAIStarted = false;
-        
         function startProactiveAICoach() {
-            if (proactiveAIStarted) {
-                console.warn('Proactive AI Coach already running');
-                return;
-            }
-            proactiveAIStarted = true;
-            
             // Check every 60 seconds for proactive messages
             if (aiCoachState.messageInterval) {
                 clearInterval(aiCoachState.messageInterval);
@@ -5991,9 +5845,6 @@ document.querySelectorAll('.feedback-type-btn').forEach(btn => {
 });
 
 // Submit feedback
-// State for tracking feedback submissions (Part 5: Security)
-let feedbackSubmissionTimes = [];
-
 async function submitFeedback() {
     const text = document.getElementById('feedbackText').value.trim();
     const email = document.getElementById('feedbackEmail').value.trim();
@@ -6002,16 +5853,6 @@ async function submitFeedback() {
     if (!text) {
         alert('Please tell us what\'s on your mind!');
         return;
-    }
-    
-    // PART 5: Track feedback spam (security monitoring)
-    const now = Date.now();
-    feedbackSubmissionTimes.push(now);
-    // Keep only submissions from last hour
-    feedbackSubmissionTimes = feedbackSubmissionTimes.filter(time => now - time < 3600000);
-    
-    if (typeof logFeedbackSpam === 'function' && feedbackSubmissionTimes.length > 3) {
-        logFeedbackSpam(feedbackSubmissionTimes.length, 60);
     }
     
     // Disable button
@@ -6170,10 +6011,10 @@ setInterval(() => {
 
 // CRITICAL: Initialize the app when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', init);
 } else {
     // DOM already loaded
-    initApp();
+    init();
 }
 </script>
 
