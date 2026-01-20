@@ -215,7 +215,7 @@
     </div>
 
     <!-- Start Day Screen -->
-    <div id="startDayScreen" class="start-day-screen">
+    <div id="startDayScreen" class="start-day-screen hidden">
         <div class="start-day-container">
             <img id="startDayLogo" src="FocusHub_vertinv.svg" alt="FocusHub" style="height: 160px; width: auto; margin: 0 auto 1.5rem; display: block;">
             <h1 class="start-title">Prepare your session</h1>
@@ -394,7 +394,7 @@
             <div class="app-header-content">
                 <div class="logo-section">
                     <div style="position: relative; display: inline-block;">
-                        <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" class="logo-img">
+                        <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 32px; width: auto;">
                         <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
                     </div>
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
@@ -1151,6 +1151,7 @@
         const APP_VERSION = '1.0.0';
         
         const state = {
+            sessionState: 'not_started',  // Track if session is active
             energyLevel: 'medium',
             baselineSprints: 5,
             plannedSprints: 5,
@@ -1354,7 +1355,16 @@
             }, 0) / tasksWithData.length;
         }
         
+        // Singleton guard for background processes
+        let weeklyCleanupStarted = false;
+        
         function startWeeklyCleanupChecker() {
+            if (weeklyCleanupStarted) {
+                console.warn('⚠️ Weekly cleanup already started, skipping duplicate');
+                return;
+            }
+            weeklyCleanupStarted = true;
+            
             // Check on startup
             weeklyTaskCleanup();
             
@@ -2126,7 +2136,15 @@
         }
         
         // Start sync polling for premium users
+        let syncPollingStarted = false;
+        
         async function startSyncPolling() {
+            if (syncPollingStarted) {
+                console.warn('⚠️ Sync polling already started, skipping duplicate');
+                return;
+            }
+            syncPollingStarted = true;
+            
             try {
                 const hasPremium = await isPremiumUser();
                 if (!hasPremium) {
@@ -2771,7 +2789,15 @@ ${analysis.suggestions}
         }
         
         // Periodic new-day checker (runs every 5 minutes)
+        let newDayCheckerStarted = false;
+        
         function startNewDayChecker() {
+            if (newDayCheckerStarted) {
+                console.warn('⚠️ New day checker already started, skipping duplicate');
+                return;
+            }
+            newDayCheckerStarted = true;
+            
             setInterval(() => {
                 const today = new Date().toDateString();
                 const lastDate = localStorage.getItem('focushub_session_date');
@@ -2839,7 +2865,16 @@ ${analysis.suggestions}
         // ============================================
         // START DAY SCREEN
         // ============================================
+        // Guard to prevent duplicate event listener attachment
+        let listenersSetup = false;
+        
         function setupEventListeners() {
+            if (listenersSetup) {
+                console.warn('⚠️ Event listeners already attached, skipping duplicate setup');
+                return;
+            }
+            listenersSetup = true;
+            
             // Start Day Screen
             document.querySelectorAll('.energy-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -4720,7 +4755,15 @@ ${analysis.suggestions}
             taskEstimateWarningShown: {}
         };
         
+        let proactiveAIStarted = false;
+        
         function startProactiveAICoach() {
+            if (proactiveAIStarted) {
+                console.warn('⚠️ Proactive AI already started, skipping duplicate');
+                return;
+            }
+            proactiveAIStarted = true;
+            
             // Check every 60 seconds for proactive messages
             if (aiCoachState.messageInterval) {
                 clearInterval(aiCoachState.messageInterval);
@@ -5166,7 +5209,7 @@ ${analysis.suggestions}
         }
         
         function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
             const newTheme = current === 'light' ? 'dark' : 'light';
             setTheme(newTheme);
         }
@@ -6014,13 +6057,9 @@ setInterval(() => {
     }
 }, 2000); // Save every 2 seconds
 
-// CRITICAL: Initialize the app when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    // DOM already loaded
-    init();
-}
+// App initialization handled by checkAuthAndInit() above
+// Do NOT call init() directly - it must go through auth check
+
 </script>
 
 <!-- Privacy & Data Management Footer -->

@@ -127,7 +127,7 @@ async function checkTrialStatus() {
             return { inTrial: false, daysRemaining: 0 };
         }
         
-        // Calculate trial period based on tier
+        // Calculate trial period based on plan
         const signupDate = new Date(membership.created_at || user.created_at);
         const now = new Date();
         const daysSinceSignup = Math.floor((now - signupDate) / (1000 * 60 * 60 * 24));
@@ -135,7 +135,7 @@ async function checkTrialStatus() {
         // Lite: 7 days free trial
         // Pro: 14 days at $4.99
         // Premium: 14 days at $9.99
-        const trialDays = membership.tier === 'lite' ? 7 : 14;
+        const trialDays = membership.plan === 'lite' ? 7 : 14;
         const daysRemaining = trialDays - daysSinceSignup;
         
         return {
@@ -149,37 +149,37 @@ async function checkTrialStatus() {
     }
 }
 
-function getTierDisplayName(tier) {
-    const tierNames = {
-        'trial': 'Trial',
+function getTierDisplayName(plan) {
+    const planNames = {
+        'free': 'Free',
         'lite': 'Lite',
         'pro': 'Pro',
         'premium': 'Premium',
         'beta': 'Beta'
     };
-    return tierNames[tier] || 'Free';
+    return planNames[plan] || 'Free';
 }
 
-function getTierColor(tier) {
-    const tierColors = {
-        'trial': '#a855f7', // Purple
+function getTierColor(plan) {
+    const planColors = {
+        'free': '#64748b',  // Gray
         'lite': '#64748b',  // Gray
         'pro': '#3b82f6',   // Blue
         'premium': '#f59e0b', // Gold
         'beta': '#22c55e'   // Green
     };
-    return tierColors[tier] || '#64748b';
+    return planColors[plan] || '#64748b';
 }
 
-function getTierEmoji(tier) {
-    const tierEmojis = {
-        'trial': '⏱️',
+function getTierEmoji(plan) {
+    const planEmojis = {
+        'free': '💡',
         'lite': '💡',
         'pro': '⚡',
         'premium': '⭐',
         'beta': '🎖️'
     };
-    return tierEmojis[tier] || '💡';
+    return planEmojis[plan] || '💡';
 }
 
 async function getReflectionTradition() {
