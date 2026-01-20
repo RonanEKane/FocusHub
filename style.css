@@ -7,6 +7,7 @@
     --text-secondary: #a0a0a0;
     --industrial-orange: #f45b07;
     --border-light: #333333;
+    --border-subtle: #252525;
     --success: #10b981;
     --danger: #ef4444;
 }
@@ -18,6 +19,7 @@
     --text-primary: #1a1a1a;
     --text-secondary: #666666;
     --border-light: #e0e0e0;
+    --border-subtle: #f0f0f0;
 }
 
 /* Reset */
@@ -89,6 +91,16 @@ body {
     opacity: 0.9;
 }
 
+/* CONSULTANT FEEDBACK: System State Bar */
+.system-state-bar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0.75rem 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
 /* Main Layout */
 .app-container {
     max-width: 1600px;
@@ -99,14 +111,23 @@ body {
     gap: 2rem;
 }
 
-/* Sections */
-.sprint-timer-section,
-.task-section {
+/* CONSULTANT FEEDBACK: Visual Hierarchy - Dominant Sprint Timer */
+.sprint-timer-section.dominant {
     background: var(--bg-secondary);
     border: 2px solid var(--border-light);
     border-radius: 8px;
-    padding: 2rem;
+    padding: 2.5rem; /* More breathing room */
     margin-bottom: 2rem;
+    /* Subtle elevation */
+    box-shadow: 0 2px 8px rgba(244, 91, 7, 0.1);
+}
+
+/* Regular sections have reduced visual weight */
+.task-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle); /* Reduced from 2px */
+    border-radius: 8px;
+    padding: 2rem;
 }
 
 .section-header {
@@ -168,7 +189,7 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .timer-btn {
@@ -203,14 +224,47 @@ body {
     opacity: 0.9;
 }
 
-.timer-display {
+/* CONSULTANT FEEDBACK: Dominant Timer Display */
+.timer-display-large {
     text-align: center;
-    padding: 1rem;
+    padding: 3rem 2rem; /* Increased padding */
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
-    border-radius: 4px;
-    font-size: 0.875rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.timer-value {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 4rem; /* LARGE - 30% bigger */
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.timer-status {
+    font-size: 1rem;
     color: var(--text-secondary);
+}
+
+.btn-start-sprint {
+    width: 100%;
+    padding: 1.25rem;
+    background: var(--industrial-orange);
+    border: none;
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s;
+}
+
+.btn-start-sprint:hover {
+    opacity: 0.9;
 }
 
 /* Task Section */
@@ -265,7 +319,7 @@ body {
 .holding-area {
     padding: 1rem;
     background: var(--bg-primary);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-subtle); /* Reduced weight */
     border-radius: 4px;
 }
 
@@ -290,6 +344,27 @@ body {
     font-weight: 700;
 }
 
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.task-item {
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.empty-state {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1rem;
+}
+
 /* Sidebar */
 .sidebar {
     display: flex;
@@ -299,7 +374,7 @@ body {
 
 .sidebar-card {
     background: var(--bg-secondary);
-    border: 2px solid var(--border-light);
+    border: 1px solid var(--border-subtle); /* Reduced weight */
     border-radius: 8px;
     padding: 1.5rem;
 }
@@ -310,49 +385,39 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Mode Selector */
-.mode-selector {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+/* CONSULTANT FEEDBACK: System Intelligence (combined AI + mode) */
+.system-intelligence {
+    /* This card gets normal treatment, not dominant */
 }
 
-.mode-btn {
-    padding: 0.75rem;
+.card-header-with-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-header-with-control h3 {
+    margin: 0;
+}
+
+.agent-mode-dropdown {
+    padding: 0.375rem 0.75rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
     color: var(--text-primary);
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: all 0.2s;
-}
-
-.mode-btn:hover {
-    border-color: var(--industrial-orange);
-}
-
-.mode-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
-    color: white;
-}
-
-.mode-description {
     font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-align: center;
 }
 
-/* AI Agent */
-.ai-message {
-    padding: 1rem;
+.ai-message-large {
+    padding: 1.5rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
     border-radius: 4px;
-    font-size: 0.875rem;
+    font-size: 1rem; /* Larger for focus */
     line-height: 1.6;
+    min-height: 100px;
 }
 
 /* Stats */
@@ -375,6 +440,7 @@ body {
 }
 
 .stat-value {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--industrial-orange);
@@ -383,13 +449,14 @@ body {
 /* Distraction Parking */
 .distraction-count-display {
     text-align: center;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
     font-size: 3rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 1rem;
 }
 
-.distraction-input-row {
+.distraction-input-col {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -430,19 +497,350 @@ body {
     opacity: 0.9;
 }
 
-/* Grade Display */
-.grade-display {
+/* CONSULTANT FEEDBACK: Micro-confirmations */
+.micro-confirm {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--success);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.75rem;
     text-align: center;
 }
 
-.grade-letter {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--industrial-orange);
+/* Priority Buckets */
+.priority-buckets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.priority-bucket {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 1rem;
+    min-height: 200px;
+}
+
+.bucket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid;
+}
+
+.bucket-header.admin {
+    border-bottom-color: #64748b;
+}
+
+.bucket-header.deepwork {
+    border-bottom-color: var(--industrial-orange);
+}
+
+.bucket-header.strategic {
+    border-bottom-color: #8b5cf6;
+}
+
+.bucket-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Task Items */
+.task-item {
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    cursor: move;
+    transition: all 0.2s;
+}
+
+.task-item:hover {
+    border-color: var(--industrial-orange);
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+}
+
+.task-text {
+    font-size: 0.875rem;
     margin-bottom: 0.5rem;
 }
 
-.grade-message {
+.task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.task-sprints {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.empty-state-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem 0.5rem;
+}
+
+/* Grade Mini (in System Intelligence card) */
+.card-header-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-left h3 {
+    margin: 0;
+}
+
+.grade-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+}
+
+.grade-letter-mini {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--industrial-orange);
+}
+
+/* Minimized Distraction Card */
+.sidebar-card.minimized {
+    padding: 1rem 1.5rem;
+}
+
+.card-header-clickable {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.card-header-clickable h3 {
+    margin: 0;
+}
+
+.expand-icon {
     font-size: 0.875rem;
     color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.sidebar-card.minimized .card-content {
+    margin-top: 1rem;
+}
+
+/* Buckets Grid */
+.buckets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.bucket {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 1rem;
+    min-height: 200px;
+}
+
+.bucket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.bucket-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.bucket-count {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Task Items */
+.task-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: move;
+    transition: all 0.2s;
+}
+
+.task-item:hover {
+    border-color: var(--industrial-orange);
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+}
+
+.task-list.drag-over {
+    background: var(--bg-tertiary);
+    border-color: var(--industrial-orange);
+}
+
+.task-text {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+}
+
+.task-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.task-sprint-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-sprint-btn:hover {
+    border-color: var(--industrial-orange);
+}
+
+.task-sprints {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--industrial-orange);
+    min-width: 20px;
+    text-align: center;
+}
+
+.task-delete {
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--danger);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-delete:hover {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+.empty-state-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 0.5rem;
+    font-style: italic;
+}
+
+/* Collapsible Sections */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.collapsible-header h3 {
+    margin: 0;
+}
+
+.collapsible-header:hover {
+    color: var(--industrial-orange);
+}
+
+.collapse-icon {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.collapsible-content {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+}
+
+/* Grade Mini Indicator */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.grade-mini {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    border: 2px solid var(--industrial-orange);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--industrial-orange);
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusHub - Built for Brains That Wander, but Still Want to Win</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <!-- Header -->
@@ -24,12 +25,17 @@
         </div>
     </header>
 
+    <!-- System State Indicator -->
+    <div class="system-state-bar">
+        <span id="systemState">System idle. Start a sprint to begin.</span>
+    </div>
+
     <!-- Main Container -->
     <div class="app-container">
         <!-- Left Column: Main Content -->
         <main class="main-content">
-            <!-- Sprint Timer Section -->
-            <section class="sprint-timer-section">
+            <!-- Sprint Timer Section - DOMINANT -->
+            <section class="sprint-timer-section dominant">
                 <div class="section-header">
                     <h2>⏱️ SPRINT TIMER</h2>
                 </div>
@@ -38,9 +44,9 @@
                     <div class="energy-select">
                         <label>Energy:</label>
                         <select id="energyLevel">
-                            <option value="low">⚡ Kinda "Meh"</option>
-                            <option value="medium">⚡⚡ Solid</option>
-                            <option value="high">⚡⚡⚡ Locked In</option>
+                            <option value="low">⚡ Kinda "Meh" (15 min)</option>
+                            <option value="medium" selected>⚡⚡ Solid (20 min)</option>
+                            <option value="high">⚡⚡⚡ Locked In (30 min)</option>
                         </select>
                     </div>
                     <label class="meeting-toggle">
@@ -55,9 +61,13 @@
                     <button class="timer-btn timer-btn-break" data-duration="5">Break</button>
                 </div>
 
-                <div class="timer-display" id="timerDisplay">
-                    Start a session to begin working.
+                <!-- LARGE TIMER DISPLAY - VISUALLY DOMINANT -->
+                <div class="timer-display-large" id="timerDisplay">
+                    <div class="timer-value">20:00</div>
+                    <div class="timer-status">Ready to start</div>
                 </div>
+
+                <button class="btn-start-sprint" id="startSprintBtn">START SPRINT</button>
             </section>
 
             <!-- Task Command Center -->
@@ -75,13 +85,50 @@
 
                 <button class="parse-btn" id="parseBtn">PARSE & ADD TO HOLDING AREA</button>
 
+                <!-- Holding Area -->
                 <div class="holding-area">
                     <div class="holding-header">
                         <h3>📦 Holding Area</h3>
                         <span class="task-count" id="holdingCount">0</span>
                     </div>
-                    <div id="holdingTasks" class="task-list">
-                        <!-- Tasks will appear here -->
+                    <div id="holdingTasks" class="task-list" data-bucket="holding">
+                        <p class="empty-state">Tasks will appear here</p>
+                    </div>
+                </div>
+
+                <!-- THREE BUCKETS -->
+                <div class="buckets-grid">
+                    <!-- ADMIN Bucket -->
+                    <div class="bucket">
+                        <div class="bucket-header">
+                            <h3>📋 ADMIN</h3>
+                            <span class="bucket-count" id="adminCount">0</span>
+                        </div>
+                        <div id="adminBucket" class="task-list" data-bucket="admin">
+                            <p class="empty-state-small">Drag tasks here</p>
+                        </div>
+                    </div>
+
+                    <!-- DEEP WORK Bucket -->
+                    <div class="bucket">
+                        <div class="bucket-header">
+                            <h3>🎯 DEEP WORK</h3>
+                            <span class="bucket-count" id="deepworkCount">0</span>
+                        </div>
+                        <div id="deepworkBucket" class="task-list" data-bucket="deepwork">
+                            <p class="empty-state-small">Drag tasks here</p>
+                        </div>
+                    </div>
+
+                    <!-- STRATEGIC Bucket -->
+                    <div class="bucket">
+                        <div class="bucket-header">
+                            <h3>🎲 STRATEGIC</h3>
+                            <span class="bucket-count" id="strategicCount">0</span>
+                        </div>
+                        <div id="strategicBucket" class="task-list" data-bucket="strategic">
+                            <p class="empty-state-small">Drag tasks here</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -89,21 +136,20 @@
 
         <!-- Right Column: Sidebar -->
         <aside class="sidebar">
-            <!-- Tough Love Mode -->
-            <div class="sidebar-card">
-                <h3>⚡ TOUGH LOVE MODE</h3>
-                <div class="mode-selector">
-                    <button class="mode-btn" data-mode="supportive">Supportive</button>
-                    <button class="mode-btn active" data-mode="balanced">Balanced</button>
-                    <button class="mode-btn" data-mode="tough">Tough</button>
+            <!-- System Intelligence with Grade -->
+            <div class="sidebar-card system-intelligence">
+                <div class="card-header-with-control">
+                    <h3>🤖 SYSTEM INTELLIGENCE</h3>
+                    <div class="header-controls">
+                        <span class="grade-mini" id="gradeMini">-</span>
+                        <select id="agentMode" class="agent-mode-dropdown">
+                            <option value="supportive">Supportive</option>
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="tough">Tough</option>
+                        </select>
+                    </div>
                 </div>
-                <p class="mode-description">Changes how the AI Agent talks to you</p>
-            </div>
-
-            <!-- AI Agent -->
-            <div class="sidebar-card">
-                <h3>🤖 AI AGENT</h3>
-                <div class="ai-message" id="aiMessage">
+                <div class="ai-message-large" id="aiMessage">
                     Ready to execute. Let's go.
                 </div>
             </div>
@@ -130,25 +176,22 @@
                 </div>
             </div>
 
-            <!-- Distraction Parking -->
-            <div class="sidebar-card">
-                <h3>🚫 DISTRACTION PARKING</h3>
-                <div class="distraction-count-display" id="distractionCountDisplay">0</div>
-                <div class="distraction-input-row">
-                    <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="handleLaterCheck"> I'll handle this
-                    </label>
-                    <button class="park-btn" id="parkBtn">PARK IT</button>
+            <!-- Distraction Parking - COLLAPSED BY DEFAULT -->
+            <div class="sidebar-card collapsible">
+                <div class="collapsible-header" id="distractionHeader">
+                    <h3>🚫 DISTRACTION PARKING</h3>
+                    <span class="collapse-icon">▼</span>
                 </div>
-            </div>
-
-            <!-- Current Grade -->
-            <div class="sidebar-card">
-                <h3>📊 CURRENT GRADE</h3>
-                <div class="grade-display" id="gradeDisplay">
-                    <div class="grade-letter">-</div>
-                    <div class="grade-message">Start working to get graded</div>
+                <div class="collapsible-content collapsed" id="distractionContent">
+                    <div class="distraction-count-display" id="distractionCountDisplay">0</div>
+                    <div class="distraction-input-col">
+                        <input type="text" id="distractionInput" class="distraction-input" placeholder="Park that distraction here...">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="handleLaterCheck"> I'll handle this
+                        </label>
+                        <button class="park-btn" id="parkBtn">PARK IT</button>
+                    </div>
+                    <div id="microConfirm" class="micro-confirm hidden">Distraction parked</div>
                 </div>
             </div>
         </aside>
@@ -156,89 +199,469 @@
 
     <script src="supabase-config.js"></script>
     <script>
-        // Initialize app state
+        // ============================================
+        // SECURITY: SINGLETON INITIALIZATION GUARD
+        // ============================================
+        let appInitialized = false;
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
         const state = {
             sprintCount: 0,
             breaksCount: 0,
             distractionCount: 0,
+            sessionState: 'idle',
             tasks: {
                 holding: [],
+                admin: [],
+                deepwork: [],
+                strategic: [],
                 wins: []
             },
             currentMode: 'balanced',
+            energyLevel: 'medium',
             timer: {
                 active: false,
                 duration: 20,
-                remaining: 0,
-                interval: null
-            }
+                remaining: 1200,
+                interval: null,
+                type: 'focus'
+            },
+            currentGrade: '-'
         };
 
-        // Load state from localStorage
+        // ============================================
+        // SECURITY: XSS PROTECTION
+        // ============================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // APP INITIALIZATION
+        // ============================================
+        async function initApp() {
+            if (appInitialized) {
+                console.warn('⚠️ initApp already executed');
+                return;
+            }
+            appInitialized = true;
+
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    console.error('No authenticated user');
+                    window.location.href = '/start.html';
+                    return;
+                }
+
+                const membership = await getUserMembership();
+                if (!membership) {
+                    throw new Error('Failed to load membership');
+                }
+
+                console.log('✅ User authenticated:', user.id);
+                console.log('✅ Membership loaded:', membership.plan);
+
+                loadState();
+                setupEventListeners();
+                startBackgroundProcesses();
+                renderAll();
+
+                console.log('✅ App initialization complete');
+            } catch (error) {
+                console.error('Fatal initialization error:', error);
+                showFatalError('System could not initialize. Please refresh the page.');
+            }
+        }
+
+        function showFatalError(message) {
+            document.body.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-primary); color: var(--text-primary); padding: 2rem; text-align: center;">
+                    <div style="max-width: 500px;">
+                        <h1 style="color: var(--danger); margin-bottom: 1rem;">System Error</h1>
+                        <p style="margin-bottom: 2rem;">${escapeHtml(message)}</p>
+                        <button onclick="window.location.reload()" style="padding: 1rem 2rem; background: var(--industrial-orange); border: none; color: white; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                            Refresh Page
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // STATE PERSISTENCE
+        // ============================================
         function loadState() {
             const saved = localStorage.getItem('focushub_state');
             if (saved) {
-                Object.assign(state, JSON.parse(saved));
-                renderAll();
+                try {
+                    Object.assign(state, JSON.parse(saved));
+                } catch (error) {
+                    console.error('Error loading state:', error);
+                }
+            }
+
+            const savedEnergy = localStorage.getItem('focushub_energy');
+            if (savedEnergy) {
+                state.energyLevel = savedEnergy;
+                document.getElementById('energyLevel').value = savedEnergy;
+                
+                const energyTimers = { low: 15, medium: 20, high: 30 };
+                state.timer.duration = energyTimers[savedEnergy];
+                state.timer.remaining = state.timer.duration * 60;
+                updateTimerButtons();
             }
         }
 
-        // Save state to localStorage
         function saveState() {
-            localStorage.setItem('focushub_state', JSON.stringify(state));
+            try {
+                localStorage.setItem('focushub_state', JSON.stringify(state));
+            } catch (error) {
+                console.error('Error saving state:', error);
+            }
         }
 
-        // Render all UI elements
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        let listenersSetup = false;
+        function setupEventListeners() {
+            if (listenersSetup) {
+                console.warn('⚠️ Event listeners already setup');
+                return;
+            }
+            listenersSetup = true;
+
+            // Collapsible distraction parking
+            document.getElementById('distractionHeader').addEventListener('click', function() {
+                const content = document.getElementById('distractionContent');
+                const icon = this.querySelector('.collapse-icon');
+                content.classList.toggle('collapsed');
+                icon.textContent = content.classList.contains('collapsed') ? '▼' : '▲';
+            });
+
+            // Timer buttons
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    state.timer.duration = parseInt(this.dataset.duration);
+                    state.timer.remaining = state.timer.duration * 60;
+                    updateTimerDisplay();
+                    saveState();
+                });
+            });
+
+            // Energy selector
+            document.getElementById('energyLevel').addEventListener('change', function() {
+                state.energyLevel = this.value;
+                localStorage.setItem('focushub_energy', this.value);
+                
+                const energyTimers = { low: 15, medium: 20, high: 30 };
+                state.timer.duration = energyTimers[this.value];
+                state.timer.remaining = state.timer.duration * 60;
+                updateTimerButtons();
+                updateTimerDisplay();
+                saveState();
+            });
+
+            // Agent mode
+            document.getElementById('agentMode').addEventListener('change', function() {
+                state.currentMode = this.value;
+                saveState();
+            });
+
+            // Start sprint
+            document.getElementById('startSprintBtn').addEventListener('click', startSprint);
+
+            // Parse tasks
+            document.getElementById('parseBtn').addEventListener('click', parseTasks);
+
+            // Park distraction
+            document.getElementById('parkBtn').addEventListener('click', parkDistraction);
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', async function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    const result = await handleSignout();
+                    if (result.success) {
+                        localStorage.clear();
+                        window.location.href = '/';
+                    }
+                }
+            });
+
+            // End day
+            document.getElementById('endDayBtn').addEventListener('click', endDay);
+
+            // Dashboard
+            document.getElementById('dashboardBtn').addEventListener('click', function() {
+                window.location.href = '/overview.html';
+            });
+
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        }
+
+        // ============================================
+        // TASK FUNCTIONS
+        // ============================================
+        function parseTasks() {
+            const input = document.getElementById('taskInput').value.trim();
+            if (!input) return;
+            
+            const tasks = input.split('\n').filter(t => t.trim());
+            tasks.forEach(taskText => {
+                const task = {
+                    id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    text: escapeHtml(taskText.trim()),
+                    sprints: 1, // Default sprint weight
+                    completed: false,
+                    bucket: 'holding'
+                };
+                state.tasks.holding.push(task);
+            });
+            
+            document.getElementById('taskInput').value = '';
+            saveState();
+            renderAll();
+            showMicroConfirm('Tasks added to holding area');
+        }
+
+        function renderTasks() {
+            // Render each bucket
+            ['holding', 'admin', 'deepwork', 'strategic'].forEach(bucket => {
+                const container = document.getElementById(bucket === 'holding' ? 'holdingTasks' : `${bucket}Bucket`);
+                const tasks = state.tasks[bucket];
+                
+                if (tasks.length === 0) {
+                    container.innerHTML = bucket === 'holding' 
+                        ? '<p class="empty-state">Tasks will appear here</p>'
+                        : '<p class="empty-state-small">Drag tasks here</p>';
+                } else {
+                    container.innerHTML = tasks.map(task => `
+                        <div class="task-item" draggable="true" data-task-id="${task.id}" data-bucket="${bucket}">
+                            <div class="task-text">${task.text}</div>
+                            <div class="task-controls">
+                                <button class="task-sprint-btn" onclick="adjustSprints('${task.id}', -1)">-</button>
+                                <span class="task-sprints">${task.sprints}</span>
+                                <button class="task-sprint-btn" onclick="adjustSprints('${task.id}', 1)">+</button>
+                                <button class="task-delete" onclick="deleteTask('${task.id}', '${bucket}')">×</button>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    // Setup drag and drop
+                    container.querySelectorAll('.task-item').forEach(setupDragAndDrop);
+                }
+                
+                // Update count
+                const countEl = document.getElementById(bucket === 'holding' ? 'holdingCount' : `${bucket}Count`);
+                if (countEl) countEl.textContent = tasks.length;
+            });
+        }
+
+        function setupDragAndDrop(taskEl) {
+            taskEl.addEventListener('dragstart', function(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.dataset.taskId);
+                e.dataTransfer.setData('sourceBucket', this.dataset.bucket);
+                this.classList.add('dragging');
+            });
+
+            taskEl.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+        }
+
+        // Setup drop zones
+        function setupDropZones() {
+            document.querySelectorAll('.task-list').forEach(dropZone => {
+                dropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    this.classList.add('drag-over');
+                });
+
+                dropZone.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+
+                dropZone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    const sourceBucket = e.dataTransfer.getData('sourceBucket');
+                    const targetBucket = this.dataset.bucket;
+                    
+                    if (sourceBucket === targetBucket) return;
+                    
+                    moveTask(taskId, sourceBucket, targetBucket);
+                });
+            });
+        }
+
+        function moveTask(taskId, fromBucket, toBucket) {
+            const taskIndex = state.tasks[fromBucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[fromBucket].splice(taskIndex, 1)[0];
+            task.bucket = toBucket;
+            state.tasks[toBucket].push(task);
+            
+            saveState();
+            renderAll();
+            showMicroConfirm('Priority updated');
+        }
+
+        window.adjustSprints = function(taskId, delta) {
+            // Find task in all buckets
+            for (let bucket in state.tasks) {
+                const task = state.tasks[bucket].find(t => t.id === taskId);
+                if (task) {
+                    task.sprints = Math.max(1, Math.min(5, task.sprints + delta));
+                    saveState();
+                    renderTasks();
+                    return;
+                }
+            }
+        };
+
+        window.deleteTask = function(taskId, bucket) {
+            state.tasks[bucket] = state.tasks[bucket].filter(t => t.id !== taskId);
+            saveState();
+            renderAll();
+        };
+
+        function endDay() {
+            if (confirm('End your day? Uncompleted tasks will move to holding area.')) {
+                // Move all uncompleted tasks from buckets to holding
+                ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                    state.tasks[bucket].forEach(task => {
+                        if (!task.completed) {
+                            task.bucket = 'holding';
+                            state.tasks.holding.push(task);
+                        }
+                    });
+                    state.tasks[bucket] = [];
+                });
+                
+                saveState();
+                window.location.href = '/overview.html';
+            }
+        }
+
+        // ============================================
+        // TIMER FUNCTIONS
+        // ============================================
+        function startSprint() {
+            if (state.timer.active) return;
+
+            state.timer.active = true;
+            state.timer.type = 'focus';
+            state.sessionState = 'active';
+            updateSystemState('Sprint active. Focus mode engaged.');
+            
+            state.timer.interval = setInterval(() => {
+                state.timer.remaining--;
+                updateTimerDisplay();
+                
+                if (state.timer.remaining <= 0) {
+                    completeSprint();
+                }
+            }, 1000);
+        }
+
+        function completeSprint() {
+            clearInterval(state.timer.interval);
+            state.timer.active = false;
+            state.sprintCount++;
+            state.sessionState = 'idle';
+            state.timer.remaining = state.timer.duration * 60;
+            
+            updateSystemState('Sprint complete. Review task movement before starting another.');
+            updateAIMessage('Session logged. System performance updated.');
+            
+            saveState();
+            renderAll();
+        }
+
+        function updateTimerButtons() {
+            const duration = state.timer.duration;
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.duration) === duration) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(state.timer.remaining / 60);
+            const seconds = state.timer.remaining % 60;
+            const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const valueEl = document.querySelector('.timer-value');
+            const statusEl = document.querySelector('.timer-status');
+            
+            if (valueEl) valueEl.textContent = timeStr;
+            if (statusEl) {
+                statusEl.textContent = state.timer.active ? 'In progress' : 'Ready to start';
+            }
+        }
+
+        // ============================================
+        // UI UPDATES
+        // ============================================
         function renderAll() {
             document.getElementById('sprintsDone').textContent = state.sprintCount;
             document.getElementById('winsCount').textContent = state.tasks.wins.length;
             document.getElementById('breaksCount').textContent = state.breaksCount;
             document.getElementById('distractionsCount').textContent = state.distractionCount;
             document.getElementById('distractionCountDisplay').textContent = state.distractionCount;
-            document.getElementById('holdingCount').textContent = state.tasks.holding.length;
+            
+            renderTasks();
+            updateGrade();
         }
 
-        // Timer button handlers
-        document.querySelectorAll('.timer-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                state.timer.duration = parseInt(this.dataset.duration);
-                saveState();
-            });
-        });
-
-        // Mode selector
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                state.currentMode = this.dataset.mode;
-                saveState();
-            });
-        });
-
-        // Parse button
-        document.getElementById('parseBtn').addEventListener('click', function() {
-            const input = document.getElementById('taskInput').value.trim();
-            if (!input) return;
+        function updateGrade() {
+            // Simple grade calculation
+            const totalSprints = state.sprintCount;
+            const target = 5;
+            let grade = '-';
             
-            const tasks = input.split('\n').filter(t => t.trim());
-            tasks.forEach(task => {
-                state.tasks.holding.push({
-                    id: Date.now() + Math.random(),
-                    text: task.trim(),
-                    completed: false
-                });
-            });
+            if (totalSprints >= target) grade = 'A';
+            else if (totalSprints >= target * 0.8) grade = 'B';
+            else if (totalSprints >= target * 0.6) grade = 'C';
+            else if (totalSprints > 0) grade = 'D';
             
-            document.getElementById('taskInput').value = '';
-            saveState();
-            renderAll();
-        });
+            state.currentGrade = grade;
+            document.getElementById('gradeMini').textContent = grade;
+        }
 
-        // Park distraction
-        document.getElementById('parkBtn').addEventListener('click', function() {
+        function updateSystemState(message) {
+            document.getElementById('systemState').textContent = message;
+        }
+
+        function updateAIMessage(message) {
+            document.getElementById('aiMessage').textContent = message;
+        }
+
+        function showMicroConfirm(message) {
+            const el = document.getElementById('microConfirm');
+            if (el) {
+                el.textContent = message;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 2000);
+            }
+        }
+
+        function parkDistraction() {
             const input = document.getElementById('distractionInput');
             if (!input.value.trim()) return;
             
@@ -247,21 +670,68 @@
             document.getElementById('handleLaterCheck').checked = false;
             saveState();
             renderAll();
-        });
+            showMicroConfirm('Distraction parked');
+        }
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async function() {
-            if (confirm('Are you sure you want to logout?')) {
-                const result = await handleSignout();
-                if (result.success) {
-                    localStorage.clear();
-                    window.location.href = '/';
-                }
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            
+            const logo = document.getElementById('appLogo');
+            if (newTheme === 'dark') {
+                logo.src = 'FocusHub_horiinv.svg';
+                document.getElementById('themeToggle').textContent = '🌙 Dark';
+            } else {
+                logo.src = 'FocusHub_horinorm.svg';
+                document.getElementById('themeToggle').textContent = '☀️ Light';
             }
-        });
+            
+            localStorage.setItem('focushub_theme', newTheme);
+        }
 
-        // Initialize
-        loadState();
+        // ============================================
+        // BACKGROUND PROCESSES
+        // ============================================
+        let backgroundStarted = false;
+        function startBackgroundProcesses() {
+            if (backgroundStarted) {
+                console.warn('⚠️ Background processes already running');
+                return;
+            }
+            backgroundStarted = true;
+
+            // New day checker
+            setInterval(() => {
+                const lastDate = localStorage.getItem('focushub_last_date');
+                const today = new Date().toDateString();
+                
+                if (lastDate && lastDate !== today) {
+                    state.tasks.wins = [];
+                    state.sprintCount = 0;
+                    state.breaksCount = 0;
+                    state.distractionCount = 0;
+                    saveState();
+                    renderAll();
+                }
+                
+                localStorage.setItem('focushub_last_date', today);
+            }, 300000);
+        }
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initApp();
+                setupDropZones();
+            });
+        } else {
+            initApp();
+            setupDropZones();
+        }
     </script>
 </body>
 </html>
