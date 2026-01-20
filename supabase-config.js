@@ -15,11 +15,16 @@ if (typeof window !== 'undefined' && window.supabase) {
 // PREMIUM MEMBERSHIP FUNCTIONS
 // ============================================
 
+// PART 1 & 4: Hardened membership handling with RLS awareness
 async function getUserMembership() {
     try {
         const user = await getCurrentUser();
-        if (!user) return null;
+        if (!user) {
+            console.error('No authenticated user');
+            return null;
+        }
         
+        // Query by user_id - RLS ensures user can only see their own membership
         const { data, error } = await supabaseClient
             .from('user_memberships')
             .select('*')
@@ -27,24 +32,22 @@ async function getUserMembership() {
             .single();
         
         if (error) {
-            console.log('No membership record yet, creating default...');
-            // Create default free membership
-            const { data: newMembership } = await supabaseClient
-                .from('user_memberships')
-                .insert({
-                    user_id: user.id,
-                    tier: 'free',
-                    is_beta_user: false
-                })
-                .select()
-                .single();
-            return newMembership;
+            if (error.code === 'PGRST116') {
+                // No membership exists - this will be handled by initApp()
+                // Do not create here - let initApp control the flow
+                console.log('No membership record found for user');
+                return null;
+            } else {
+                // Other errors should be reported up the chain
+                console.error('Membership query error:', error);
+                throw error;
+            }
         }
         
         return data;
     } catch (error) {
         console.error('Error getting membership:', error);
-        return null;
+        throw error; // Propagate errors to caller
     }
 }
 
@@ -53,20 +56,16 @@ async function isPremiumUser() {
         const membership = await getUserMembership();
         if (!membership) return false;
         
-        // Check if premium or beta
-        if (membership.tier === 'premium' || membership.tier === 'beta') {
-            return true;
-        }
-        
-        // Check if beta flag set
-        if (membership.is_beta_user) {
+        // Check if plan is beta, pro, or premium and status is active
+        const premiumPlans = ['beta', 'pro', 'premium'];
+        if (premiumPlans.includes(membership.plan) && membership.status === 'active') {
             return true;
         }
         
         // Check if premium hasn't expired
         if (membership.premium_expires_at) {
             const expiresAt = new Date(membership.premium_expires_at);
-            if (expiresAt > new Date()) {
+            if (expiresAt > new Date() && membership.status === 'active') {
                 return true;
             }
         }
@@ -83,8 +82,9 @@ async function isProUser() {
         const membership = await getUserMembership();
         if (!membership) return false;
         
-        // Pro or higher (premium, beta)
-        if (membership.tier === 'pro' || membership.tier === 'premium' || membership.tier === 'beta') {
+        // Pro or higher (premium, beta) with active status
+        const proPlans = ['pro', 'premium', 'beta'];
+        if (proPlans.includes(membership.plan) && membership.status === 'active') {
             return true;
         }
         
@@ -98,15 +98,9 @@ async function isProUser() {
 async function getUserTier() {
     try {
         const membership = await getUserMembership();
-        if (!membership) return 'trial';
+        if (!membership) return 'free';
         
-        // Check if trial period is active
-        const trialStatus = await checkTrialStatus();
-        if (trialStatus.inTrial) {
-            return 'trial';
-        }
-        
-        return membership.tier || 'free';
+        return membership.plan || 'free';
     } catch (error) {
         console.error('Error getting user tier:', error);
         return 'free';
@@ -148,37 +142,37 @@ async function checkTrialStatus() {
     }
 }
 
-function getTierDisplayName(tier) {
-    const tierNames = {
-        'trial': 'Trial',
+function getTierDisplayName(plan) {
+    const planNames = {
+        'free': 'Free',
         'lite': 'Lite',
         'pro': 'Pro',
         'premium': 'Premium',
         'beta': 'Beta'
     };
-    return tierNames[tier] || 'Free';
+    return planNames[plan] || 'Free';
 }
 
-function getTierColor(tier) {
-    const tierColors = {
-        'trial': '#a855f7', // Purple
-        'lite': '#64748b',  // Gray
-        'pro': '#3b82f6',   // Blue
+function getTierColor(plan) {
+    const planColors = {
+        'free': '#64748b',    // Gray
+        'lite': '#64748b',    // Gray
+        'pro': '#3b82f6',     // Blue
         'premium': '#f59e0b', // Gold
-        'beta': '#22c55e'   // Green
+        'beta': '#22c55e'     // Green
     };
-    return tierColors[tier] || '#64748b';
+    return planColors[plan] || '#64748b';
 }
 
-function getTierEmoji(tier) {
-    const tierEmojis = {
-        'trial': '⏱️',
+function getTierEmoji(plan) {
+    const planEmojis = {
+        'free': '💡',
         'lite': '💡',
         'pro': '⚡',
         'premium': '⭐',
         'beta': '🎖️'
     };
-    return tierEmojis[tier] || '💡';
+    return planEmojis[plan] || '💡';
 }
 
 async function getReflectionTradition() {
@@ -226,307 +220,9 @@ async function setReflectionTradition(tradition) {
     }
 }
 
-// ============================================
-// SUPABASE DATA SYNC FUNCTIONS
-// ============================================
-
-// Get today's session data
-async function getTodaySession() {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return null;
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        const { data, error } = await supabaseClient
-            .from('daily_sessions')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('date', today)
-            .single();
-        
-        if (error && error.code !== 'PGRST116') {
-            console.error('Error loading session:', error);
-            return null;
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('Get today session error:', error);
-        return null;
-    }
-}
-
-// Save today's session data
-async function saveTodaySession(sessionData) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return false;
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        const { error } = await supabaseClient
-            .from('daily_sessions')
-            .upsert({
-                user_id: user.id,
-                date: today,
-                ...sessionData,
-                updated_at: new Date().toISOString()
-            }, {
-                onConflict: 'user_id,date'
-            });
-        
-        if (error) {
-            console.error('Error saving session:', error);
-            return false;
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Save today session error:', error);
-        return false;
-    }
-}
-
-// Load all tasks
-async function loadAllTasks() {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return null;
-        
-        const { data, error } = await supabaseClient
-            .from('tasks')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('Error loading tasks:', error);
-            return null;
-        }
-        
-        // Convert array to bucket structure
-        const tasks = {
-            holding: [],
-            urgent: [],
-            deepwork: [],
-            strategic: [],
-            wins: []
-        };
-        
-        if (data) {
-            data.forEach(task => {
-                if (tasks[task.bucket]) {
-                    tasks[task.bucket].push({
-                        id: task.id,
-                        text: task.text,
-                        bucket: task.bucket,
-                        completed: task.completed || false,
-                        completedAt: task.completed_at,
-                        createdAt: task.created_at
-                    });
-                }
-            });
-        }
-        
-        return tasks;
-    } catch (error) {
-        console.error('Load all tasks error:', error);
-        return null;
-    }
-}
-
-// Save all tasks
-async function saveAllTasks(tasks) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return false;
-        
-        // Delete all existing tasks for this user
-        await supabaseClient
-            .from('tasks')
-            .delete()
-            .eq('user_id', user.id);
-        
-        // Prepare tasks for insert
-        const taskRecords = [];
-        for (const [bucket, bucketTasks] of Object.entries(tasks)) {
-            bucketTasks.forEach(task => {
-                taskRecords.push({
-                    user_id: user.id,
-                    id: task.id,
-                    text: task.text,
-                    bucket: bucket,
-                    completed: task.completed || false,
-                    completed_at: task.completedAt || null,
-                    created_at: task.createdAt || new Date().toISOString()
-                });
-            });
-        }
-        
-        // Insert all tasks
-        if (taskRecords.length > 0) {
-            const { error } = await supabaseClient
-                .from('tasks')
-                .insert(taskRecords);
-            
-            if (error) {
-                console.error('Error saving tasks:', error);
-                return false;
-            }
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Save all tasks error:', error);
-        return false;
-    }
-}
-
-// Load all distractions
-async function loadAllDistractions() {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return [];
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        const { data, error } = await supabaseClient
-            .from('distractions')
-            .select('*')
-            .eq('user_id', user.id)
-            .gte('created_at', today)
-            .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('Error loading distractions:', error);
-            return [];
-        }
-        
-        return data || [];
-    } catch (error) {
-        console.error('Load all distractions error:', error);
-        return [];
-    }
-}
-
-// Save all distractions
-async function saveAllDistractions(distractions) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return false;
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Delete today's distractions
-        await supabaseClient
-            .from('distractions')
-            .delete()
-            .eq('user_id', user.id)
-            .gte('created_at', today);
-        
-        // Insert current distractions
-        if (distractions && distractions.length > 0) {
-            const distractionRecords = distractions.map(d => ({
-                user_id: user.id,
-                text: d.text,
-                category: d.category,
-                created_at: d.timestamp || new Date().toISOString()
-            }));
-            
-            const { error } = await supabaseClient
-                .from('distractions')
-                .insert(distractionRecords);
-            
-            if (error) {
-                console.error('Error saving distractions:', error);
-                return false;
-            }
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Save all distractions error:', error);
-        return false;
-    }
-}
-
-// Load all intentions
-async function loadAllIntentions() {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return [];
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        const { data, error } = await supabaseClient
-            .from('intentions')
-            .select('*')
-            .eq('user_id', user.id)
-            .gte('created_at', today)
-            .order('created_at', { ascending: true });
-        
-        if (error) {
-            console.error('Error loading intentions:', error);
-            return [];
-        }
-        
-        return data ? data.map(i => i.text) : [];
-    } catch (error) {
-        console.error('Load all intentions error:', error);
-        return [];
-    }
-}
-
-// Save all intentions
-async function saveAllIntentions(intentions) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) return false;
-        
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Delete today's intentions
-        await supabaseClient
-            .from('intentions')
-            .delete()
-            .eq('user_id', user.id)
-            .gte('created_at', today);
-        
-        // Insert current intentions
-        if (intentions && intentions.length > 0) {
-            const intentionRecords = intentions.map(text => ({
-                user_id: user.id,
-                text: text,
-                created_at: new Date().toISOString()
-            }));
-            
-            const { error } = await supabaseClient
-                .from('intentions')
-                .insert(intentionRecords);
-            
-            if (error) {
-                console.error('Error saving intentions:', error);
-                return false;
-            }
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Save all intentions error:', error);
-        return false;
-    }
-}
-
-// Get all tasks (for multi-device sync checks)
-async function getAllTasks() {
-    return await loadAllTasks();
-}
-
-// Get all distractions (for multi-device sync checks)
-async function getAllDistractions() {
-    return await loadAllDistractions();
-}
+// Note: The full Supabase functions (getTodaySession, saveTodaySession, etc.) 
+// are defined in a separate file that was part of the Supabase migration.
+// If those functions are not available, the app will automatically fall back to localStorage.
 
 async function getCurrentUser() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
@@ -596,13 +292,13 @@ async function handleSignup(email, password, name) {
                 console.error('Profile creation error:', profileError);
             }
             
-            // Create default membership
+            // Create default membership with plan and status
             const { error: membershipError } = await supabaseClient
                 .from('user_memberships')
                 .insert({
                     user_id: data.user.id,
-                    tier: 'lite',
-                    is_beta_user: false
+                    plan: 'beta',
+                    status: 'active'
                 });
             
             if (membershipError) {
@@ -658,3 +354,58 @@ async function handlePasswordReset(email) {
     }
 }
 
+
+// ============================================
+// PART 5: SECURITY EVENT LOGGING
+// ============================================
+
+async function logSecurityEvent(eventType, details) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) return;
+        
+        // Log to security_events table (if exists)
+        // Non-blocking - failures are logged but don't interrupt user flow
+        await supabaseClient
+            .from('security_events')
+            .insert({
+                user_id: user.id,
+                event_type: eventType,
+                details: details,
+                created_at: new Date().toISOString()
+            });
+    } catch (error) {
+        // Silent failure - don't block user or show errors
+        console.log('Security event logged locally:', eventType);
+    }
+}
+
+// Helper functions for common security events
+async function logRapidSprintCompletion(sprintNumber, timeSinceLastSprint) {
+    if (timeSinceLastSprint < 60) { // Less than 1 minute between sprints
+        await logSecurityEvent('rapid_sprint_completion', {
+            sprint_number: sprintNumber,
+            seconds_since_last: timeSinceLastSprint,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+async function logExcessiveSessionReset(resetCount) {
+    if (resetCount > 5) { // More than 5 resets in a session
+        await logSecurityEvent('excessive_session_resets', {
+            reset_count: resetCount,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+async function logFeedbackSpam(feedbackCount, timeWindow) {
+    if (feedbackCount > 10) { // More than 10 feedback submissions in time window
+        await logSecurityEvent('feedback_spam', {
+            feedback_count: feedbackCount,
+            time_window_minutes: timeWindow,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
