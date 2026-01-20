@@ -1,384 +1,279 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sign In - FocusHub</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - Log In</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <style>
-        .auth-container {
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --industrial-orange: #f45b07;
+            --border-light: #e0e0e0;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background: var(--bg-primary);
         }
-        
-        .auth-box {
-            width: 100%;
-            max-width: 450px;
+
+        .login-container {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-medium);
-            border-radius: 8px;
-            padding: 3rem 2.5rem;
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
-        .auth-form { margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-section img {
+            height: 80px;
+            width: auto;
+            margin-bottom: 1rem;
+        }
+
+        .beta-badge {
+            display: inline-block;
+            background: var(--industrial-orange);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
             margin-bottom: 0.5rem;
         }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
         .form-group input {
             width: 100%;
             padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
             font-size: 1rem;
-            border: 1px solid var(--border-medium);
-            border-radius: 4px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            transition: border-color 0.2s;
         }
+
         .form-group input:focus {
             outline: none;
             border-color: var(--industrial-orange);
         }
-        .btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1.5rem;
         }
-        .btn-primary {
-            background: var(--industrial-orange);
-            color: white;
-        }
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-        .btn-block {
-            width: 100%;
-            display: block;
-        }
-        .auth-link {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 14px;
+
+        .forgot-password a {
+            font-size: 0.875rem;
             color: var(--text-secondary);
-        }
-        .auth-link a {
-            color: var(--industrial-orange);
             text-decoration: none;
         }
-        .auth-link a:hover {
-            text-decoration: underline;
+
+        .forgot-password a:hover {
+            color: var(--industrial-orange);
         }
-        .auth-text {
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--industrial-orange);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .helper-text {
             text-align: center;
-            font-size: 14px;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            margin: 1rem 0;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .auth-switch {
+
+        .create-account {
             text-align: center;
             margin-top: 1.5rem;
         }
-        .auth-error {
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 4px;
-            color: #ef4444;
-            font-size: 0.875rem;
+
+        .create-account a {
+            color: var(--industrial-orange);
+            text-decoration: none;
+            font-weight: 600;
         }
-        .hidden { display: none !important; }
+
+        .create-account a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
-<body class="theme-dark">
-    <div class="auth-container">
-        <div class="auth-box" style="position: relative;">
-            <!-- BETA badge in corner -->
-            <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px; transform: rotate(0deg);">BETA</span>
-            
-            <img id="authLogo" src="FocusHub_vertinv.svg?v=3" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
-            
-            <!-- Login Form -->
-            <div id="loginForm" class="auth-form">
-                <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Log in</h2>
-                
-                <form onsubmit="handleLogin(event); return false;">
-                    <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" required>
-                    </div>
-                    
-                    <div style="text-align: right; margin-bottom: 1rem;">
-                        <a href="#" onclick="showPasswordReset(); return false;" style="font-size: 0.875rem; color: var(--accent-blue); text-decoration: none;">Forgot password?</a>
-                    </div>
-                    
-                    <div id="loginError" class="auth-error hidden"></div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block">Log in</button>
-                    
-                    <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
-                        This logs you into your FocusHub workspace.
-                    </p>
-                </form>
-                
-                <p class="auth-switch">
-                    <a href="signup.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.875rem;">Create account</a>
-                </p>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub">
+            <div class="beta-badge">BETA</div>
+        </div>
+
+        <h1>Log in</h1>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm" onsubmit="handleSignin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
             </div>
-            
-            <!-- Password Reset Form -->
-            <div id="passwordResetForm" class="auth-form hidden">
-                <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Reset password</h2>
-                
-                <form onsubmit="handlePasswordReset(event); return false;">
-                    <div class="form-group">
-                        <label for="resetEmail">Email</label>
-                        <input type="email" id="resetEmail" required>
-                    </div>
-                    
-                    <div id="resetError" class="auth-error hidden"></div>
-                    <div id="resetSuccess" class="auth-success hidden"></div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
-                </form>
-                
-                <p class="auth-switch">
-                    <a href="#" onclick="showLogin(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.875rem;">Back to log in</a>
-                </p>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
-            
-            <!-- Signup Form -->
-            <div id="signupForm" class="auth-form hidden">
-                <h2>Get Started</h2>
-                <p class="auth-subtitle">Create your account and choose your mode</p>
-                
-                <form onsubmit="handleSignupForm(event); return false;">
-                    <div class="form-group">
-                        <label for="signupEmail">Email</label>
-                        <input type="email" id="signupEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="signupPassword">Password</label>
-                        <input type="password" id="signupPassword" required minlength="6">
-                        <small>At least 6 characters</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="signupPasswordConfirm">Confirm Password</label>
-                        <input type="password" id="signupPasswordConfirm" required minlength="6">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Choose Your Mode</label>
-                        <div class="mode-selector">
-                            <label class="mode-option">
-                                <input type="radio" name="mode" value="professional" checked>
-                                <div class="mode-card">
-                                    <h3>💼 Professional</h3>
-                                    <p>For work and career productivity</p>
-                                </div>
-                            </label>
-                            
-                            <label class="mode-option">
-                                <input type="radio" name="mode" value="student">
-                                <div class="mode-card">
-                                    <h3>🎓 Student (High School)</h3>
-                                    <p>For academic work and assignments</p>
-                                </div>
-                            </label>
-                        </div>
-                        <small>You can change this later in settings</small>
-                    </div>
-                    
-                    <div id="signupError" class="auth-error hidden"></div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                </form>
-                
-                <p class="auth-switch">
-                    Already have an account? 
-                    <a href="#" onclick="showLogin(); return false;">Sign in</a>
-                </p>
+
+            <div class="forgot-password">
+                <a href="/forgot-password.html">Forgot password?</a>
             </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">Log in</button>
+
+            <p class="helper-text">This logs you into your FocusHub workspace.</p>
+        </form>
+
+        <div class="create-account">
+            <a href="/signup.html">Create account</a>
         </div>
     </div>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    
     <script>
-        // Supabase authentication
-        
-        function showLogin() {
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('passwordResetForm').classList.add('hidden');
-        }
-        
-        function showSignup() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('signupForm').classList.remove('hidden');
-            document.getElementById('passwordResetForm').classList.add('hidden');
-        }
-        
-        function showPasswordReset() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('passwordResetForm').classList.remove('hidden');
-        }
-        
-        async function handlePasswordReset(event) {
+        // Handle login
+        async function handleSignin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('resetEmail').value;
-            const errorEl = document.getElementById('resetError');
-            const successEl = document.getElementById('resetSuccess');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
             
-            errorEl.classList.add('hidden');
-            successEl.classList.add('hidden');
+            // Reset error
+            errorMessage.classList.remove('show');
+            errorMessage.textContent = '';
             
-            const result = await resetPassword(email);
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
             
-            if (!result.success) {
-                errorEl.textContent = result.error;
-                errorEl.classList.remove('hidden');
-                return;
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                console.log('✅ Login successful:', data.user.id);
+                
+                // Redirect to app
+                window.location.href = '/app.html';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = error.message || 'Login failed. Please check your credentials.';
+                errorMessage.classList.add('show');
+                
+                // Re-enable button
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log in';
             }
-            
-            successEl.textContent = 'Password reset email sent! Check your inbox.';
-            successEl.classList.remove('hidden');
-            
-            // Clear form
-            document.getElementById('resetEmail').value = '';
-            
-            // Show login after 3 seconds
-            setTimeout(() => {
-                showLogin();
-            }, 3000);
         }
-        
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorEl = document.getElementById('loginError');
-            
-            errorEl.classList.add('hidden');
-            
-            // Sign in with Supabase (calls function from supabase-config.js)
-            const result = await handleSignin(email, password);
-            
-            if (!result.success) {
-                errorEl.textContent = result.error;
-                errorEl.classList.remove('hidden');
-                return;
-            }
-            
-            // Set mode for config system (from user profile)
-            const { data: profile } = await supabaseClient
-                .from('user_profiles')
-                .select('mode, student_submode')
-                .eq('id', result.user.id)
-                .single();
-            
-            if (profile) {
-                localStorage.setItem('focushub_mode', profile.mode);
-                if (profile.student_submode) {
-                    localStorage.setItem('focushub_student_submode', profile.student_submode);
+
+        // Check if already logged in
+        async function checkExistingSession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    console.log('Already logged in, redirecting...');
+                    window.location.href = '/app.html';
                 }
+            } catch (error) {
+                console.error('Session check error:', error);
             }
-            
-            // CRITICAL: Remove new_user flag on login (only signup should set it)
-            localStorage.removeItem('focushub_new_user');
-            
-            // Redirect to app
-            window.location.href = 'app.html';
         }
-        
-        async function handleSignupForm(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
-            const mode = document.querySelector('input[name="mode"]:checked').value;
-            const errorEl = document.getElementById('signupError');
-            
-            errorEl.classList.add('hidden');
-            
-            // Validate passwords match
-            if (password !== passwordConfirm) {
-                errorEl.textContent = 'Passwords do not match';
-                errorEl.classList.remove('hidden');
-                return;
-            }
-            
-            // Sign up with Supabase (calls function from supabase-config.js)
-            const result = await handleSignup(email, password, mode);
-            
-            if (!result.success) {
-                errorEl.textContent = result.error;
-                errorEl.classList.remove('hidden');
-                return;
-            }
-            
-            // Set mode for config system
-            localStorage.setItem('focushub_mode', mode);
-            if (mode === 'student') {
-                localStorage.setItem('focushub_student_submode', 'highschool');
-            }
-            
-            // Redirect to app
-            window.location.href = 'app.html';
+
+        // Initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkExistingSession);
+        } else {
+            checkExistingSession();
         }
-        
-        // Theme detection
-        function initTheme() {
-            // Login page should always default to dark theme
-            const theme = localStorage.getItem('focushub_theme') || 'dark';
-            const authLogo = document.querySelector('.auth-logo');
-            
-            // Force dark theme for login page
-            if (!authLogo) {
-                console.error('Auth logo not found!');
-                return;
-            }
-            
-            if (theme === 'dark' || !theme) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.body.classList.add('theme-dark');
-                document.body.classList.remove('theme-light');
-                authLogo.src = 'FocusHub_vertinv.svg?v=3'; // Dark theme = white text
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.body.classList.add('theme-light');
-                document.body.classList.remove('theme-dark');
-                authLogo.src = 'FocusHub_vertnorm.svg?v=3'; // Light theme = black text
-            }
-            
-            console.log('Login theme initialized:', theme);
-        }
-        
-        initTheme();
+
+        console.log('Login theme initialized: light');
     </script>
 </body>
 </html>
