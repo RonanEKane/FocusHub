@@ -30,7 +30,7 @@ async function getUserMembership() {
             if (error.code === 'PGRST116') {
                 // No membership record yet, creating default...
                 console.log('No membership record yet, creating default...');
-                const { data: newMembership } = await supabaseClient
+                const { data: newMembership, error: insertError } = await supabaseClient
                     .from('user_memberships')
                     .insert({
                         user_id: user.id,
@@ -39,6 +39,11 @@ async function getUserMembership() {
                     })
                     .select()
                     .single();
+                
+                if (insertError) {
+                    console.error('Failed to create membership:', insertError);
+                    return null;
+                }
                 return newMembership;
             } else {
                 console.error('Error getting membership:', error);
@@ -84,8 +89,9 @@ async function isProUser() {
         const membership = await getUserMembership();
         if (!membership) return false;
         
-        // Pro or higher (premium, beta)
-        if (membership.tier === 'pro' || membership.tier === 'premium' || membership.tier === 'beta') {
+        // Pro or higher (premium, beta) with active status
+        const proPlans = ['pro', 'premium', 'beta'];
+        if (proPlans.includes(membership.plan) && membership.status === 'active') {
             return true;
         }
         
@@ -99,15 +105,9 @@ async function isProUser() {
 async function getUserTier() {
     try {
         const membership = await getUserMembership();
-        if (!membership) return 'trial';
+        if (!membership) return 'free';
         
-        // Check if trial period is active
-        const trialStatus = await checkTrialStatus();
-        if (trialStatus.inTrial) {
-            return 'trial';
-        }
-        
-        return membership.tier || 'free';
+        return membership.plan || 'free';
     } catch (error) {
         console.error('Error getting user tier:', error);
         return 'free';
@@ -299,7 +299,7 @@ async function handleSignup(email, password, name) {
                 console.error('Profile creation error:', profileError);
             }
             
-            // Create default membership with plan and status
+            // Create default membership
             const { error: membershipError } = await supabaseClient
                 .from('user_memberships')
                 .insert({

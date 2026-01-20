@@ -394,7 +394,7 @@
             <div class="app-header-content">
                 <div class="logo-section">
                     <div style="position: relative; display: inline-block;">
-                        <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
+                        <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" class="logo-img">
                         <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
                     </div>
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
@@ -1096,7 +1096,12 @@
             if (confirm('Are you sure you want to logout?')) {
                 const result = await handleSignout();
                 if (result.success) {
+                    // Clear local data
+                    localStorage.clear();
+                    // Redirect to home
                     window.location.href = '/';
+                } else {
+                    alert('Logout failed. Please try again.');
                 }
             }
         }
