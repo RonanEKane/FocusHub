@@ -1003,27 +1003,33 @@ body {
     cursor: move; /* Visual indicator for dragging */
 }
 
-/* Sprint Controls - Vertical Stack */
+/* Sprint Controls - Arrows stacked next to number */
 .sprint-controls {
     display: none; /* Hidden by default */
-    flex-direction: column;
+    flex-direction: row; /* Horizontal: arrows then number */
     align-items: center;
-    gap: 2px;
+    gap: 4px;
 }
 
 .task-item:hover .sprint-controls {
     display: flex; /* Show on hover */
 }
 
+.sprint-arrows {
+    display: flex;
+    flex-direction: column; /* Stack arrows vertically */
+    gap: 0;
+}
+
 .sprint-up,
 .sprint-down {
-    width: 24px;
-    height: 16px;
+    width: 16px;
+    height: 12px;
     padding: 0;
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    font-size: 10px;
+    font-size: 8px;
     line-height: 1;
     cursor: pointer;
     transition: color 0.15s ease;
@@ -1039,12 +1045,12 @@ body {
 
 .sprint-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--industrial-orange);
-    min-width: 24px;
+    min-width: 20px;
     text-align: center;
-    padding: 2px 0;
+    line-height: 1;
 }
     line-height: 1;
 }

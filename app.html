@@ -532,9 +532,11 @@
                             <div class="task-controls">
                                 ${bucket !== 'holding' ? `
                                 <div class="sprint-controls">
-                                    <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
+                                    <div class="sprint-arrows">
+                                        <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
+                                        <button class="sprint-down" data-task-id="${task.id}" data-action="decrement">▼</button>
+                                    </div>
                                     <span class="sprint-value">${task.sprints || 1}</span>
-                                    <button class="sprint-down" data-task-id="${task.id}" data-action="decrement">▼</button>
                                 </div>
                                 ` : ''}
                                 <button class="task-delete" data-task-id="${task.id}" data-bucket="${bucket}">×</button>
