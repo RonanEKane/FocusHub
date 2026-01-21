@@ -97,7 +97,8 @@ body {
     gap: 1rem;
     min-width: 0; /* Allow flex shrinking */
     flex: 1; /* Take available space but allow shrinking */
-    max-width: 60%; /* Don't let logo section take too much space */
+    max-width: 50%; /* STRICTER: Don't let logo section take more than half */
+    overflow: hidden; /* Clip anything that overflows */
 }
 
 .tagline {
@@ -107,6 +108,8 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 1; /* Allow tagline to shrink */
+    min-width: 0; /* Important for ellipsis to work */
 }
 
 .header-actions {
@@ -402,7 +405,8 @@ body {
     background: rgba(251, 146, 60, 0.1); /* PREMIUM: Subtle fill */
     box-shadow: 0 0 20px rgba(251, 146, 60, 0.2); /* PREMIUM: Glow effect */
     border-color: var(--accent-glow);
-    color: white;
+    /* LIGHT MODE FIX: Keep orange text instead of white */
+    color: var(--accent-glow);
 }
 
 .btn-start-sprint:active {
@@ -1182,6 +1186,7 @@ body {
 .collapsible-header h3 {
     margin: 0;
     transition: color 0.2s; /* Smooth color transition */
+    color: var(--text-primary); /* LIGHT MODE FIX: Ensure visible by default */
 }
 
 .collapsible-header:hover h3 {
