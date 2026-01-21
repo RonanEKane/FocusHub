@@ -1,0 +1,1228 @@
+/* Google Fonts - Industrial Typography System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* CSS Variables - Premium Zinc-Based Palette */
+:root {
+    /* Premium backgrounds - zinc-based */
+    --bg-primary: #0d0d0f;        /* Rich black */
+    --bg-secondary: #18181b;      /* Zinc-900 */
+    --bg-tertiary: #27272a;       /* Zinc-800 */
+    --bg-elevated: #3f3f46;       /* Zinc-700 */
+    
+    /* Premium accents */
+    --accent-primary: #fb923c;    /* Orange-400 (softer) */
+    --accent-glow: #f97316;       /* Orange-500 (emphasis) */
+    --industrial-orange: #fb923c; /* Keep legacy name for compatibility */
+    
+    /* Premium text */
+    --text-primary: #fafafa;      /* Zinc-50 (warmer) */
+    --text-secondary: #a1a1aa;    /* Zinc-400 */
+    --text-muted: #71717a;        /* Zinc-500 */
+    
+    /* Premium borders */
+    --border-light: #3f3f46;      /* Zinc-700 */
+    --border-subtle: #27272a;     /* Zinc-800 */
+    
+    /* Status colors */
+    --success: #22c55e;           /* Green-500 */
+    --danger: #ef4444;
+}
+
+[data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e5e5e5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-light: #e0e0e0;
+    --border-subtle: #f0f0f0;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* PREMIUM: Smooth micro-animations */
+}
+
+/* Disable transitions on page load to prevent flash */
+.preload * {
+    transition: none !important;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Header */
+.app-header {
+    background: rgba(24, 24, 27, 0.85); /* STAGING: Semi-transparent for glass effect */
+    backdrop-filter: blur(12px); /* STAGING: Premium blur */
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--border-light);
+    padding: 0.75rem 2rem; /* TIGHTER: Reduced from 1rem */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky; /* STAGING: Sticky header */
+    top: 0;
+    z-index: 100;
+}
+
+.logo-section {
+    display: flex;
+    flex-direction: row; /* TIGHTER: Horizontal layout */
+    align-items: center;
+    gap: 1rem; /* TIGHTER: Logo and tagline closer */
+}
+
+.tagline {
+    font-size: 0.6875rem; /* TIGHTER: Slightly smaller */
+    color: var(--text-secondary);
+    margin-left: 0;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem; /* TIGHTER: Reduced from 1rem 2rem */
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    border-color: var(--industrial-orange);
+}
+
+.btn-danger {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+/* CONSULTANT FEEDBACK: System State Bar */
+.system-state-bar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0.75rem 2rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Main Layout */
+.app-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 420px; /* Main content flexible, fixed 420px sidebar */
+    gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CONSULTANT FEEDBACK: Visual Hierarchy - Dominant Sprint Timer */
+.sprint-timer-section.dominant {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-light);
+    border-radius: 2px;
+    padding: 1.5rem; /* STAGING: Tightened from 2.5rem */
+    margin-bottom: 2rem;
+    /* INDUSTRIAL: Depth via borders, not shadows */
+}
+
+/* Regular sections have reduced visual weight */
+.task-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    padding: 1.5rem; /* TIGHTER: Reduced from 2.5rem */
+    /* INDUSTRIAL: Depth via borders, not shadows */
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem; /* STAGING: Tightened from 1rem */
+}
+
+.section-header h2 {
+    font-size: 1.125rem; /* TIGHTER: Reduced from 1.25rem */
+    font-weight: 700;
+    letter-spacing: 0.05em; /* PREMIUM: Wider tracking for headers */
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.priority-legend {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sprint-target {
+    font-weight: 600;
+}
+
+.sprint-target {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Sprint Timer */
+.energy-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* COMPACT: Energy controls in corner */
+.energy-controls-corner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.energy-select-compact {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    height: auto;
+}
+
+.meeting-toggle-compact {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.meeting-toggle-compact input {
+    margin: 0;
+}
+
+/* Legacy styles (keep for backward compatibility) */
+.energy-select {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.energy-select label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.energy-select select {
+    padding: 0.5rem 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.875rem;
+    height: 40px; /* Match checkbox row height */
+}
+
+.meeting-toggle {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 40px; /* Match select height */
+}
+
+.meeting-toggle input {
+    margin-right: 0.5rem;
+}
+
+.timer-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem; /* TIGHTER: Reduced from 0.75rem */
+    margin-bottom: 0.75rem; /* STAGING: Tightened from 1rem */
+}
+
+.timer-btn {
+    padding: 0.625rem; /* STAGING: Tightened from 0.75rem */
+    background: var(--bg-primary);
+    border: 2px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.8125rem; /* STAGING: Tightened from 0.875rem */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timer-btn:hover {
+    border-color: var(--industrial-orange);
+}
+
+.timer-btn.active {
+    background: var(--industrial-orange);
+    border-color: var(--industrial-orange);
+    color: white;
+}
+
+.timer-btn-break {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.timer-btn-break:hover {
+    opacity: 0.9;
+}
+
+/* CONSULTANT FEEDBACK: Dominant Timer Display */
+.timer-display-large {
+    text-align: center;
+    padding: 1.5rem 1rem; /* STAGING: Tightened from 2rem 1.5rem */
+    background: radial-gradient(
+        ellipse at center,
+        rgba(251, 146, 60, 0.05) 0%,
+        var(--bg-primary) 70%
+    ); /* PREMIUM: Subtle radial glow behind timer */
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    margin-bottom: 0.75rem; /* STAGING: Tightened from 1rem */
+}
+
+.timer-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.5rem; /* STAGING: Tightened from 4rem */
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem; /* TIGHTER: Reduced from 0.5rem */
+    text-shadow: 0 0 30px rgba(251, 146, 60, 0.4); /* PREMIUM: Orange glow */
+}
+
+.timer-status {
+    font-size: 0.8125rem; /* STAGING: Tightened from 0.875rem */
+    color: var(--text-secondary);
+}
+
+.btn-start-sprint {
+    width: 100%;
+    padding: 0.875rem; /* STAGING: Tightened from 1rem */
+    background: transparent;
+    border: 1px solid var(--industrial-orange);
+    color: var(--industrial-orange);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.2s ease;
+}
+
+.btn-start-sprint:hover {
+    background: rgba(251, 146, 60, 0.1); /* PREMIUM: Subtle fill */
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.2); /* PREMIUM: Glow effect */
+    border-color: var(--accent-glow);
+    color: white;
+}
+
+.btn-start-sprint:active {
+    transform: scale(0.98); /* PREMIUM: Press feedback */
+    background: var(--accent-glow);
+}
+
+/* Task Section */
+.input-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.5px;
+}
+
+.input-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.task-textarea {
+    width: 100%;
+    min-height: 80px; /* TIGHTER: Reduced from 100px */
+    padding: 1rem; /* TIGHTER: Reduced from 1.25rem */
+    background: #1a1a1a; /* Dark grey */
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    resize: vertical;
+    margin-bottom: 0.75rem; /* TIGHTER: Reduced from 1rem */
+}
+
+/* INDUSTRIAL: Terminal focus state */
+.task-textarea:focus {
+    background: #000000; /* Pure black like terminal */
+    border-color: var(--accent-primary); /* Orange glow */
+    box-shadow: 0 0 0 1px var(--accent-primary); /* Additional orange emphasis */
+    outline: none;
+}
+
+.parse-btn {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid var(--border-light); /* HIERARCHY: Secondary button style */
+    color: var(--text-secondary); /* HIERARCHY: Muted text */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.parse-btn:hover {
+    background: rgba(251, 146, 60, 0.1); /* HIERARCHY: Activate on hover */
+    border-color: var(--accent-primary); /* HIERARCHY: Orange border appears */
+    color: var(--accent-primary); /* HIERARCHY: Orange text appears */
+}
+
+.holding-area {
+    padding: 1.25rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+}
+
+.holding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.holding-header h3 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.task-count {
+    background: var(--industrial-orange);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.task-item {
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    font-size: 0.875rem;
+}
+
+.empty-state {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Sidebar */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-card {
+    background: linear-gradient(135deg, #18181b 0%, #1a1a1d 100%); /* PREMIUM: Subtle gradient for depth */
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    padding: 1.25rem; /* TIGHTER: Reduced from 2rem */
+    transition: border-color 0.2s ease;
+}
+
+.sidebar-card:hover {
+    border-color: var(--border-light);
+    background: linear-gradient(135deg, #18181b 0%, #1f1f23 100%); /* PREMIUM: Subtle gradient on hover */
+}
+
+.sidebar-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem; /* TIGHTER: Reduced from 1rem */
+}
+
+/* System Intelligence - Hardware Terminal Style */
+.system-intelligence-primary {
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-secondary);
+}
+
+.system-intelligence-primary h3 {
+    color: var(--industrial-orange);
+    font-size: 1.125rem;
+}
+
+.card-header-with-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-header-with-control h3 {
+    margin: 0;
+}
+
+.agent-mode-dropdown {
+    padding: 0.375rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.75rem;
+}
+
+.ai-message-large {
+    padding: 1.5rem;
+    background: #000000; /* Terminal black */
+    border: 1px solid #333; /* Inset border feel */
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    min-height: 100px;
+    margin-bottom: 1rem;
+    color: var(--industrial-orange); /* Terminal orange text */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); /* PREMIUM: Inner highlight for depth */
+}
+
+.ai-message-large::before {
+    content: "> ";
+    color: var(--industrial-orange);
+    font-weight: 700;
+}
+
+/* Grade Display - Simple Status Footer */
+.grade-display {
+    padding: 0.75rem 0 0 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 1rem;
+}
+
+.grade-label {
+    display: inline;
+    font-weight: 400;
+}
+
+.grade-value {
+    display: inline;
+    font-weight: 700;
+    color: var(--industrial-orange);
+    padding: 0 0.5rem;
+}
+
+/* Dropdown Label */
+.dropdown-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--industrial-orange);
+}
+
+/* Distraction Parking */
+.distraction-count-display {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.distraction-input-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.distraction-input {
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.875rem;
+}
+
+.checkbox-label {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    margin-right: 0.5rem;
+}
+
+.park-btn {
+    padding: 0.75rem;
+    background: var(--industrial-orange);
+    border: none;
+    color: white;
+    font-weight: 700;
+    border-radius: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.park-btn:hover {
+    opacity: 0.9;
+}
+
+/* CONSULTANT FEEDBACK: Micro-confirmations */
+.micro-confirm {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--success);
+    color: white;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+/* Priority Buckets */
+.priority-buckets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.priority-bucket {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    padding: 1.25rem;
+    min-height: 200px;
+}
+
+.bucket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid;
+}
+
+.bucket-header.admin {
+    border-bottom-color: #64748b;
+}
+
+.bucket-header.deepwork {
+    border-bottom-color: var(--industrial-orange);
+}
+
+.bucket-header.strategic {
+    border-bottom-color: #8b5cf6;
+}
+
+.bucket-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Task Items */
+.task-item {
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    cursor: move;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-item:hover {
+    border-color: var(--accent-primary);
+    background: var(--bg-tertiary); /* PREMIUM: Subtle background change */
+    transform: translateY(-1px); /* PREMIUM: Subtle lift effect */
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+}
+
+.task-text {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.task-sprints {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.empty-state-small {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem 0.5rem;
+}
+
+/* Grade Mini (in System Intelligence card) */
+.card-header-with-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-left h3 {
+    margin: 0;
+}
+
+.grade-letter-mini {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--industrial-orange);
+}
+
+/* Minimized Distraction Card */
+.sidebar-card.minimized {
+    padding: 1rem 1.5rem;
+}
+
+.card-header-clickable {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.card-header-clickable h3 {
+    margin: 0;
+}
+
+.expand-icon {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.sidebar-card.minimized .card-content {
+    margin-top: 1rem;
+}
+
+/* Buckets Grid */
+.buckets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Today's Wins Section */
+.wins-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.wins-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.wins-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #F59E0B; /* INDUSTRIAL: Gold/Amber for "Mission Accomplished" */
+    margin: 0;
+}
+
+.wins-count {
+    background: #F59E0B; /* INDUSTRIAL: Gold/Amber badge */
+    color: #000000; /* Black text for better contrast on gold */
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.wins-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.win-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light); /* INDUSTRIAL: Standard border, not green */
+    border-radius: 2px;
+}
+
+.win-text {
+    font-size: 0.875rem;
+    text-decoration: line-through;
+    text-decoration-color: #F59E0B; /* INDUSTRIAL: Gold strikethrough for completed */
+    text-decoration-thickness: 2px;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.win-sprints {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #F59E0B; /* INDUSTRIAL: Gold for sprint count */
+    margin-left: 1rem;
+}
+
+.bucket {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    padding: 1.25rem;
+    min-height: 200px;
+}
+
+/* INDUSTRIAL: Ghost state for empty buckets */
+.bucket:empty::after,
+.bucket-list:empty::after {
+    content: '[ AWAITING_INPUT ]';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.3;
+    text-align: center;
+    padding: 2rem 0;
+    letter-spacing: 0.1em;
+}
+
+.bucket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.bucket-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.bucket-count {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Task Items */
+.task-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    cursor: move;
+    transition: border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.task-item:hover {
+    border-color: var(--industrial-orange);
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+}
+
+.task-list.drag-over {
+    background: var(--bg-tertiary);
+    border-color: var(--industrial-orange);
+}
+
+/* Task Checkbox for Completion */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 0.75rem;
+    accent-color: #2ecc71;
+    flex-shrink: 0;
+}
+
+/* Priority Indicators - Colored Circles (Clickable) */
+.priority-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.priority-indicator:hover {
+    transform: scale(1.3);
+}
+
+.priority-low {
+    background: #10b981; /* Green - Low priority */
+}
+
+.priority-medium {
+    background: #f59e0b; /* Yellow - Medium priority */
+}
+
+.priority-high {
+    background: #ef4444; /* Red - High priority */
+}
+
+.task-text {
+    font-size: 0.875rem;
+    word-wrap: break-word;
+    flex: 1;
+}
+
+.task-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Task Controls - Everything on One Line */
+.task-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: auto; /* Allow button clicks */
+}
+
+.task-controls button {
+    pointer-events: auto; /* Buttons clickable */
+}
+
+.task-text {
+    cursor: move; /* Visual indicator for dragging */
+}
+
+/* Sprint Controls - Inline with task */
+.sprint-up,
+.sprint-down {
+    display: none; /* Hidden by default */
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.task-item:hover .sprint-up,
+.task-item:hover .sprint-down {
+    display: inline-flex; /* Show on hover */
+    align-items: center;
+    justify-content: center;
+}
+
+.sprint-up:hover,
+.sprint-down:hover {
+    color: var(--industrial-orange);
+}
+
+.sprint-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--industrial-orange);
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+.task-delete {
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent; /* INDUSTRIAL: Muted default */
+    border: 1px solid var(--border-subtle); /* INDUSTRIAL: Subtle grey border */
+    color: var(--text-muted); /* INDUSTRIAL: Grey text */
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5; /* INDUSTRIAL: Recede into background */
+    transition: all 0.2s ease;
+}
+
+.task-delete:hover {
+    background: var(--danger); /* INDUSTRIAL: Only red on hover */
+    color: white;
+    border-color: var(--danger);
+    opacity: 1; /* INDUSTRIAL: Full visibility on hover */
+}
+
+.empty-state-small {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 0.5rem;
+    
+}
+
+/* Collapsible Sections */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.collapsible-header h3 {
+    margin: 0;
+}
+
+.collapsible-header:hover {
+    color: var(--industrial-orange);
+}
+
+.collapse-icon {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.collapsible-content {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+}
+
+/* Grade Mini Indicator */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ============================================================================
+   PREMIUM ENHANCEMENTS - Phase 3, 5 & 6
+   ============================================================================ */
+
+/* Phase 3: Priority Pulse Animation */
+@keyframes priority-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.priority-indicator.changing {
+    animation: priority-pulse 0.3s ease;
+}
+
+/* Phase 5: Typography Refinements */
+h1, h2, h3 {
+    letter-spacing: -0.025em; /* PREMIUM: Tighter tracking */
+    font-weight: 600; /* PREMIUM: More refined than 700 */
+}
+
+body {
+    font-size: 15px; /* PREMIUM: More readable than 14px */
+    letter-spacing: -0.011em; /* PREMIUM: Subtle negative tracking */
+}
+
+.input-label {
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 500; /* PREMIUM: More refined than 600 */
+    letter-spacing: 0.1em; /* PREMIUM: Wide tracking for labels */
+}
+
+.ai-message-large {
+    font-size: 0.9375rem; /* PREMIUM: Slightly smaller for refinement */
+    line-height: 1.7; /* PREMIUM: More airy */
+}
+
+/* Phase 6: Enhanced Button States */
+.parse-btn:hover,
+.btn-start-sprint:hover {
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.15); /* PREMIUM: Consistent glow */
+}
+
+.parse-btn:active,
+.btn-start-sprint:active {
+    transform: scale(0.98); /* PREMIUM: Press feedback */
+}
+
+.parse-btn:focus-visible,
+.btn-start-sprint:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
