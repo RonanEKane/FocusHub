@@ -136,21 +136,25 @@
 
         <!-- Right Column: Sidebar -->
         <aside class="sidebar">
-            <!-- System Intelligence with Grade -->
-            <div class="sidebar-card system-intelligence">
+            <!-- System Intelligence - SECOND MOST IMPORTANT -->
+            <div class="sidebar-card system-intelligence-primary">
                 <div class="card-header-with-control">
                     <h3>🤖 SYSTEM INTELLIGENCE</h3>
                     <div class="header-controls">
-                        <span class="grade-mini" id="gradeMini">-</span>
+                        <label for="agentMode" class="dropdown-label">Coach Style:</label>
                         <select id="agentMode" class="agent-mode-dropdown">
                             <option value="supportive">Supportive</option>
                             <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough</option>
+                            <option value="tough">Tough Love</option>
                         </select>
                     </div>
                 </div>
                 <div class="ai-message-large" id="aiMessage">
                     Ready to execute. Let's go.
+                </div>
+                <div class="grade-display">
+                    <span class="grade-label">CURRENT GRADE</span>
+                    <span class="grade-value" id="gradeMini">-</span>
                 </div>
             </div>
 
@@ -426,13 +430,35 @@
                         <div class="task-item" draggable="true" data-task-id="${task.id}" data-bucket="${bucket}">
                             <div class="task-text">${task.text}</div>
                             <div class="task-controls">
-                                <button class="sprint-up" onclick="event.stopPropagation(); adjustSprints('${task.id}', 1)">▲</button>
+                                <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
                                 <span class="sprint-value">${task.sprints || 1}</span>
-                                <button class="sprint-down" onclick="event.stopPropagation(); adjustSprints('${task.id}', -1)">▼</button>
-                                <button class="task-delete" onclick="event.stopPropagation(); deleteTask('${task.id}', '${bucket}')">×</button>
+                                <button class="sprint-down" data-task-id="${task.id}" data-action="decrement">▼</button>
+                                <button class="task-delete" data-task-id="${task.id}" data-bucket="${bucket}">×</button>
                             </div>
                         </div>
                     `).join('');
+                    
+                    // Add event listeners to buttons
+                    container.querySelectorAll('.sprint-up').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            adjustSprints(btn.dataset.taskId, 1);
+                        });
+                    });
+                    
+                    container.querySelectorAll('.sprint-down').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            adjustSprints(btn.dataset.taskId, -1);
+                        });
+                    });
+                    
+                    container.querySelectorAll('.task-delete').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteTask(btn.dataset.taskId, btn.dataset.bucket);
+                        });
+                    });
                     
                     container.querySelectorAll('.task-item').forEach(setupDragAndDrop);
                 }
