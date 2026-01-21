@@ -71,6 +71,23 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: padding 0.2s, box-shadow 0.2s;
+}
+
+/* Compact header when scrolled */
+.app-header.scrolled {
+    padding: 0.5rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
 }
 
 .logo-section {
@@ -506,6 +523,71 @@ body {
 
 .card-header-with-control h3 {
     margin: 0;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+}
+
+/* Settings Panel */
+.settings-panel {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.setting-group {
+    margin-bottom: 1rem;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.setting-select {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.setting-select:focus {
+    outline: 2px solid var(--industrial-orange);
+    outline-offset: 2px;
+}
+
+.setting-help {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    font-style: italic;
 }
 
 .agent-mode-dropdown {

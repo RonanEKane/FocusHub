@@ -16,6 +16,9 @@
                 <span style="position: absolute; top: -6px; right: -38px; background: #fb923c; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
             </div>
         </div>
+        <div class="header-timer" id="headerTimerSection" style="display: none;">
+            <span id="stickyTimer" style="font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 700; color: var(--industrial-orange);">20:00</span>
+        </div>
         <div class="header-actions">
             <button class="btn" id="dashboardBtn">DASHBOARD</button>
             <button class="btn" id="themeToggle">DARK</button>
@@ -152,17 +155,47 @@
             <div class="sidebar-card system-intelligence-primary">
                 <div class="card-header-with-control">
                     <h3>🤖 SYSTEM INTELLIGENCE</h3>
-                    <div class="header-controls">
-                        <label for="agentMode" class="dropdown-label">Intensity:</label>
-                        <select id="agentMode" class="agent-mode-dropdown">
+                    <button class="btn-icon" id="settingsToggle" title="Settings">⚙️</button>
+                </div>
+                
+                <!-- Settings Panel (collapsible) -->
+                <div class="settings-panel" id="settingsPanel" style="display: none;">
+                    <div class="setting-group">
+                        <label class="setting-label">MEMBERSHIP LEVEL:</label>
+                        <select id="membershipSelect" class="setting-select">
+                            <option value="free">Free Tier</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                        <span class="setting-help">Set your membership level</span>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">REFLECTION TRADITION:</label>
+                        <select id="reflectionTradition" class="setting-select">
+                            <option value="secular">Secular (Default)</option>
+                            <option value="catholic">Catholic</option>
+                            <option value="protestant">Protestant</option>
+                            <option value="stoic">Stoic</option>
+                            <option value="buddhist">Buddhist</option>
+                            <option value="islamic">Islamic</option>
+                            <option value="jewish">Jewish</option>
+                        </select>
+                        <span class="setting-help">Choose your daily reflection source</span>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">AI INTENSITY:</label>
+                        <select id="agentMode" class="setting-select">
                             <option value="supportive">Supportive</option>
                             <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough Love</option>
+                            <option value="tough">Tough Love (Recommended)</option>
                         </select>
+                        <span class="setting-help">Coaching style preference</span>
                     </div>
                 </div>
+                
                 <div class="ai-message-large" id="aiMessage">
-                    Ready to execute. Let's go.
+                    System idle. Start a sprint to begin.
                 </div>
                 <div class="grade-display">
                     <span class="grade-label">CURRENT GRADE:</span>
@@ -317,7 +350,30 @@
             document.addEventListener('click', recordActivity);
             document.addEventListener('keypress', recordActivity);
             
+            // Sticky header with timer on scroll
+            window.addEventListener('scroll', handleHeaderScroll);
+            
             console.log('✅ FocusHub initialized');
+        }
+        
+        // Handle sticky header behavior
+        function handleHeaderScroll() {
+            const header = document.querySelector('.app-header');
+            const timerSection = document.getElementById('headerTimerSection');
+            const scrolled = window.scrollY > 50;
+            
+            if (scrolled) {
+                header.classList.add('scrolled');
+                // Show timer in header if sprint active
+                if (state.timer.active && timerSection) {
+                    timerSection.style.display = 'flex';
+                }
+            } else {
+                header.classList.remove('scrolled');
+                if (timerSection) {
+                    timerSection.style.display = 'none';
+                }
+            }
         }
 
         // ============================================
@@ -416,6 +472,62 @@
                     }
                 }
             });
+            
+            // Settings toggle
+            const settingsToggle = document.getElementById('settingsToggle');
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsToggle && settingsPanel) {
+                settingsToggle.addEventListener('click', function() {
+                    const isVisible = settingsPanel.style.display !== 'none';
+                    settingsPanel.style.display = isVisible ? 'none' : 'block';
+                });
+            }
+            
+            // Load and setup settings
+            setupSettings();
+        }
+        
+        // Settings Management
+        function setupSettings() {
+            // Load membership
+            const membership = localStorage.getItem('focushub_membership');
+            const membershipSelect = document.getElementById('membershipSelect');
+            if (membership && membershipSelect) {
+                try {
+                    const data = JSON.parse(membership);
+                    membershipSelect.value = data.plan || 'free';
+                } catch (e) {
+                    membershipSelect.value = 'free';
+                }
+            }
+            
+            // Load reflection tradition
+            const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
+            const traditionSelect = document.getElementById('reflectionTradition');
+            if (traditionSelect) {
+                traditionSelect.value = tradition;
+            }
+            
+            // Membership change
+            if (membershipSelect) {
+                membershipSelect.addEventListener('change', function() {
+                    const plan = this.value;
+                    localStorage.setItem('focushub_membership', JSON.stringify({
+                        plan: plan,
+                        status: 'active',
+                        startDate: new Date().toISOString()
+                    }));
+                    updateAIMessage(`Membership updated to ${plan.toUpperCase()}. Settings active.`);
+                });
+            }
+            
+            // Reflection tradition change
+            if (traditionSelect) {
+                traditionSelect.addEventListener('change', function() {
+                    localStorage.setItem('focushub_reflection_tradition', this.value);
+                    updateAIMessage(`Reflection tradition set to ${this.value.toUpperCase()}. Takes effect on next day start.`);
+                });
+            }
         }
 
         // ============================================
@@ -715,6 +827,18 @@
                 // Update stats
                 state.sprintCount += task.sprints || 1;
                 
+                // AI COACH: Contextual task completion message
+                const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, b) => 
+                    sum + state.tasks[b].filter(t => !t.completed).length, 0);
+                
+                const message = getContextualAIMessage('taskCompleted', {
+                    priority: task.priority || 'medium',
+                    sprintValue: task.sprints || 1,
+                    tasksLeft: tasksLeft
+                });
+                
+                updateAIMessage(message);
+                
                 saveState();
                 renderAll();
                 showMicroConfirm(`✓ Task completed! +${task.sprints || 1} sprint${task.sprints > 1 ? 's' : ''}`);
@@ -805,7 +929,12 @@
             state.timer.type = 'focus';
             state.sessionState = 'active';
             
-            updateSystemState('Session active. Today\'s requirements are locked.');
+            const totalRequired = calculateTotalRequiredSprints();
+            const message = getContextualAIMessage('sessionStart', { required: totalRequired });
+            
+            updateSystemState(message);
+            updateAIMessage(message);
+            resetInactivityMonitor();
             
             state.timer.interval = setInterval(() => {
                 // Calculate remaining time from end time
@@ -830,13 +959,24 @@
             state.sessionState = 'idle';
             state.timer.remaining = state.timer.duration * 60;
             
-            // AUTHORITY MESSAGE: Check if behind schedule
-            const isBehind = state.sprintCount < 5;
-            if (isBehind) {
-                updateSystemState('Sprint complete. You\'re behind. Start the next sprint.');
-            } else {
-                updateSystemState('Sprint complete. Continue.');
-            }
+            // AI COACH: Contextual performance feedback
+            const totalRequired = calculateTotalRequiredSprints();
+            const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
+                sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
+            
+            const message = getContextualAIMessage('sprintComplete', {
+                sprintsDone: state.sprintCount,
+                required: totalRequired,
+                tasksLeft: tasksLeft
+            });
+            
+            updateAIMessage(message);
+            
+            // Check priority alignment
+            setTimeout(() => checkPriorityAlignment(), 2000);
+            
+            // Start inactivity monitor
+            startInactivityMonitor();
             
             saveState();
             renderAll();
@@ -857,15 +997,19 @@
             const seconds = state.timer.remaining % 60;
             const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            // Update browser tab title with timer
-            document.title = `${timeStr} - FocusHub`;
-            
+            // Update timer display in card
             const valueEl = document.querySelector('.timer-value');
             const statusEl = document.querySelector('.timer-status');
             
             if (valueEl) valueEl.textContent = timeStr;
             if (statusEl) {
                 statusEl.textContent = state.timer.active ? 'In progress' : 'Ready to start';
+            }
+            
+            // Update sticky header timer (if scrolled)
+            const stickyTimer = document.getElementById('stickyTimer');
+            if (stickyTimer) {
+                stickyTimer.textContent = timeStr;
             }
         }
 
@@ -948,7 +1092,147 @@
         }
 
         function updateAIMessage(message) {
-            document.getElementById('aiMessage').textContent = message;
+            const aiMessageEl = document.getElementById('aiMessage');
+            if (!aiMessageEl) return;
+            
+            aiMessageEl.textContent = message;
+            
+            // Auto-fade transient messages after 5 seconds (not session state messages)
+            if (!message.includes('Session active') && !message.includes('System idle')) {
+                clearTimeout(aiMessageEl._fadeTimer);
+                aiMessageEl._fadeTimer = setTimeout(() => {
+                    // Return to appropriate state message
+                    if (state.timer.active) {
+                        aiMessageEl.textContent = 'Session active. Today\'s requirements are locked.';
+                    } else {
+                        aiMessageEl.textContent = 'System idle. Start a sprint to begin.';
+                    }
+                }, 5000);
+            }
+        }
+
+        // AI COACH MESSAGE LIBRARY - CONTEXTUAL TOUGH LOVE
+        // Messages reference specific user behavior and performance
+        
+        function getContextualAIMessage(event, context = {}) {
+            const messages = {
+                sprintComplete: () => {
+                    const { sprintsDone, required, tasksLeft } = context;
+                    const behindBy = required - sprintsDone;
+                    
+                    if (behindBy > 3) {
+                        return `Sprint ${sprintsDone}/${required} complete. You're ${behindBy} sprints behind. This gap won't close itself. Start now.`;
+                    } else if (behindBy > 0) {
+                        return `Sprint ${sprintsDone}/${required} logged. Still ${behindBy} behind target. Pick up the pace.`;
+                    } else if (tasksLeft > 0) {
+                        return `Sprint complete. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} remaining. Maintain momentum.`;
+                    } else {
+                        return `Sprint complete. Requirements met. Reassess if additional work warranted.`;
+                    }
+                },
+                
+                taskCompleted: () => {
+                    const { priority, sprintValue, tasksLeft } = context;
+                    
+                    if (priority === 'low') {
+                        return `Low-priority task closed. Question: Why wasn't this delegated or eliminated? ${tasksLeft} real tasks remain.`;
+                    } else if (priority === 'high' && sprintValue >= 3) {
+                        return `High-value item complete (+${sprintValue} sprints). This is what winning looks like. Next.`;
+                    } else if (priority === 'high') {
+                        return `High-priority complete. Progress acceptable. ${tasksLeft} items still require execution.`;
+                    } else {
+                        return `Task done. ${tasksLeft} remain. Clock's running.`;
+                    }
+                },
+                
+                prolongedInactivity: () => {
+                    const { minutesIdle, sprintsDone, required } = context;
+                    const gap = required - sprintsDone;
+                    
+                    if (gap > 4) {
+                        return `${minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move.`;
+                    } else if (gap > 0) {
+                        return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate.`;
+                    } else {
+                        return `Work stopped. Session still active. Either continue or end day.`;
+                    }
+                },
+                
+                lowPriorityFocus: () => {
+                    const { lowCount, highCount } = context;
+                    return `Alert: ${lowCount} low-priority items active vs ${highCount} high-priority. Misaligned. Strategic work demands attention now.`;
+                },
+                
+                sessionStart: () => {
+                    const { required } = context;
+                    return `Session active. ${required} sprint${required > 1 ? 's' : ''} required today. Timer running. Execute.`;
+                },
+                
+                distractionParked: () => {
+                    const { distractionCount } = context;
+                    if (distractionCount > 5) {
+                        return `Distraction #${distractionCount} parked. Pattern detected. Address root cause or accept compromised output.`;
+                    } else if (distractionCount > 2) {
+                        return `Distraction logged (total: ${distractionCount}). Recurring interruptions signal environment or discipline issues.`;
+                    } else {
+                        return `Distraction parked. Refocus immediate.`;
+                    }
+                },
+                
+                taskAdded: () => {
+                    const { totalTasks, unclassified } = context;
+                    if (unclassified > 0) {
+                        return `Task added. ${unclassified} item${unclassified > 1 ? 's' : ''} in holding require classification. Delayed decisions compound.`;
+                    } else {
+                        return `Item logged. Total active: ${totalTasks}. Prioritize and begin execution.`;
+                    }
+                }
+            };
+            
+            return messages[event] ? messages[event]() : 'System operational.';
+        }
+        
+        // Check if user is focusing on low priority items
+        function checkPriorityAlignment() {
+            let lowPriorityCount = 0;
+            let highPriorityCount = 0;
+            
+            ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    if (!task.completed) {
+                        if (task.priority === 'low') lowPriorityCount++;
+                        if (task.priority === 'high') highPriorityCount++;
+                    }
+                });
+            });
+            
+            // If mostly low priority items in active buckets, alert
+            if (lowPriorityCount > highPriorityCount && highPriorityCount > 0) {
+                updateAIMessage(getAIMessage('lowPriorityFocus'));
+            }
+        }
+        
+        // Monitor inactivity
+        let inactivityTimer = null;
+        function startInactivityMonitor() {
+            clearTimeout(inactivityTimer);
+            
+            // If session active and no sprint running, check for prolonged inactivity
+            if (state.dayActive && !state.timer.active) {
+                inactivityTimer = setTimeout(() => {
+                    updateAIMessage(getAIMessage('prolongedInactivity'));
+                    
+                    // Remind again every 2 minutes
+                    startInactivityMonitor();
+                }, 120000); // 2 minutes
+            }
+        }
+        
+        function resetInactivityMonitor() {
+            clearTimeout(inactivityTimer);
+            if (state.dayActive && !state.timer.active) {
+                startInactivityMonitor();
+            }
         }
 
         function showMicroConfirm(message) {
@@ -967,6 +1251,13 @@
             state.distractionCount++;
             input.value = '';
             document.getElementById('handleLaterCheck').checked = false;
+            
+            // AI COACH: Contextual distraction message
+            const message = getContextualAIMessage('distractionParked', {
+                distractionCount: state.distractionCount
+            });
+            updateAIMessage(message);
+            
             saveState();
             renderAll();
             showMicroConfirm('Distraction parked');
