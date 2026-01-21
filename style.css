@@ -107,7 +107,7 @@ body {
     margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
 }
 
@@ -115,19 +115,19 @@ body {
 .sprint-timer-section.dominant {
     background: var(--bg-secondary);
     border: 2px solid var(--border-light);
-    border-radius: 8px;
-    padding: 2.5rem; /* More breathing room */
+    border-radius: 12px;
+    padding: 2.5rem;
     margin-bottom: 2rem;
-    /* Subtle elevation */
-    box-shadow: 0 2px 8px rgba(244, 91, 7, 0.1);
+    box-shadow: 0 4px 16px rgba(244, 91, 7, 0.12);
 }
 
 /* Regular sections have reduced visual weight */
 .task-section {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-subtle); /* Reduced from 2px */
-    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
     padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .section-header {
@@ -256,15 +256,18 @@ body {
     color: white;
     font-size: 1.125rem;
     font-weight: 700;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: opacity 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(244, 91, 7, 0.3);
 }
 
 .btn-start-sprint:hover {
     opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(244, 91, 7, 0.4);
 }
 
 /* Task Section */
@@ -305,22 +308,27 @@ body {
     color: white;
     font-size: 1rem;
     font-weight: 700;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(244, 91, 7, 0.25);
 }
 
 .parse-btn:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 91, 7, 0.35);
 }
 
 .holding-area {
-    padding: 1rem;
+    padding: 1.25rem;
     background: var(--bg-primary);
-    border: 1px solid var(--border-subtle); /* Reduced weight */
-    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .holding-header {
@@ -374,9 +382,15 @@ body {
 
 .sidebar-card {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-subtle); /* Reduced weight */
-    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
     padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.2s ease;
+}
+
+.sidebar-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .sidebar-card h3 {
@@ -519,9 +533,10 @@ body {
 .priority-bucket {
     background: var(--bg-primary);
     border: 1px solid var(--border-subtle);
-    border-radius: 4px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 1.25rem;
     min-height: 200px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .bucket-header {
@@ -668,9 +683,10 @@ body {
 .bucket {
     background: var(--bg-primary);
     border: 1px solid var(--border-subtle);
-    border-radius: 4px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 1.25rem;
     min-height: 200px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .bucket-header {
@@ -699,15 +715,18 @@ body {
 .task-item {
     background: var(--bg-secondary);
     border: 1px solid var(--border-light);
-    border-radius: 4px;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
     cursor: move;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .task-item:hover {
     border-color: var(--industrial-orange);
+    box-shadow: 0 4px 12px rgba(244, 91, 7, 0.1);
+    transform: translateY(-1px);
 }
 
 .task-item.dragging {
@@ -731,32 +750,46 @@ body {
     gap: 0.5rem;
 }
 
-.task-sprint-btn {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    display: flex;
+/* Sprint Adjuster - Triangle Controls (Hover-Only) */
+.sprint-adjuster {
+    display: none; /* Hidden by default */
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 2px;
+    margin-right: 8px;
 }
 
-.task-sprint-btn:hover {
-    border-color: var(--industrial-orange);
+.task-item:hover .sprint-adjuster {
+    display: flex; /* Show on hover */
 }
 
-.task-sprints {
+.sprint-up,
+.sprint-down {
+    width: 20px;
+    height: 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.sprint-up:hover,
+.sprint-down:hover {
+    color: var(--industrial-orange);
+}
+
+.sprint-value {
     font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-    font-size: 0.875rem;
+    font-size: 14px;
     font-weight: 600;
     color: var(--industrial-orange);
     min-width: 20px;
     text-align: center;
+    line-height: 1;
 }
 
 .task-delete {
