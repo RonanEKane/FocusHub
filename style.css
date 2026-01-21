@@ -437,6 +437,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    min-height: 200px; /* PREMIUM DROP: Larger drop target */
+    padding: 0.75rem; /* PREMIUM DROP: Padding makes entire area droppable */
+    border-radius: 2px;
+    transition: background-color 0.2s;
 }
 
 .task-item {
@@ -928,8 +932,8 @@ body {
 }
 
 .task-list.drag-over {
-    background: var(--bg-tertiary);
-    border-color: var(--industrial-orange);
+    background: rgba(251, 146, 60, 0.1); /* PREMIUM DROP: Orange glow background */
+    border: 2px dashed var(--industrial-orange); /* PREMIUM DROP: Obvious visual indicator */
 }
 
 /* Task Checkbox for Completion */
@@ -999,12 +1003,22 @@ body {
     cursor: move; /* Visual indicator for dragging */
 }
 
-/* Sprint Controls - Inline with task */
+/* Sprint Controls - Vertical Stack */
+.sprint-controls {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.task-item:hover .sprint-controls {
+    display: flex; /* Show on hover */
+}
+
 .sprint-up,
 .sprint-down {
-    display: none; /* Hidden by default */
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 16px;
     padding: 0;
     background: transparent;
     border: none;
@@ -1013,11 +1027,7 @@ body {
     line-height: 1;
     cursor: pointer;
     transition: color 0.15s ease;
-}
-
-.task-item:hover .sprint-up,
-.task-item:hover .sprint-down {
-    display: inline-flex; /* Show on hover */
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -1029,11 +1039,13 @@ body {
 
 .sprint-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--industrial-orange);
-    min-width: 20px;
+    min-width: 24px;
     text-align: center;
+    padding: 2px 0;
+}
     line-height: 1;
 }
 

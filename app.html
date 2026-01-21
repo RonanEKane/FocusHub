@@ -531,9 +531,11 @@
                             <div class="task-text">${task.text}</div>
                             <div class="task-controls">
                                 ${bucket !== 'holding' ? `
+                                <div class="sprint-controls">
                                     <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
                                     <span class="sprint-value">${task.sprints || 1}</span>
                                     <button class="sprint-down" data-task-id="${task.id}" data-action="decrement">▼</button>
+                                </div>
                                 ` : ''}
                                 <button class="task-delete" data-task-id="${task.id}" data-bucket="${bucket}">×</button>
                             </div>
@@ -865,7 +867,11 @@
         // UI UPDATES
         // ============================================
         function renderAll() {
+            // Calculate total required sprints from all tasks
+            const totalRequiredSprints = calculateTotalRequiredSprints();
+            
             document.getElementById('sprintsDone').textContent = state.sprintCount;
+            document.getElementById('sprintTarget').textContent = totalRequiredSprints;
             document.getElementById('winsCount').textContent = state.tasks.wins.length;
             document.getElementById('breaksCount').textContent = state.breaksCount;
             document.getElementById('distractionsCount').textContent = state.distractionCount;
@@ -873,7 +879,24 @@
             
             renderTasks();
             renderWins();
-            updateGrade();
+            updateGrade(totalRequiredSprints);
+        }
+        
+        // Calculate total required sprints from all non-completed tasks
+        function calculateTotalRequiredSprints() {
+            let total = 0;
+            
+            // Count sprints from active buckets (not holding, not completed)
+            ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    if (!task.completed) {
+                        total += (task.sprints || 1);
+                    }
+                });
+            });
+            
+            // Default minimum of 5 sprints if no tasks
+            return Math.max(5, total);
         }
 
         function renderWins() {
@@ -899,9 +922,9 @@
             }
         }
 
-        function updateGrade() {
+        function updateGrade(targetSprints) {
             const totalSprints = state.sprintCount;
-            const target = 5;
+            const target = targetSprints || 5; // Use calculated target or default 5
             let grade = '-';
             
             if (totalSprints >= target) grade = 'A';
@@ -910,7 +933,8 @@
             else if (totalSprints > 0) grade = 'D';
             
             state.currentGrade = grade;
-            document.getElementById('gradeMini').textContent = grade;
+            const gradeMiniEl = document.getElementById('gradeMini');
+            if (gradeMiniEl) gradeMiniEl.textContent = grade;
         }
 
         function updateSystemState(message) {
