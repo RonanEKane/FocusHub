@@ -13,13 +13,13 @@
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
                 <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 32px; width: auto;">
-                <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
+                <span style="position: absolute; top: -6px; right: -38px; background: #fb923c; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
             </div>
             <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
         </div>
         <div class="header-actions">
-            <button class="btn" id="dashboardBtn">📊 Dashboard</button>
-            <button class="btn" id="themeToggle">🌙 Dark</button>
+            <button class="btn" id="dashboardBtn">DASHBOARD</button>
+            <button class="btn" id="themeToggle">DARK</button>
             <button class="btn" id="logoutBtn">Logout</button>
             <button class="btn btn-danger" id="endDayBtn">END DAY</button>
         </div>
@@ -37,21 +37,17 @@
             <!-- Sprint Timer Section - DOMINANT -->
             <section class="sprint-timer-section dominant">
                 <div class="section-header">
-                    <h2>⏱️ SPRINT TIMER</h2>
-                </div>
-                
-                <div class="energy-row">
-                    <div class="energy-select">
-                        <label>Energy:</label>
-                        <select id="energyLevel">
-                            <option value="low">⚡ Kinda "Meh" (15 min)</option>
-                            <option value="medium" selected>⚡⚡ Solid (20 min)</option>
-                            <option value="high">⚡⚡⚡ Locked In (30 min)</option>
+                    <h2>SPRINT TIMER</h2>
+                    <div class="energy-controls-corner">
+                        <select id="energyLevel" class="energy-select-compact">
+                            <option value="low">LOW (15m)</option>
+                            <option value="medium" selected>MED (20m)</option>
+                            <option value="high">HIGH (30m)</option>
                         </select>
+                        <label class="meeting-toggle-compact">
+                            <input type="checkbox" id="meetingToggle"> MTG
+                        </label>
                     </div>
-                    <label class="meeting-toggle">
-                        <input type="checkbox" id="meetingToggle"> Meeting
-                    </label>
                 </div>
 
                 <div class="timer-buttons">
@@ -73,7 +69,7 @@
             <!-- Task Command Center -->
             <section class="task-section">
                 <div class="section-header">
-                    <h2>⚡ TASK COMMAND CENTER</h2>
+                    <h2>TASK COMMAND CENTER</h2>
                     <div class="header-right">
                         <div class="priority-legend">
                             <span class="legend-item"><span class="priority-dot priority-high"></span> High</span>
@@ -95,7 +91,7 @@
                 <!-- Holding Area -->
                 <div class="holding-area">
                     <div class="holding-header">
-                        <h3>📦 Holding Area</h3>
+                        <h3>HOLDING AREA</h3>
                         <span class="task-count" id="holdingCount">0</span>
                     </div>
                     <div id="holdingTasks" class="task-list" data-bucket="holding">
@@ -142,7 +138,7 @@
                 <!-- TODAY'S WINS - Shows completed tasks -->
                 <div class="wins-section hidden" id="winsSection">
                     <div class="wins-header">
-                        <h3>🏆 TODAY'S WINS</h3>
+                        <h3>TODAY'S WINS</h3>
                         <span class="wins-count" id="winsDisplayCount">0</span>
                     </div>
                     <div id="winsList" class="wins-list">
@@ -163,7 +159,7 @@
                         <select id="agentMode" class="agent-mode-dropdown">
                             <option value="supportive">Supportive</option>
                             <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough Love</option>
+                            <option value="tough">Tough</option>
                         </select>
                     </div>
                 </div>
@@ -820,10 +816,10 @@
             const logo = document.getElementById('appLogo');
             if (newTheme === 'dark') {
                 logo.src = 'FocusHub_horiinv.svg';
-                document.getElementById('themeToggle').textContent = '🌙 Dark';
+                document.getElementById('themeToggle').textContent = 'DARK';
             } else {
                 logo.src = 'FocusHub_horinorm.svg';
-                document.getElementById('themeToggle').textContent = '☀️ Light';
+                document.getElementById('themeToggle').textContent = 'LIGHT';
             }
             
             localStorage.setItem('focushub_theme', newTheme);
