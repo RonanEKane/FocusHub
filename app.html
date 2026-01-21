@@ -426,12 +426,10 @@
                         <div class="task-item" draggable="true" data-task-id="${task.id}" data-bucket="${bucket}">
                             <div class="task-text">${task.text}</div>
                             <div class="task-controls">
-                                <div class="sprint-adjuster">
-                                    <button class="sprint-up" onclick="adjustSprints('${task.id}', 1)">▲</button>
-                                    <span class="sprint-value">${task.sprints || 1}</span>
-                                    <button class="sprint-down" onclick="adjustSprints('${task.id}', -1)">▼</button>
-                                </div>
-                                <button class="task-delete" onclick="deleteTask('${task.id}', '${bucket}')">×</button>
+                                <button class="sprint-up" onclick="event.stopPropagation(); adjustSprints('${task.id}', 1)">▲</button>
+                                <span class="sprint-value">${task.sprints || 1}</span>
+                                <button class="sprint-down" onclick="event.stopPropagation(); adjustSprints('${task.id}', -1)">▼</button>
+                                <button class="task-delete" onclick="event.stopPropagation(); deleteTask('${task.id}', '${bucket}')">×</button>
                             </div>
                         </div>
                     `).join('');

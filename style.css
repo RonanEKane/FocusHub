@@ -107,8 +107,14 @@ body {
     margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(500px, 1.2fr) minmax(400px, 0.8fr);
     gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* CONSULTANT FEEDBACK: Visual Hierarchy - Dominant Sprint Timer */
@@ -716,11 +722,15 @@ body {
     background: var(--bg-secondary);
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     margin-bottom: 0.75rem;
     cursor: move;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .task-item:hover {
@@ -740,8 +750,8 @@ body {
 
 .task-text {
     font-size: 0.875rem;
-    margin-bottom: 0.5rem;
     word-wrap: break-word;
+    flex: 1;
 }
 
 .task-controls {
@@ -750,23 +760,19 @@ body {
     gap: 0.5rem;
 }
 
-/* Sprint Adjuster - Triangle Controls (Hover-Only) */
-.sprint-adjuster {
-    display: none; /* Hidden by default */
-    flex-direction: column;
+/* Task Controls - Everything on One Line */
+.task-controls {
+    display: flex;
     align-items: center;
-    gap: 2px;
-    margin-right: 8px;
+    gap: 0.5rem;
 }
 
-.task-item:hover .sprint-adjuster {
-    display: flex; /* Show on hover */
-}
-
+/* Sprint Controls - Inline with task */
 .sprint-up,
 .sprint-down {
+    display: none; /* Hidden by default */
     width: 20px;
-    height: 16px;
+    height: 20px;
     padding: 0;
     background: transparent;
     border: none;
@@ -775,6 +781,13 @@ body {
     line-height: 1;
     cursor: pointer;
     transition: color 0.15s ease;
+}
+
+.task-item:hover .sprint-up,
+.task-item:hover .sprint-down {
+    display: inline-flex; /* Show on hover */
+    align-items: center;
+    justify-content: center;
 }
 
 .sprint-up:hover,
