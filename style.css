@@ -186,12 +186,16 @@ body {
     color: var(--text-primary);
     border-radius: 2px;
     font-size: 0.875rem;
+    height: 40px; /* Match checkbox row height */
 }
 
 .meeting-toggle {
     font-size: 0.875rem;
     color: var(--text-primary);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 40px; /* Match select height */
 }
 
 .meeting-toggle input {
@@ -264,22 +268,22 @@ body {
 .btn-start-sprint {
     width: 100%;
     padding: 1.25rem;
-    background: var(--industrial-orange);
-    border: none;
-    color: white;
-    font-size: 1.125rem;
-    font-weight: 700;
+    background: transparent;
+    border: 1px solid var(--industrial-orange);
+    color: var(--industrial-orange);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
     border-radius: 2px;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
     transition: all 0.2s ease;
-    /* INDUSTRIAL: Depth via borders, not shadows */
 }
 
 .btn-start-sprint:hover {
-    opacity: 0.9;
-    /* INDUSTRIAL: Depth via borders, not shadows */
+    background: var(--industrial-orange);
+    color: white;
 }
 
 /* Task Section */
@@ -302,11 +306,11 @@ body {
     width: 100%;
     min-height: 100px;
     padding: 1rem;
-    background: var(--bg-primary);
+    background: #1a1a1a; /* Dark grey */
     border: 1px solid var(--border-light);
     color: var(--text-primary);
     border-radius: 2px;
-    font-family: inherit;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.875rem;
     resize: vertical;
     margin-bottom: 1rem;
@@ -315,23 +319,23 @@ body {
 .parse-btn {
     width: 100%;
     padding: 1rem;
-    background: var(--industrial-orange);
-    border: none;
-    color: white;
-    font-size: 1rem;
-    font-weight: 700;
+    background: transparent;
+    border: 1px solid var(--industrial-orange);
+    color: var(--industrial-orange);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
     border-radius: 2px;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
     margin-bottom: 1.5rem;
     transition: all 0.2s ease;
-    /* INDUSTRIAL: Depth via borders, not shadows */
 }
 
 .parse-btn:hover {
-    opacity: 0.9;
-    /* INDUSTRIAL: Depth via borders, not shadows */
+    background: var(--industrial-orange);
+    color: white;
 }
 
 .holding-area {
@@ -413,11 +417,10 @@ body {
     margin-bottom: 1rem;
 }
 
-/* System Intelligence - SECOND MOST IMPORTANT CARD */
+/* System Intelligence - Hardware Terminal Style */
 .system-intelligence-primary {
-    border: 2px solid var(--industrial-orange) !important;
-    /* INDUSTRIAL: Depth via borders, not shadows */
-    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-secondary);
 }
 
 .system-intelligence-primary h3 {
@@ -447,50 +450,46 @@ body {
 
 .ai-message-large {
     padding: 1.5rem;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(244, 91, 7, 0.05) 100%);
-    border: 2px solid var(--industrial-orange);
+    background: #000000; /* Terminal black */
+    border: 1px solid #333; /* Inset border feel */
     border-radius: 2px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 400;
     line-height: 1.6;
     min-height: 100px;
     margin-bottom: 1rem;
-    box-shadow: inset 0 1px 3px rgba(244, 91, 7, 0.1);
-    color: var(--text-primary);
+    color: var(--industrial-orange); /* Terminal orange text */
 }
 
-/* Grade Display - Below AI Message */
+.ai-message-large::before {
+    content: "> ";
+    color: var(--industrial-orange);
+    font-weight: 700;
+}
+
+/* Grade Display - Simple Status Footer */
 .grade-display {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background: var(--bg-primary);
-    border: 2px solid var(--industrial-orange);
-    border-radius: 2px;
+    padding: 0.75rem 0 0 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 1rem;
 }
 
 .grade-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
+    display: inline;
+    font-weight: 400;
 }
 
 .grade-value {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    border: 3px solid var(--industrial-orange);
-    border-radius: 2px;
-    font-size: 1.5rem;
+    display: inline;
     font-weight: 700;
     color: var(--industrial-orange);
+    padding: 0 0.5rem;
 }
 
 /* Dropdown Label */
