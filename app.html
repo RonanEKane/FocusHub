@@ -12,23 +12,17 @@
     <header class="app-header">
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
-                <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 32px; width: auto;">
-                <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
+                <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 42px; width: auto;">
+                <span style="position: absolute; top: -6px; right: -38px; background: #fb923c; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
             </div>
-            <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
         </div>
         <div class="header-actions">
-            <button class="btn" id="dashboardBtn">📊 Dashboard</button>
-            <button class="btn" id="themeToggle">🌙 Dark</button>
+            <button class="btn" id="dashboardBtn">DASHBOARD</button>
+            <button class="btn" id="themeToggle">DARK</button>
             <button class="btn" id="logoutBtn">Logout</button>
             <button class="btn btn-danger" id="endDayBtn">END DAY</button>
         </div>
     </header>
-
-    <!-- System State Indicator -->
-    <div class="system-state-bar">
-        <span id="systemState">System idle. Start a sprint to begin.</span>
-    </div>
 
     <!-- Main Container -->
     <div class="app-container">
@@ -509,6 +503,16 @@
                 const tasks = state.tasks[bucket] || []; // SAFETY CHECK
                 
                 if (!container) return; // SAFETY CHECK
+                
+                // COLLAPSE holding area when empty
+                if (bucket === 'holding') {
+                    const holdingArea = document.querySelector('.holding-area');
+                    if (tasks.length === 0) {
+                        holdingArea.classList.add('collapsed');
+                    } else {
+                        holdingArea.classList.remove('collapsed');
+                    }
+                }
                 
                 if (tasks.length === 0) {
                     container.innerHTML = bucket === 'holding' 
