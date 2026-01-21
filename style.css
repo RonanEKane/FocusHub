@@ -321,7 +321,7 @@ body {
 .timer-btn.active {
     background: var(--industrial-orange);
     border-color: var(--industrial-orange);
-    color: white;
+    color: #000000; /* LIGHT MODE FIX: Black text on orange (works in both themes) */
 }
 
 .timer-btn-break {
@@ -536,6 +536,12 @@ body {
     background: #0a0a0c; /* AUTHORITY: Darker than other cards (vs --bg-secondary #18181b) */
 }
 
+/* LIGHT MODE: System Intelligence card - slightly darker than other cards */
+[data-theme="light"] .system-intelligence-primary {
+    background: #f8f8f8; /* Slightly darker than white cards */
+    border: 2px solid #d0d0d0; /* Darker border for authority */
+}
+
 .system-intelligence-primary h3 {
     color: var(--industrial-orange);
     font-size: 1.125rem;
@@ -574,6 +580,18 @@ body {
     margin-bottom: 1rem;
     color: var(--industrial-orange); /* Terminal orange text */
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); /* PREMIUM: Inner highlight for depth */
+}
+
+/* LIGHT MODE: Invert terminal to white with dark text */
+[data-theme="light"] .ai-message-large {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #1a1a1a;
+    box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .ai-message-large::before {
+    color: var(--industrial-orange);
 }
 
 .ai-message-large::before {
@@ -1144,10 +1162,11 @@ body {
 
 .collapsible-header h3 {
     margin: 0;
+    transition: color 0.2s; /* Smooth color transition */
 }
 
-.collapsible-header:hover {
-    color: var(--industrial-orange);
+.collapsible-header:hover h3 {
+    color: var(--industrial-orange); /* LIGHT MODE FIX: Only change h3, not entire header */
 }
 
 .collapse-icon {
