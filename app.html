@@ -531,29 +531,46 @@
         }
 
         function setupDropZones() {
-            document.querySelectorAll('.task-list').forEach(dropZone => {
-                dropZone.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    this.classList.add('drag-over');
-                });
-
-                dropZone.addEventListener('dragleave', function() {
-                    this.classList.remove('drag-over');
-                });
-
-                dropZone.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('drag-over');
-                    
-                    const taskId = e.dataTransfer.getData('text/plain');
-                    const sourceBucket = e.dataTransfer.getData('sourceBucket');
-                    const targetBucket = this.dataset.bucket;
-                    
-                    if (sourceBucket === targetBucket) return;
-                    
-                    moveTask(taskId, sourceBucket, targetBucket);
-                });
+            // Use event delegation on task-section (never gets replaced)
+            const taskSection = document.querySelector('.task-section');
+            if (!taskSection) return;
+            
+            // Dragover handler (delegated)
+            taskSection.addEventListener('dragover', function(e) {
+                const dropZone = e.target.closest('.task-list');
+                if (!dropZone) return;
+                
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                dropZone.classList.add('drag-over');
+            });
+            
+            // Dragleave handler (delegated)
+            taskSection.addEventListener('dragleave', function(e) {
+                const dropZone = e.target.closest('.task-list');
+                if (!dropZone) return;
+                
+                // Only remove if actually leaving the drop zone
+                if (!dropZone.contains(e.relatedTarget)) {
+                    dropZone.classList.remove('drag-over');
+                }
+            });
+            
+            // Drop handler (delegated)
+            taskSection.addEventListener('drop', function(e) {
+                const dropZone = e.target.closest('.task-list');
+                if (!dropZone) return;
+                
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                const taskId = e.dataTransfer.getData('text/plain');
+                const sourceBucket = e.dataTransfer.getData('sourceBucket');
+                const targetBucket = dropZone.dataset.bucket;
+                
+                if (sourceBucket === targetBucket) return;
+                
+                moveTask(taskId, sourceBucket, targetBucket);
             });
         }
 
