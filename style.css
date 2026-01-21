@@ -83,33 +83,36 @@ body {
 .app-header {
     background: var(--bg-secondary);
     border-bottom: 2px solid var(--border-light);
-    padding: 0.75rem 2rem; /* TIGHTER: Reduced from 1rem */
+    padding: 0.75rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 2rem; /* Add gap between logo section and buttons */
 }
 
 .logo-section {
     display: flex;
-    flex-direction: row; /* TIGHTER: Horizontal layout */
+    flex-direction: row;
     align-items: center;
-    gap: 1rem; /* TIGHTER: Logo and tagline closer */
+    gap: 1rem;
     min-width: 0; /* Allow flex shrinking */
-    flex: 1; /* Take available space */
+    flex: 1; /* Take available space but allow shrinking */
+    max-width: 60%; /* Don't let logo section take too much space */
 }
 
 .tagline {
-    font-size: 0.6875rem; /* TIGHTER: Slightly smaller */
+    font-size: 0.6875rem;
     color: var(--text-secondary);
     margin-left: 0;
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Hide overflow if too long */
-    text-overflow: ellipsis; /* Show ... if truncated */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-actions {
     display: flex;
     gap: 0.75rem;
+    flex-shrink: 0; /* Buttons don't shrink */
 }
 
 .btn {

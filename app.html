@@ -300,6 +300,9 @@
             // Sync theme UI (button text and logo) with current theme
             syncThemeUI();
             
+            // CRITICAL: Set up header buttons FIRST (must work even during start-day modal)
+            setupHeaderButtons();
+            
             // Check if day expired (auto-end)
             const dayExpired = checkDayExpiration();
             if (dayExpired) return; // Already redirected
@@ -308,7 +311,7 @@
             if (!state.dayActive) {
                 console.log('📅 Day not started - showing start modal');
                 showStartDayModal();
-                return; // Don't load app yet
+                return; // Don't load app yet (but header buttons work)
             }
             
             // Day is active - continue normal app load
@@ -384,7 +387,46 @@
         }
 
         // ============================================
-        // EVENT LISTENERS
+        // EVENT LISTENERS - HEADER (ALWAYS ACTIVE)
+        // ============================================
+        function setupHeaderButtons() {
+            // Theme toggle - must work everywhere
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Dashboard - must work everywhere
+            document.getElementById('dashboardBtn').addEventListener('click', function() {
+                window.location.href = 'overview.html';
+            });
+            
+            // End day - must work everywhere
+            document.getElementById('endDayBtn').addEventListener('click', endDay);
+            
+            // Logout - must work everywhere
+            document.getElementById('logoutBtn').addEventListener('click', async function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    try {
+                        if (typeof handleSignout !== 'undefined') {
+                            const result = await handleSignout();
+                            if (result.success) {
+                                localStorage.clear();
+                                window.location.href = '/';
+                            }
+                        } else {
+                            // Fallback if Supabase not configured
+                            localStorage.clear();
+                            window.location.href = '/';
+                        }
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        localStorage.clear();
+                        window.location.href = '/';
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // EVENT LISTENERS - APP CONTENT
         // ============================================
         function setupEventListeners() {
             // Collapsible
@@ -448,40 +490,6 @@
 
             // Park distraction
             document.getElementById('parkBtn').addEventListener('click', parkDistraction);
-
-            // Logout - use Supabase if available
-            document.getElementById('logoutBtn').addEventListener('click', async function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    try {
-                        if (typeof handleSignout !== 'undefined') {
-                            const result = await handleSignout();
-                            if (result.success) {
-                                localStorage.clear();
-                                window.location.href = '/';
-                            }
-                        } else {
-                            // Fallback if Supabase not configured
-                            localStorage.clear();
-                            window.location.href = '/';
-                        }
-                    } catch (error) {
-                        console.error('Logout error:', error);
-                        localStorage.clear();
-                        window.location.href = '/';
-                    }
-                }
-            });
-
-            // End day
-            document.getElementById('endDayBtn').addEventListener('click', endDay);
-
-            // Dashboard
-            document.getElementById('dashboardBtn').addEventListener('click', function() {
-                window.location.href = '/overview.html';
-            });
-
-            // Theme toggle
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         }
 
         // ============================================
