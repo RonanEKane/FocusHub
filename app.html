@@ -13,13 +13,13 @@
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
                 <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 32px; width: auto;">
-                <span style="position: absolute; top: -6px; right: -38px; background: #fb923c; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
+                <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
             </div>
             <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
         </div>
         <div class="header-actions">
-            <button class="btn" id="dashboardBtn">DASHBOARD</button>
-            <button class="btn" id="themeToggle">DARK</button>
+            <button class="btn" id="dashboardBtn">📊 Dashboard</button>
+            <button class="btn" id="themeToggle">🌙 Dark</button>
             <button class="btn" id="logoutBtn">Logout</button>
             <button class="btn btn-danger" id="endDayBtn">END DAY</button>
         </div>
@@ -27,7 +27,7 @@
 
     <!-- System State Indicator -->
     <div class="system-state-bar">
-        <span id="systemState">System idle. Awaiting sprint activation.</span>
+        <span id="systemState">System idle. Start a sprint to begin.</span>
     </div>
 
     <!-- Main Container -->
@@ -37,17 +37,21 @@
             <!-- Sprint Timer Section - DOMINANT -->
             <section class="sprint-timer-section dominant">
                 <div class="section-header">
-                    <h2>SPRINT TIMER</h2>
-                    <div class="energy-controls-corner">
-                        <select id="energyLevel" class="energy-select-compact">
-                            <option value="low">LOW (15m)</option>
-                            <option value="medium" selected>MED (20m)</option>
-                            <option value="high">HIGH (30m)</option>
+                    <h2>⏱️ SPRINT TIMER</h2>
+                </div>
+                
+                <div class="energy-row">
+                    <div class="energy-select">
+                        <label>Energy:</label>
+                        <select id="energyLevel">
+                            <option value="low">⚡ Kinda "Meh" (15 min)</option>
+                            <option value="medium" selected>⚡⚡ Solid (20 min)</option>
+                            <option value="high">⚡⚡⚡ Locked In (30 min)</option>
                         </select>
-                        <label class="meeting-toggle-compact">
-                            <input type="checkbox" id="meetingToggle"> Meeting
-                        </label>
                     </div>
+                    <label class="meeting-toggle">
+                        <input type="checkbox" id="meetingToggle"> Meeting
+                    </label>
                 </div>
 
                 <div class="timer-buttons">
@@ -69,7 +73,7 @@
             <!-- Task Command Center -->
             <section class="task-section">
                 <div class="section-header">
-                    <h2>TASK COMMAND CENTER</h2>
+                    <h2>⚡ TASK COMMAND CENTER</h2>
                     <div class="header-right">
                         <div class="priority-legend">
                             <span class="legend-item"><span class="priority-dot priority-high"></span> High</span>
@@ -91,7 +95,7 @@
                 <!-- Holding Area -->
                 <div class="holding-area">
                     <div class="holding-header">
-                        <h3>HOLDING AREA</h3>
+                        <h3>📦 Holding Area</h3>
                         <span class="task-count" id="holdingCount">0</span>
                     </div>
                     <div id="holdingTasks" class="task-list" data-bucket="holding">
@@ -135,14 +139,14 @@
                     </div>
                 </div>
 
-                <!-- COMPLETED - Shows completed tasks -->
+                <!-- TODAY'S WINS - Shows completed tasks -->
                 <div class="wins-section hidden" id="winsSection">
                     <div class="wins-header">
-                        <h3>COMPLETED</h3>
+                        <h3>🏆 TODAY'S WINS</h3>
                         <span class="wins-count" id="winsDisplayCount">0</span>
                     </div>
                     <div id="winsList" class="wins-list">
-                        <p class="empty-state">Tasks appear here when completed.</p>
+                        <p class="empty-state">Complete a task to see it here!</p>
                     </div>
                 </div>
             </section>
@@ -153,21 +157,18 @@
             <!-- System Intelligence - SECOND MOST IMPORTANT -->
             <div class="sidebar-card system-intelligence-primary">
                 <div class="card-header-with-control">
-                    <h3>SYSTEM INTELLIGENCE</h3>
+                    <h3>🤖 SYSTEM INTELLIGENCE</h3>
                     <div class="header-controls">
                         <label for="agentMode" class="dropdown-label">Intensity:</label>
                         <select id="agentMode" class="agent-mode-dropdown">
                             <option value="supportive">Supportive</option>
                             <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough</option>
+                            <option value="tough">Tough Love</option>
                         </select>
                     </div>
                 </div>
                 <div class="ai-message-large" id="aiMessage">
-                    System idle. Start a sprint to begin.
-                </div>
-                <div class="intensity-feedback" id="intensityFeedback" style="display: none;">
-                    Intensity applied.
+                    Ready to execute. Let's go.
                 </div>
                 <div class="grade-display">
                     <span class="grade-label">CURRENT GRADE:</span>
@@ -253,14 +254,13 @@
                 remaining: 1200,
                 interval: null,
                 type: 'focus',
-                startTime: null, // BACKGROUND TIMER: Track when timer started
-                endTime: null    // BACKGROUND TIMER: Track when timer should end
+                startTime: null,    // TIMESTAMP: When timer started
+                endTime: null       // TIMESTAMP: When timer should finish
             },
             currentGrade: '-',
-            lastDayStarted: null,     // DAY TRACKING: When current day started
-            lastActivityTime: null,   // DAY TRACKING: Last activity timestamp
-            lastActivityWarned: false, // AUTHORITY: Has inactivity warning been shown
-            dayActive: false          // DAY TRACKING: Is day currently active
+            lastDayStarted: null,     // DAY TRACKING
+            lastActivityTime: null,   // DAY TRACKING
+            dayActive: false          // DAY TRACKING
         };
 
         // ============================================
@@ -274,7 +274,7 @@
                     
                     if (!user) {
                         console.log('No user session, redirecting to login');
-                        window.location.href = 'start.html';
+                        window.location.href = '/start.html';
                         return;
                     }
                     
@@ -294,13 +294,13 @@
                 // Continue anyway - might be in dev mode
             }
             
-            // Load state from localStorage
+            // Load app regardless of auth status
             loadState();
             
-            // Sync theme UI (button text and logo) with current theme
+            // Sync theme UI with restored theme
             syncThemeUI();
             
-            // CRITICAL: Set up header buttons FIRST (must work even during start-day modal)
+            // CRITICAL: Set up header buttons FIRST (must work always)
             setupHeaderButtons();
             
             // Check if day expired (auto-end)
@@ -311,7 +311,7 @@
             if (!state.dayActive) {
                 console.log('📅 Day not started - showing start modal');
                 showStartDayModal();
-                return; // Don't load app yet (but header buttons work)
+                return; // Don't load app yet
             }
             
             // Day is active - continue normal app load
@@ -334,31 +334,6 @@
             if (saved) {
                 try {
                     Object.assign(state, JSON.parse(saved));
-                    
-                    // BACKGROUND TIMER: Resume timer if it was active
-                    if (state.timer.active && state.timer.endTime) {
-                        const now = Date.now();
-                        const timeLeft = Math.ceil((state.timer.endTime - now) / 1000);
-                        
-                        if (timeLeft > 0) {
-                            // Timer still has time left - resume it
-                            state.timer.remaining = timeLeft;
-                            state.timer.interval = setInterval(() => {
-                                const now = Date.now();
-                                const timeLeft = Math.max(0, Math.ceil((state.timer.endTime - now) / 1000));
-                                
-                                state.timer.remaining = timeLeft;
-                                updateTimerDisplay();
-                                
-                                if (timeLeft <= 0) {
-                                    completeSprint();
-                                }
-                            }, 1000);
-                        } else {
-                            // Timer expired while away - complete it
-                            completeSprint();
-                        }
-                    }
                 } catch (error) {
                     console.error('Error loading state:', error);
                 }
@@ -367,14 +342,39 @@
             const savedEnergy = localStorage.getItem('focushub_energy');
             if (savedEnergy) {
                 state.energyLevel = savedEnergy;
-                document.getElementById('energyLevel').value = savedEnergy;
+                const energySelect = document.getElementById('energyLevel');
+                if (energySelect) energySelect.value = savedEnergy;
                 
                 const energyTimers = { low: 15, medium: 20, high: 30 };
                 state.timer.duration = energyTimers[savedEnergy];
-                if (!state.timer.active) {
-                    state.timer.remaining = state.timer.duration * 60;
-                }
+                state.timer.remaining = state.timer.duration * 60;
                 updateTimerButtons();
+            }
+            
+            // BACKGROUND TIMER: Resume timer if it was active
+            if (state.timer.active && state.timer.endTime) {
+                const now = Date.now();
+                const timeLeft = Math.ceil((state.timer.endTime - now) / 1000);
+                
+                if (timeLeft > 0) {
+                    // Timer still running - resume it
+                    state.timer.remaining = timeLeft;
+                    state.timer.interval = setInterval(() => {
+                        const remaining = Math.ceil((state.timer.endTime - Date.now()) / 1000);
+                        state.timer.remaining = Math.max(0, remaining);
+                        updateTimerDisplay();
+                        
+                        if (state.timer.remaining <= 0) {
+                            completeSprint();
+                        }
+                    }, 1000);
+                    console.log('⏱️ Timer resumed with', timeLeft, 'seconds remaining');
+                } else {
+                    // Timer expired while away - complete it
+                    console.log('⏱️ Timer expired while away - auto-completing');
+                    state.timer.remaining = 0;
+                    completeSprint();
+                }
             }
         }
 
@@ -390,18 +390,18 @@
         // EVENT LISTENERS - HEADER (ALWAYS ACTIVE)
         // ============================================
         function setupHeaderButtons() {
-            // Theme toggle - must work everywhere
+            // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             
-            // Dashboard - must work everywhere
+            // Dashboard
             document.getElementById('dashboardBtn').addEventListener('click', function() {
                 window.location.href = 'overview.html';
             });
             
-            // End day - must work everywhere
+            // End day
             document.getElementById('endDayBtn').addEventListener('click', endDay);
             
-            // Logout - must work everywhere
+            // Logout
             document.getElementById('logoutBtn').addEventListener('click', async function() {
                 if (confirm('Are you sure you want to logout?')) {
                     try {
@@ -412,7 +412,6 @@
                                 window.location.href = '/';
                             }
                         } else {
-                            // Fallback if Supabase not configured
                             localStorage.clear();
                             window.location.href = '/';
                         }
@@ -466,20 +465,6 @@
             document.getElementById('agentMode').addEventListener('change', function() {
                 state.currentMode = this.value;
                 saveState();
-                
-                // AUTHORITY: Show inline feedback (not in AI message)
-                const feedback = document.getElementById('intensityFeedback');
-                feedback.style.display = 'block';
-                feedback.classList.remove('fade-out');
-                
-                // Auto-fade after 3 seconds
-                clearTimeout(feedback._fadeTimer);
-                feedback._fadeTimer = setTimeout(() => {
-                    feedback.classList.add('fade-out');
-                    setTimeout(() => {
-                        feedback.style.display = 'none';
-                    }, 300);
-                }, 3000);
             });
 
             // Start sprint
@@ -515,7 +500,7 @@
             document.getElementById('taskInput').value = '';
             saveState();
             renderAll();
-            updateAIMessage('Tasks logged to holding area.');
+            showMicroConfirm('Tasks added to holding area');
         }
 
         function renderTasks() {
@@ -669,7 +654,7 @@
             
             saveState();
             renderAll();
-            updateAIMessage('Priority updated.');
+            showMicroConfirm('Priority updated');
         }
 
         window.adjustSprints = function(taskId, delta) {
@@ -724,9 +709,7 @@
                 
                 saveState();
                 renderAll();
-                
-                // AUTHORITY: Direct system message
-                updateAIMessage('Task complete. Progress logged.');
+                showMicroConfirm(`✓ Task completed! +${task.sprints || 1} sprint${task.sprints > 1 ? 's' : ''}`);
             }
         };
 
@@ -765,7 +748,7 @@
 
         // DAY TRACKING: Check if day should auto-end (midnight + 2 hrs inactivity)
         function checkDayExpiration() {
-            if (!state.dayActive || !state.lastDayStarted) return;
+            if (!state.dayActive || !state.lastDayStarted) return false;
             
             const now = new Date();
             const startDate = new Date(state.lastDayStarted);
@@ -797,22 +780,7 @@
         // DAY TRACKING: Update activity timestamp on any interaction
         function recordActivity() {
             state.lastActivityTime = Date.now();
-            state.lastActivityWarned = false; // Reset warning flag
             saveState();
-        }
-        
-        // AUTHORITY: Check for extended inactivity during active sprint
-        function checkInactivity() {
-            if (!state.timer.active || !state.lastActivityTime) return;
-            
-            const now = Date.now();
-            const minutesInactive = (now - state.lastActivityTime) / (1000 * 60);
-            
-            // Warn after 5 minutes of inactivity during active sprint
-            if (minutesInactive >= 5 && !state.lastActivityWarned) {
-                updateAIMessage('No progress detected. Resume work.');
-                state.lastActivityWarned = true;
-            }
         }
 
         // ============================================
@@ -821,55 +789,45 @@
         function startSprint() {
             if (state.timer.active) return;
 
+            // TIMESTAMP-BASED TIMER: Record start and end times
+            const now = Date.now();
+            state.timer.startTime = now;
+            state.timer.endTime = now + (state.timer.duration * 60 * 1000);
             state.timer.active = true;
             state.timer.type = 'focus';
             state.sessionState = 'active';
             
-            // BACKGROUND TIMER: Record start and end times
-            state.timer.startTime = Date.now();
-            state.timer.endTime = state.timer.startTime + (state.timer.remaining * 1000);
+            updateSystemState('Session active. Today\'s requirements are locked.');
             
-            updateSystemState('Sprint active. Requirements locked.');
-            updateAIMessage('Session active. Today\'s requirements are locked.');
-            
-            // Update display every second
             state.timer.interval = setInterval(() => {
-                const now = Date.now();
-                const timeLeft = Math.max(0, Math.ceil((state.timer.endTime - now) / 1000));
-                
-                state.timer.remaining = timeLeft;
+                // Calculate remaining time from end time
+                const timeLeft = Math.ceil((state.timer.endTime - Date.now()) / 1000);
+                state.timer.remaining = Math.max(0, timeLeft);
                 updateTimerDisplay();
                 
-                // AUTHORITY: Check for inactivity every second
-                checkInactivity();
-                
-                if (timeLeft <= 0) {
+                if (state.timer.remaining <= 0) {
                     completeSprint();
                 }
             }, 1000);
             
-            saveState(); // Save timer state
+            saveState();
         }
 
         function completeSprint() {
             clearInterval(state.timer.interval);
             state.timer.active = false;
-            state.timer.startTime = null; // BACKGROUND TIMER: Clear timestamps
+            state.timer.startTime = null;
             state.timer.endTime = null;
             state.sprintCount++;
             state.sessionState = 'idle';
             state.timer.remaining = state.timer.duration * 60;
             
-            // AUTHORITY: Direct system messages - check if behind target
-            const targetSprints = document.getElementById('sprintTarget')?.textContent || '0';
-            const currentSprints = state.sprintCount;
-            
-            if (currentSprints < parseInt(targetSprints)) {
-                updateSystemState('Sprint complete. Behind target.');
-                updateAIMessage("Sprint complete. You're behind. Start the next sprint.");
+            // AUTHORITY MESSAGE: Check if behind schedule
+            const isBehind = state.sprintCount < 5;
+            if (isBehind) {
+                updateSystemState('Sprint complete. You\'re behind. Start the next sprint.');
             } else {
-                updateSystemState('Sprint complete.');
-                updateAIMessage('Sprint complete. Continue.');
+                updateSystemState('Sprint complete. Continue.');
             }
             
             saveState();
@@ -960,31 +918,7 @@
         }
 
         function updateAIMessage(message) {
-            const aiMessageEl = document.getElementById('aiMessage');
-            aiMessageEl.textContent = message;
-            
-            // AUTHORITY: Auto-fade transient messages after 5 seconds
-            // Persistent session state messages don't fade
-            const persistentMessages = [
-                'Session active',
-                'System idle',
-                'Requirements locked',
-                'Session complete'
-            ];
-            
-            const isPersistent = persistentMessages.some(msg => message.includes(msg));
-            
-            if (!isPersistent) {
-                clearTimeout(aiMessageEl._fadeTimer);
-                aiMessageEl._fadeTimer = setTimeout(() => {
-                    // Return to appropriate state message
-                    if (state.timer.active) {
-                        aiMessageEl.textContent = 'Session active. Today\'s requirements are locked.';
-                    } else {
-                        aiMessageEl.textContent = 'System idle. Start a sprint to begin.';
-                    }
-                }, 5000);
-            }
+            document.getElementById('aiMessage').textContent = message;
         }
 
         function showMicroConfirm(message) {
@@ -1005,7 +939,7 @@
             document.getElementById('handleLaterCheck').checked = false;
             saveState();
             renderAll();
-            updateAIMessage('Distraction logged.');
+            showMicroConfirm('Distraction parked');
         }
 
         function toggleTheme() {
@@ -1026,11 +960,12 @@
             localStorage.setItem('focushub_theme', newTheme);
         }
 
-        // Sync theme UI elements (logo, button text) with current theme
         function syncThemeUI() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const logo = document.getElementById('appLogo');
             const themeToggle = document.getElementById('themeToggle');
+            
+            if (!logo || !themeToggle) return; // Safety check
             
             if (currentTheme === 'dark') {
                 logo.src = 'FocusHub_horiinv.svg';
@@ -1135,15 +1070,12 @@
             document.addEventListener('click', recordActivity);
             document.addEventListener('keypress', recordActivity);
             
-            // AUTHORITY: System message for session start
-            updateAIMessage("Session active. Today's requirements are locked.");
-            updateSystemState('Sprint system initialized.');
-            
             console.log('✅ Day started successfully');
         }
 
         // ============================================
         // INITIALIZE
+        // ============================================
         // ============================================
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
@@ -1158,6 +1090,7 @@
             document.body.classList.remove('preload');
         });
     </script>
+    
     <!-- Start Day Modal -->
     <div id="startDayModal" class="start-day-modal" style="display: none;">
         <div class="start-day-content">
