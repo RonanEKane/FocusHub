@@ -2,17 +2,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-/* CSS Variables */
+/* CSS Variables - Premium Zinc-Based Palette */
 :root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #1a1a1a;
-    --bg-tertiary: #2a2a2a;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --industrial-orange: #f45b07;
-    --border-light: #333333;
-    --border-subtle: #252525;
-    --success: #10b981;
+    /* Premium backgrounds - zinc-based */
+    --bg-primary: #0d0d0f;        /* Rich black */
+    --bg-secondary: #18181b;      /* Zinc-900 */
+    --bg-tertiary: #27272a;       /* Zinc-800 */
+    --bg-elevated: #3f3f46;       /* Zinc-700 */
+    
+    /* Premium accents */
+    --accent-primary: #fb923c;    /* Orange-400 (softer) */
+    --accent-glow: #f97316;       /* Orange-500 (emphasis) */
+    --industrial-orange: #fb923c; /* Keep legacy name for compatibility */
+    
+    /* Premium text */
+    --text-primary: #fafafa;      /* Zinc-50 (warmer) */
+    --text-secondary: #a1a1aa;    /* Zinc-400 */
+    --text-muted: #71717a;        /* Zinc-500 */
+    
+    /* Premium borders */
+    --border-light: #3f3f46;      /* Zinc-700 */
+    --border-subtle: #27272a;     /* Zinc-800 */
+    
+    /* Status colors */
+    --success: #22c55e;           /* Green-500 */
     --danger: #ef4444;
 }
 
@@ -31,6 +44,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* PREMIUM: Smooth micro-animations */
+}
+
+/* Disable transitions on page load to prevent flash */
+.preload * {
+    transition: none !important;
 }
 
 body {
@@ -73,7 +92,7 @@ body {
 }
 
 .btn {
-    padding: 0.5rem 1rem;
+    padding: 1rem 2rem; /* PREMIUM: More substantial */
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
     color: var(--text-primary);
@@ -116,7 +135,7 @@ body {
     margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: minmax(500px, 1.2fr) minmax(400px, 0.8fr);
+    grid-template-columns: 1fr 420px; /* Main content flexible, fixed 420px sidebar */
     gap: 2rem;
 }
 
@@ -141,7 +160,7 @@ body {
     background: var(--bg-secondary);
     border: 1px solid var(--border-subtle);
     border-radius: 2px;
-    padding: 2rem;
+    padding: 2.5rem; /* PREMIUM: More generous padding */
     /* INDUSTRIAL: Depth via borders, not shadows */
 }
 
@@ -149,7 +168,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem; /* PREMIUM: Better rhythm */
 }
 
 .section-header h2 {
@@ -280,7 +299,11 @@ body {
 .timer-display-large {
     text-align: center;
     padding: 3rem 2rem; /* Increased padding */
-    background: var(--bg-primary);
+    background: radial-gradient(
+        ellipse at center,
+        rgba(251, 146, 60, 0.05) 0%,
+        var(--bg-primary) 70%
+    ); /* PREMIUM: Subtle radial glow behind timer */
     border: 1px solid var(--border-light);
     border-radius: 2px;
     margin-bottom: 1.5rem;
@@ -293,6 +316,7 @@ body {
     color: var(--text-primary);
     letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
+    text-shadow: 0 0 30px rgba(251, 146, 60, 0.4); /* PREMIUM: Orange glow */
 }
 
 .timer-status {
@@ -302,7 +326,7 @@ body {
 
 .btn-start-sprint {
     width: 100%;
-    padding: 1.25rem;
+    padding: 1.5rem; /* PREMIUM: More substantial button */
     background: transparent;
     border: 1px solid var(--industrial-orange);
     color: var(--industrial-orange);
@@ -317,8 +341,15 @@ body {
 }
 
 .btn-start-sprint:hover {
-    background: var(--industrial-orange);
+    background: rgba(251, 146, 60, 0.1); /* PREMIUM: Subtle fill */
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.2); /* PREMIUM: Glow effect */
+    border-color: var(--accent-glow);
     color: white;
+}
+
+.btn-start-sprint:active {
+    transform: scale(0.98); /* PREMIUM: Press feedback */
+    background: var(--accent-glow);
 }
 
 /* Task Section */
@@ -340,7 +371,7 @@ body {
 .task-textarea {
     width: 100%;
     min-height: 100px;
-    padding: 1rem;
+    padding: 1.25rem; /* PREMIUM: Taller inputs feel premium */
     background: #1a1a1a; /* Dark grey */
     border: 1px solid var(--border-light);
     color: var(--text-primary);
@@ -434,15 +465,16 @@ body {
 }
 
 .sidebar-card {
-    background: var(--bg-secondary);
+    background: linear-gradient(135deg, #18181b 0%, #1a1a1d 100%); /* PREMIUM: Subtle gradient for depth */
     border: 1px solid var(--border-subtle);
     border-radius: 2px;
-    padding: 1.5rem;
+    padding: 2rem; /* PREMIUM: More generous padding */
     transition: border-color 0.2s ease;
 }
 
 .sidebar-card:hover {
     border-color: var(--border-light);
+    background: linear-gradient(135deg, #18181b 0%, #1f1f23 100%); /* PREMIUM: Subtle gradient on hover */
 }
 }
 
@@ -495,6 +527,7 @@ body {
     min-height: 100px;
     margin-bottom: 1rem;
     color: var(--industrial-orange); /* Terminal orange text */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); /* PREMIUM: Inner highlight for depth */
 }
 
 .ai-message-large::before {
@@ -677,11 +710,13 @@ body {
     border-radius: 2px;
     margin-bottom: 0.5rem;
     cursor: move;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .task-item:hover {
-    border-color: var(--industrial-orange);
+    border-color: var(--accent-primary);
+    background: var(--bg-tertiary); /* PREMIUM: Subtle background change */
+    transform: translateY(-1px); /* PREMIUM: Subtle lift effect */
 }
 
 .task-item.dragging {
@@ -1075,4 +1110,57 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+/* ============================================================================
+   PREMIUM ENHANCEMENTS - Phase 3, 5 & 6
+   ============================================================================ */
+
+/* Phase 3: Priority Pulse Animation */
+@keyframes priority-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+.priority-indicator.changing {
+    animation: priority-pulse 0.3s ease;
+}
+
+/* Phase 5: Typography Refinements */
+h1, h2, h3 {
+    letter-spacing: -0.025em; /* PREMIUM: Tighter tracking */
+    font-weight: 600; /* PREMIUM: More refined than 700 */
+}
+
+body {
+    font-size: 15px; /* PREMIUM: More readable than 14px */
+    letter-spacing: -0.011em; /* PREMIUM: Subtle negative tracking */
+}
+
+.input-label {
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 500; /* PREMIUM: More refined than 600 */
+    letter-spacing: 0.1em; /* PREMIUM: Wide tracking for labels */
+}
+
+.ai-message-large {
+    font-size: 0.9375rem; /* PREMIUM: Slightly smaller for refinement */
+    line-height: 1.7; /* PREMIUM: More airy */
+}
+
+/* Phase 6: Enhanced Button States */
+.parse-btn:hover,
+.btn-start-sprint:hover {
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.15); /* PREMIUM: Consistent glow */
+}
+
+.parse-btn:active,
+.btn-start-sprint:active {
+    transform: scale(0.98); /* PREMIUM: Press feedback */
+}
+
+.parse-btn:focus-visible,
+.btn-start-sprint:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
 }

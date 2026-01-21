@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="preload">
     <!-- Header -->
     <header class="app-header">
         <div class="logo-section">
@@ -837,6 +837,13 @@
         } else {
             init();
         }
+    </script>
+    
+    <!-- PREMIUM: Remove preload class to enable transitions -->
+    <script>
+        window.addEventListener('load', () => {
+            document.body.classList.remove('preload');
+        });
     </script>
 </body>
 </html>
