@@ -488,6 +488,7 @@
             // Show typing indicator
             showTypingIndicator();
             
+            /* SECURITY: API call disabled to prevent key exposure
             try {
                 const response = await fetch('https://api.anthropic.com/v1/messages', {
                     method: 'POST',
@@ -547,6 +548,13 @@ Be concise, helpful, and direct. Use a supportive but no-nonsense tone that matc
                 addMessage('assistant', "Sorry, I'm having trouble connecting right now. Please try again later or check the FAQ above.");
                 console.error('Chat error:', error);
             }
+            */
+            
+            // STATIC MAINTENANCE MESSAGE (replaces API call)
+            setTimeout(() => {
+                removeTypingIndicator();
+                addMessage('assistant', "AI Support is currently in maintenance mode. Please check the FAQ below.");
+            }, 800);
             
             // Re-enable input
             sendBtn.disabled = false;

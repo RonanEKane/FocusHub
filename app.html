@@ -92,7 +92,7 @@
                         <span class="task-count" id="holdingCount">0</span>
                     </div>
                     <div id="holdingTasks" class="task-list" data-bucket="holding">
-                        <p class="empty-state">Tasks will appear here</p>
+                        <p class="empty-state">[ AWAITING_INPUT ]</p>
                     </div>
                 </div>
 
@@ -105,7 +105,7 @@
                             <span class="bucket-count" id="adminCount">0</span>
                         </div>
                         <div id="adminBucket" class="task-list" data-bucket="admin">
-                            <p class="empty-state-small">Drag tasks here</p>
+                            <p class="empty-state-small">[ AWAITING_INPUT ]</p>
                         </div>
                     </div>
 
@@ -116,7 +116,7 @@
                             <span class="bucket-count" id="deepworkCount">0</span>
                         </div>
                         <div id="deepworkBucket" class="task-list" data-bucket="deepwork">
-                            <p class="empty-state-small">Drag tasks here</p>
+                            <p class="empty-state-small">[ AWAITING_INPUT ]</p>
                         </div>
                     </div>
 
@@ -127,8 +127,19 @@
                             <span class="bucket-count" id="strategicCount">0</span>
                         </div>
                         <div id="strategicBucket" class="task-list" data-bucket="strategic">
-                            <p class="empty-state-small">Drag tasks here</p>
+                            <p class="empty-state-small">[ AWAITING_INPUT ]</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TODAY'S WINS - Shows completed tasks -->
+                <div class="wins-section">
+                    <div class="wins-header">
+                        <h3>🏆 TODAY'S WINS</h3>
+                        <span class="wins-count" id="winsDisplayCount">0</span>
+                    </div>
+                    <div id="winsList" class="wins-list">
+                        <p class="empty-state">Complete a task to see it here!</p>
                     </div>
                 </div>
             </section>
@@ -141,7 +152,7 @@
                 <div class="card-header-with-control">
                     <h3>🤖 SYSTEM INTELLIGENCE</h3>
                     <div class="header-controls">
-                        <label for="agentMode" class="dropdown-label">Coach Style:</label>
+                        <label for="agentMode" class="dropdown-label">Intensity:</label>
                         <select id="agentMode" class="agent-mode-dropdown">
                             <option value="supportive">Supportive</option>
                             <option value="balanced" selected>Balanced</option>
@@ -423,11 +434,12 @@
                 
                 if (tasks.length === 0) {
                     container.innerHTML = bucket === 'holding' 
-                        ? '<p class="empty-state">Tasks will appear here</p>'
-                        : '<p class="empty-state-small">Drag tasks here</p>';
+                        ? '<p class="empty-state">[ AWAITING_INPUT ]</p>'
+                        : '<p class="empty-state-small">[ AWAITING_INPUT ]</p>';
                 } else {
                     container.innerHTML = tasks.map(task => `
                         <div class="task-item" draggable="true" data-task-id="${task.id}" data-bucket="${bucket}">
+                            ${bucket !== 'holding' ? `<input type="checkbox" class="task-checkbox" data-task-id="${task.id}" data-bucket="${bucket}">` : ''}
                             <div class="task-text">${task.text}</div>
                             <div class="task-controls">
                                 <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
@@ -437,6 +449,15 @@
                             </div>
                         </div>
                     `).join('');
+                    
+                    // Add event listeners to checkboxes (complete task)
+                    container.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                        checkbox.addEventListener('change', (e) => {
+                            if (e.target.checked) {
+                                completeTask(checkbox.dataset.taskId, checkbox.dataset.bucket);
+                            }
+                        });
+                    });
                     
                     // Add event listeners to buttons
                     container.querySelectorAll('.sprint-up').forEach(btn => {
@@ -539,8 +560,30 @@
             renderAll();
         };
 
+        window.completeTask = function(taskId, bucket) {
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                const task = state.tasks[bucket][taskIndex];
+                task.completed = true;
+                task.completedAt = new Date().toISOString();
+                
+                // Move to wins
+                state.tasks.wins.push(task);
+                
+                // Remove from current bucket
+                state.tasks[bucket].splice(taskIndex, 1);
+                
+                // Update stats
+                state.sprintCount += task.sprints || 1;
+                
+                saveState();
+                renderAll();
+                showMicroConfirm(`✓ Task completed! +${task.sprints || 1} sprint${task.sprints > 1 ? 's' : ''}`);
+            }
+        };
+
         function endDay() {
-            if (confirm('End your day? Uncompleted tasks will move to holding area.')) {
+            if (confirm('End your day? Uncompleted tasks will move to holding area. Wins will be cleared.')) {
                 ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                     state.tasks[bucket].forEach(task => {
                         if (!task.completed) {
@@ -550,6 +593,14 @@
                     });
                     state.tasks[bucket] = [];
                 });
+                
+                // Clear wins for new day
+                state.tasks.wins = [];
+                
+                // Reset counts
+                state.sprintCount = 0;
+                state.breaksCount = 0;
+                state.distractionCount = 0;
                 
                 saveState();
                 window.location.href = '/overview.html';
@@ -606,6 +657,9 @@
             const seconds = state.timer.remaining % 60;
             const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
+            // Update browser tab title with timer
+            document.title = `${timeStr} - FocusHub`;
+            
             const valueEl = document.querySelector('.timer-value');
             const statusEl = document.querySelector('.timer-status');
             
@@ -626,7 +680,28 @@
             document.getElementById('distractionCountDisplay').textContent = state.distractionCount;
             
             renderTasks();
+            renderWins();
             updateGrade();
+        }
+
+        function renderWins() {
+            const winsList = document.getElementById('winsList');
+            const winsCount = document.getElementById('winsDisplayCount');
+            
+            if (!winsList) return;
+            
+            winsCount.textContent = state.tasks.wins.length;
+            
+            if (state.tasks.wins.length === 0) {
+                winsList.innerHTML = '<p class="empty-state">Complete a task to see it here!</p>';
+            } else {
+                winsList.innerHTML = state.tasks.wins.map(win => `
+                    <div class="win-item">
+                        <span class="win-text">${win.text}</span>
+                        <span class="win-sprints">+${win.sprints || 1}</span>
+                    </div>
+                `).join('');
+            }
         }
 
         function updateGrade() {
