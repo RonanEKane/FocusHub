@@ -221,6 +221,16 @@
     <script src="supabase-config.js"></script>
     <script>
         // ============================================
+        // THEME RESTORATION (MUST RUN FIRST)
+        // ============================================
+        (function() {
+            const savedTheme = localStorage.getItem('focushub_theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        })();
+        
+        // ============================================
         // STATE MANAGEMENT
         // ============================================
         const state = {
@@ -286,6 +296,9 @@
             
             // Load state from localStorage
             loadState();
+            
+            // Sync theme UI (button text and logo) with current theme
+            syncThemeUI();
             
             // Check if day expired (auto-end)
             const dayExpired = checkDayExpiration();
@@ -1009,6 +1022,21 @@
             }
             
             localStorage.setItem('focushub_theme', newTheme);
+        }
+
+        // Sync theme UI elements (logo, button text) with current theme
+        function syncThemeUI() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const logo = document.getElementById('appLogo');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (currentTheme === 'dark') {
+                logo.src = 'FocusHub_horiinv.svg';
+                themeToggle.textContent = 'DARK';
+            } else {
+                logo.src = 'FocusHub_horinorm.svg';
+                themeToggle.textContent = 'LIGHT';
+            }
         }
 
         // ============================================
