@@ -30,13 +30,29 @@
 }
 
 [data-theme="light"] {
+    /* Light backgrounds */
     --bg-primary: #f5f5f5;
     --bg-secondary: #ffffff;
     --bg-tertiary: #e5e5e5;
+    --bg-elevated: #d5d5d5;
+    
+    /* Light text */
     --text-primary: #1a1a1a;
     --text-secondary: #666666;
+    --text-muted: #999999;
+    
+    /* Light borders */
     --border-light: #e0e0e0;
     --border-subtle: #f0f0f0;
+    
+    /* Accents (same in both themes) */
+    --accent-primary: #fb923c;
+    --accent-glow: #f97316;
+    --industrial-orange: #fb923c;
+    
+    /* Status colors (same in both themes) */
+    --success: #22c55e;
+    --danger: #ef4444;
 }
 
 /* Reset */
