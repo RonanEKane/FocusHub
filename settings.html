@@ -1,436 +1,594 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - FocusHub</title>
+    <title>Settings - FocusHub</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .settings-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .settings-header {
+            margin-bottom: 3rem;
+        }
+
+        .settings-header h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .settings-section {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: 2px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--industrial-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .setting-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .setting-control {
+            min-width: 250px;
+            text-align: right;
+        }
+
+        .setting-select,
+        .setting-input {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            color: var(--text-primary);
+            border-radius: 2px;
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .setting-select:focus,
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--industrial-orange);
+        }
+
+        .setting-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-light);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--industrial-orange);
+            border-color: var(--industrial-orange);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .membership-card {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+            border: 2px solid var(--industrial-orange);
+            padding: 2rem;
+            border-radius: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .membership-card.premium {
+            border-color: var(--industrial-orange);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1810 100%);
+        }
+
+        .membership-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--industrial-orange);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .membership-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            background: var(--industrial-orange);
+            border: 2px solid var(--industrial-orange);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--industrial-orange);
+            color: var(--industrial-orange);
+        }
+
+        .premium-badge {
+            color: var(--industrial-orange);
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--industrial-orange);
+        }
+    </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Admin Header -->
-        <header class="admin-header">
-            <div class="admin-header-content">
-                <div>
-                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
-                    <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Admin Dashboard</h1>
+    <div class="settings-container">
+        <a href="app.html" class="back-link">
+            ← Back to App
+        </a>
+
+        <div class="settings-header">
+            <h1>⚙️ Settings</h1>
+            <p class="settings-subtitle">Manage your preferences and account</p>
+        </div>
+
+        <!-- Membership Status -->
+        <div class="membership-card" id="membershipCard">
+            <span class="membership-badge" id="membershipBadge">FREE TIER</span>
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">Current Plan</h3>
+            <p style="color: var(--text-secondary); margin: 0;">
+                Access to core productivity features
+            </p>
+            <div class="membership-details">
+                <span style="color: var(--text-secondary); font-size: 0.875rem;" id="membershipInfo">
+                    Free features only
+                </span>
+                <button class="btn-primary" id="upgradeBtn" onclick="window.location.href='upgrade.html'">
+                    ⭐ UPGRADE TO PREMIUM
+                </button>
+            </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="settings-section">
+            <h2 class="section-title">🎨 Preferences</h2>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">Theme</div>
+                    <div class="setting-description">Choose your preferred color scheme</div>
                 </div>
-                <div>
-                    <a href="analytics-overview.html" class="btn btn-primary">📊 Analytics</a>
-                    <a href="overview.html" class="btn btn-secondary">← Dashboard</a>
-                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                <div class="setting-control">
+                    <select id="themeSelect" class="setting-select">
+                        <option value="dark">Dark Mode</option>
+                        <option value="light">Light Mode</option>
+                    </select>
                 </div>
             </div>
-        </header>
 
-        <!-- Main Content -->
-        <div class="admin-content">
-            <div class="container">
-                <!-- Stats Overview -->
-                <div class="admin-stats">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Users</div>
-                        <div class="stat-value" id="totalUsers">0</div>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">
+                        Reflection Tradition
+                        <span class="premium-badge" id="reflectionPremiumBadge">🔒 PREMIUM</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Free Plans</div>
-                        <div class="stat-value" id="freePlans">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Paid Plans</div>
-                        <div class="stat-value" id="paidPlans">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Admin Users</div>
-                        <div class="stat-value" id="adminUsers">0</div>
-                    </div>
+                    <div class="setting-description">Choose your daily reflection source</div>
                 </div>
-
-                <!-- User Management -->
-                <div class="admin-section">
-                    <h2>User Management</h2>
-                    
-                    <!-- Filters -->
-                    <div class="admin-filters">
-                        <input type="text" id="userSearch" placeholder="Search by email..." class="admin-search">
-                        <select id="planFilter" class="admin-filter">
-                            <option value="">All Plans</option>
-                            <option value="free">Free</option>
-                            <option value="student_hs">Student HS</option>
-                            <option value="student_college">Student College</option>
-                            <option value="professional">Professional</option>
-                            <option value="premium">Premium</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                        <select id="modeFilter" class="admin-filter">
-                            <option value="">All Modes</option>
-                            <option value="professional">Professional</option>
-                            <option value="student">Student</option>
-                        </select>
-                    </div>
-
-                    <!-- User List -->
-                    <div class="admin-table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Email</th>
-                                    <th>Mode</th>
-                                    <th>Plan</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="userTableBody">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="setting-control">
+                    <select id="reflectionSelect" class="setting-select">
+                        <option value="secular">Secular</option>
+                        <option value="catholic">Catholic</option>
+                        <option value="protestant">Protestant</option>
+                        <option value="stoic">Stoic</option>
+                        <option value="buddhist">Buddhist</option>
+                        <option value="islamic">Islamic</option>
+                        <option value="jewish">Jewish</option>
+                    </select>
                 </div>
+            </div>
 
-                <!-- Grant Access -->
-                <div class="admin-section">
-                    <h2>Grant Free Access</h2>
-                    <p class="admin-help">Manually upgrade a user to a paid plan for free</p>
-                    
-                    <div class="grant-form">
-                        <input type="email" id="grantEmail" placeholder="User email..." class="admin-input">
-                        <select id="grantPlan" class="admin-input">
-                            <option value="">Select plan to grant...</option>
-                            <option value="student_hs">Student HS (Free)</option>
-                            <option value="student_college">Student College (Free)</option>
-                            <option value="professional">Professional (Free)</option>
-                            <option value="premium">Premium (Free)</option>
-                        </select>
-                        <button onclick="grantAccess()" class="btn btn-primary">Grant Access</button>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">
+                        AI Coaching Intensity
+                        <span class="premium-badge" id="aiPremiumBadge">🔒 PREMIUM</span>
                     </div>
+                    <div class="setting-description">Choose your preferred coaching style</div>
                 </div>
+                <div class="setting-control">
+                    <select id="aiModeSelect" class="setting-select">
+                        <option value="supportive">Supportive</option>
+                        <option value="balanced">Balanced</option>
+                        <option value="tough">Tough Love</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-                <!-- Make Admin -->
-                <div class="admin-section">
-                    <h2>Admin Management</h2>
-                    <p class="admin-help">Grant or revoke admin privileges</p>
-                    
-                    <div class="grant-form">
-                        <input type="email" id="adminEmail" placeholder="User email..." class="admin-input">
-                        <button onclick="makeAdmin()" class="btn btn-primary">Make Admin</button>
-                        <button onclick="removeAdmin()" class="btn btn-secondary">Remove Admin</button>
-                    </div>
+        <!-- Account -->
+        <div class="settings-section">
+            <h2 class="section-title">👤 Account</h2>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">Email</div>
+                    <div class="setting-description" id="userEmail">Loading...</div>
+                </div>
+                <div class="setting-control">
+                    <button class="btn-secondary" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">Data</div>
+                    <div class="setting-description">Clear all local data and start fresh</div>
+                </div>
+                <div class="setting-control">
+                    <button class="btn-secondary" onclick="clearAllData()">Clear Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help -->
+        <div class="settings-section">
+            <h2 class="section-title">❓ Help & Support</h2>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">Documentation</div>
+                    <div class="setting-description">Learn how to use FocusHub effectively</div>
+                </div>
+                <div class="setting-control">
+                    <button class="btn-secondary" onclick="window.open('https://docs.focushub.app', '_blank')">
+                        View Docs
+                    </button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-label">Contact Support</div>
+                    <div class="setting-description">Get help with any issues</div>
+                </div>
+                <div class="setting-control">
+                    <button class="btn-secondary" onclick="window.location.href='mailto:support@focushub.app'">
+                        Email Support
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit User Modal -->
-    <div id="editUserModal" class="modal-overlay hidden">
-        <div class="modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2>Edit User</h2>
-                <button class="modal-close" onclick="closeEditModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="text" id="editEmail" readonly class="admin-input">
-                </div>
-                <div class="form-group">
-                    <label>Plan</label>
-                    <select id="editPlan" class="admin-input">
-                        <option value="free">Free</option>
-                        <option value="student_hs">Student HS</option>
-                        <option value="student_college">Student College</option>
-                        <option value="professional">Professional</option>
-                        <option value="premium">Premium</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Mode</label>
-                    <select id="editMode" class="admin-input">
-                        <option value="professional">Professional</option>
-                        <option value="student">Student</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
-                <button onclick="saveUserEdit()" class="btn btn-primary">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Check admin access
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            window.location.href = 'start.html';
-        }
-        
-        // Check if user is admin
-        const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-        const currentUserFull = users.find(u => u.id === currentUser.id);
-        
-        if (!currentUserFull || currentUserFull.plan !== 'admin') {
-            alert('Access denied. Admin privileges required.');
-            window.location.href = 'overview.html';
+        // Supabase client
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const adminEmails = ['watersjb@gmail.com'];
+
+        async function init() {
+            // Load user
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                window.location.href = '/';
+                return;
+            }
+
+            document.getElementById('userEmail').textContent = user.email;
+
+            // Check if admin
+            const isAdmin = adminEmails.includes(user.email);
+
+            // Load membership
+            let currentPlan = 'free';
+            if (isAdmin) {
+                currentPlan = 'premium';
+            } else {
+                const membership = localStorage.getItem('focushub_membership');
+                if (membership) {
+                    try {
+                        const data = JSON.parse(membership);
+                        currentPlan = data.plan || 'free';
+                    } catch (e) {}
+                }
+            }
+
+            // Update UI based on plan
+            updateMembershipUI(currentPlan, isAdmin);
+            applyFeatureGates(currentPlan);
+            loadSettings();
         }
 
-        // Load and display users
-        function loadUsers() {
-            const allUsers = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            const planFilter = document.getElementById('planFilter').value;
-            const modeFilter = document.getElementById('modeFilter').value;
+        function updateMembershipUI(plan, isAdmin) {
+            const badge = document.getElementById('membershipBadge');
+            const info = document.getElementById('membershipInfo');
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            const card = document.getElementById('membershipCard');
+
+            if (plan === 'premium' || isAdmin) {
+                badge.textContent = isAdmin ? '👑 ADMIN' : '⭐ PREMIUM';
+                info.textContent = 'Full access to all features';
+                upgradeBtn.style.display = 'none';
+                card.classList.add('premium');
+            } else {
+                badge.textContent = 'FREE TIER';
+                info.textContent = 'Upgrade to unlock all features';
+                upgradeBtn.style.display = 'block';
+            }
+        }
+
+        function applyFeatureGates(plan) {
+            const isPremium = plan === 'premium';
+
+            // Reflection tradition gate
+            const reflectionSelect = document.getElementById('reflectionSelect');
+            const reflectionBadge = document.getElementById('reflectionPremiumBadge');
+            const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
             
-            // Apply filters
-            let filteredUsers = allUsers.filter(user => {
-                const matchesSearch = user.email.toLowerCase().includes(searchTerm);
-                const matchesPlan = !planFilter || user.plan === planFilter;
-                const matchesMode = !modeFilter || user.mode === modeFilter;
-                return matchesSearch && matchesPlan && matchesMode;
+            reflectionSelect.querySelectorAll('option').forEach(option => {
+                if (premiumTraditions.includes(option.value)) {
+                    option.disabled = !isPremium;
+                }
             });
+
+            if (isPremium) {
+                reflectionBadge.style.display = 'none';
+            }
+
+            // AI mode gate
+            const aiSelect = document.getElementById('aiModeSelect');
+            const aiBadge = document.getElementById('aiPremiumBadge');
             
-            // Update stats
-            document.getElementById('totalUsers').textContent = allUsers.length;
-            document.getElementById('freePlans').textContent = allUsers.filter(u => u.plan === 'free').length;
-            document.getElementById('paidPlans').textContent = allUsers.filter(u => u.plan !== 'free' && u.plan !== 'admin').length;
-            document.getElementById('adminUsers').textContent = allUsers.filter(u => u.plan === 'admin').length;
+            aiSelect.querySelector('[value="supportive"]').disabled = !isPremium;
+            aiSelect.querySelector('[value="tough"]').disabled = !isPremium;
+
+            if (isPremium) {
+                aiBadge.style.display = 'none';
+            }
+        }
+
+        function loadSettings() {
+            // Theme
+            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            document.getElementById('themeSelect').value = theme;
+
+            // Reflection tradition
+            const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
+            document.getElementById('reflectionSelect').value = tradition;
+
+            // AI mode
+            const state = localStorage.getItem('focushub_state');
+            let aiMode = 'balanced';
+            if (state) {
+                try {
+                    const data = JSON.parse(state);
+                    aiMode = data.currentMode || 'balanced';
+                } catch (e) {}
+            }
+            document.getElementById('aiModeSelect').value = aiMode;
+
+            // Add change listeners
+            document.getElementById('themeSelect').addEventListener('change', handleThemeChange);
+            document.getElementById('reflectionSelect').addEventListener('change', handleReflectionChange);
+            document.getElementById('aiModeSelect').addEventListener('change', handleAIModeChange);
+        }
+
+        function handleThemeChange(e) {
+            const theme = e.target.value;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('focushub_theme', theme);
+            showNotification('Theme updated');
+        }
+
+        function handleReflectionChange(e) {
+            const tradition = e.target.value;
+            const membership = localStorage.getItem('focushub_membership');
+            let currentPlan = 'free';
             
-            // Render user table
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = filteredUsers.map(user => {
-                const created = new Date(user.created).toLocaleDateString();
-                const planBadge = getPlanBadge(user.plan);
-                const modeBadge = user.mode === 'student' ? '🎓 Student' : '💼 Professional';
+            try {
+                const data = JSON.parse(membership);
+                currentPlan = data.plan || 'free';
+            } catch (e) {}
+
+            const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
+            
+            if (premiumTraditions.includes(tradition) && currentPlan !== 'premium') {
+                e.target.value = localStorage.getItem('focushub_reflection_tradition') || 'secular';
+                if (confirm('Reflection traditions require Premium. Upgrade now?')) {
+                    window.location.href = 'upgrade.html';
+                }
+                return;
+            }
+
+            localStorage.setItem('focushub_reflection_tradition', tradition);
+            showNotification('Reflection tradition updated. Takes effect on next day start.');
+        }
+
+        function handleAIModeChange(e) {
+            const mode = e.target.value;
+            const membership = localStorage.getItem('focushub_membership');
+            let currentPlan = 'free';
+            
+            try {
+                const data = JSON.parse(membership);
+                currentPlan = data.plan || 'free';
+            } catch (e) {}
+
+            if ((mode === 'supportive' || mode === 'tough') && currentPlan !== 'premium') {
+                // Load current state
+                const state = localStorage.getItem('focushub_state');
+                let currentMode = 'balanced';
+                if (state) {
+                    try {
+                        const data = JSON.parse(state);
+                        currentMode = data.currentMode || 'balanced';
+                    } catch (e) {}
+                }
+                e.target.value = currentMode;
                 
-                return `
-                    <tr>
-                        <td>${user.email}</td>
-                        <td>${modeBadge}</td>
-                        <td>${planBadge}</td>
-                        <td>${created}</td>
-                        <td>
-                            <button onclick="editUser('${user.id}')" class="btn-small">Edit</button>
-                            <button onclick="viewAsUser('${user.id}')" class="btn-small btn-secondary">View</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                if (confirm('AI intensity modes require Premium. Upgrade now?')) {
+                    window.location.href = 'upgrade.html';
+                }
+                return;
+            }
+
+            // Update state
+            const state = localStorage.getItem('focushub_state');
+            if (state) {
+                try {
+                    const data = JSON.parse(state);
+                    data.currentMode = mode;
+                    localStorage.setItem('focushub_state', JSON.stringify(data));
+                    showNotification('AI intensity updated');
+                } catch (e) {}
+            }
         }
-        
-        function getPlanBadge(plan) {
-            const badges = {
-                'free': '<span class="badge badge-gray">Free</span>',
-                'student_hs': '<span class="badge badge-blue">Student HS</span>',
-                'student_college': '<span class="badge badge-blue">Student College</span>',
-                'professional': '<span class="badge badge-green">Professional</span>',
-                'premium': '<span class="badge badge-purple">Premium</span>',
-                'admin': '<span class="badge badge-red">Admin</span>'
-            };
-            return badges[plan] || `<span class="badge">${plan}</span>`;
+
+        function clearAllData() {
+            if (confirm('Are you sure? This will clear all your tasks, stats, and settings. This cannot be undone.')) {
+                localStorage.clear();
+                showNotification('Data cleared. Redirecting...');
+                setTimeout(() => window.location.href = 'app.html', 1500);
+            }
         }
-        
-        // Edit user
-        let editingUserId = null;
-        
-        function editUser(userId) {
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const user = users.find(u => u.id === userId);
-            
-            if (!user) return;
-            
-            editingUserId = userId;
-            document.getElementById('editEmail').value = user.email;
-            document.getElementById('editPlan').value = user.plan;
-            document.getElementById('editMode').value = user.mode;
-            document.getElementById('editUserModal').classList.remove('hidden');
+
+        async function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                await supabaseClient.auth.signOut();
+                localStorage.clear();
+                window.location.href = '/';
+            }
         }
-        
-        function closeEditModal() {
-            editingUserId = null;
-            document.getElementById('editUserModal').classList.add('hidden');
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: var(--industrial-orange);
+                color: #000;
+                padding: 1rem 1.5rem;
+                border-radius: 2px;
+                font-weight: 600;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
         }
-        
-        function saveUserEdit() {
-            if (!editingUserId) return;
-            
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const userIndex = users.findIndex(u => u.id === editingUserId);
-            
-            if (userIndex === -1) return;
-            
-            users[userIndex].plan = document.getElementById('editPlan').value;
-            users[userIndex].mode = document.getElementById('editMode').value;
-            
-            localStorage.setItem('focushub_users', JSON.stringify(users));
-            
-            closeEditModal();
-            loadUsers();
-            alert('User updated successfully');
-        }
-        
-        // Grant access
-        function grantAccess() {
-            const email = document.getElementById('grantEmail').value.trim();
-            const plan = document.getElementById('grantPlan').value;
-            
-            if (!email || !plan) {
-                alert('Please enter email and select a plan');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const user = users.find(u => u.email === email);
-            
-            if (!user) {
-                alert('User not found with that email');
-                return;
-            }
-            
-            user.plan = plan;
-            user.grantedBy = currentUser.id;
-            user.grantedAt = new Date().toISOString();
-            
-            localStorage.setItem('focushub_users', JSON.stringify(users));
-            
-            document.getElementById('grantEmail').value = '';
-            document.getElementById('grantPlan').value = '';
-            loadUsers();
-            alert(`Successfully granted ${plan} plan to ${email}`);
-        }
-        
-        // Admin management
-        function makeAdmin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            
-            if (!email) {
-                alert('Please enter an email');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const user = users.find(u => u.email === email);
-            
-            if (!user) {
-                alert('User not found');
-                return;
-            }
-            
-            if (user.plan === 'admin') {
-                alert('User is already an admin');
-                return;
-            }
-            
-            if (!confirm(`Make ${email} an admin? This grants full system access.`)) {
-                return;
-            }
-            
-            user.plan = 'admin';
-            user.madeAdminBy = currentUser.id;
-            user.madeAdminAt = new Date().toISOString();
-            
-            localStorage.setItem('focushub_users', JSON.stringify(users));
-            
-            document.getElementById('adminEmail').value = '';
-            loadUsers();
-            alert(`${email} is now an admin`);
-        }
-        
-        function removeAdmin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            
-            if (!email) {
-                alert('Please enter an email');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const user = users.find(u => u.email === email);
-            
-            if (!user) {
-                alert('User not found');
-                return;
-            }
-            
-            if (user.plan !== 'admin') {
-                alert('User is not an admin');
-                return;
-            }
-            
-            if (user.id === currentUser.id) {
-                alert('You cannot remove your own admin privileges');
-                return;
-            }
-            
-            if (!confirm(`Remove admin privileges from ${email}?`)) {
-                return;
-            }
-            
-            user.plan = 'free';
-            delete user.madeAdminBy;
-            delete user.madeAdminAt;
-            
-            localStorage.setItem('focushub_users', JSON.stringify(users));
-            
-            document.getElementById('adminEmail').value = '';
-            loadUsers();
-            alert(`Admin privileges removed from ${email}`);
-        }
-        
-        // View as user (simple impersonation)
-        function viewAsUser(userId) {
-            if (!confirm('View FocusHub as this user? This will log you out temporarily.')) {
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const user = users.find(u => u.id === userId);
-            
-            if (!user) return;
-            
-            // Store admin session for return
-            sessionStorage.setItem('admin_return', JSON.stringify(currentUser));
-            
-            // Switch to target user
-            localStorage.setItem('focushub_current_user', JSON.stringify({
-                id: user.id,
-                email: user.email,
-                mode: user.mode,
-                created: user.created
-            }));
-            
-            // Set mode
-            localStorage.setItem('focushub_mode', user.mode);
-            if (user.mode === 'student') {
-                localStorage.setItem('focushub_student_submode', user.subMode || 'highschool');
-            }
-            
-            // Redirect to their dashboard
-            window.location.href = 'overview.html';
-        }
-        
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('Logout from admin dashboard?')) {
-                localStorage.removeItem('focushub_current_user');
-                window.location.href = 'index.html';
-            }
-        });
-        
-        // Event listeners
-        document.getElementById('userSearch').addEventListener('input', loadUsers);
-        document.getElementById('planFilter').addEventListener('change', loadUsers);
-        document.getElementById('modeFilter').addEventListener('change', loadUsers);
-        
-        // Theme
-        const theme = localStorage.getItem('focushub_theme') || 'light';
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
-        }
-        
-        // Load initial data
-        loadUsers();
+
+        init();
     </script>
 </body>
 </html>
