@@ -81,13 +81,13 @@
                     </div>
                 </div>
 
-                <div class="task-input-wrapper">
-                    <label class="input-label">WHAT NEEDS DOING?</label>
-                    <p class="input-hint">Paste your task list below (one task per line)</p>
-                    <textarea id="taskInput" class="task-textarea" placeholder="Add Task"></textarea>
+                <div class="task-input-compact">
+                    <div class="task-input-main">
+                        <label class="input-label-compact">TASK INPUT:</label>
+                        <textarea id="taskInput" class="task-textarea-compact" placeholder="Add tasks (one per line)"></textarea>
+                    </div>
+                    <button class="parse-btn-compact" id="parseBtn">ADD TO HOLDING</button>
                 </div>
-
-                <button class="parse-btn" id="parseBtn">PARSE & ADD TO HOLDING AREA</button>
 
                 <!-- Holding Area -->
                 <div class="holding-area">
@@ -160,37 +160,47 @@
                 
                 <!-- Settings Panel (collapsible) -->
                 <div class="settings-panel" id="settingsPanel" style="display: none;">
+                    <div class="setting-group membership-status">
+                        <div class="membership-info">
+                            <label class="setting-label">CURRENT PLAN:</label>
+                            <span id="membershipDisplay" class="membership-badge">FREE TIER</span>
+                        </div>
+                        <button class="btn-upgrade" id="upgradeBtn" onclick="window.location.href='upgrade.html'">
+                            ⭐ UPGRADE TO PREMIUM
+                        </button>
+                    </div>
+                    
                     <div class="setting-group">
                         <label class="setting-label">MEMBERSHIP LEVEL:</label>
                         <select id="membershipSelect" class="setting-select">
                             <option value="free">Free Tier</option>
                             <option value="premium">Premium</option>
                         </select>
-                        <span class="setting-help">Set your membership level</span>
+                        <span class="setting-help">Set your membership level (testing only)</span>
                     </div>
                     
                     <div class="setting-group">
                         <label class="setting-label">REFLECTION TRADITION:</label>
                         <select id="reflectionTradition" class="setting-select">
                             <option value="secular">Secular (Default)</option>
-                            <option value="catholic">Catholic</option>
-                            <option value="protestant">Protestant</option>
-                            <option value="stoic">Stoic</option>
-                            <option value="buddhist">Buddhist</option>
-                            <option value="islamic">Islamic</option>
-                            <option value="jewish">Jewish</option>
+                            <option value="catholic">Catholic 🔒</option>
+                            <option value="protestant">Protestant 🔒</option>
+                            <option value="stoic">Stoic 🔒</option>
+                            <option value="buddhist">Buddhist 🔒</option>
+                            <option value="islamic">Islamic 🔒</option>
+                            <option value="jewish">Jewish 🔒</option>
                         </select>
-                        <span class="setting-help">Choose your daily reflection source</span>
+                        <span class="setting-help">Choose your daily reflection source (Premium required)</span>
                     </div>
                     
                     <div class="setting-group">
                         <label class="setting-label">AI INTENSITY:</label>
                         <select id="agentMode" class="setting-select">
-                            <option value="supportive">Supportive</option>
+                            <option value="supportive">Supportive 🔒</option>
                             <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough Love (Recommended)</option>
+                            <option value="tough">Tough Love 🔒</option>
                         </select>
-                        <span class="setting-help">Coaching style preference</span>
+                        <span class="setting-help">Coaching style preference (Premium required)</span>
                     </div>
                 </div>
                 
@@ -489,17 +499,65 @@
         
         // Settings Management
         function setupSettings() {
-            // Load membership
-            const membership = localStorage.getItem('focushub_membership');
-            const membershipSelect = document.getElementById('membershipSelect');
-            if (membership && membershipSelect) {
-                try {
-                    const data = JSON.parse(membership);
-                    membershipSelect.value = data.plan || 'free';
-                } catch (e) {
-                    membershipSelect.value = 'free';
+            // ADMIN OVERRIDE: Grant yourself premium automatically
+            const currentUser = supabaseClient?.auth?.user?.email;
+            const adminEmails = ['watersjb@gmail.com']; // John Waters - Admin
+            
+            let currentPlan = 'free';
+            
+            // Check if admin
+            if (adminEmails.includes(currentUser)) {
+                currentPlan = 'premium';
+                localStorage.setItem('focushub_membership', JSON.stringify({
+                    plan: 'premium',
+                    status: 'active',
+                    is_admin: true,
+                    startDate: new Date().toISOString()
+                }));
+            } else {
+                // Load membership for regular users
+                const membership = localStorage.getItem('focushub_membership');
+                if (membership) {
+                    try {
+                        const data = JSON.parse(membership);
+                        currentPlan = data.plan || 'free';
+                    } catch (e) {
+                        currentPlan = 'free';
+                    }
                 }
             }
+            
+            const membershipSelect = document.getElementById('membershipSelect');
+            const membershipDisplay = document.getElementById('membershipDisplay');
+            
+            if (membershipSelect) {
+                membershipSelect.value = currentPlan;
+            }
+            
+            // Update membership display badge
+            if (membershipDisplay) {
+                if (currentPlan === 'premium') {
+                    membershipDisplay.textContent = adminEmails.includes(currentUser) ? '👑 ADMIN' : '⭐ PREMIUM';
+                    membershipDisplay.classList.add('premium');
+                } else {
+                    membershipDisplay.textContent = 'FREE TIER';
+                    membershipDisplay.classList.remove('premium');
+                }
+            }
+            
+            // Show/hide upgrade button (admins don't need it)
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.style.display = (currentPlan === 'premium' || adminEmails.includes(currentUser)) ? 'none' : 'block';
+            }
+            
+            // Hide membership selector for admins
+            if (membershipSelect && adminEmails.includes(currentUser)) {
+                membershipSelect.closest('.setting-group').style.display = 'none';
+            }
+            
+            // Gate premium features
+            applyFeatureGates(currentPlan);
             
             // Load reflection tradition
             const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
@@ -508,8 +566,8 @@
                 traditionSelect.value = tradition;
             }
             
-            // Membership change
-            if (membershipSelect) {
+            // Membership change (non-admins only)
+            if (membershipSelect && !adminEmails.includes(currentUser)) {
                 membershipSelect.addEventListener('change', function() {
                     const plan = this.value;
                     localStorage.setItem('focushub_membership', JSON.stringify({
@@ -518,15 +576,96 @@
                         startDate: new Date().toISOString()
                     }));
                     updateAIMessage(`Membership updated to ${plan.toUpperCase()}. Settings active.`);
+                    
+                    // Reload to apply gates
+                    setTimeout(() => location.reload(), 1000);
                 });
             }
             
             // Reflection tradition change
             if (traditionSelect) {
                 traditionSelect.addEventListener('change', function() {
-                    localStorage.setItem('focushub_reflection_tradition', this.value);
-                    updateAIMessage(`Reflection tradition set to ${this.value.toUpperCase()}. Takes effect on next day start.`);
+                    const selectedTradition = this.value;
+                    const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
+                    
+                    // Admins bypass gate
+                    if (premiumTraditions.includes(selectedTradition) && currentPlan !== 'premium' && !adminEmails.includes(currentUser)) {
+                        updateAIMessage('🔒 Premium feature. Upgrade to unlock all reflection traditions.');
+                        this.value = tradition; // Revert
+                        setTimeout(() => {
+                            if (confirm('Reflection traditions require Premium. Upgrade now?')) {
+                                window.location.href = 'upgrade.html';
+                            }
+                        }, 100);
+                        return;
+                    }
+                    
+                    localStorage.setItem('focushub_reflection_tradition', selectedTradition);
+                    updateAIMessage(`Reflection tradition set to ${selectedTradition.toUpperCase()}. Takes effect on next day start.`);
                 });
+            }
+            
+            // AI intensity change
+            const agentModeSelect = document.getElementById('agentMode');
+            if (agentModeSelect) {
+                agentModeSelect.addEventListener('change', function() {
+                    const selectedMode = this.value;
+                    
+                    // Admins bypass gate
+                    if ((selectedMode === 'supportive' || selectedMode === 'tough') && currentPlan !== 'premium' && !adminEmails.includes(currentUser)) {
+                        updateAIMessage('🔒 Premium feature. Upgrade to unlock all AI intensity modes.');
+                        this.value = state.currentMode; // Revert
+                        setTimeout(() => {
+                            if (confirm('AI intensity modes require Premium. Upgrade now?')) {
+                                window.location.href = 'upgrade.html';
+                            }
+                        }, 100);
+                        return;
+                    }
+                    
+                    state.currentMode = selectedMode;
+                    saveState();
+                    updateAIMessage(`AI intensity changed to ${selectedMode.toUpperCase()}.`);
+                });
+            }
+        }
+        
+        // Apply feature gates based on membership
+        function applyFeatureGates(plan) {
+            const isPremium = plan === 'premium';
+            
+            // Gate reflection traditions
+            const traditionSelect = document.getElementById('reflectionTradition');
+            if (traditionSelect) {
+                const premiumOptions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
+                traditionSelect.querySelectorAll('option').forEach(option => {
+                    if (premiumOptions.includes(option.value)) {
+                        option.disabled = !isPremium;
+                        if (!isPremium && !option.textContent.includes('🔒')) {
+                            option.textContent = option.textContent.replace(' 🔒', '') + ' 🔒';
+                        }
+                    }
+                });
+            }
+            
+            // Gate AI intensity modes
+            const agentModeSelect = document.getElementById('agentMode');
+            if (agentModeSelect) {
+                ['supportive', 'tough'].forEach(mode => {
+                    const option = agentModeSelect.querySelector(`[value="${mode}"]`);
+                    if (option) {
+                        option.disabled = !isPremium;
+                        if (!isPremium && !option.textContent.includes('🔒')) {
+                            option.textContent = option.textContent.replace(' 🔒', '') + ' 🔒';
+                        }
+                    }
+                });
+                
+                // Force balanced if not premium
+                if (!isPremium && (state.currentMode === 'supportive' || state.currentMode === 'tough')) {
+                    state.currentMode = 'balanced';
+                    agentModeSelect.value = 'balanced';
+                }
             }
         }
 
@@ -772,6 +911,13 @@
             task.bucket = toBucket;
             state.tasks[toBucket].push(task);
             
+            // AI COACH: Task reclassification
+            const message = getAICoachMessage('taskMoved', {
+                toBucket: toBucket,
+                fromBucket: fromBucket
+            });
+            updateAIMessage(message);
+            
             saveState();
             renderAll();
             showMicroConfirm('Priority updated');
@@ -781,7 +927,21 @@
             for (let bucket in state.tasks) {
                 const task = state.tasks[bucket].find(t => t.id === taskId);
                 if (task) {
+                    const oldSprints = task.sprints || 1;
                     task.sprints = Math.max(1, Math.min(5, task.sprints + delta));
+                    const newSprints = task.sprints;
+                    
+                    // AI COACH: Sprint estimation changes
+                    if (newSprints !== oldSprints) {
+                        const totalRequired = calculateTotalRequiredSprints();
+                        const message = getAICoachMessage('sprintAdjusted', {
+                            oldSprints: oldSprints,
+                            newSprints: newSprints,
+                            totalRequired: totalRequired
+                        });
+                        updateAIMessage(message);
+                    }
+                    
                     saveState();
                     renderTasks();
                     return;
@@ -831,7 +991,7 @@
                 const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, b) => 
                     sum + state.tasks[b].filter(t => !t.completed).length, 0);
                 
-                const message = getContextualAIMessage('taskCompleted', {
+                const message = getAICoachMessage('taskComplete', {
                     priority: task.priority || 'medium',
                     sprintValue: task.sprints || 1,
                     tasksLeft: tasksLeft
@@ -930,7 +1090,7 @@
             state.sessionState = 'active';
             
             const totalRequired = calculateTotalRequiredSprints();
-            const message = getContextualAIMessage('sessionStart', { required: totalRequired });
+            const message = getAICoachMessage('sessionStart', { required: totalRequired });
             
             updateSystemState(message);
             updateAIMessage(message);
@@ -964,7 +1124,7 @@
             const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
                 sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
             
-            const message = getContextualAIMessage('sprintComplete', {
+            const message = getAICoachMessage('sprintComplete', {
                 sprintsDone: state.sprintCount,
                 required: totalRequired,
                 tasksLeft: tasksLeft
@@ -1019,6 +1179,18 @@
         function renderAll() {
             // Calculate total required sprints from all tasks
             const totalRequiredSprints = calculateTotalRequiredSprints();
+            
+            // DEBUG: Log sprint calculation
+            console.log('📊 Sprint Calc:', {
+                required: totalRequiredSprints,
+                done: state.sprintCount,
+                gap: totalRequiredSprints - state.sprintCount,
+                tasks: {
+                    admin: state.tasks.admin.length,
+                    deepwork: state.tasks.deepwork.length,
+                    strategic: state.tasks.strategic.length
+                }
+            });
             
             document.getElementById('sprintsDone').textContent = state.sprintCount;
             document.getElementById('sprintTarget').textContent = totalRequiredSprints;
@@ -1097,99 +1269,219 @@
             
             aiMessageEl.textContent = message;
             
-            // Auto-fade transient messages after 5 seconds (not session state messages)
-            if (!message.includes('Session active') && !message.includes('System idle')) {
+            // Messages persist longer (10 seconds)
+            if (!message.includes('Session active') && !message.includes('System idle') && !message.includes('IDLE:')) {
                 clearTimeout(aiMessageEl._fadeTimer);
                 aiMessageEl._fadeTimer = setTimeout(() => {
-                    // Return to appropriate state message
-                    if (state.timer.active) {
-                        aiMessageEl.textContent = 'Session active. Today\'s requirements are locked.';
-                    } else {
-                        aiMessageEl.textContent = 'System idle. Start a sprint to begin.';
-                    }
-                }, 5000);
+                    // Return to idle state using library
+                    const totalRequired = calculateTotalRequiredSprints();
+                    const gap = totalRequired - state.sprintCount;
+                    const idleMessage = getAICoachMessage('idleState', { gap: gap });
+                    aiMessageEl.textContent = idleMessage;
+                }, 10000); // 10 seconds
             }
         }
 
-        // AI COACH MESSAGE LIBRARY - CONTEXTUAL TOUGH LOVE
-        // Messages reference specific user behavior and performance
+        // ============================================
+        // AI COACH COMPLETE LIBRARY
+        // 3 Intensity Levels + Contextual Intelligence
+        // ============================================
         
-        function getContextualAIMessage(event, context = {}) {
-            const messages = {
-                sprintComplete: () => {
-                    const { sprintsDone, required, tasksLeft } = context;
-                    const behindBy = required - sprintsDone;
-                    
-                    if (behindBy > 3) {
-                        return `Sprint ${sprintsDone}/${required} complete. You're ${behindBy} sprints behind. This gap won't close itself. Start now.`;
-                    } else if (behindBy > 0) {
-                        return `Sprint ${sprintsDone}/${required} logged. Still ${behindBy} behind target. Pick up the pace.`;
-                    } else if (tasksLeft > 0) {
-                        return `Sprint complete. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} remaining. Maintain momentum.`;
-                    } else {
-                        return `Sprint complete. Requirements met. Reassess if additional work warranted.`;
-                    }
-                },
-                
-                taskCompleted: () => {
-                    const { priority, sprintValue, tasksLeft } = context;
-                    
-                    if (priority === 'low') {
-                        return `Low-priority task closed. Question: Why wasn't this delegated or eliminated? ${tasksLeft} real tasks remain.`;
-                    } else if (priority === 'high' && sprintValue >= 3) {
-                        return `High-value item complete (+${sprintValue} sprints). This is what winning looks like. Next.`;
-                    } else if (priority === 'high') {
-                        return `High-priority complete. Progress acceptable. ${tasksLeft} items still require execution.`;
-                    } else {
-                        return `Task done. ${tasksLeft} remain. Clock's running.`;
-                    }
-                },
-                
-                prolongedInactivity: () => {
-                    const { minutesIdle, sprintsDone, required } = context;
-                    const gap = required - sprintsDone;
-                    
-                    if (gap > 4) {
-                        return `${minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move.`;
-                    } else if (gap > 0) {
-                        return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate.`;
-                    } else {
-                        return `Work stopped. Session still active. Either continue or end day.`;
-                    }
-                },
-                
-                lowPriorityFocus: () => {
-                    const { lowCount, highCount } = context;
-                    return `Alert: ${lowCount} low-priority items active vs ${highCount} high-priority. Misaligned. Strategic work demands attention now.`;
-                },
-                
-                sessionStart: () => {
-                    const { required } = context;
-                    return `Session active. ${required} sprint${required > 1 ? 's' : ''} required today. Timer running. Execute.`;
-                },
-                
-                distractionParked: () => {
-                    const { distractionCount } = context;
-                    if (distractionCount > 5) {
-                        return `Distraction #${distractionCount} parked. Pattern detected. Address root cause or accept compromised output.`;
-                    } else if (distractionCount > 2) {
-                        return `Distraction logged (total: ${distractionCount}). Recurring interruptions signal environment or discipline issues.`;
-                    } else {
-                        return `Distraction parked. Refocus immediate.`;
-                    }
-                },
-                
-                taskAdded: () => {
-                    const { totalTasks, unclassified } = context;
-                    if (unclassified > 0) {
-                        return `Task added. ${unclassified} item${unclassified > 1 ? 's' : ''} in holding require classification. Delayed decisions compound.`;
-                    } else {
-                        return `Item logged. Total active: ${totalTasks}. Prioritize and begin execution.`;
-                    }
-                }
-            };
+        const aiCoachLibrary = {
+            // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft
+            sprintComplete: {
+                supportive: [
+                    (ctx) => `Great work completing sprint ${ctx.sprintsDone}! ${ctx.required - ctx.sprintsDone} more to go. You've got this!`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} done! Taking it one step at a time. ${ctx.tasksLeft} tasks remaining.`,
+                    (ctx) => `Nice! Sprint ${ctx.sprintsDone} complete. Keep that momentum going!`
+                ],
+                balanced: [
+                    (ctx) => `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${ctx.required - ctx.sprintsDone > 0 ? 'Continue execution.' : 'On track.'}`,
+                    (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. Maintain pace.`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left in requirements.`
+                ],
+                tough: [
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. You're ${gap} sprints behind. This gap won't close itself. Start now.`;
+                        if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. Still ${gap} behind target. Pick up the pace.`;
+                        return `Sprint complete. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. No time to celebrate.`;
+                    },
+                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} more required. Clock's ticking. Move.`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items still need execution. Results matter, not effort.`
+                ]
+            },
             
-            return messages[event] ? messages[event]() : 'System operational.';
+            // TASK COMPLETION - Context: priority, sprintValue, tasksLeft
+            taskComplete: {
+                supportive: [
+                    (ctx) => `Excellent! Task complete (+${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''}). ${ctx.tasksLeft} more to go!`,
+                    (ctx) => `Way to go! Another task checked off. You're making real progress.`,
+                    (ctx) => `Task done! That's the kind of follow-through that gets results.`
+                ],
+                balanced: [
+                    (ctx) => `Task complete (+${ctx.sprintValue}). ${ctx.tasksLeft} remaining. Continue.`,
+                    (ctx) => ctx.priority === 'high' ? `High-priority item complete. Progress acceptable.` : `Task closed. ${ctx.tasksLeft} remain.`,
+                    (ctx) => `Item marked done. Sprint count updated. Next task.`
+                ],
+                tough: [
+                    (ctx) => {
+                        if (ctx.priority === 'low') return `Low-priority task closed. Question: Why wasn't this delegated or eliminated? ${ctx.tasksLeft} real tasks remain.`;
+                        if (ctx.priority === 'high' && ctx.sprintValue >= 3) return `High-value item complete (+${ctx.sprintValue} sprints). This is what winning looks like. Next.`;
+                        return `Task done. ${ctx.tasksLeft} remain. Clock's running.`;
+                    },
+                    (ctx) => ctx.priority === 'high' ? `Finally. High-priority complete. Should have been done hours ago.` : `Task closed. ${ctx.tasksLeft} items still require execution.`,
+                    (ctx) => `One down. ${ctx.tasksLeft} to go. Execution speed insufficient. Accelerate.`
+                ]
+            },
+            
+            // INACTIVITY - Context: minutesIdle, sprintsDone, required
+            inactivity: {
+                supportive: [
+                    (ctx) => `Hey there! You've been idle for a bit. Ready to tackle the next sprint?`,
+                    (ctx) => `Taking a break? No problem! When you're ready, ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} await.`,
+                    (ctx) => `Noticed some downtime. Whenever you're ready to continue, I'm here!`
+                ],
+                balanced: [
+                    (ctx) => `Inactivity detected. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} remaining.`,
+                    (ctx) => `No progress for ${ctx.minutesIdle} minutes. Resume work when ready.`,
+                    (ctx) => `Session paused. ${ctx.required - ctx.sprintsDone} sprints still required.`
+                ],
+                tough: [
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        if (gap > 4) return `${ctx.minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move.`;
+                        if (gap > 0) return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate.`;
+                        return `Work stopped. Session still active. Either continue or end day.`;
+                    },
+                    (ctx) => `${ctx.minutesIdle}+ minutes wasted. ${ctx.required - ctx.sprintsDone} sprints won't complete themselves. Start now.`,
+                    (ctx) => `Extended inactivity logged. Gap widening. Immediate action required.`
+                ]
+            },
+            
+            // DISTRACTION PARKED - Context: distractionCount
+            distractionParked: {
+                supportive: [
+                    (ctx) => `Distraction parked! Good job recognizing and capturing it.`,
+                    (ctx) => `Nice catch! Distraction logged. Back to focused work.`,
+                    (ctx) => `Distraction handled. You're staying on track!`
+                ],
+                balanced: [
+                    (ctx) => `Distraction logged. Refocus on current work.`,
+                    (ctx) => `Item parked. Return to sprint tasks.`,
+                    (ctx) => ctx.distractionCount > 3 ? `Distraction #${ctx.distractionCount}. Pattern forming.` : `Distraction captured. Continue.`
+                ],
+                tough: [
+                    (ctx) => {
+                        if (ctx.distractionCount > 5) return `Distraction #${ctx.distractionCount} parked. Pattern detected. Address root cause or accept compromised output.`;
+                        if (ctx.distractionCount > 2) return `Distraction logged (total: ${ctx.distractionCount}). Recurring interruptions signal environment or discipline issues.`;
+                        return `Distraction parked. Refocus immediate.`;
+                    },
+                    (ctx) => `Another distraction (#${ctx.distractionCount}). Focus is a choice. Choose better.`,
+                    (ctx) => ctx.distractionCount > 4 ? `Distraction epidemic. ${ctx.distractionCount} logged today. This is why you're behind.` : `Noted. Refocus now.`
+                ]
+            },
+            
+            // SESSION START - Context: required
+            sessionStart: {
+                supportive: [
+                    (ctx) => `Session started! ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} planned for today. Let's make it a great day!`,
+                    (ctx) => `Ready to go! Timer active. You've got this!`,
+                    (ctx) => `Sprint underway! Stay focused and trust the process.`
+                ],
+                balanced: [
+                    (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required. Timer running.`,
+                    (ctx) => `Sprint started. Focus mode engaged. Execute.`,
+                    (ctx) => `Timer active. ${ctx.required} sprints on today's agenda.`
+                ],
+                tough: [
+                    (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required today. Timer running. Execute.`,
+                    (ctx) => `Sprint started. ${ctx.required} sprint requirement locked. No excuses. Perform.`,
+                    (ctx) => `FOCUS MODE: ${ctx.required} sprints required. Timer running. Results expected.`
+                ]
+            },
+            
+            // TASK MOVED - Context: toBucket, fromBucket
+            taskMoved: {
+                supportive: [
+                    (ctx) => ctx.toBucket === 'strategic' ? `Great prioritization! Moved to Strategic.` : `Task reclassified. Nice organization!`,
+                    (ctx) => `Task moved successfully. You're staying organized!`,
+                    (ctx) => `Good call on the priority adjustment!`
+                ],
+                balanced: [
+                    (ctx) => `Task moved to ${ctx.toBucket.toUpperCase()}. Priority updated.`,
+                    (ctx) => `Reclassification complete. Continue.`,
+                    (ctx) => `Task priority adjusted.`
+                ],
+                tough: [
+                    (ctx) => {
+                        if (ctx.toBucket === 'strategic') return `Task moved to STRATEGIC. Good. High-value work gets priority.`;
+                        if (ctx.toBucket === 'admin' && ctx.fromBucket === 'strategic') return `Task downgraded to ADMIN. Question: Was this ever truly strategic?`;
+                        return `Task reclassified to ${ctx.toBucket.toUpperCase()}. Ensure alignment with objectives.`;
+                    },
+                    (ctx) => ctx.toBucket === 'strategic' ? `Finally. Strategic work identified. Should have been there from the start.` : `Task moved. Priority reassessed.`,
+                    (ctx) => `Reclassification logged. Better late than never.`
+                ]
+            },
+            
+            // SPRINT ADJUSTED - Context: newSprints, oldSprints, totalRequired
+            sprintAdjusted: {
+                supportive: [
+                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Sprint estimate increased. You're being thorough - that's smart!` : `Sprint estimate reduced. Nice efficiency!`,
+                    (ctx) => `Estimate updated to ${ctx.newSprints} sprints. Total required: ${ctx.totalRequired}.`,
+                    (ctx) => `Good adjustment! Total now ${ctx.totalRequired} sprints.`
+                ],
+                balanced: [
+                    (ctx) => `Sprint estimate: ${ctx.oldSprints} → ${ctx.newSprints}. Total required: ${ctx.totalRequired}.`,
+                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Estimate increased. Total: ${ctx.totalRequired}.` : `Estimate reduced. Total: ${ctx.totalRequired}.`,
+                    (ctx) => `Sprint count adjusted. Requirements updated.`
+                ],
+                tough: [
+                    (ctx) => {
+                        if (ctx.newSprints > ctx.oldSprints) return `Sprint requirement increased to ${ctx.newSprints}. Total required now: ${ctx.totalRequired}. Adjust expectations accordingly.`;
+                        return `Sprint estimate reduced. Was initial assessment inflated?`;
+                    },
+                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Scope creep detected. ${ctx.newSprints} sprints now required. This is why projects fail.` : `Estimate decreased. Should have been right the first time.`,
+                    (ctx) => `Sprint value changed to ${ctx.newSprints}. Total required: ${ctx.totalRequired}. Plan better.`
+                ]
+            },
+            
+            // DEFAULT IDLE STATE - Context: gap (required - done)
+            idleState: {
+                supportive: [
+                    (ctx) => ctx.gap > 0 ? `Ready when you are! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining today.` : `You've completed today's requirements! Additional work is optional.`,
+                    (ctx) => `System idle. Start a sprint whenever you're ready!`,
+                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints left. You can do this!` : `Almost there! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} to go.`
+                ],
+                balanced: [
+                    (ctx) => ctx.gap > 0 ? `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Start when ready.` : `Requirements met. Additional work optional.`,
+                    (ctx) => `Session paused. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} required.`,
+                    (ctx) => `Idle. Start next sprint to continue progress.`
+                ],
+                tough: [
+                    (ctx) => {
+                        if (ctx.gap > 2) return `IDLE: ${ctx.gap} sprints behind. Start next sprint NOW.`;
+                        if (ctx.gap > 0) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. No time to waste. Move.`;
+                        return `Requirements met. Additional work optional.`;
+                    },
+                    (ctx) => ctx.gap > 0 ? `Idle state unacceptable. ${ctx.gap} sprints required. Execute immediately.` : `Day complete. Reassess if more work warranted.`,
+                    (ctx) => ctx.gap > 3 ? `System idle. You're ${ctx.gap} sprints behind. Every second counts.` : `${ctx.gap} left. Start now.`
+                ]
+            }
+        };
+        
+        // Get AI message based on intensity mode and context
+        function getAICoachMessage(category, context = {}) {
+            const mode = state.currentMode || 'balanced';
+            const messages = aiCoachLibrary[category]?.[mode];
+            
+            if (!messages) return 'System operational.';
+            
+            // Pick random message from array
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            
+            // If message is function, call with context; otherwise return string
+            return typeof message === 'function' ? message(context) : message;
         }
         
         // Check if user is focusing on low priority items
@@ -1220,7 +1512,13 @@
             // If session active and no sprint running, check for prolonged inactivity
             if (state.dayActive && !state.timer.active) {
                 inactivityTimer = setTimeout(() => {
-                    updateAIMessage(getAIMessage('prolongedInactivity'));
+                    const totalRequired = calculateTotalRequiredSprints();
+                    const message = getAICoachMessage('inactivity', {
+                        minutesIdle: 2,
+                        sprintsDone: state.sprintCount,
+                        required: totalRequired
+                    });
+                    updateAIMessage(message);
                     
                     // Remind again every 2 minutes
                     startInactivityMonitor();
@@ -1253,7 +1551,7 @@
             document.getElementById('handleLaterCheck').checked = false;
             
             // AI COACH: Contextual distraction message
-            const message = getContextualAIMessage('distractionParked', {
+            const message = getAICoachMessage('distractionParked', {
                 distractionCount: state.distractionCount
             });
             updateAIMessage(message);
