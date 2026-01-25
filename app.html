@@ -155,54 +155,14 @@
             <div class="sidebar-card system-intelligence-primary">
                 <div class="card-header-with-control">
                     <h3>🤖 SYSTEM INTELLIGENCE</h3>
-                    <button class="btn-icon" id="settingsToggle" title="Settings">⚙️</button>
+                    <select id="agentMode" class="mode-select-compact" title="System intensity level">
+                        <option value="supportive">Supportive</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="tough">Tough</option>
+                    </select>
                 </div>
                 
-                <!-- Settings Panel (collapsible) -->
-                <div class="settings-panel" id="settingsPanel" style="display: none;">
-                    <div class="setting-group membership-status">
-                        <div class="membership-info">
-                            <label class="setting-label">CURRENT PLAN:</label>
-                            <span id="membershipDisplay" class="membership-badge">FREE TIER</span>
-                        </div>
-                        <button class="btn-upgrade" id="upgradeBtn" onclick="window.location.href='upgrade.html'">
-                            ⭐ UPGRADE TO PREMIUM
-                        </button>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label class="setting-label">MEMBERSHIP LEVEL:</label>
-                        <select id="membershipSelect" class="setting-select">
-                            <option value="free">Free Tier</option>
-                            <option value="premium">Premium</option>
-                        </select>
-                        <span class="setting-help">Set your membership level (testing only)</span>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label class="setting-label">REFLECTION TRADITION:</label>
-                        <select id="reflectionTradition" class="setting-select">
-                            <option value="secular">Secular (Default)</option>
-                            <option value="catholic">Catholic 🔒</option>
-                            <option value="protestant">Protestant 🔒</option>
-                            <option value="stoic">Stoic 🔒</option>
-                            <option value="buddhist">Buddhist 🔒</option>
-                            <option value="islamic">Islamic 🔒</option>
-                            <option value="jewish">Jewish 🔒</option>
-                        </select>
-                        <span class="setting-help">Choose your daily reflection source (Premium required)</span>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label class="setting-label">AI INTENSITY:</label>
-                        <select id="agentMode" class="setting-select">
-                            <option value="supportive">Supportive 🔒</option>
-                            <option value="balanced" selected>Balanced</option>
-                            <option value="tough">Tough Love 🔒</option>
-                        </select>
-                        <span class="setting-help">Coaching style preference (Premium required)</span>
-                    </div>
-                </div>
+                <!-- Settings Panel (removed - settings moved to footer) -->
                 
                 <div class="ai-message-large" id="aiMessage">
                     System idle. Start a sprint to begin.
@@ -483,81 +443,50 @@
                 }
             });
             
-            // Settings toggle
-            const settingsToggle = document.getElementById('settingsToggle');
-            const settingsPanel = document.getElementById('settingsPanel');
-            if (settingsToggle && settingsPanel) {
-                settingsToggle.addEventListener('click', function() {
-                    const isVisible = settingsPanel.style.display !== 'none';
-                    settingsPanel.style.display = isVisible ? 'none' : 'block';
-                });
-            }
-            
-            // Load and setup settings
-            setupSettings();
+            // Load and setup mode selector
+            setupModeSelector();
         }
         
-        // Settings Management
-        function setupSettings() {
-            // ADMIN OVERRIDE: Grant yourself premium automatically
-            const currentUser = supabaseClient?.auth?.user?.email;
-            const adminEmails = ['watersjb@gmail.com']; // John Waters - Admin
-            
+        // Mode Selector Management
+        async function setupModeSelector() {
             let currentPlan = 'free';
+            let isAdmin = false;
             
-            // Check if admin
-            if (adminEmails.includes(currentUser)) {
-                currentPlan = 'premium';
-                localStorage.setItem('focushub_membership', JSON.stringify({
-                    plan: 'premium',
-                    status: 'active',
-                    is_admin: true,
-                    startDate: new Date().toISOString()
-                }));
-            } else {
-                // Load membership for regular users
-                const membership = localStorage.getItem('focushub_membership');
-                if (membership) {
-                    try {
-                        const data = JSON.parse(membership);
-                        currentPlan = data.plan || 'free';
-                    } catch (e) {
-                        currentPlan = 'free';
+            try {
+                // Get current user from Supabase
+                const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+                
+                if (user) {
+                    console.log('✅ User logged in:', user.email);
+                    
+                    // Check membership in database
+                    const { data: membership, error: membershipError } = await supabaseClient
+                        .from('memberships')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .single();
+                    
+                    if (!membershipError && membership) {
+                        currentPlan = membership.plan || 'free';
+                        isAdmin = membership.is_admin || false;
+                        console.log('✅ Membership loaded:', { plan: currentPlan, isAdmin: isAdmin });
                     }
                 }
-            }
-            
-            const membershipSelect = document.getElementById('membershipSelect');
-            const membershipDisplay = document.getElementById('membershipDisplay');
-            
-            if (membershipSelect) {
-                membershipSelect.value = currentPlan;
-            }
-            
-            // Update membership display badge
-            if (membershipDisplay) {
-                if (currentPlan === 'premium') {
-                    membershipDisplay.textContent = adminEmails.includes(currentUser) ? '👑 ADMIN' : '⭐ PREMIUM';
-                    membershipDisplay.classList.add('premium');
-                } else {
-                    membershipDisplay.textContent = 'FREE TIER';
-                    membershipDisplay.classList.remove('premium');
+            } catch (error) {
+                console.error('❌ Error loading membership:', error);
+                // Fallback to localStorage if Supabase fails
+                const localMembership = localStorage.getItem('focushub_membership');
+                if (localMembership) {
+                    try {
+                        const data = JSON.parse(localMembership);
+                        currentPlan = data.plan || 'free';
+                        isAdmin = data.is_admin || false;
+                    } catch (e) {}
                 }
             }
             
-            // Show/hide upgrade button (admins don't need it)
-            const upgradeBtn = document.getElementById('upgradeBtn');
-            if (upgradeBtn) {
-                upgradeBtn.style.display = (currentPlan === 'premium' || adminEmails.includes(currentUser)) ? 'none' : 'block';
-            }
-            
-            // Hide membership selector for admins
-            if (membershipSelect && adminEmails.includes(currentUser)) {
-                membershipSelect.closest('.setting-group').style.display = 'none';
-            }
-            
-            // Gate premium features
-            applyFeatureGates(currentPlan);
+            // Gate premium intensity modes
+            applyFeatureGates(currentPlan, isAdmin);
             
             // Load reflection tradition
             const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
@@ -582,71 +511,34 @@
                 });
             }
             
-            // Reflection tradition change
-            if (traditionSelect) {
-                traditionSelect.addEventListener('change', function() {
-                    const selectedTradition = this.value;
-                    const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
-                    
-                    // Admins bypass gate
-                    if (premiumTraditions.includes(selectedTradition) && currentPlan !== 'premium' && !adminEmails.includes(currentUser)) {
-                        updateAIMessage('🔒 Premium feature. Upgrade to unlock all reflection traditions.');
-                        this.value = tradition; // Revert
-                        setTimeout(() => {
-                            if (confirm('Reflection traditions require Premium. Upgrade now?')) {
-                                window.location.href = 'upgrade.html';
-                            }
-                        }, 100);
-                        return;
-                    }
-                    
-                    localStorage.setItem('focushub_reflection_tradition', selectedTradition);
-                    updateAIMessage(`Reflection tradition set to ${selectedTradition.toUpperCase()}. Takes effect on next day start.`);
-                });
+            // Load current mode from state
+            const agentModeSelect = document.getElementById('agentMode');
+            if (agentModeSelect && state.currentMode) {
+                agentModeSelect.value = state.currentMode;
             }
             
-            // AI intensity change
-            const agentModeSelect = document.getElementById('agentMode');
+            // AI intensity change handler
             if (agentModeSelect) {
                 agentModeSelect.addEventListener('change', function() {
                     const selectedMode = this.value;
                     
-                    // Admins bypass gate
-                    if ((selectedMode === 'supportive' || selectedMode === 'tough') && currentPlan !== 'premium' && !adminEmails.includes(currentUser)) {
-                        updateAIMessage('🔒 Premium feature. Upgrade to unlock all AI intensity modes.');
+                    // Check if premium required
+                    if ((selectedMode === 'supportive' || selectedMode === 'tough') && currentPlan !== 'premium' && !isAdmin) {
+                        alert('🔒 This intensity mode requires Premium. Upgrade to unlock Supportive & Tough modes.');
                         this.value = state.currentMode; // Revert
-                        setTimeout(() => {
-                            if (confirm('AI intensity modes require Premium. Upgrade now?')) {
-                                window.location.href = 'upgrade.html';
-                            }
-                        }, 100);
                         return;
                     }
                     
                     state.currentMode = selectedMode;
                     saveState();
-                    updateAIMessage(`AI intensity changed to ${selectedMode.toUpperCase()}.`);
+                    console.log('Intensity changed to:', selectedMode);
                 });
             }
         }
         
         // Apply feature gates based on membership
-        function applyFeatureGates(plan) {
-            const isPremium = plan === 'premium';
-            
-            // Gate reflection traditions
-            const traditionSelect = document.getElementById('reflectionTradition');
-            if (traditionSelect) {
-                const premiumOptions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
-                traditionSelect.querySelectorAll('option').forEach(option => {
-                    if (premiumOptions.includes(option.value)) {
-                        option.disabled = !isPremium;
-                        if (!isPremium && !option.textContent.includes('🔒')) {
-                            option.textContent = option.textContent.replace(' 🔒', '') + ' 🔒';
-                        }
-                    }
-                });
-            }
+        function applyFeatureGates(plan, isAdmin = false) {
+            const isPremium = plan === 'premium' || isAdmin;
             
             // Gate AI intensity modes
             const agentModeSelect = document.getElementById('agentMode');
@@ -1138,6 +1030,9 @@
             // Start inactivity monitor
             startInactivityMonitor();
             
+            // Start continuous AI monitoring
+            startAIMonitoring();
+            
             saveState();
             renderAll();
         }
@@ -1207,18 +1102,30 @@
         // Calculate total required sprints from all non-completed tasks
         function calculateTotalRequiredSprints() {
             let total = 0;
+            let taskDetails = [];
             
             // Count sprints from active buckets (not holding, not completed)
             ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                 state.tasks[bucket].forEach(task => {
                     if (!task.completed) {
-                        total += (task.sprints || 1);
+                        const sprints = task.sprints || 1;
+                        total += sprints;
+                        taskDetails.push(`${task.title}: ${sprints}`);
                     }
                 });
             });
             
             // Default minimum of 5 sprints if no tasks
-            return Math.max(5, total);
+            const finalTotal = Math.max(5, total);
+            
+            console.log('📊 Sprint Calculation:', {
+                tasksFound: taskDetails.length,
+                totalFromTasks: total,
+                finalTotal: finalTotal,
+                taskDetails: taskDetails
+            });
+            
+            return finalTotal;
         }
 
         function renderWins() {
@@ -1283,8 +1190,9 @@
         }
 
         // ============================================
-        // AI COACH COMPLETE LIBRARY
+        // SYSTEM INTELLIGENCE COMPLETE LIBRARY
         // 3 Intensity Levels + Contextual Intelligence
+        // 150+ Total Messages for Variety
         // ============================================
         
         const aiCoachLibrary = {
@@ -1293,22 +1201,42 @@
                 supportive: [
                     (ctx) => `Great work completing sprint ${ctx.sprintsDone}! ${ctx.required - ctx.sprintsDone} more to go. You've got this!`,
                     (ctx) => `Sprint ${ctx.sprintsDone} done! Taking it one step at a time. ${ctx.tasksLeft} tasks remaining.`,
-                    (ctx) => `Nice! Sprint ${ctx.sprintsDone} complete. Keep that momentum going!`
+                    (ctx) => `Nice! Sprint ${ctx.sprintsDone} complete. Keep that momentum going!`,
+                    (ctx) => `Excellent focus! Sprint ${ctx.sprintsDone} finished. You're building real progress.`,
+                    (ctx) => `Sprint complete! That's ${ctx.sprintsDone} down. You're doing great work here.`,
+                    (ctx) => `Another sprint in the books! ${ctx.required - ctx.sprintsDone} to go. Stay strong!`,
+                    (ctx) => `Wonderful! Sprint ${ctx.sprintsDone} complete. ${ctx.tasksLeft} tasks still on the board.`
                 ],
                 balanced: [
                     (ctx) => `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${ctx.required - ctx.sprintsDone > 0 ? 'Continue execution.' : 'On track.'}`,
                     (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. Maintain pace.`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left in requirements.`
+                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left in requirements.`,
+                    (ctx) => `Work session complete. ${ctx.sprintsDone} of ${ctx.required} finished. Progress acceptable.`,
+                    (ctx) => `Sprint logged. ${ctx.required - ctx.sprintsDone} remaining. ${ctx.tasksLeft} tasks active.`,
+                    (ctx) => `Session ${ctx.sprintsDone} complete. Continue at current pace.`,
+                    (ctx) => `Sprint finished. ${ctx.required - ctx.sprintsDone} more needed to meet daily target.`
                 ],
                 tough: [
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. You're ${gap} sprints behind. This gap won't close itself. Start now.`;
+                        if (gap > 5) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. You're ${gap} sprints behind. Deficit severe. Start now.`;
+                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${gap} sprints behind. This gap won't close itself. Move.`;
                         if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. Still ${gap} behind target. Pick up the pace.`;
                         return `Sprint complete. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. No time to celebrate.`;
                     },
-                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} more required. Clock's ticking. Move.`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items still need execution. Results matter, not effort.`
+                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} more required. Clock's ticking. Execute.`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items still need execution. Results matter, not effort.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        return gap > 4 ? `${ctx.sprintsDone} done. ${gap} behind. Performance unacceptable. Immediate action required.` : `Sprint logged. ${gap} remain. Move faster.`;
+                    },
+                    (ctx) => `Sprint complete. ${ctx.required - ctx.sprintsDone} still needed. Every delay compounds. Next.`,
+                    (ctx) => `One sprint finished. ${ctx.required - ctx.sprintsDone} pending. Speed insufficient. Accelerate now.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        if (gap > 6) return `Sprint ${ctx.sprintsDone}. You're ${gap} behind schedule. Catastrophic deficit. Start immediately.`;
+                        return `Sprint done. ${gap} more. Time is not your friend here.`;
+                    }
                 ]
             },
             
@@ -1317,12 +1245,20 @@
                 supportive: [
                     (ctx) => `Excellent! Task complete (+${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''}). ${ctx.tasksLeft} more to go!`,
                     (ctx) => `Way to go! Another task checked off. You're making real progress.`,
-                    (ctx) => `Task done! That's the kind of follow-through that gets results.`
+                    (ctx) => `Task done! That's the kind of follow-through that gets results.`,
+                    (ctx) => `Fantastic! Task finished. You're building momentum beautifully.`,
+                    (ctx) => `Great execution! Task complete. ${ctx.tasksLeft} remaining on your list.`,
+                    (ctx) => `Well done! That's another win. Keep this energy going!`,
+                    (ctx) => `Task closed successfully. You're getting things done today!`
                 ],
                 balanced: [
                     (ctx) => `Task complete (+${ctx.sprintValue}). ${ctx.tasksLeft} remaining. Continue.`,
                     (ctx) => ctx.priority === 'high' ? `High-priority item complete. Progress acceptable.` : `Task closed. ${ctx.tasksLeft} remain.`,
-                    (ctx) => `Item marked done. Sprint count updated. Next task.`
+                    (ctx) => `Item marked done. Sprint count updated. Next task.`,
+                    (ctx) => `Task finished. ${ctx.tasksLeft} active items remain in queue.`,
+                    (ctx) => `Work item closed. ${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} credited. Continue execution.`,
+                    (ctx) => ctx.priority === 'high' ? `High-value work complete. Maintain focus on priorities.` : `Task complete. ${ctx.tasksLeft} pending.`,
+                    (ctx) => `Item resolved. Sprint total updated. Proceed to next objective.`
                 ],
                 tough: [
                     (ctx) => {
@@ -1330,8 +1266,19 @@
                         if (ctx.priority === 'high' && ctx.sprintValue >= 3) return `High-value item complete (+${ctx.sprintValue} sprints). This is what winning looks like. Next.`;
                         return `Task done. ${ctx.tasksLeft} remain. Clock's running.`;
                     },
-                    (ctx) => ctx.priority === 'high' ? `Finally. High-priority complete. Should have been done hours ago.` : `Task closed. ${ctx.tasksLeft} items still require execution.`,
-                    (ctx) => `One down. ${ctx.tasksLeft} to go. Execution speed insufficient. Accelerate.`
+                    (ctx) => ctx.priority === 'high' ? `Finally. High-priority complete. Should have been done hours ago. ${ctx.tasksLeft} left.` : `Task closed. ${ctx.tasksLeft} items still require execution.`,
+                    (ctx) => `One down. ${ctx.tasksLeft} to go. Execution speed insufficient. Accelerate.`,
+                    (ctx) => {
+                        if (ctx.priority === 'low') return `Low-priority complete. ${ctx.tasksLeft} items remain. Question priorities.`;
+                        if (ctx.priority === 'high') return `High-priority closed. About time. ${ctx.tasksLeft} tasks pending.`;
+                        return `Task done. ${ctx.tasksLeft} more. Speed inadequate.`;
+                    },
+                    (ctx) => ctx.priority === 'low' ? `Another low-priority task. ${ctx.tasksLeft} remain. Time allocation questionable.` : `Task complete. ${ctx.tasksLeft} left. Move faster.`,
+                    (ctx) => `Task closed. ${ctx.tasksLeft} pending. Your pace puts completion at risk. Execute.`,
+                    (ctx) => {
+                        if (ctx.priority === 'high' && ctx.sprintValue >= 4) return `Major deliverable complete (+${ctx.sprintValue}). Exceptional work. More of this.`;
+                        return `Task done. ${ctx.tasksLeft} remain. Current rate insufficient.`;
+                    }
                 ]
             },
             
@@ -1340,22 +1287,41 @@
                 supportive: [
                     (ctx) => `Hey there! You've been idle for a bit. Ready to tackle the next sprint?`,
                     (ctx) => `Taking a break? No problem! When you're ready, ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} await.`,
-                    (ctx) => `Noticed some downtime. Whenever you're ready to continue, I'm here!`
+                    (ctx) => `Noticed some downtime. Whenever you're ready to continue, I'm here!`,
+                    (ctx) => `Quick break? Totally fine! ${ctx.required - ctx.sprintsDone} sprints when you're refreshed.`,
+                    (ctx) => `Taking a breather? Good self-care. Ready to resume when you are!`,
+                    (ctx) => `No activity detected. Take your time! Work resumes when you're ready.`,
+                    (ctx) => `Looks like a pause. ${ctx.required - ctx.sprintsDone} sprints waiting whenever you're set!`
                 ],
                 balanced: [
                     (ctx) => `Inactivity detected. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} remaining.`,
                     (ctx) => `No progress for ${ctx.minutesIdle} minutes. Resume work when ready.`,
-                    (ctx) => `Session paused. ${ctx.required - ctx.sprintsDone} sprints still required.`
+                    (ctx) => `Session paused. ${ctx.required - ctx.sprintsDone} sprints still required.`,
+                    (ctx) => `Work stopped. ${ctx.required - ctx.sprintsDone} sprints pending completion.`,
+                    (ctx) => `Idle period detected. Resume to maintain schedule.`,
+                    (ctx) => `No activity logged. ${ctx.required - ctx.sprintsDone} sprint requirement unchanged.`,
+                    (ctx) => `Extended pause. ${ctx.required - ctx.sprintsDone} sprints remain on today's target.`
                 ],
                 tough: [
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 4) return `${ctx.minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move.`;
-                        if (gap > 0) return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate.`;
+                        if (gap > 6) return `${ctx.minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move NOW.`;
+                        if (gap > 4) return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate. Execute.`;
                         return `Work stopped. Session still active. Either continue or end day.`;
                     },
                     (ctx) => `${ctx.minutesIdle}+ minutes wasted. ${ctx.required - ctx.sprintsDone} sprints won't complete themselves. Start now.`,
-                    (ctx) => `Extended inactivity logged. Gap widening. Immediate action required.`
+                    (ctx) => `Extended inactivity logged. Gap widening. Immediate action required.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        if (gap > 5) return `Idle. ${gap} sprints behind. This is why deadlines get missed. Start immediately.`;
+                        return `${ctx.minutesIdle} minutes gone. ${gap} sprints pending. Time doesn't pause for you.`;
+                    },
+                    (ctx) => `Inactivity period logged. ${ctx.required - ctx.sprintsDone} sprints still required. Delays unacceptable. Move.`,
+                    (ctx) => `Work paused. ${ctx.required - ctx.sprintsDone} sprints remain. Your schedule is collapsing. Execute now.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        return gap > 7 ? `CRITICAL: ${ctx.minutesIdle}min idle, ${gap} sprints behind. Complete failure trajectory. START NOW.` : `Idle too long. ${gap} remain. Execute.`;
+                    }
                 ]
             },
             
@@ -1364,21 +1330,40 @@
                 supportive: [
                     (ctx) => `Distraction parked! Good job recognizing and capturing it.`,
                     (ctx) => `Nice catch! Distraction logged. Back to focused work.`,
-                    (ctx) => `Distraction handled. You're staying on track!`
+                    (ctx) => `Distraction handled. You're staying on track!`,
+                    (ctx) => `Well caught! Distraction captured. Refocus and continue.`,
+                    (ctx) => `Great awareness! Distraction logged. Return to your task.`,
+                    (ctx) => `Distraction noted. Good call capturing it for later!`,
+                    (ctx) => `Nice save! Distraction parked. Back to your current focus.`
                 ],
                 balanced: [
                     (ctx) => `Distraction logged. Refocus on current work.`,
                     (ctx) => `Item parked. Return to sprint tasks.`,
-                    (ctx) => ctx.distractionCount > 3 ? `Distraction #${ctx.distractionCount}. Pattern forming.` : `Distraction captured. Continue.`
+                    (ctx) => ctx.distractionCount > 3 ? `Distraction #${ctx.distractionCount}. Pattern forming.` : `Distraction captured. Continue.`,
+                    (ctx) => `Interruption logged. Resume primary work.`,
+                    (ctx) => ctx.distractionCount > 4 ? `Distraction #${ctx.distractionCount} captured. Frequency notable.` : `Distraction parked. Refocus.`,
+                    (ctx) => `Item noted for later. Return to active sprint.`,
+                    (ctx) => `Distraction recorded. ${ctx.distractionCount} total today. Continue work.`
                 ],
                 tough: [
                     (ctx) => {
+                        if (ctx.distractionCount > 7) return `Distraction #${ctx.distractionCount}. Pattern severe. Address root cause or accept failure.`;
                         if (ctx.distractionCount > 5) return `Distraction #${ctx.distractionCount} parked. Pattern detected. Address root cause or accept compromised output.`;
                         if (ctx.distractionCount > 2) return `Distraction logged (total: ${ctx.distractionCount}). Recurring interruptions signal environment or discipline issues.`;
                         return `Distraction parked. Refocus immediate.`;
                     },
                     (ctx) => `Another distraction (#${ctx.distractionCount}). Focus is a choice. Choose better.`,
-                    (ctx) => ctx.distractionCount > 4 ? `Distraction epidemic. ${ctx.distractionCount} logged today. This is why you're behind.` : `Noted. Refocus now.`
+                    (ctx) => ctx.distractionCount > 4 ? `Distraction epidemic. ${ctx.distractionCount} logged today. This is why you're behind.` : `Noted. Refocus now.`,
+                    (ctx) => {
+                        if (ctx.distractionCount > 6) return `${ctx.distractionCount} distractions today. Environment toxic or discipline absent. Fix this.`;
+                        return `Distraction #${ctx.distractionCount}. Concentration broken. Refocus immediately.`;
+                    },
+                    (ctx) => ctx.distractionCount > 5 ? `Distraction ${ctx.distractionCount}. Pattern unmistakable. You're sabotaging your own work.` : `Distraction logged. Focus required.`,
+                    (ctx) => `Another interruption (#${ctx.distractionCount}). Quality output requires sustained focus. Improve.`,
+                    (ctx) => {
+                        if (ctx.distractionCount > 8) return `CRITICAL: ${ctx.distractionCount} distractions. This is catastrophic for productivity. Address immediately.`;
+                        return `Distraction ${ctx.distractionCount}. Each break costs 15+ minutes. Calculate the cost.`;
+                    }
                 ]
             },
             
@@ -1387,17 +1372,29 @@
                 supportive: [
                     (ctx) => `Session started! ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} planned for today. Let's make it a great day!`,
                     (ctx) => `Ready to go! Timer active. You've got this!`,
-                    (ctx) => `Sprint underway! Stay focused and trust the process.`
+                    (ctx) => `Sprint underway! Stay focused and trust the process.`,
+                    (ctx) => `Here we go! ${ctx.required} sprints on the agenda. You're going to crush this!`,
+                    (ctx) => `Session active! Time to make progress. You're ready for this.`,
+                    (ctx) => `Timer started! ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} ahead. Let's do great work!`,
+                    (ctx) => `Sprint beginning! Focus engaged. You've prepared well for this.`
                 ],
                 balanced: [
                     (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required. Timer running.`,
                     (ctx) => `Sprint started. Focus mode engaged. Execute.`,
-                    (ctx) => `Timer active. ${ctx.required} sprints on today's agenda.`
+                    (ctx) => `Timer active. ${ctx.required} sprints on today's agenda.`,
+                    (ctx) => `Work session initiated. ${ctx.required} sprint requirement. Begin execution.`,
+                    (ctx) => `Sprint commenced. Timer running. ${ctx.required} sprints scheduled.`,
+                    (ctx) => `Session launched. ${ctx.required} sprint target established. Proceed.`,
+                    (ctx) => `Timer started. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required. Execute tasks.`
                 ],
                 tough: [
                     (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required today. Timer running. Execute.`,
                     (ctx) => `Sprint started. ${ctx.required} sprint requirement locked. No excuses. Perform.`,
-                    (ctx) => `FOCUS MODE: ${ctx.required} sprints required. Timer running. Results expected.`
+                    (ctx) => `FOCUS MODE: ${ctx.required} sprints required. Timer running. Results expected.`,
+                    (ctx) => `Session initiated. ${ctx.required} sprint minimum. Failure not an option. Execute now.`,
+                    (ctx) => `Timer active. ${ctx.required} sprints required. Your performance is being measured. Deliver.`,
+                    (ctx) => `Sprint started. ${ctx.required} sprint target established. Excuses irrelevant. Execute.`,
+                    (ctx) => `Session launched. ${ctx.required} sprint requirement. This is your job. Perform.`
                 ]
             },
             
@@ -1406,12 +1403,20 @@
                 supportive: [
                     (ctx) => ctx.toBucket === 'strategic' ? `Great prioritization! Moved to Strategic.` : `Task reclassified. Nice organization!`,
                     (ctx) => `Task moved successfully. You're staying organized!`,
-                    (ctx) => `Good call on the priority adjustment!`
+                    (ctx) => `Good call on the priority adjustment!`,
+                    (ctx) => `Nice organizational move! Task reclassified appropriately.`,
+                    (ctx) => ctx.toBucket === 'deepwork' ? `Perfect! Deep Work bucket is for focused tasks.` : `Task moved. Good priority management!`,
+                    (ctx) => `Excellent categorization! Task properly classified.`,
+                    (ctx) => `Smart move! Task priority adjusted well.`
                 ],
                 balanced: [
                     (ctx) => `Task moved to ${ctx.toBucket.toUpperCase()}. Priority updated.`,
                     (ctx) => `Reclassification complete. Continue.`,
-                    (ctx) => `Task priority adjusted.`
+                    (ctx) => `Task priority adjusted.`,
+                    (ctx) => `Item moved from ${ctx.fromBucket.toUpperCase()} to ${ctx.toBucket.toUpperCase()}.`,
+                    (ctx) => `Task categorization updated. Priority reflects new placement.`,
+                    (ctx) => `Classification change logged. Proceed.`,
+                    (ctx) => `Task bucket reassigned. Priority modified accordingly.`
                 ],
                 tough: [
                     (ctx) => {
@@ -1420,7 +1425,15 @@
                         return `Task reclassified to ${ctx.toBucket.toUpperCase()}. Ensure alignment with objectives.`;
                     },
                     (ctx) => ctx.toBucket === 'strategic' ? `Finally. Strategic work identified. Should have been there from the start.` : `Task moved. Priority reassessed.`,
-                    (ctx) => `Reclassification logged. Better late than never.`
+                    (ctx) => `Reclassification logged. Better late than never.`,
+                    (ctx) => {
+                        if (ctx.toBucket === 'admin' && ctx.fromBucket === 'deepwork') return `DEEP WORK → ADMIN. Prioritization failure. This should have been obvious.`;
+                        if (ctx.toBucket === 'strategic') return `Moved to STRATEGIC. Correct placement. High-value focus required.`;
+                        return `Task moved to ${ctx.toBucket.toUpperCase()}. Validate priority logic.`;
+                    },
+                    (ctx) => `Priority adjusted. ${ctx.toBucket === 'strategic' ? 'High-value focus appropriate.' : 'Confirm this is correct classification.'}`,
+                    (ctx) => `Task reclassified from ${ctx.fromBucket.toUpperCase()} to ${ctx.toBucket.toUpperCase()}. Question: Why wasn't this right initially?`,
+                    (ctx) => ctx.toBucket === 'admin' ? `Task demoted to ADMIN. Low-value work identified. Consider delegation.` : `Reclassification complete.`
                 ]
             },
             
@@ -1429,12 +1442,20 @@
                 supportive: [
                     (ctx) => ctx.newSprints > ctx.oldSprints ? `Sprint estimate increased. You're being thorough - that's smart!` : `Sprint estimate reduced. Nice efficiency!`,
                     (ctx) => `Estimate updated to ${ctx.newSprints} sprints. Total required: ${ctx.totalRequired}.`,
-                    (ctx) => `Good adjustment! Total now ${ctx.totalRequired} sprints.`
+                    (ctx) => `Good adjustment! Total now ${ctx.totalRequired} sprints.`,
+                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Increased to ${ctx.newSprints} sprints. Good catch on the complexity!` : `Reduced to ${ctx.newSprints}. Great efficiency!`,
+                    (ctx) => `Sprint value adjusted. You're managing scope well!`,
+                    (ctx) => `Updated to ${ctx.newSprints} sprints. Total target: ${ctx.totalRequired}.`,
+                    (ctx) => `Nice adjustment! Task properly estimated now.`
                 ],
                 balanced: [
                     (ctx) => `Sprint estimate: ${ctx.oldSprints} → ${ctx.newSprints}. Total required: ${ctx.totalRequired}.`,
                     (ctx) => ctx.newSprints > ctx.oldSprints ? `Estimate increased. Total: ${ctx.totalRequired}.` : `Estimate reduced. Total: ${ctx.totalRequired}.`,
-                    (ctx) => `Sprint count adjusted. Requirements updated.`
+                    (ctx) => `Sprint count adjusted. Requirements updated.`,
+                    (ctx) => `Task estimate modified: ${ctx.oldSprints} to ${ctx.newSprints} sprints. Total: ${ctx.totalRequired}.`,
+                    (ctx) => `Sprint value changed. Total requirement now ${ctx.totalRequired}.`,
+                    (ctx) => `Estimate adjustment logged. New total: ${ctx.totalRequired} sprints.`,
+                    (ctx) => `Sprint requirement updated. ${ctx.newSprints} sprints now allocated.`
                 ],
                 tough: [
                     (ctx) => {
@@ -1442,7 +1463,17 @@
                         return `Sprint estimate reduced. Was initial assessment inflated?`;
                     },
                     (ctx) => ctx.newSprints > ctx.oldSprints ? `Scope creep detected. ${ctx.newSprints} sprints now required. This is why projects fail.` : `Estimate decreased. Should have been right the first time.`,
-                    (ctx) => `Sprint value changed to ${ctx.newSprints}. Total required: ${ctx.totalRequired}. Plan better.`
+                    (ctx) => `Sprint value changed to ${ctx.newSprints}. Total required: ${ctx.totalRequired}. Plan better.`,
+                    (ctx) => {
+                        if (ctx.newSprints > ctx.oldSprints) return `Estimate inflated from ${ctx.oldSprints} to ${ctx.newSprints}. Total now ${ctx.totalRequired}. Poor initial scoping.`;
+                        return `Reduced to ${ctx.newSprints}. Initial estimate was wrong. Improve estimation accuracy.`;
+                    },
+                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Sprint count increased. ${ctx.totalRequired} total required. Lack of planning evident.` : `Estimate cut. Question: Was this task ever understood?`,
+                    (ctx) => `Adjustment: ${ctx.oldSprints} → ${ctx.newSprints}. Total: ${ctx.totalRequired}. ${ctx.newSprints > ctx.oldSprints ? 'Scope control failure.' : 'Initial estimate questionable.'}`,
+                    (ctx) => {
+                        if (ctx.newSprints > ctx.oldSprints && ctx.newSprints - ctx.oldSprints > 2) return `Major increase: ${ctx.oldSprints} → ${ctx.newSprints}. Total ${ctx.totalRequired}. This is mismanagement.`;
+                        return `Sprint modified to ${ctx.newSprints}. Total: ${ctx.totalRequired}. Estimate correctly from the start.`;
+                    }
                 ]
             },
             
@@ -1451,21 +1482,41 @@
                 supportive: [
                     (ctx) => ctx.gap > 0 ? `Ready when you are! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining today.` : `You've completed today's requirements! Additional work is optional.`,
                     (ctx) => `System idle. Start a sprint whenever you're ready!`,
-                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints left. You can do this!` : `Almost there! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} to go.`
+                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints left. You can do this!` : `Almost there! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} to go.`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Begin when you're ready!` : `Requirements met! Excellent work today.`,
+                    (ctx) => `System ready. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on your schedule. Start when set!`,
+                    (ctx) => ctx.gap > 3 ? `${ctx.gap} sprints ahead. You've got plenty of time!` : `Just ${ctx.gap} more! You're so close!`,
+                    (ctx) => ctx.gap === 0 ? `Target achieved! Consider additional work or enjoy your success.` : `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} waiting.`
                 ],
                 balanced: [
                     (ctx) => ctx.gap > 0 ? `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Start when ready.` : `Requirements met. Additional work optional.`,
                     (ctx) => `Session paused. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} required.`,
-                    (ctx) => `Idle. Start next sprint to continue progress.`
+                    (ctx) => `Idle. Start next sprint to continue progress.`,
+                    (ctx) => ctx.gap > 0 ? `No active sprint. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} pending.` : `Daily target reached. Proceed as needed.`,
+                    (ctx) => `System idle. ${ctx.gap} sprint requirement unchanged.`,
+                    (ctx) => `Awaiting input. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remain in queue.`,
+                    (ctx) => ctx.gap === 0 ? `Sprint requirement fulfilled. Continue working optional.` : `Idle mode. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} scheduled.`
                 ],
                 tough: [
                     (ctx) => {
-                        if (ctx.gap > 2) return `IDLE: ${ctx.gap} sprints behind. Start next sprint NOW.`;
-                        if (ctx.gap > 0) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. No time to waste. Move.`;
+                        if (ctx.gap > 5) return `IDLE: ${ctx.gap} sprints behind. Start next sprint NOW. Every second matters.`;
+                        if (ctx.gap > 2) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. No time to waste. Move.`;
+                        if (ctx.gap > 0) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. Idle unacceptable. Execute.`;
                         return `Requirements met. Additional work optional.`;
                     },
                     (ctx) => ctx.gap > 0 ? `Idle state unacceptable. ${ctx.gap} sprints required. Execute immediately.` : `Day complete. Reassess if more work warranted.`,
-                    (ctx) => ctx.gap > 3 ? `System idle. You're ${ctx.gap} sprints behind. Every second counts.` : `${ctx.gap} left. Start now.`
+                    (ctx) => ctx.gap > 3 ? `System idle. You're ${ctx.gap} sprints behind. Every second counts. START NOW.` : `${ctx.gap} left. Start now.`,
+                    (ctx) => {
+                        if (ctx.gap > 4) return `CRITICAL IDLE: ${ctx.gap} sprints behind schedule. Failure trajectory. Execute immediately.`;
+                        if (ctx.gap > 1) return `${ctx.gap} sprints pending. Idle time unacceptable. Move.`;
+                        return ctx.gap === 1 ? `One sprint remains. Finish it. No excuses.` : `Target met. Assess next actions.`;
+                    },
+                    (ctx) => ctx.gap > 0 ? `Idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} required. Your performance depends on starting NOW.` : `Requirements complete. Additional work discretionary.`,
+                    (ctx) => {
+                        if (ctx.gap > 6) return `SEVERE: ${ctx.gap} sprints behind. Complete project failure imminent. START IMMEDIATELY.`;
+                        return ctx.gap > 0 ? `${ctx.gap} sprints remain. Delays compound. Execute now.` : `Day complete. Plan tomorrow.`;
+                    },
+                    (ctx) => ctx.gap > 2 ? `Idle unacceptable. ${ctx.gap} sprints outstanding. This is why deadlines slip. Execute.` : ctx.gap > 0 ? `${ctx.gap} remain. Start now.` : `Complete.`
                 ]
             }
         };
@@ -1530,6 +1581,87 @@
             clearTimeout(inactivityTimer);
             if (state.dayActive && !state.timer.active) {
                 startInactivityMonitor();
+            }
+        }
+        
+        // ============================================
+        // AI COACH - CONTINUOUS MONITORING
+        // ============================================
+        let aiMonitoringInterval = null;
+        
+        function startAIMonitoring() {
+            // Clear any existing monitor
+            if (aiMonitoringInterval) {
+                clearInterval(aiMonitoringInterval);
+            }
+            
+            // Check every 30 seconds
+            aiMonitoringInterval = setInterval(() => {
+                if (!state.dayActive) return;
+                
+                const totalRequired = calculateTotalRequiredSprints();
+                const gap = totalRequired - state.sprintCount;
+                
+                // Don't interrupt if timer is active (let sprint complete handle it)
+                if (state.timer.active) return;
+                
+                // Check various conditions
+                checkPerformanceStatus(gap, totalRequired);
+            }, 30000); // Every 30 seconds
+            
+            console.log('🤖 AI Monitoring started (checks every 30s)');
+        }
+        
+        function checkPerformanceStatus(gap, totalRequired) {
+            const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
+                sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
+            
+            // Critical: Way behind schedule
+            if (gap > 5 && tasksLeft > 3) {
+                updateAIMessage(`⚠️ CRITICAL: ${gap} sprints behind with ${tasksLeft} tasks remaining. Performance deficit severe. Start sprint immediately.`);
+                return;
+            }
+            
+            // Behind schedule  
+            if (gap > 2 && tasksLeft > 0) {
+                const messages = [
+                    `${gap} sprint${gap > 1 ? 's' : ''} behind schedule. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} pending. Execute now.`,
+                    `Performance gap: ${gap} sprints. Current pace insufficient to meet requirements. Accelerate.`,
+                    `Behind by ${gap}. Each delay compounds. Start next sprint.`
+                ];
+                updateAIMessage(messages[Math.floor(Math.random() * messages.length)]);
+                return;
+            }
+            
+            // Check priority misalignment
+            checkPriorityAlignment();
+        }
+        
+        // Enhanced priority check
+        function checkPriorityAlignment() {
+            let lowPriorityCount = 0;
+            let highPriorityCount = 0;
+            let lowPriorityTasks = [];
+            let highPriorityTasks = [];
+            
+            ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    if (!task.completed) {
+                        if (task.priority === 'low') {
+                            lowPriorityCount++;
+                            lowPriorityTasks.push(task.title);
+                        }
+                        if (task.priority === 'high') {
+                            highPriorityCount++;
+                            highPriorityTasks.push(task.title);
+                        }
+                    }
+                });
+            });
+            
+            // Alert if focusing on low priority when high priority exists
+            if (lowPriorityCount > highPriorityCount && highPriorityCount > 0) {
+                updateAIMessage(`⚠️ Priority misalignment: ${lowPriorityCount} low-priority vs ${highPriorityCount} high-priority items. Focus on high-value work: ${highPriorityTasks[0]}.`);
             }
         }
 
@@ -1747,13 +1879,8 @@
         <div class="footer-links">
             <a href="settings.html" class="footer-link">⚙️ Settings</a>
             <a href="https://docs.focushub.app" target="_blank" class="footer-link">📚 How-To Guide</a>
-            <a href="mailto:support@focushub.app" class="footer-link">💬 Support</a>
-            <a href="mailto:hello@focushub.app" class="footer-link">✉️ Contact</a>
+            <a href="/cdn-cgi/l/email-protection#a8dbddd8d8c7dadce8cec7cbdddbc0ddca86c9d8d8" class="footer-link">💬 Support</a>
+            <a href="/cdn-cgi/l/email-protection#244c4148484b64424b4751574c51460a455454" class="footer-link">✉️ Contact</a>
         </div>
         <div class="footer-copyright">
-            © 2026 FocusHub • Built for Brains That Wander
-        </div>
-    </footer>
-
-</body>
-</html>
+            © 2026 Focu

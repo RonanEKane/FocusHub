@@ -399,7 +399,7 @@
             <div class="faq-item">
                 <div class="faq-question">Can I cancel anytime?</div>
                 <div class="faq-answer">
-                    Yes. Cancel from your account settings anytime. No questions, no hassle. Your access continues until the end of your billing period.
+                    Yes. Cancel from your account settings anytime. Refunds are only available within 5 days of billing. After that, your access continues until the end of your current billing period, then stops automatically.
                 </div>
             </div>
             
@@ -413,14 +413,14 @@
             <div class="faq-item">
                 <div class="faq-question">What about refunds?</div>
                 <div class="faq-answer">
-                    We offer a 30-day money-back guarantee. If FocusHub isn't working for you, email us within 30 days for a full refund. No questions asked.
+                    Refunds are available within 5 days of your billing date. Contact <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3a0a6a3a3bca1a793b5bcb0a6a0bba6b1fdb2a3a3">[email&#160;protected]</a> with your account details to request a refund within this window.
                 </div>
             </div>
             
             <div class="faq-item">
-                <div class="faq-question">I'm a Beta user—do I need to upgrade?</div>
+                <div class="faq-question">I'm a Beta user—what happens after Beta?</div>
                 <div class="faq-answer">
-                    <strong>No!</strong> Beta users get Premium features forever at $0/mo. Thanks for being an early believer. Your "BETA" badge stays forever.
+                    Beta users currently have free access to all features during the beta period. When we launch publicly, beta users will receive a special discount code for 50% off the first year of Premium. We'll notify you via email before billing begins.
                 </div>
             </div>
         </div>
@@ -431,7 +431,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         let currentBillingCycle = 'monthly';
         
         // Check if user is already subscribed
@@ -514,13 +514,4 @@
             if (checkoutUrl) {
                 // Open Lemon Squeezy checkout
                 window.location.href = checkoutUrl;
-            } else {
-                alert(`Checkout for ${tier} ${cycle} is not yet configured. Please contact support.`);
-            }
-        }
-        
-        // Initialize
-        checkCurrentTier();
-    </script>
-</body>
-</html>
+      

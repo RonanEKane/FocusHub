@@ -296,16 +296,16 @@
             <div class="setting-row">
                 <div class="setting-info">
                     <div class="setting-label">
-                        AI Coaching Intensity
+                        AI Intelligence Mode
                         <span class="premium-badge" id="aiPremiumBadge">🔒 PREMIUM</span>
                     </div>
-                    <div class="setting-description">Choose your preferred coaching style</div>
+                    <div class="setting-description">Intensity level for system feedback (Supportive & Tough require Premium)</div>
                 </div>
                 <div class="setting-control">
                     <select id="aiModeSelect" class="setting-select">
                         <option value="supportive">Supportive</option>
                         <option value="balanced">Balanced</option>
-                        <option value="tough">Tough Love</option>
+                        <option value="tough">Tough</option>
                     </select>
                 </div>
             </div>
@@ -368,36 +368,59 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase client
-        const supabaseUrl = 'YOUR_SUPABASE_URL';
-        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        // Get Supabase config from localStorage (set by app.html)
+        const supabaseUrl = localStorage.getItem('supabase_url') || 'YOUR_SUPABASE_URL';
+        const supabaseKey = localStorage.getItem('supabase_key') || 'YOUR_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        const adminEmails = ['watersjb@gmail.com'];
-
         async function init() {
-            // Load user
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) {
-                window.location.href = '/';
-                return;
+            let userEmail = null;
+            let currentPlan = 'free';
+            let isAdmin = false;
+            
+            try {
+                // Get current user from Supabase
+                const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+                
+                if (user) {
+                    userEmail = user.email;
+                    console.log('✅ User logged in:', userEmail);
+                    
+                    // Check membership in database
+                    const { data: membership, error: membershipError } = await supabaseClient
+                        .from('memberships')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .single();
+                    
+                    if (!membershipError && membership) {
+                        currentPlan = membership.plan || 'free';
+                        isAdmin = membership.is_admin || false;
+                        console.log('✅ Membership loaded:', { plan: currentPlan, isAdmin: isAdmin });
+                    } else {
+                        console.warn('⚠️ No membership found in database');
+                    }
+                } else {
+                    console.warn('⚠️ No user logged in');
+                    // Fallback to localStorage
+                    userEmail = localStorage.getItem('focushub_user_email') || 'Not logged in';
+                }
+            } catch (error) {
+                console.error('❌ Error loading membership:', error);
+                // Fallback to localStorage
+                userEmail = localStorage.getItem('focushub_user_email') || 'Error loading user';
+                const localMembership = localStorage.getItem('focushub_membership');
+                if (localMembership) {
+                    try {
+                        const data = JSON.parse(localMembership);
+                        currentPlan = data.plan || 'free';
+                        isAdmin = data.is_admin || false;
+                        console.log('⚠️ Using localStorage fallback');
+                    } catch (e) {}
+                }
             }
 
-            document.getElementById('userEmail').textContent = user.email;
-
-            // Check if admin
-            const isAdmin = adminEmails.includes(user.email);
-
-            // Load membership
-            let currentPlan = 'free';
-            if (isAdmin) {
-                currentPlan = 'premium';
-            } else {
-                const membership = localStorage.getItem('focushub_membership');
-                if (membership) {
-                    try {
-                        const data = JSON.parse(membership);
-                        currentPlan = data.plan || 'free';
+            document.getElementById('userEmail').textContent = userEmail;
                     } catch (e) {}
                 }
             }
@@ -491,13 +514,23 @@
 
         function handleReflectionChange(e) {
             const tradition = e.target.value;
+            console.log('Reflection changed to:', tradition);
+            
+            // Check admin status
+            const userEmail = localStorage.getItem('focushub_user_email') || 'watersjb@gmail.com';
+            const isAdmin = adminEmails.includes(userEmail);
+            
             const membership = localStorage.getItem('focushub_membership');
             let currentPlan = 'free';
             
-            try {
-                const data = JSON.parse(membership);
-                currentPlan = data.plan || 'free';
-            } catch (e) {}
+            if (isAdmin) {
+                currentPlan = 'premium';
+            } else {
+                try {
+                    const data = JSON.parse(membership);
+                    currentPlan = data.plan || 'free';
+                } catch (e) {}
+            }
 
             const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
             
@@ -510,7 +543,8 @@
             }
 
             localStorage.setItem('focushub_reflection_tradition', tradition);
-            showNotification('Reflection tradition updated. Takes effect on next day start.');
+            console.log('Reflection saved:', tradition);
+            showNotification(`Reflection tradition set to ${tradition.toUpperCase()}. Takes effect on next day start.`);
         }
 
         function handleAIModeChange(e) {

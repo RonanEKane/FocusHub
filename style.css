@@ -63,9 +63,12 @@
 }
 
 [data-theme="light"] .ai-message-large {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f0 100%);
+    border: 2px solid var(--industrial-orange);
     color: #1a1a1a;
+    box-shadow: 
+        0 4px 12px rgba(251, 146, 60, 0.2),
+        inset 0 1px 0 rgba(251, 146, 60, 0.1);
 }
 
 [data-theme="light"] .ai-message-large::before {
@@ -642,6 +645,36 @@ body {
     margin: 0;
 }
 
+.header-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mode-select-compact {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-select-compact:hover {
+    border-color: var(--industrial-orange);
+}
+
+.mode-select-compact:focus {
+    outline: none;
+    border-color: var(--industrial-orange);
+    box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.1);
+}
+
 .btn-icon {
     background: transparent;
     border: none;
@@ -772,24 +805,62 @@ body {
 }
 
 .ai-message-large {
-    padding: 1.5rem;
-    background: #000000; /* Terminal black */
-    border: 1px solid #333; /* Inset border feel */
-    border-radius: 2px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #000000 0%, #1a0a00 100%);
+    border: 2px solid var(--industrial-orange);
+    border-radius: 4px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.6;
-    min-height: 100px;
-    margin-bottom: 1rem;
-    color: var(--industrial-orange); /* Terminal orange text */
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); /* PREMIUM: Inner highlight for depth */
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.7;
+    min-height: 120px;
+    margin-bottom: 1.5rem;
+    color: var(--industrial-orange);
+    box-shadow: 
+        0 4px 12px rgba(251, 146, 60, 0.15),
+        inset 0 1px 0 rgba(251, 146, 60, 0.1);
+    position: relative;
+    animation: subtle-glow 3s ease-in-out infinite;
+}
+
+@keyframes subtle-glow {
+    0%, 100% {
+        box-shadow: 
+            0 4px 12px rgba(251, 146, 60, 0.15),
+            inset 0 1px 0 rgba(251, 146, 60, 0.1);
+    }
+    50% {
+        box-shadow: 
+            0 4px 16px rgba(251, 146, 60, 0.25),
+            inset 0 1px 0 rgba(251, 146, 60, 0.15);
+    }
 }
 
 .ai-message-large::before {
-    content: "> ";
-    color: var(--industrial-orange);
+    content: "⚡ SYSTEM INTELLIGENCE";
+    display: block;
+    font-size: 0.75rem;
     font-weight: 700;
+    color: rgba(251, 146, 60, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(251, 146, 60, 0.2);
+}
+
+.ai-message-large::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--industrial-orange) 50%, 
+        transparent 100%);
+    opacity: 0.5;
 }
 
 /* Grade Display - Simple Status Footer */
