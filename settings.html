@@ -375,11 +375,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
-        // Get Supabase config from localStorage (set by app.html)
-        const supabaseUrl = localStorage.getItem('supabase_url') || 'YOUR_SUPABASE_URL';
-        const supabaseKey = localStorage.getItem('supabase_key') || 'YOUR_SUPABASE_ANON_KEY';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        // Use config from supabase-config.js
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function init() {
             let userEmail = null;
