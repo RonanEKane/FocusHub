@@ -157,10 +157,13 @@
             <div class="sidebar-card system-monitor">
                 <div class="monitor-header">
                     <h3>SYSTEM INTELLIGENCE</h3>
-                    <div class="intensity-switch">
-                        <button class="switch-btn" data-mode="supportive">SUP</button>
-                        <button class="switch-btn active" data-mode="balanced">BAL</button>
-                        <button class="switch-btn" data-mode="tough">TOUGH</button>
+                    <div class="intensity-control">
+                        <span class="intensity-label">Coach Intensity</span>
+                        <div class="intensity-switch">
+                            <button class="switch-btn" data-mode="supportive">SUPPORTIVE</button>
+                            <button class="switch-btn active" data-mode="balanced">BALANCED</button>
+                            <button class="switch-btn" data-mode="tough">TOUGH</button>
+                        </div>
                     </div>
                 </div>
 
@@ -484,21 +487,8 @@
                 traditionSelect.value = tradition;
             }
             
-            // Membership change (non-admins only)
-            if (membershipSelect && !adminEmails.includes(currentUser)) {
-                membershipSelect.addEventListener('change', function() {
-                    const plan = this.value;
-                    localStorage.setItem('focushub_membership', JSON.stringify({
-                        plan: plan,
-                        status: 'active',
-                        startDate: new Date().toISOString()
-                    }));
-                    updateAIMessage(`Membership updated to ${plan.toUpperCase()}. Settings active.`);
-                    
-                    // Reload to apply gates
-                    setTimeout(() => location.reload(), 1000);
-                });
-            }
+            // Membership change UI (removed - now handled in settings page)
+            // Legacy code removed to prevent errors
             
             // Load current mode from state and set active switch button
             const switchButtons = document.querySelectorAll('.switch-btn');
@@ -595,11 +585,7 @@
                 saveState();
             });
 
-            // Agent mode
-            document.getElementById('agentMode').addEventListener('change', function() {
-                state.currentMode = this.value;
-                saveState();
-            });
+            // Note: Agent mode (intensity) is now handled by switch buttons in setupModeSelector()
 
             // Start sprint
             document.getElementById('startSprintBtn').addEventListener('click', startSprint);
@@ -1854,4 +1840,8 @@
             <a href="/cdn-cgi/l/email-protection#244c4148484b64424b4751574c51460a455454" class="footer-link">✉️ Contact</a>
         </div>
         <div class="footer-copyright">
-            © 2026 Focu
+            © 2026 FocusHub. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>

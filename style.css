@@ -32,28 +32,27 @@
 [data-theme="light"] {
     /* Backgrounds */
     --bg-primary: #ffffff;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f4f4f5;        /* Zinc-100 - proper light mode tertiary */
-    --bg-elevated: #e5e5e5;
+    --bg-secondary: #f9fafb;      /* Light gray for cards - better separation */
+    --bg-tertiary: #f3f4f6;       /* Slightly darker for nested elements */
+    --bg-elevated: #e5e7eb;
     
     /* Text */
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-muted: #999999;
+    --text-primary: #111827;      /* Darker for better contrast */
+    --text-secondary: #4b5563;    /* Darker secondary text */
+    --text-muted: #9ca3af;
     
     /* Borders */
-    --border-light: #e0e0e0;
-    --border-subtle: #f0f0f0;
+    --border-light: #d1d5db;      /* More visible borders */
+    --border-subtle: #e5e7eb;
     
     /* Accents - Better contrast for light mode */
-    --accent-primary: #fb923c;
-    --accent-glow: #f97316;
-    --industrial-orange: #c2410c;  /* Burnt orange for better contrast on white */
-    --industrial-orange: #fb923c;
+    --accent-primary: #f97316;
+    --accent-glow: #fb923c;
+    --industrial-orange: #ea580c;  /* Darker orange for visibility */
     
     /* Status */
-    --success: #22c55e;
-    --danger: #ef4444;
+    --success: #16a34a;           /* Darker green */
+    --danger: #dc2626;            /* Darker red */
 }
 
 /* Light mode specific overrides */
@@ -675,7 +674,8 @@ body {
     padding: 0; 
     overflow: hidden; 
     background: var(--bg-secondary); 
-    border: 1px solid var(--border-light); 
+    border: 1px solid var(--border-light);
+    min-height: 320px; /* Increased height for importance */
 }
 
 .monitor-header {
@@ -684,6 +684,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .monitor-header h3 {
@@ -691,6 +693,22 @@ body {
     font-weight: 700;
     margin: 0;
     color: var(--text-primary);
+}
+
+/* Switch wrapper with label */
+.intensity-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-end;
+}
+
+.intensity-label {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 /* SWITCH STYLING (Tactile) */
@@ -706,12 +724,13 @@ body {
     background: transparent; 
     border: none; 
     color: var(--text-secondary); 
-    padding: 4px 8px; 
+    padding: 6px 12px; /* Increased for full words */
     font-size: 10px; 
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     cursor: pointer; 
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .switch-btn.active { 
@@ -727,16 +746,19 @@ body {
 /* THE FEED: Clean & Readable */
 .monitor-feed {
     padding: 1.5rem 1rem;
-    min-height: 80px;
+    min-height: 100px; /* Taller for prominence */
+    background: var(--bg-tertiary); /* Subtle background separation */
+    border-left: 3px solid var(--industrial-orange); /* Visual accent */
 }
 
 .ai-text {
     font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: 1rem; /* Slightly larger */
+    line-height: 1.6;
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 600; /* Bolder for prominence */
     margin: 0;
+    font-style: italic; /* Distinct voice */
 }
 
 /* TELEMETRY: The Grid */
