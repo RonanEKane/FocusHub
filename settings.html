@@ -249,9 +249,17 @@
                 <span style="color: var(--text-secondary); font-size: 0.875rem;" id="membershipInfo">
                     Free features only
                 </span>
-                <button class="btn-primary" id="upgradeBtn" onclick="window.location.href='upgrade.html'">
-                    ⭐ UPGRADE TO PREMIUM
-                </button>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-primary" id="upgradeBtn" onclick="window.location.href='upgrade.html'">
+                        ⭐ UPGRADE TO PREMIUM
+                    </button>
+                    <button class="btn-secondary" id="manageSubBtn" onclick="window.location.href='subscription.html'" style="display: none;">
+                        💳 MANAGE SUBSCRIPTION
+                    </button>
+                    <button class="btn-secondary" id="adminPanelBtn" onclick="window.location.href='admin.html'" style="display: none;">
+                        🛠️ ADMIN PANEL
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -421,13 +429,10 @@
             }
 
             document.getElementById('userEmail').textContent = userEmail;
-                    } catch (e) {}
-                }
-            }
 
             // Update UI based on plan
             updateMembershipUI(currentPlan, isAdmin);
-            applyFeatureGates(currentPlan);
+            applyFeatureGates(currentPlan, isAdmin);
             loadSettings();
         }
 
@@ -435,22 +440,28 @@
             const badge = document.getElementById('membershipBadge');
             const info = document.getElementById('membershipInfo');
             const upgradeBtn = document.getElementById('upgradeBtn');
+            const manageSubBtn = document.getElementById('manageSubBtn');
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
             const card = document.getElementById('membershipCard');
 
             if (plan === 'premium' || isAdmin) {
                 badge.textContent = isAdmin ? '👑 ADMIN' : '⭐ PREMIUM';
                 info.textContent = 'Full access to all features';
                 upgradeBtn.style.display = 'none';
+                manageSubBtn.style.display = isAdmin ? 'none' : 'block'; // Show for premium, hide for admin
+                adminPanelBtn.style.display = isAdmin ? 'block' : 'none'; // Show for admin only
                 card.classList.add('premium');
             } else {
                 badge.textContent = 'FREE TIER';
                 info.textContent = 'Upgrade to unlock all features';
                 upgradeBtn.style.display = 'block';
+                manageSubBtn.style.display = 'none';
+                adminPanelBtn.style.display = 'none';
             }
         }
 
-        function applyFeatureGates(plan) {
-            const isPremium = plan === 'premium';
+        function applyFeatureGates(plan, isAdmin) {
+            const isPremium = plan === 'premium' || isAdmin;
 
             // Reflection tradition gate
             const reflectionSelect = document.getElementById('reflectionSelect');

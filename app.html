@@ -6,6 +6,8 @@
     <title>FocusHub - Built for Brains That Wander, but Still Want to Win</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="reflections-expanded.js"></script>
+    <script src="keyboard-shortcuts.js"></script>
 </head>
 <body class="preload">
     <!-- Header -->
@@ -151,46 +153,33 @@
 
         <!-- Right Column: Sidebar -->
         <aside class="sidebar">
-            <!-- System Intelligence - SECOND MOST IMPORTANT -->
-            <div class="sidebar-card system-intelligence-primary">
-                <div class="card-header-with-control">
-                    <h3>🤖 SYSTEM INTELLIGENCE</h3>
-                    <select id="agentMode" class="mode-select-compact" title="System intensity level">
-                        <option value="supportive">Supportive</option>
-                        <option value="balanced" selected>Balanced</option>
-                        <option value="tough">Tough</option>
-                    </select>
+            <!-- System Monitor - Unified Intelligence + Stats -->
+            <div class="sidebar-card system-monitor">
+                <div class="monitor-header">
+                    <h3>SYSTEM INTELLIGENCE</h3>
+                    <div class="intensity-switch">
+                        <button class="switch-btn" data-mode="supportive">SUP</button>
+                        <button class="switch-btn active" data-mode="balanced">BAL</button>
+                        <button class="switch-btn" data-mode="tough">TOUGH</button>
+                    </div>
                 </div>
-                
-                <!-- Settings Panel (removed - settings moved to footer) -->
-                
-                <div class="ai-message-large" id="aiMessage">
-                    System idle. Start a sprint to begin.
-                </div>
-                <div class="grade-display">
-                    <span class="grade-label">CURRENT GRADE:</span>
-                    <span class="grade-value">[ <span id="gradeMini">-</span> ]</span>
-                </div>
-            </div>
 
-            <!-- Stats -->
-            <div class="sidebar-card">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-label">SPRINTS</div>
-                        <div class="stat-value"><span id="sprintsDone">0</span> / <span id="sprintsTotal">5</span></div>
+                <div class="monitor-feed">
+                    <p class="ai-text" id="aiMessage">Ready to execute. Let's go.</p>
+                </div>
+
+                <div class="monitor-telemetry">
+                    <div class="t-item">
+                        <span class="t-label">SPRINTS</span>
+                        <span class="t-value"><span id="sprintsDone">0</span>/<span id="sprintsTotal">5</span></span>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">WINS</div>
-                        <div class="stat-value" id="winsCount">0</div>
+                    <div class="t-item">
+                        <span class="t-label">WINS</span>
+                        <span class="t-value" id="winsCount">0</span>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">BREAKS</div>
-                        <div class="stat-value" id="breaksCount">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">DISTRACTIONS</div>
-                        <div class="stat-value" id="distractionsCount">0</div>
+                    <div class="t-item">
+                        <span class="t-label">PARKED</span>
+                        <span class="t-value" id="distractionsCount">0</span>
                     </div>
                 </div>
             </div>
@@ -425,20 +414,20 @@
             document.getElementById('logoutBtn').addEventListener('click', async function() {
                 if (confirm('Are you sure you want to logout?')) {
                     try {
-                        if (typeof handleSignout !== 'undefined') {
-                            const result = await handleSignout();
-                            if (result.success) {
-                                localStorage.clear();
-                                window.location.href = '/';
-                            }
-                        } else {
-                            localStorage.clear();
-                            window.location.href = '/';
-                        }
+                        // Save session stats for logout page
+                        const logoutStats = {
+                            sprints: state.sprintCount || 0,
+                            tasks: Object.values(state.tasks).flat().filter(t => t.completed).length || 0,
+                            grade: state.currentGrade || '—'
+                        };
+                        sessionStorage.setItem('focushub_logout_stats', JSON.stringify(logoutStats));
+                        
+                        // Redirect to professional logout page
+                        window.location.href = 'logout.html';
+                        
                     } catch (error) {
                         console.error('Logout error:', error);
-                        localStorage.clear();
-                        window.location.href = '/';
+                        window.location.href = 'logout.html';
                     }
                 }
             });
@@ -511,29 +500,37 @@
                 });
             }
             
-            // Load current mode from state
-            const agentModeSelect = document.getElementById('agentMode');
-            if (agentModeSelect && state.currentMode) {
-                agentModeSelect.value = state.currentMode;
-            }
+            // Load current mode from state and set active switch button
+            const switchButtons = document.querySelectorAll('.switch-btn');
+            switchButtons.forEach(btn => {
+                if (btn.dataset.mode === state.currentMode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
             
-            // AI intensity change handler
-            if (agentModeSelect) {
-                agentModeSelect.addEventListener('change', function() {
-                    const selectedMode = this.value;
+            // AI intensity switch button handlers
+            switchButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const selectedMode = this.dataset.mode;
                     
                     // Check if premium required
                     if ((selectedMode === 'supportive' || selectedMode === 'tough') && currentPlan !== 'premium' && !isAdmin) {
                         alert('🔒 This intensity mode requires Premium. Upgrade to unlock Supportive & Tough modes.');
-                        this.value = state.currentMode; // Revert
                         return;
                     }
                     
+                    // Update state
                     state.currentMode = selectedMode;
                     saveState();
                     console.log('Intensity changed to:', selectedMode);
+                    
+                    // Update button states
+                    switchButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
                 });
-            }
+            });
         }
         
         // Apply feature gates based on membership
@@ -1096,7 +1093,6 @@
             
             renderTasks();
             renderWins();
-            updateGrade(totalRequiredSprints);
         }
         
         // Calculate total required sprints from all non-completed tasks
@@ -1151,20 +1147,7 @@
             }
         }
 
-        function updateGrade(targetSprints) {
-            const totalSprints = state.sprintCount;
-            const target = targetSprints || 5; // Use calculated target or default 5
-            let grade = '-';
-            
-            if (totalSprints >= target) grade = 'A';
-            else if (totalSprints >= target * 0.8) grade = 'B';
-            else if (totalSprints >= target * 0.6) grade = 'C';
-            else if (totalSprints > 0) grade = 'D';
-            
-            state.currentGrade = grade;
-            const gradeMiniEl = document.getElementById('gradeMini');
-            if (gradeMiniEl) gradeMiniEl.textContent = grade;
-        }
+        // Grade removed per Studio Deck refactor - gamification eliminated
 
         function updateSystemState(message) {
             document.getElementById('systemState').textContent = message;
@@ -1731,37 +1714,9 @@
         // START DAY FLOW
         // ============================================
         
-        // Sample reflections (simplified - full library would be much larger)
-        const dailyReflections = {
-            catholic: [
-                { text: "Begin this day with gratitude. Each task is an opportunity to serve with excellence.", source: "Catholic Tradition" },
-                { text: "Let your work today be an offering. Focus is a form of prayer.", source: "Catholic Tradition" }
-            ],
-            protestant: [
-                { text: "This day is a gift. Use your time wisely and work as unto the Lord.", source: "Protestant Tradition" },
-                { text: "Excellence in small tasks leads to excellence in great missions.", source: "Protestant Tradition" }
-            ],
-            stoic: [
-                { text: "You have power over your mind - not outside events. Realize this, and you will find strength.", source: "Marcus Aurelius" },
-                { text: "Concentrate every minute on doing what's in front of you with precise and genuine seriousness.", source: "Stoic Philosophy" }
-            ],
-            buddhist: [
-                { text: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", source: "Buddhist Wisdom" },
-                { text: "The mind is everything. What you think you become. Focus shapes reality.", source: "Buddhist Teaching" }
-            ],
-            islamic: [
-                { text: "Verily, with hardship comes ease. Trust the process and focus on what you control.", source: "Islamic Wisdom" },
-                { text: "The best of deeds are those done consistently, even if small. Start today with intention.", source: "Islamic Teaching" }
-            ],
-            jewish: [
-                { text: "Who is wise? One who learns from every person. Approach today with humility and focus.", source: "Jewish Wisdom" },
-                { text: "It is not your duty to finish the work, but neither are you free to neglect it. Begin.", source: "Talmudic Teaching" }
-            ],
-            secular: [
-                { text: "Clarity comes from action. Start with focus, adjust with wisdom.", source: "Practical Wisdom" },
-                { text: "The work you do today becomes the person you are tomorrow. Choose focus.", source: "Modern Philosophy" }
-            ]
-        };
+        // Load reflections from external files (350+ professional reflections)
+        // reflections-expanded.js is loaded in <head>
+        // Each tradition-specific file (reflections-buddhist.js, etc.) can be loaded as needed
         
         function showStartDayModal() {
             // Hide main app
@@ -1773,14 +1728,25 @@
             
             // Get user's reflection tradition preference (default to secular)
             const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
-            const reflections = dailyReflections[tradition] || dailyReflections.secular;
+            
+            // Get reflections based on tradition
+            // For now, use EXPANDED_REFLECTIONS (universal/secular)
+            // TODO: Load tradition-specific files dynamically if needed
+            const reflections = typeof EXPANDED_REFLECTIONS !== 'undefined' ? EXPANDED_REFLECTIONS : [];
+            
+            // Fallback if no reflections loaded
+            if (reflections.length === 0) {
+                document.getElementById('dailyReflection').textContent = "Focus is the art of knowing what to ignore.";
+                document.getElementById('reflectionSource').textContent = "— Practical Wisdom";
+                return;
+            }
             
             // Pick random reflection
             const reflection = reflections[Math.floor(Math.random() * reflections.length)];
             
-            // Display reflection
+            // Display reflection (format from expanded library)
             document.getElementById('dailyReflection').textContent = reflection.text;
-            document.getElementById('reflectionSource').textContent = `— ${reflection.source}`;
+            document.getElementById('reflectionSource').textContent = reflection.attribution || reflection.headline;
             
             // Set up start button
             document.getElementById('startDayBtn').addEventListener('click', startNewDay);
@@ -1839,6 +1805,11 @@
     <script>
         window.addEventListener('load', () => {
             document.body.classList.remove('preload');
+            
+            // Initialize keyboard shortcuts (premium feature)
+            if (typeof initializeKeyboardShortcuts === 'function') {
+                initializeKeyboardShortcuts();
+            }
         });
     </script>
     

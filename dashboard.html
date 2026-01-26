@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Control - FocusHub</title>
+    <title>Insight Center - FocusHub</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="dashboard-supabase-sync.js"></script>
 </head>
 <body>
     <!-- Technical Status Bar -->
@@ -41,7 +44,7 @@
     <div class="mission-control">
         <div class="container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1 class="mission-title" data-label="missionControl">MISSION CONTROL</h1>
+                <h1 class="mission-title" data-label="insightCenter">INSIGHT CENTER</h1>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
                     MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>

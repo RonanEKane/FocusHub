@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session Terminated - FocusHub</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
 </head>
 <body class="theme-dark" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
     
@@ -86,7 +88,7 @@
             
             <!-- Actions -->
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <a href="start.html" style="display: block; background: var(--industrial-orange); color: white; padding: 1rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid var(--text-primary);">
+                <a href="app.html" style="display: block; background: var(--industrial-orange); color: white; padding: 1rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid var(--text-primary);">
                     → SIGN BACK IN
                 </a>
                 <a href="index.html" style="display: block; border: 1px solid var(--border-medium); color: var(--text-primary); padding: 1rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; background: transparent;">
@@ -213,9 +215,29 @@ function formatICSDate(date) {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
 
-// Clear session data
-localStorage.removeItem('focushub_session_state');
-sessionStorage.clear();
+// Initialize Supabase and perform logout
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function performLogout() {
+    try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) {
+            console.error('Error signing out:', error);
+        } else {
+            console.log('✅ Logged out successfully');
+        }
+    } catch (err) {
+        console.error('Logout error:', err);
+    }
+    
+    // Clear local data
+    localStorage.removeItem('focushub_session_state');
+    localStorage.removeItem('focushub_membership');
+    sessionStorage.clear();
+}
+
+// Perform logout on page load
+performLogout();
 </script>
 
 </body>

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - FocusHub</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="analytics.js"></script>
 </head>
 <body>
     <div class="admin-container">
@@ -139,46 +142,63 @@
 
     <script src="analytics.js"></script>
     <script>
+        // Initialize Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         // Check admin access
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            window.location.href = 'start.html';
-        }
-        
-        const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-        const currentUserFull = users.find(u => u.id === currentUser.id);
-        
-        if (!currentUserFull || currentUserFull.plan !== 'admin') {
-            alert('Access denied. Admin privileges required.');
-            window.location.href = 'overview.html';
+        async function checkAdminAccess() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (!user) {
+                window.location.href = 'app.html';
+                return false;
+            }
+            
+            const { data: membership } = await supabaseClient
+                .from('memberships')
+                .select('is_admin')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (!membership || !membership.is_admin) {
+                alert('Access denied. Admin privileges required.');
+                window.location.href = 'overview.html';
+                return false;
+            }
+            
+            return true;
         }
 
-        // Load analytics
-        function loadAnalytics() {
-            const summary = FocusHubAnalytics.getAnalyticsSummary();
-            
-            // Update stats
-            document.getElementById('totalEvents').textContent = summary.totalEvents;
-            document.getElementById('totalErrors').textContent = summary.totalErrors;
-            
-            // Count page views
-            const pageViews = summary.eventsByType['page_view'] || 0;
-            document.getElementById('pageViews').textContent = pageViews;
-            
-            // Count unique sessions (approximate)
-            const events = JSON.parse(localStorage.getItem('focushub_analytics_events') || '[]');
-            const uniqueSessions = new Set(events.map(e => e.sessionId)).size;
-            document.getElementById('activeSessions').textContent = uniqueSessions;
-            
-            // Events by type chart
-            renderEventsByType(summary.eventsByType);
-            
-            // Recent events table
-            renderRecentEvents(summary.recentEvents);
-            
-            // Errors table
-            renderErrors(summary.recentErrors);
+        // Load analytics from Supabase
+        async function loadAnalytics() {
+            try {
+                const summary = await FocusHubAnalytics.getAnalyticsSummary();
+                
+                if (!summary) {
+                    console.error('No analytics data available');
+                    return;
+                }
+                
+                // Update stats
+                document.getElementById('totalEvents').textContent = summary.total_events || 0;
+                document.getElementById('totalErrors').textContent = summary.total_errors || 0;
+                document.getElementById('activeSessions').textContent = summary.active_sessions || 0;
+                
+                // Count page views from events_by_type
+                const eventsByType = summary.events_by_type || {};
+                const pageViews = eventsByType.page_view || 0;
+                document.getElementById('pageViews').textContent = pageViews;
+                
+                // Events by type chart
+                renderEventsByType(eventsByType);
+                
+                // Recent errors
+                const recentErrors = summary.recent_errors || [];
+                renderErrors(recentErrors);
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
         }
         
         function renderEventsByType(eventsByType) {
@@ -306,10 +326,16 @@
         }
         
         // Auto-refresh every 30 seconds
-        setInterval(loadAnalytics, 30000);
+        setInterval(() => {
+            loadAnalytics();
+        }, 30000);
         
-        // Load initial data
-        loadAnalytics();
+        // Initialize - check admin access first
+        checkAdminAccess().then(isAdmin => {
+            if (isAdmin) {
+                loadAnalytics();
+            }
+        });
     </script>
 </body>
 </html>

@@ -377,14 +377,37 @@
 
     <!-- Load Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
 
     <script>
+        // Initialize Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         // Check admin access
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        if (!currentUser || currentUser.email !== 'watersjb@gmail.com') {
-            alert('Admin access only');
-            window.location.href = 'overview.html';
+        async function checkAdminAccess() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (!user) {
+                alert('Please login first');
+                window.location.href = 'app.html';
+                return false;
+            }
+            
+            // Check if user is admin
+            const { data: membership } = await supabaseClient
+                .from('memberships')
+                .select('is_admin')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (!membership || !membership.is_admin) {
+                alert('Admin access only');
+                window.location.href = 'overview.html';
+                return false;
+            }
+            
+            return true;
         }
 
         // Tab switching
@@ -406,30 +429,31 @@
         // Load statistics
         async function loadStats() {
             try {
-                const { data: users, error } = await supabaseClient
-                    .from('user_memberships')
-                    .select('*');
+                const { data: memberships, error } = await supabaseClient
+                    .from('memberships')
+                    .select('plan, is_admin, status');
                 
                 if (error) throw error;
                 
                 const stats = {
-                    total: users.length,
-                    lite: users.filter(u => u.tier === 'lite').length,
-                    pro: users.filter(u => u.tier === 'pro').length,
-                    premium: users.filter(u => u.tier === 'premium').length,
-                    beta: users.filter(u => u.tier === 'beta' || u.is_beta_user).length,
-                    trial: 0 // Would need to calculate trial status
+                    total: memberships.length,
+                    free: memberships.filter(m => m.plan === 'free').length,
+                    premium: memberships.filter(m => m.plan === 'premium').length,
+                    admin: memberships.filter(m => m.is_admin).length,
+                    active: memberships.filter(m => m.status === 'active').length
                 };
                 
+                // Update UI (mapping to existing IDs)
                 document.getElementById('totalUsers').textContent = stats.total;
-                document.getElementById('liteUsers').textContent = stats.lite;
-                document.getElementById('proUsers').textContent = stats.pro;
+                document.getElementById('liteUsers').textContent = stats.free; // Map lite → free
+                document.getElementById('proUsers').textContent = '—'; // No pro tier
                 document.getElementById('premiumUsers').textContent = stats.premium;
-                document.getElementById('betaUsers').textContent = stats.beta;
-                document.getElementById('trialUsers').textContent = stats.trial;
+                document.getElementById('betaUsers').textContent = stats.admin; // Map beta → admin
+                document.getElementById('trialUsers').textContent = '—'; // No trial tracking yet
                 
             } catch (error) {
                 console.error('Error loading stats:', error);
+                showAlert('overviewPanel', 'Error loading stats: ' + error.message, 'error');
             }
         }
 
@@ -437,17 +461,44 @@
         async function loadUsers() {
             try {
                 const { data: memberships, error: memberError } = await supabaseClient
-                    .from('user_memberships')
-                    .select('*')
+                    .from('memberships')
+                    .select('user_id, plan, is_admin, status, created_at')
                     .order('created_at', { ascending: false });
                 
                 if (memberError) throw memberError;
                 
-                // Get user emails
-                const { data: authUsers, error: authError } = await supabaseClient.auth.admin.listUsers();
-                
                 const tbody = document.getElementById('usersTableBody');
                 tbody.innerHTML = '';
+                
+                // Get user emails from auth
+                for (const membership of memberships) {
+                    const { data: { user } } = await supabaseClient.auth.admin.getUserById(membership.user_id);
+                    
+                    const email = user?.email || 'Unknown';
+                    const signupDate = new Date(membership.created_at).toLocaleDateString();
+                    const plan = membership.plan || 'free';
+                    const isAdmin = membership.is_admin ? '👑 Yes' : 'No';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${email}</td>
+                        <td><span class="tier-badge-table tier-${plan}">${plan.toUpperCase()}</span></td>
+                        <td>${isAdmin}</td>
+                        <td>${signupDate}</td>
+                        <td>
+                            <button class="admin-btn-secondary admin-btn" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="editUser('${email}')">
+                                Edit
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showAlert('usersAlert', 'Error loading users: ' + error.message, 'error');
+            }
+        }
                 
                 memberships.forEach(membership => {
                     const authUser = authUsers?.users?.find(u => u.id === membership.user_id);
@@ -483,21 +534,25 @@
             const newTier = document.getElementById('newTier').value;
             
             try {
-                // Get user ID from email
-                const { data: users } = await supabaseClient.auth.admin.listUsers();
-                const user = users?.users?.find(u => u.email === email);
+                // Get user by email
+                const { data: { users } } = await supabaseClient.auth.admin.listUsers();
+                const user = users?.find(u => u.email === email);
                 
                 if (!user) {
                     showAlert('manageAlert', 'User not found', 'error');
                     return;
                 }
                 
+                // Determine if this is admin or premium
+                const isAdmin = newTier === 'beta'; // Map "beta" → admin
+                const plan = (newTier === 'beta') ? 'premium' : newTier; // Admin gets premium plan
+                
                 // Update membership
                 const { error } = await supabaseClient
-                    .from('user_memberships')
+                    .from('memberships')
                     .update({
-                        tier: newTier,
-                        is_beta_user: newTier === 'beta',
+                        plan: plan,
+                        is_admin: isAdmin,
                         updated_at: new Date().toISOString()
                     })
                     .eq('user_id', user.id);
@@ -506,6 +561,13 @@
                 
                 showAlert('manageAlert', `Successfully updated ${email} to ${newTier.toUpperCase()}`, 'success');
                 document.getElementById('userEmail').value = '';
+                loadStats(); // Refresh stats
+                
+            } catch (error) {
+                console.error('Error changing tier:', error);
+                showAlert('manageAlert', 'Error updating tier: ' + error.message, 'error');
+            }
+        }
                 
             } catch (error) {
                 console.error('Error changing tier:', error);
@@ -632,8 +694,12 @@
             switchTab('beta');
         }
 
-        // Initial load
-        loadStats();
+        // Initial load - check admin access first
+        checkAdminAccess().then(isAdmin => {
+            if (isAdmin) {
+                loadStats();
+            }
+        });
     </script>
 </body>
 </html>

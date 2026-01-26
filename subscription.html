@@ -237,59 +237,116 @@
     </div>
 
     <script>
+        // Initialize Supabase (already loaded via supabase-config.js)
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         // Check authentication
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        if (!currentUser) {
-            window.location.href = 'start.html';
+        async function checkAuth() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            return user;
+        }
+
+        // Get user membership from Supabase
+        async function getUserMembership() {
+            const user = await checkAuth();
+            if (!user) return null;
+            
+            const { data: membership, error } = await supabaseClient
+                .from('memberships')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (error) {
+                console.error('Error fetching membership:', error);
+                return { plan: 'free', status: 'active', is_admin: false };
+            }
+            
+            return membership;
+        }
+        
+        // Helper functions
+        function getTierEmoji(plan) {
+            const emojis = {
+                'free': '💡',
+                'premium': '⭐',
+                'admin': '👑'
+            };
+            return emojis[plan] || '💡';
+        }
+        
+        function getTierDisplayName(plan) {
+            const names = {
+                'free': 'Free',
+                'premium': 'Premium',
+                'admin': 'Admin'
+            };
+            return names[plan] || 'Free';
         }
 
         async function loadSubscriptionData() {
             try {
-                const tier = await getUserTier();
                 const membership = await getUserMembership();
-                const trialStatus = await checkTrialStatus();
+                if (!membership) return;
+                
+                const plan = membership.plan || 'free';
+                const isAdmin = membership.is_admin || false;
                 
                 // Update tier badge
-                document.getElementById('tierEmoji').textContent = getTierEmoji(tier);
-                document.getElementById('tierName').textContent = getTierDisplayName(tier).toUpperCase();
+                document.getElementById('tierEmoji').textContent = getTierEmoji(plan);
+                document.getElementById('tierName').textContent = getTierDisplayName(plan).toUpperCase();
                 
                 const badge = document.getElementById('currentTierBadge');
-                badge.className = 'tier-badge-page tier-' + tier;
-                
-                // Show trial info if in trial
-                if (trialStatus.inTrial) {
-                    document.getElementById('trialRow').style.display = 'flex';
-                    document.getElementById('trialStatus').textContent = 
-                        `${trialStatus.daysRemaining} days remaining`;
-                    
-                    showAlert('You are currently in trial period. ' + 
-                        (tier === 'lite' ? 'Enter card to continue after trial.' : 
-                        'You must actively choose to continue at full price when trial ends.'), 'info');
-                }
-                
-                // Show beta card for beta users
-                if (tier === 'beta' || membership.is_beta_user) {
-                    document.getElementById('betaCard').style.display = 'block';
-                    document.getElementById('actionsCard').style.display = 'none';
+                if (isAdmin) {
+                    badge.className = 'tier-badge-page tier-beta';
+                    document.getElementById('tierEmoji').textContent = '👑';
+                    document.getElementById('tierName').textContent = 'ADMIN';
+                } else if (plan === 'premium') {
+                    badge.className = 'tier-badge-page tier-premium';
                 } else {
-                    // Show appropriate action buttons
-                    if (tier === 'lite') {
-                        document.getElementById('upgradeBtn').style.display = 'block';
-                    } else {
-                        document.getElementById('changePlanBtn').style.display = 'block';
-                        document.getElementById('cancelBtn').style.display = 'block';
-                    }
-                    
-                    // Show billing info if subscribed
-                    if (membership.stripe_subscription_id) {
-                        document.getElementById('billingCycleRow').style.display = 'flex';
-                        document.getElementById('nextBillingRow').style.display = 'flex';
-                        
-                        // TODO: Fetch actual billing info from Lemon Squeezy
-                        document.getElementById('billingCycle').textContent = 'Monthly';
-                        document.getElementById('nextBillingDate').textContent = 'Feb 14, 2026';
-                    }
+                    badge.className = 'tier-badge-page tier-lite';
                 }
+                
+                // Show admin message
+                if (isAdmin) {
+                    document.getElementById('betaCard').style.display = 'block';
+                    document.querySelector('#betaCard h3').textContent = '👑 Admin Access';
+                    document.querySelector('#betaCard p').textContent = 'You have full admin access to all features.';
+                    document.getElementById('actionsCard').style.display = 'none';
+                    document.getElementById('paymentHistory').innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">Admin accounts do not have billing history.</p>';
+                    return;
+                }
+                
+                // Show appropriate action buttons
+                if (plan === 'free') {
+                    document.getElementById('upgradeBtn').style.display = 'block';
+                    document.getElementById('manageBillingBtn').style.display = 'none';
+                } else if (plan === 'premium') {
+                    document.getElementById('changePlanBtn').style.display = 'block';
+                    document.getElementById('cancelBtn').style.display = 'block';
+                    
+                    // Show billing info
+                    document.getElementById('billingCycleRow').style.display = 'flex';
+                    document.getElementById('nextBillingRow').style.display = 'flex';
+                    
+                    // Calculate next billing date (placeholder)
+                    const nextBilling = new Date(membership.started_at || new Date());
+                    nextBilling.setMonth(nextBilling.getMonth() + 1);
+                    document.getElementById('billingCycle').textContent = 'Monthly';
+                    document.getElementById('nextBillingDate').textContent = nextBilling.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                    });
+                }
+                
+                // Update status
+                document.getElementById('subscriptionStatus').textContent = 
+                    (membership.status || 'active').charAt(0).toUpperCase() + (membership.status || 'active').slice(1);
                 
                 // Load payment history
                 loadPaymentHistory(membership);
@@ -301,30 +358,21 @@
         }
         
         function loadPaymentHistory(membership) {
-            // TODO: Fetch actual payment history from Lemon Squeezy
             const historyContainer = document.getElementById('paymentHistory');
             
-            if (!membership.stripe_subscription_id) {
-                historyContainer.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">No payment history yet.</p>';
+            if (membership.plan !== 'premium') {
+                historyContainer.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.875rem;">No payment history yet. Upgrade to Premium to see billing history.</p>';
                 return;
             }
             
-            // Mock payment history
+            // Show placeholder - in production this would come from payment provider
             historyContainer.innerHTML = `
-                <table style="width: 100%; font-size: 0.875rem;">
-                    <tr style="border-bottom: 1px solid var(--border-light);">
-                        <td style="padding: 0.75rem 0;">Jan 14, 2026</td>
-                        <td style="padding: 0.75rem 0;">$9.99</td>
-                        <td style="padding: 0.75rem 0; color: #22c55e;">Paid</td>
-                        <td style="padding: 0.75rem 0;"><a href="#" style="color: var(--industrial-orange);">Invoice</a></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.75rem 0;">Dec 14, 2025</td>
-                        <td style="padding: 0.75rem 0;">$9.99</td>
-                        <td style="padding: 0.75rem 0; color: #22c55e;">Paid</td>
-                        <td style="padding: 0.75rem 0;"><a href="#" style="color: var(--industrial-orange);">Invoice</a></td>
-                    </tr>
-                </table>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                    Payment history will be available through your payment provider's customer portal.
+                </p>
+                <button class="btn btn-secondary" onclick="openCustomerPortal()">
+                    View Payment History
+                </button>
             `;
         }
         
@@ -334,28 +382,48 @@
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
             alertContainer.appendChild(alert);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
         }
         
         function openCustomerPortal() {
-            // TODO: Redirect to Lemon Squeezy customer portal
-            // This URL should be generated by your backend
-            const portalUrl = 'https://app.lemonsqueezy.com/my-orders';
-            window.open(portalUrl, '_blank');
+            // TODO: Replace with your actual payment provider customer portal
+            // For Lemon Squeezy: https://app.lemonsqueezy.com/my-orders
+            // For Stripe: Generate portal URL via API
+            showAlert('Payment portal integration coming soon. Please contact support for billing questions.', 'info');
         }
         
         async function cancelSubscription() {
-            if (!confirm('Are you sure you want to cancel your subscription? You will lose access at the end of your billing period.')) {
+            if (!confirm('Are you sure you want to cancel your subscription? Your access will continue until the end of your billing period.')) {
                 return;
             }
             
             try {
-                // TODO: Call backend endpoint to cancel via Lemon Squeezy API
-                showAlert('Cancellation request submitted. You will receive a confirmation email.', 'success');
+                const user = await checkAuth();
+                if (!user) return;
+                
+                // Update membership status in Supabase
+                const { error } = await supabaseClient
+                    .from('memberships')
+                    .update({ 
+                        status: 'cancelled',
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', user.id);
+                
+                if (error) throw error;
+                
+                showAlert('Subscription cancelled. You will retain access until the end of your billing period.', 'success');
                 
                 // Update UI
-                document.getElementById('subscriptionStatus').textContent = 'Canceling';
+                document.getElementById('subscriptionStatus').textContent = 'Cancelled';
                 document.getElementById('subscriptionStatus').style.color = '#f59e0b';
                 document.getElementById('cancelBtn').style.display = 'none';
+                
+                // TODO: Also cancel via payment provider API
                 
             } catch (error) {
                 console.error('Error canceling subscription:', error);
@@ -364,7 +432,11 @@
         }
         
         // Initialize
-        loadSubscriptionData();
+        checkAuth().then(user => {
+            if (user) {
+                loadSubscriptionData();
+            }
+        });
     </script>
 </body>
 </html>
