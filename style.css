@@ -6,6 +6,7 @@
 :root {
     /* Premium backgrounds - zinc-based */
     --bg-primary: #0d0d0f;        /* Rich black */
+    --bg-primary-rgb: 13, 13, 15; /* RGB for backdrop effects */
     --bg-secondary: #18181b;      /* Zinc-900 */
     --bg-tertiary: #27272a;       /* Zinc-800 */
     --bg-elevated: #3f3f46;       /* Zinc-700 */
@@ -32,6 +33,7 @@
 [data-theme="light"] {
     /* Backgrounds */
     --bg-primary: #ffffff;
+    --bg-primary-rgb: 255, 255, 255; /* RGB for backdrop effects */
     --bg-secondary: #f9fafb;      /* Light gray for cards - better separation */
     --bg-tertiary: #f3f4f6;       /* Slightly darker for nested elements */
     --bg-elevated: #e5e7eb;
@@ -116,17 +118,20 @@ body {
 /* Compact header when scrolled */
 .app-header.scrolled {
     padding: 0.625rem 2rem; /* Smaller when scrolled */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    background: rgba(var(--bg-primary-rgb), 0.95); /* Slightly transparent */
 }
 
 /* Logo sizing transitions */
 .app-header img#appLogo {
-    height: 52px; /* Bigger initially */
+    height: 60px; /* Increased from 52px */
+    width: auto;
     transition: height 0.3s ease;
 }
 
 .app-header.scrolled img#appLogo {
-    height: 36px; /* Smaller when scrolled */
+    height: 40px; /* Increased from 36px */
 }
 
 /* Beta badge adjusts with logo */
@@ -354,17 +359,68 @@ body {
     height: 36px; /* COMPACT: Reduced from 40px */
 }
 
-.meeting-toggle {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    cursor: pointer;
+/* Meeting Toggle - Modern Slider */
+.meeting-toggle-container {
     display: flex;
     align-items: center;
-    height: 36px; /* COMPACT: Match select */
+    gap: 0.75rem;
+    height: 36px;
 }
 
-.meeting-toggle input {
-    margin-right: 0.5rem;
+.meeting-label {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--accent);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 1px var(--accent);
 }
 
 .timer-buttons {
@@ -397,13 +453,14 @@ body {
 }
 
 .timer-btn-break {
-    background: var(--success);
-    border-color: var(--success);
-    color: white;
+    background: transparent;
+    border: 2px solid var(--success);
+    color: var(--success);
 }
 
 .timer-btn-break:hover {
-    opacity: 0.9;
+    background: var(--success);
+    color: white;
 }
 
 /* Timer Display - COMPACT */
