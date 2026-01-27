@@ -240,7 +240,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
                     .eq('id', result.user.id);
             }
             
-            window.location.href = 'app.html';
+            window.location.replace('./app.html');
         } else {
             errorDiv.textContent = result.error || 'Account creation failed.';
             errorDiv.classList.remove('hidden');

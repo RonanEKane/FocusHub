@@ -569,7 +569,7 @@
             
             // AI intensity switch button handlers
             switchButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const selectedMode = this.dataset.mode;
                     
                     // Check if premium required (client-side first for UX)

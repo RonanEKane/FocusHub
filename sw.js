@@ -49,6 +49,12 @@ self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
     
+    // Skip service worker for navigation requests (allows proper redirects)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+    
     // Skip Supabase API calls (always use network)
     if (event.request.url.includes('supabase.co')) {
         return event.respondWith(fetch(event.request));

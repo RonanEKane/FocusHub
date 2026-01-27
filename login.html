@@ -160,7 +160,7 @@
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
-                    window.location.href = 'app.html';
+                    window.location.replace('./app.html');
                 }
             } catch (error) {
                 console.error('Session check error:', error);
@@ -189,7 +189,9 @@
                 if (error) throw error;
                 
                 console.log('✅ Login successful');
-                window.location.href = 'app.html';
+                
+                // Use replace to avoid back button issues
+                window.location.replace('./app.html');
                 
             } catch (error) {
                 console.error('Login error:', error);
