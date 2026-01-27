@@ -8,38 +8,54 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <style>
-        .auth-container {
+        body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background: var(--bg-primary);
         }
-        .auth-box {
-            position: relative;
-            width: 100%;
-            max-width: 450px;
+        .login-container {
             background: var(--bg-secondary);
-            border: 1px solid var(--border-medium);
-            border-radius: 8px;
-            padding: 3rem 2.5rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
-        .auth-logo {
-            height: 100px;
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo-section img {
+            height: 60px;
             width: auto;
-            margin: 0 auto 2rem;
-            display: block;
+            margin-bottom: 1rem;
+        }
+        .beta-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--text-primary);
         }
         .form-group {
             margin-bottom: 1.5rem;
         }
         .form-group label {
             display: block;
-            font-size: 14px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.5rem;
         }
         .form-group input {
             width: 100%;
@@ -51,134 +67,108 @@
             font-size: 1rem;
         }
         .form-group input:focus {
-            outline: 2px solid var(--accent-primary);
-            outline-offset: 0;
-            border-color: var(--accent-primary);
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
         .btn-primary {
             width: 100%;
-            padding: 0.875rem;
-            background: var(--accent-primary);
+            padding: 1rem;
+            background: var(--primary-color);
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
         }
         .btn-primary:hover {
             background: var(--accent-glow);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .auth-error {
+        .error-message {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid var(--danger);
             color: var(--danger);
             padding: 1rem;
             border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-        .hidden {
+            margin-bottom: 1.5rem;
             display: none;
         }
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            text-align: center;
-            color: var(--text-primary);
+        .error-message:not(:empty) {
+            display: block;
         }
-        .auth-switch {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-        .auth-switch a {
-            color: var(--accent-primary);
+        .link {
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
         }
-        .auth-switch a:hover {
+        .link:hover {
             text-decoration: underline;
+        }
+        .text-center {
+            text-align: center;
+            margin-top: 1.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-box">
-            <img src="FocusHub_vertinv.svg" alt="FocusHub" class="auth-logo">
-            
-            <h2>Welcome Back</h2>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        required
-                        autocomplete="email"
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        required
-                        autocomplete="current-password"
-                    >
-                </div>
-                
-                <div id="loginError" class="auth-error hidden"></div>
-                
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-            
-            <p class="auth-switch">
-                Don't have an account? <a href="signup.html">Sign up</a>
-            </p>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub">
+            <div class="beta-badge">BETA</div>
+        </div>
+
+        <h1>Log in</h1>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm" onsubmit="handleSignin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <div class="forgot-password">
+                <a href="/forgot-password.html">Forgot password?</a>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">Log in</button>
+
+            <p class="helper-text">This logs you into your FocusHub workspace.</p>
+        </form>
+
+        <div class="create-account">
+            <a href="/signup.html">Create account</a>
         </div>
     </div>
 
-    <script type="module">
-        const loginForm = document.getElementById('loginForm');
-        const loginError = document.getElementById('loginError');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-
-        // Check if already logged in
-        async function checkSession() {
-            try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    window.location.href = 'app.html';
-                }
-            } catch (error) {
-                console.error('Session check error:', error);
-            }
-        }
-
+    <script>
         // Handle login
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function handleSignin(event) {
+            event.preventDefault();
             
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset error
+            errorMessage.classList.remove('show');
+            errorMessage.textContent = '';
             
             // Disable button
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Signing in...';
-            loginError.classList.add('hidden');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
             
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -188,21 +178,43 @@
                 
                 if (error) throw error;
                 
-                console.log('✅ Login successful');
-                window.location.href = 'app.html';
+                console.log('✅ Login successful:', data.user.id);
+                
+                // Redirect to app
+                window.location.href = '/app.html';
                 
             } catch (error) {
                 console.error('Login error:', error);
-                loginError.textContent = error.message || 'Invalid email or password';
-                loginError.classList.remove('hidden');
+                errorMessage.textContent = error.message || 'Login failed. Please check your credentials.';
+                errorMessage.classList.add('show');
                 
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign In';
+                // Re-enable button
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log in';
             }
-        });
+        }
+
+        // Check if already logged in
+        async function checkExistingSession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    console.log('Already logged in, redirecting...');
+                    window.location.href = '/app.html';
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        }
 
         // Initialize
-        checkSession();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkExistingSession);
+        } else {
+            checkExistingSession();
+        }
+
+        console.log('Login theme initialized: light');
     </script>
 </body>
 </html>
