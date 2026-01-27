@@ -569,7 +569,7 @@
             
             // AI intensity switch button handlers
             switchButtons.forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', function() {
                     const selectedMode = this.dataset.mode;
                     
                     // Check if premium required (client-side first for UX)
@@ -1305,6 +1305,7 @@
             // SAFETY CHECKS: Only update elements if they exist
             const sprintsDoneEl = document.getElementById('sprintsDone');
             const sprintTargetEl = document.getElementById('sprintTarget');
+            const sprintsTotalEl = document.getElementById('sprintsTotal');
             const winsCountEl = document.getElementById('winsCount');
             const breaksCountEl = document.getElementById('breaksCount');
             const distractionsCountEl = document.getElementById('distractionsCount');
@@ -1312,6 +1313,7 @@
             
             if (sprintsDoneEl) sprintsDoneEl.textContent = state.sprintCount;
             if (sprintTargetEl) sprintTargetEl.textContent = totalRequiredSprints;
+            if (sprintsTotalEl) sprintsTotalEl.textContent = totalRequiredSprints;  // FIX: Update main counter display
             if (winsCountEl) winsCountEl.textContent = state.tasks.wins.length;
             if (breaksCountEl) breaksCountEl.textContent = state.breaksCount;
             if (distractionsCountEl) distractionsCountEl.textContent = state.distractionCount;
