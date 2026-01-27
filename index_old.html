@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusHub - Built for Brains That Wander</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #f55b07;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .tagline {
+            font-size: 1.75rem;
+            color: #a0a0a0;
+            margin-bottom: 3rem;
+            max-width: 700px;
+        }
+
+        .cta-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1.25rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #f55b07;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d94b05;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 91, 7, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #f55b07;
+            border: 2px solid #f55b07;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(245, 91, 7, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin-top: 4rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            font-size: 1.25rem;
+            color: #f55b07;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature p {
+            color: #a0a0a0;
+            font-size: 1rem;
+        }
+
+        .beta-badge {
+            background: #f55b07;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.25rem;
+            }
+
+            .cta-container {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <img src="FocusHub_icon.svg" alt="FocusHub" class="logo" onerror="this.style.display='none'">
+        
+        <div class="beta-badge">BETA</div>
+        
+        <h1>Built for Brains That Wander,<br>but Still Want to Win</h1>
+        
+        <p class="tagline">A complete productivity system for ADHD brains. No gentle encouragement. Just brutal honesty.</p>
+        
+        <div class="cta-container">
+            <a href="signup.html" class="btn btn-primary">Start Free Trial</a>
+            <a href="login.html" class="btn btn-secondary">Login</a>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Energy-Adaptive</h3>
+                <p>Sprint timers that match your actual capacity. 15, 20, or 30 minutes.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>Three Buckets</h3>
+                <p>ADMIN. DEEP WORK. STRATEGIC. That's it. No endless hierarchies.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>The Agent</h3>
+                <p>Tough-love AI that calls out your patterns and holds you accountable.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🅿️</div>
+                <h3>Distraction Parking</h3>
+                <p>Don't fight distractions. Park them. Deal with them later.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

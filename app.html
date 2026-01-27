@@ -402,6 +402,12 @@
                 const now = Date.now();
                 const timeLeft = Math.ceil((state.timer.endTime - now) / 1000);
                 
+                // FIX RACE CONDITION: Clear any existing interval first
+                if (state.timer.interval) {
+                    clearInterval(state.timer.interval);
+                    state.timer.interval = null;
+                }
+                
                 if (timeLeft > 0) {
                     // Timer still running - resume it
                     state.timer.remaining = timeLeft;
@@ -428,7 +434,34 @@
             try {
                 localStorage.setItem('focushub_state', JSON.stringify(state));
             } catch (error) {
-                console.error('Error saving state:', error);
+                if (error.name === 'QuotaExceededError') {
+                    console.error('⚠️ localStorage quota exceeded');
+                    showToast('Storage full. Syncing to cloud...', 'warning');
+                    
+                    // Try to sync to Supabase if available
+                    if (typeof syncStateToSupabase === 'function') {
+                        syncStateToSupabase().catch(err => {
+                            console.error('Failed to sync to cloud:', err);
+                            showToast('Unable to save data. Please free up space.', 'error');
+                        });
+                    } else {
+                        // Clear old completed tasks to free space
+                        const oldWinsCount = state.tasks.wins.length;
+                        state.tasks.wins = state.tasks.wins.slice(-10); // Keep only last 10 wins
+                        console.log(`🧹 Cleared ${oldWinsCount - state.tasks.wins.length} old wins`);
+                        
+                        // Try saving again
+                        try {
+                            localStorage.setItem('focushub_state', JSON.stringify(state));
+                            showToast('Storage space freed', 'success');
+                        } catch (retryError) {
+                            showToast('Critical: Unable to save', 'error');
+                        }
+                    }
+                } else {
+                    console.error('Error saving state:', error);
+                    showToast('Failed to save data', 'error');
+                }
             }
         }
 
@@ -539,10 +572,16 @@
                 btn.addEventListener('click', function() {
                     const selectedMode = this.dataset.mode;
                     
-                    // Check if premium required
+                    // Check if premium required (client-side first for UX)
                     if ((selectedMode === 'supportive' || selectedMode === 'tough') && currentPlan !== 'premium' && !isAdmin) {
                         alert('🔒 This intensity mode requires Premium. Upgrade to unlock Supportive & Tough modes.');
                         return;
+                    }
+                    
+                    // SECURITY: Verify with server for premium modes
+                    if (selectedMode === 'supportive' || selectedMode === 'tough') {
+                        const verified = await verifyPremiumAccess('This AI intensity mode');
+                        if (!verified) return;
                     }
                     
                     // Update state
@@ -580,6 +619,62 @@
                     agentModeSelect.value = 'balanced';
                 }
             }
+        }
+        
+        // SECURITY: Verify premium status with server before allowing premium features
+        async function verifyPremiumAccess(featureName = 'premium feature') {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    showToast('Please log in to continue', 'error');
+                    return false;
+                }
+                
+                const { data: membership, error } = await supabaseClient
+                    .from('memberships')
+                    .select('plan, is_admin')
+                    .eq('user_id', user.id)
+                    .single();
+                
+                if (error) {
+                    console.error('Membership verification failed:', error);
+                    showToast('Unable to verify access', 'error');
+                    return false;
+                }
+                
+                const isPremium = membership.plan === 'premium' || membership.is_admin;
+                
+                if (!isPremium) {
+                    showToast(`${featureName} requires Premium`, 'warning');
+                    // Optionally redirect to upgrade
+                    setTimeout(() => {
+                        if (confirm('Upgrade to Premium to unlock this feature?')) {
+                            window.location.href = 'upgrade.html';
+                        }
+                    }, 500);
+                    return false;
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Premium verification error:', error);
+                return false;
+            }
+        }
+        
+        // SECURITY: Sanitize HTML to prevent XSS attacks
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        // SECURITY: Sanitize for attribute values
+        function sanitizeAttribute(str) {
+            if (!str) return '';
+            return str.replace(/[<>"']/g, '');
         }
 
         // ============================================
@@ -703,19 +798,18 @@
                         const priorityTitle = priority === 'high' ? 'High Priority' : priority === 'medium' ? 'Medium Priority' : 'Low Priority';
                         
                         return `
-                        <div class="task-item" draggable="true" data-task-id="${task.id}" data-bucket="${bucket}">
+                        <div class="task-item" draggable="true" data-task-id="${sanitizeAttribute(task.id)}" data-bucket="${sanitizeAttribute(bucket)}">
                             <button class="priority-indicator ${priorityClass}" 
-                                    data-task-id="${task.id}" 
-                                    title="${priorityTitle} - Click to change"
+                                    data-task-id="${sanitizeAttribute(task.id)}" 
+                                    title="${sanitizeAttribute(priorityTitle)} - Click to change"
                                     draggable="false"></button>
-                            ${bucket !== 'holding' ? `<input type="checkbox" class="task-checkbox" draggable="false" data-task-id="${task.id}" data-bucket="${bucket}">` : ''}
-                            <div class="task-text">${task.text}</div>
-                            <div class="task-controls">
-                                ${bucket !== 'holding' ? `
+                            ${bucket !== 'holding' ? `<input type="checkbox" class="task-checkbox" draggable="false" data-task-id="${sanitizeAttribute(task.id)}" data-bucket="${sanitizeAttribute(bucket)}">` : ''}
+                            <div class="task-text">${sanitizeHTML(task.text)}</div>
+                            <div class="task-controls">${bucket !== 'holding' ? `
                                 <div class="sprint-controls">
                                     <div class="sprint-arrows">
-                                        <button class="sprint-up" data-task-id="${task.id}" data-action="increment">▲</button>
-                                        <button class="sprint-down" data-task-id="${task.id}" data-action="decrement">▼</button>
+                                        <button class="sprint-up" data-task-id="${sanitizeAttribute(task.id)}" data-action="increment">▲</button>
+                                        <button class="sprint-down" data-task-id="${sanitizeAttribute(task.id)}" data-action="decrement">▼</button>
                                     </div>
                                     <span class="sprint-value">${task.sprints || 1}</span>
                                 </div>
@@ -1084,6 +1178,12 @@
                 showMicroConfirm('Cannot start sprint while in meeting mode');
                 return;
             }
+            
+            // FIX RACE CONDITION: Clear any existing interval first
+            if (state.timer.interval) {
+                clearInterval(state.timer.interval);
+                state.timer.interval = null;
+            }
 
             // TIMESTAMP-BASED TIMER: Record start and end times
             const now = Date.now();
@@ -1266,7 +1366,7 @@
                 if (winsSection) winsSection.classList.remove('hidden');
                 winsList.innerHTML = state.tasks.wins.map(win => `
                     <div class="win-item">
-                        <span class="win-text">${win.text}</span>
+                        <span class="win-text">${sanitizeHTML(win.text)}</span>
                         <span class="win-sprints">+${win.sprints || 1}</span>
                     </div>
                 `).join('');
