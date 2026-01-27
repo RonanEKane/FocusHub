@@ -403,6 +403,12 @@
                         currentPlan = membership.plan || 'free';
                         isAdmin = membership.is_admin || false;
                         console.log('✅ Membership loaded:', { plan: currentPlan, isAdmin: isAdmin });
+                        
+                        // Save to localStorage for other functions to access
+                        localStorage.setItem('focushub_membership', JSON.stringify({
+                            plan: currentPlan,
+                            is_admin: isAdmin
+                        }));
                     } else {
                         console.warn('⚠️ No membership found in database');
                     }
@@ -549,8 +555,7 @@
                 e.target.value = localStorage.getItem('focushub_reflection_tradition') || 'secular';
             }
 
-            const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
-            
+            // Check again for upgrade prompt
             if (premiumTraditions.includes(tradition) && currentPlan !== 'premium') {
                 e.target.value = localStorage.getItem('focushub_reflection_tradition') || 'secular';
                 if (confirm('Reflection traditions require Premium. Upgrade now?')) {
