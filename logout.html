@@ -4,100 +4,279 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session Terminated - FocusHub</title>
+    <link rel="stylesheet" href="style.css?v=20.4">
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <style>
+        /* Additional logout-specific styles */
+        .logout-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+
+        .logout-content {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .logout-logo {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logout-logo img {
+            height: 80px;
+            width: auto;
+        }
+
+        /* Main card with strong contrast */
+        .logout-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-medium);
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--industrial-orange);
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background: var(--bg-tertiary);
+        }
+
+        .logout-title {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .logout-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .stats-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            padding: 2rem 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stats-label {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--industrial-orange);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .schedule-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-primary);
+        }
+
+        .schedule-btn:hover {
+            background: var(--bg-elevated);
+            border-color: var(--industrial-orange);
+            transform: translateY(-2px);
+        }
+
+        .schedule-btn.selected {
+            background: var(--industrial-orange);
+            border-color: var(--industrial-orange);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-primary-logout {
+            display: block;
+            background: var(--industrial-orange);
+            color: white;
+            padding: 1rem;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 2px solid var(--industrial-orange);
+            transition: all 0.2s;
+        }
+
+        .btn-primary-logout:hover {
+            background: var(--bg-secondary);
+            color: var(--industrial-orange);
+        }
+
+        .btn-secondary-logout {
+            display: block;
+            border: 2px solid var(--border-medium);
+            color: var(--text-primary);
+            padding: 1rem;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 14px;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary-logout:hover {
+            border-color: var(--industrial-orange);
+            color: var(--industrial-orange);
+        }
+
+        .footer-tip {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
-<body class="theme-dark" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+<body>
     
-    <div style="max-width: 600px; width: 100%; padding: 2rem;">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 3rem;">
-            <img src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; filter: brightness(0) invert(1);">
-        </div>
-        
-        <!-- Main Card -->
-        <div style="border: 1px solid var(--border-medium); padding: 3rem 2rem; text-align: center; background: var(--bg-secondary);">
-            <!-- Status Icon -->
-            <div style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border-medium); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                ⏸
+    <div class="logout-container">
+        <div class="logout-content">
+            <!-- Logo -->
+            <div class="logout-logo">
+                <img src="FocusHub_vertnorm.svg" alt="FocusHub" id="logoImg">
             </div>
             
-            <!-- Header -->
-            <h1 style="font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; letter-spacing: 2px; margin-bottom: 1rem; color: var(--text-primary);">
-                SESSION TERMINATED
-            </h1>
-            
-            <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.6;">
-                Your progress is saved in the cloud.<br>
-                Return anytime to continue your mission.
-            </p>
-            
-            <!-- Session Stats (if available) -->
-            <div id="sessionStats" class="hidden" style="border: 1px solid var(--border-medium); padding: 2rem 1.5rem; margin-bottom: 2.5rem; background: var(--bg-primary);">
-                <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-secondary); margin-bottom: 1rem; letter-spacing: 1px;">
-                    FINAL STATS
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-                    <div>
-                        <div style="font-size: 36px; font-weight: 700; color: var(--accent-blue); font-family: 'Courier New', monospace;" id="statSprints">0</div>
-                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">SPRINTS</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 36px; font-weight: 700; color: var(--accent-blue); font-family: 'Courier New', monospace;" id="statTasks">0</div>
-                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">TASKS</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 36px; font-weight: 700; color: var(--accent-blue); font-family: 'Courier New', monospace;" id="statGrade">—</div>
-                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 0.25rem; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">GRADE</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Next Session Scheduler -->
-            <div style="border: 1px solid var(--border-medium); padding: 2rem; margin-bottom: 2rem; background: var(--bg-primary);">
-                <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-secondary); margin-bottom: 1.5rem; letter-spacing: 1px;">
-                    SCHEDULE NEXT SESSION
-                </div>
+            <!-- Main Card -->
+            <div class="logout-card">
+                <!-- Status Icon -->
+                <div class="status-icon">⏸</div>
                 
-                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1.5rem;">
-                    When will you return?
+                <!-- Header -->
+                <h1 class="logout-title">SESSION TERMINATED</h1>
+                
+                <p class="logout-subtitle">
+                    Your progress is saved in the cloud.<br>
+                    Return anytime to continue your mission.
                 </p>
                 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                    <button onclick="scheduleSession('tomorrow_08')" class="schedule-btn">
-                        <div style="font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-secondary); margin-bottom: 0.25rem;">TOMORROW</div>
-                        <div style="font-size: 18px; font-weight: 700;">08:00</div>
-                    </button>
-                    
-                    <button onclick="scheduleSession('tomorrow_12')" class="schedule-btn">
-                        <div style="font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-secondary); margin-bottom: 0.25rem;">TOMORROW</div>
-                        <div style="font-size: 18px; font-weight: 700;">12:00</div>
-                    </button>
-                    
-                    <button onclick="scheduleSession('monday_09')" class="schedule-btn">
-                        <div style="font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-secondary); margin-bottom: 0.25rem;">MONDAY</div>
-                        <div style="font-size: 18px; font-weight: 700;">09:00</div>
-                    </button>
+                <!-- Session Stats (if available) -->
+                <div id="sessionStats" class="stats-card hidden">
+                    <div class="stats-label">FINAL STATS</div>
+                    <div class="stats-grid">
+                        <div>
+                            <div class="stat-value" id="statSprints">0</div>
+                            <div class="stat-label">SPRINTS</div>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="statTasks">0</div>
+                            <div class="stat-label">TASKS</div>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="statGrade">—</div>
+                            <div class="stat-label">GRADE</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div id="commitmentMsg" class="hidden" style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-left: 3px solid var(--success); color: var(--success); font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.5px;">
-                    ✓ COMMITMENT LOGGED
+                <!-- Next Session Scheduler -->
+                <div class="schedule-card">
+                    <div class="stats-label">SCHEDULE NEXT SESSION</div>
+                    
+                    <p class="logout-subtitle">When will you return?</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <button onclick="scheduleSession('tomorrow_08')" class="schedule-btn">
+                            <div class="stat-label">TOMORROW</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-top: 0.25rem;">08:00</div>
+                        </button>
+                        
+                        <button onclick="scheduleSession('tomorrow_12')" class="schedule-btn">
+                            <div class="stat-label">TOMORROW</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-top: 0.25rem;">12:00</div>
+                        </button>
+                        
+                        <button onclick="scheduleSession('monday_09')" class="schedule-btn">
+                            <div class="stat-label">MONDAY</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-top: 0.25rem;">09:00</div>
+                        </button>
+                    </div>
+                    
+                    <div id="commitmentMsg" class="hidden" style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-left: 3px solid var(--success); color: var(--success); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.5px;">
+                        ✓ COMMITMENT LOGGED
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <a href="app.html" class="btn-primary-logout">
+                        → SIGN BACK IN
+                    </a>
+                    <a href="index.html" class="btn-secondary-logout">
+                        RETURN TO HOME
+                    </a>
                 </div>
             </div>
             
-            <!-- Actions -->
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <a href="app.html" style="display: block; background: var(--industrial-orange); color: white; padding: 1rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; border: 1px solid var(--text-primary);">
-                    → SIGN BACK IN
-                </a>
-                <a href="index.html" style="display: block; border: 1px solid var(--border-medium); color: var(--text-primary); padding: 1rem; text-decoration: none; font-family: 'Courier New', monospace; font-size: 14px; background: transparent;">
-                    RETURN TO HOME
-                </a>
-            </div>
+            <!-- Footer Tip -->
+            <p class="footer-tip">
+                💡 TIP: Install FocusHub as an app for faster access
+            </p>
         </div>
-        
-        <!-- Footer Tip -->
+    </div>
         <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-medium);">
             <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">
                 PRO TIP: INSTALL AS PWA FOR INSTANT ACCESS
@@ -239,5 +418,18 @@ async function performLogout() {
 performLogout();
 </script>
 
+    <script>
+        // Theme restoration - MUST RUN FIRST
+        (function() {
+            const theme = localStorage.getItem("focushub_theme") || "dark";
+            document.documentElement.className = `theme-${theme}`;
+            
+            // Update logo for theme
+            const logo = document.getElementById("logoImg");
+            if (logo) {
+                logo.src = theme === "dark" ? "FocusHub_vertinv.svg" : "FocusHub_vertnorm.svg";
+            }
+        })();
+    </script>
 </body>
 </html>

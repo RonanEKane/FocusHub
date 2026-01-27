@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - FocusHub</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20.4">
     <style>
         .settings-container {
             max-width: 900px;
@@ -525,20 +525,28 @@
             const tradition = e.target.value;
             console.log('Reflection changed to:', tradition);
             
-            // Check admin status
-            const userEmail = localStorage.getItem('focushub_user_email') || 'watersjb@gmail.com';
-            const isAdmin = adminEmails.includes(userEmail);
-            
-            const membership = localStorage.getItem('focushub_membership');
+            // Check if user has premium/admin access
             let currentPlan = 'free';
+            let isAdmin = false;
             
-            if (isAdmin) {
-                currentPlan = 'premium';
-            } else {
+            if (typeof isAdminUser !== 'undefined') {
+                isAdmin = isAdminUser; // From init function
+                currentPlan = isAdmin ? 'premium' : currentPlan;
+            }
+            
+            if (!isAdmin) {
+                const membership = localStorage.getItem('focushub_membership');
                 try {
                     const data = JSON.parse(membership);
                     currentPlan = data.plan || 'free';
+                    isAdmin = data.is_admin || false;
                 } catch (e) {}
+            }
+
+            const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
+            
+            if (premiumTraditions.includes(tradition) && currentPlan !== 'premium' && !isAdmin) {
+                e.target.value = localStorage.getItem('focushub_reflection_tradition') || 'secular';
             }
 
             const premiumTraditions = ['catholic', 'protestant', 'stoic', 'buddhist', 'islamic', 'jewish'];
@@ -558,32 +566,10 @@
 
         function handleAIModeChange(e) {
             const mode = e.target.value;
-            const membership = localStorage.getItem('focushub_membership');
-            let currentPlan = 'free';
             
-            try {
-                const data = JSON.parse(membership);
-                currentPlan = data.plan || 'free';
-            } catch (e) {}
-
-            if ((mode === 'supportive' || mode === 'tough') && currentPlan !== 'premium') {
-                // Load current state
-                const state = localStorage.getItem('focushub_state');
-                let currentMode = 'balanced';
-                if (state) {
-                    try {
-                        const data = JSON.parse(state);
-                        currentMode = data.currentMode || 'balanced';
-                    } catch (e) {}
-                }
-                e.target.value = currentMode;
-                
-                if (confirm('AI intensity modes require Premium. Upgrade now?')) {
-                    window.location.href = 'upgrade.html';
-                }
-                return;
-            }
-
+            // AI INTENSITY IS FREE FOR EVERYONE - No premium check needed!
+            // Users can change this on app.html anyway, so no reason to gate it here
+            
             // Update state
             const state = localStorage.getItem('focushub_state');
             if (state) {

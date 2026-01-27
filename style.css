@@ -732,7 +732,9 @@ body {
     overflow: hidden; 
     background: var(--bg-secondary); 
     border: 1px solid var(--border-light);
-    min-height: 320px; /* Increased height for importance */
+    display: flex;
+    flex-direction: column;
+    /* Removed fixed min-height - let content determine size */
 }
 
 .monitor-header {
@@ -1908,3 +1910,469 @@ body {
     font-size: 0.75rem;
     color: var(--text-muted);
 }
+
+
+/* ============================================
+   RESPONSIVE MOBILE IMPROVEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* System Intelligence - Stack intensity switches on mobile */
+    .intensity-control {
+        width: 100%;
+    }
+    
+    .intensity-switch {
+        width: 100%;
+    }
+    
+    .switch-btn {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    /* Monitor feed - reduce padding on mobile */
+    .monitor-feed {
+        padding: 1rem;
+        min-height: 80px;
+    }
+    
+    .ai-text {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ultra-compact for small phones */
+    .intensity-label {
+        font-size: 0.65rem;
+    }
+    
+    .switch-btn {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.4rem;
+    }
+}
+
+/* ============================================
+   V20.4 - VISUAL POLISH & ANIMATIONS
+   ============================================ */
+
+/* Smooth transitions for all interactive elements */
+button, .btn, .task-item, .sidebar-card {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button hover enhancements */
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.15);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Task item hover state */
+.task-item:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-medium);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card entrance animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.task-section, .sidebar-card {
+    animation: slideInUp 0.3s ease-out;
+}
+
+/* Fade in for stats */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.t-value, .stat-number {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Success pulse animation */
+@keyframes successPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+}
+
+.task-checkbox:checked {
+    animation: successPulse 0.5s ease-out;
+}
+
+/* Sprint timer pulse when active */
+@keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.timer-value.active {
+    animation: timerPulse 2s ease-in-out infinite;
+}
+
+/* Priority indicator hover */
+.priority-indicator:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px currentColor;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--industrial-orange);
+    outline-offset: 2px;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border-light);
+    border-top-color: var(--industrial-orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Toast notification styles */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-left: 4px solid var(--industrial-orange);
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    animation: slideInUp 0.3s ease-out;
+    max-width: 400px;
+}
+
+.toast.success {
+    border-left-color: var(--success);
+}
+
+.toast.error {
+    border-left-color: var(--danger);
+}
+
+.toast-message {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Skeleton loading states */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-secondary) 25%,
+        var(--bg-elevated) 50%,
+        var(--bg-secondary) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-button {
+    height: 40px;
+    width: 120px;
+}
+
+/* Improved disabled state */
+button:disabled, 
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Smooth page transitions */
+.page-transition {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Enhanced tooltip (if we add tooltips later) */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Mobile touch feedback */
+@media (hover: none) and (pointer: coarse) {
+    button:active, .btn:active {
+        background: var(--bg-elevated);
+    }
+}
+
+
+/* ============================================
+   V20.4 - MICRO-ANIMATIONS & TRANSITIONS
+   ============================================ */
+
+/* Smooth transitions for interactive elements */
+.btn, .task-item, .sidebar-card, button, input, select {
+    transition: all 0.2s ease;
+}
+
+/* Button hover enhancements */
+button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:not(:disabled):active {
+    transform: translateY(0);
+}
+
+/* Task item hover */
+.task-item:hover {
+    background: var(--bg-elevated);
+    border-color: var(--industrial-orange);
+    transform: translateX(2px);
+}
+
+/* Card hover depth */
+.sidebar-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus states */
+input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--industrial-orange);
+    outline-offset: 2px;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--industrial-orange);
+    animation: spin 0.6s linear infinite;
+}
+
+/* Fade in animation for new elements */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Pulse animation for important elements */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.3s ease;
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.checkmark {
+    animation: checkmark 0.4s ease;
+}
+
+
+/* ============================================
+   V20.4 - TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-left: 4px solid var(--industrial-orange);
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    max-width: 400px;
+    transition: all 0.3s ease;
+}
+
+.toast-success {
+    border-left-color: var(--success);
+}
+
+.toast-error {
+    border-left-color: var(--danger);
+}
+
+.toast-warning {
+    border-left-color: #f59e0b;
+}
+
+.toast-info {
+    border-left-color: var(--accent-blue);
+}
+
+
+/* ============================================
+   V20.4 - LOADING STATES
+   ============================================ */
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-light);
+    border-top-color: var(--industrial-orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+.loading-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-secondary) 0%,
+        var(--bg-elevated) 50%,
+        var(--bg-secondary) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-text:last-child {
+    width: 60%;
+}
+

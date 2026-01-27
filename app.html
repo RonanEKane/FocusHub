@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusHub - Built for Brains That Wander, but Still Want to Win</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- SEO & Social Meta Tags (V20.4) -->
+    <meta name="description" content="FocusHub - Built for Brains That Wander, but Still Want to Win. Complete productivity system for ADHD with tough-love coaching.">
+    <meta name="keywords" content="ADHD, productivity, focus, task management, sprint timer, accountability">
+    <meta name="author" content="FocusHub">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FocusHub - Productivity for ADHD Brains">
+    <meta property="og:description" content="Built for Brains That Wander, but Still Want to Win">
+    <meta property="og:image" content="/FocusHub_horiinv.svg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="FocusHub - Productivity for ADHD Brains">
+    <meta property="twitter:description" content="Built for Brains That Wander, but Still Want to Win">
+    <meta property="twitter:image" content="/FocusHub_horiinv.svg">
+    <link rel="preload" href="style.css?v=20.4" as="style">
+    <link rel="stylesheet" href="style.css?v=20.4">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="reflections-expanded.js"></script>
     <script src="keyboard-shortcuts.js"></script>
@@ -15,7 +32,7 @@
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
                 <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub">
-                <span style="position: absolute; top: -8px; right: -42px; background: #fb923c; color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
+                <span style="position: absolute; top: -8px; right: -42px; background: #fb923c; color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.5px;">BETA v20.3</span>
             </div>
         </div>
         <div class="header-timer" id="headerTimerSection" style="display: none;">
@@ -36,7 +53,7 @@
             <!-- Sprint Timer Section - DOMINANT -->
             <section class="sprint-timer-section dominant">
                 <div class="section-header">
-                    <h2>⏱️ SPRINT TIMER</h2>
+                    <h2>⏱️ FOCUS SESSION</h2>
                 </div>
                 
                 <div class="energy-row">
@@ -837,7 +854,7 @@
                 const task = state.tasks[bucket].find(t => t.id === taskId);
                 if (task) {
                     const oldSprints = task.sprints || 1;
-                    task.sprints = Math.max(1, Math.min(5, task.sprints + delta));
+                    task.sprints = Math.max(1, Math.min(5, (task.sprints || 1) + delta));
                     const newSprints = task.sprints;
                     
                     // AI COACH: Sprint estimation changes
@@ -852,7 +869,7 @@
                     }
                     
                     saveState();
-                    renderTasks();
+                    renderAll(); // Changed from renderTasks() to update sprint counts everywhere
                     return;
                 }
             }
@@ -1983,5 +2000,64 @@
             © 2026 FocusHub. All rights reserved.
         </div>
     </footer>
+    <script>
+        // PWA Service Worker Registration (V20.4)
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js")
+                    .then((registration) => {
+                        console.log("✅ SW registered:", registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log("❌ SW registration failed:", error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+
+    <script>
+        // ============================================
+        // TOAST NOTIFICATION SYSTEM (V20.4)
+        // ============================================
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} fade-in`;
+            
+            // Icon based on type
+            const icons = {
+                success: '✓',
+                error: '✗',
+                info: 'ℹ',
+                warning: '⚠'
+            };
+            
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.25rem;">${icons[type] || icons.info}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">${message}</span>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+            
+            console.log(`🔔 Toast: [${type.toUpperCase()}] ${message}`);
+        }
+        
+        // Replace alerts with toasts globally
+        window.showNotification = showToast;
+    </script>
