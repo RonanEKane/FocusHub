@@ -32,7 +32,7 @@
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
                 <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub">
-                <span style="position: absolute; top: -8px; right: -42px; background: #fb923c; color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.5px;">BETA v20.3</span>
+                <span style="position: absolute; top: -8px; right: -42px; background: #fb923c; color: #000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
             </div>
         </div>
         <div class="header-timer" id="headerTimerSection" style="display: none;">
@@ -441,7 +441,7 @@
             
             // Dashboard
             document.getElementById('dashboardBtn').addEventListener('click', function() {
-                window.location.href = 'overview.html';
+                redirectToDashboard();
             });
             
             // End day
@@ -931,6 +931,31 @@
             }
         };
 
+        // SMART DASHBOARD REDIRECT: Route based on plan
+        function redirectToDashboard() {
+            let plan = 'free';
+            
+            // Try to get plan from localStorage first (faster)
+            try {
+                const membership = localStorage.getItem('focushub_membership');
+                if (membership) {
+                    const data = JSON.parse(membership);
+                    plan = data.plan || 'free';
+                }
+            } catch (e) {
+                console.log('Could not parse membership, defaulting to free');
+            }
+            
+            // Route based on plan
+            if (plan === 'premium') {
+                console.log('🎯 Redirecting to premium dashboard...');
+                window.location.href = 'dashboard.html'; // Insight Center - full analytics
+            } else {
+                console.log('🎯 Redirecting to free dashboard...');
+                window.location.href = 'overview.html'; // Mission Control - basic stats
+            }
+        }
+        
         function endDay() {
             if (confirm('Session complete. Today\'s work has been logged. The session is closed.')) {
                 // Move incomplete tasks back to holding
@@ -959,8 +984,8 @@
                 
                 saveState();
                 
-                // Redirect to dashboard
-                window.location.href = 'overview.html';
+                // Redirect to appropriate dashboard
+                redirectToDashboard();
             }
         }
 
@@ -988,7 +1013,7 @@
                 state.lastActivityTime = null;
                 saveState();
                 alert('Session ended. Previous day logged.');
-                window.location.href = 'overview.html';
+                redirectToDashboard();
                 return true;
             }
             
@@ -2061,3 +2086,5 @@
         // Replace alerts with toasts globally
         window.showNotification = showToast;
     </script>
+</body>
+</html>
