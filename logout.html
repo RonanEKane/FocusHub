@@ -215,8 +215,7 @@ function formatICSDate(date) {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
 
-// Initialize Supabase and perform logout
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// supabaseClient is already created in supabase-config.js
 
 async function performLogout() {
     try {

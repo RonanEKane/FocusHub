@@ -237,8 +237,7 @@
     </div>
 
     <script>
-        // Initialize Supabase (already loaded via supabase-config.js)
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // supabaseClient is already created in supabase-config.js
         
         // Check authentication
         async function checkAuth() {

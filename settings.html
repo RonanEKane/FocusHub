@@ -377,9 +377,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
-        // Use config from supabase-config.js
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        // supabaseClient is already created in supabase-config.js
+        
         async function init() {
             let userEmail = null;
             let currentPlan = 'free';
