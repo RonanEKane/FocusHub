@@ -1,305 +1,217 @@
-# FocusHub V6 - Complete Source Code
-**Date**: January 20, 2026
-**Status**: Production Ready
-**Version**: V6 (Final)
+# 🎯 FocusHub V20.3 - Source Code
 
-## 📦 COMPLETE FILE STRUCTURE
+**Built for Brains That Wander, but Still Want to Win**
 
-### Core Application Files
-- **app.html** - Main productivity app (logged-in view)
-- **style.css** - Complete stylesheet for entire site
-- **supabase-config.js** - Database authentication configuration
-
-### Marketing/Landing Pages
-- **index.html** - Homepage/landing page
-- **signup.html** - Sign up page
-- **start.html** - Getting started page
-- **overview.html** - Product overview
-- **how-to.html** - How-to guide
-- **guide.html** - User guide
-- **faq.html** - Frequently asked questions
-- **privacy.html** - Privacy policy
-- **subscription.html** - Subscription/pricing page
-- **upgrade.html** - Upgrade page
-
-### Demo Pages
-- **demo.html** - Interactive demo
-- **demo-v2.html** - Demo version 2
-- **demo-final-dark.html** - Final dark theme demo
-
-### Admin
-- **admin.html** - Admin dashboard
-
-### Assets
-- **FocusHub_horiinv.svg** - Horizontal inverted logo
-- **FocusHub_horinorm.svg** - Horizontal normal logo
-- **FocusHub_vertinv.svg** - Vertical inverted logo
-- **FocusHub_vertnorm.svg** - Vertical normal logo
-
-### Documentation
-- **FINAL_FIXES_DELETE_BUTTON.md** - Latest fixes changelog
-- **FIXES_ROUND_2_jan20.md** - UI fixes round 2
-- **CHANGES_COMPLETED_jan20.md** - Initial polish changes
-- **DEPLOYMENT_CHECKLIST.md** - Deployment guide
-- **DESIGN_CONSULTANT_HANDOFF.md** - Design refinement guide
-- **BEFORE_AFTER_COMPARISON.md** - Visual transformation guide
-- **VISUAL_CHANGES.txt** - Quick visual reference
+**Version:** 20.3  
+**Last Updated:** January 26, 2026  
+**Developer:** John Waters (watersjb@gmail.com)  
+**Pen Name:** Ronan E. Kane
 
 ---
 
-## 🚀 DEPLOYMENT
+## 📁 Directory Structure
 
-### Cloudflare Pages Deployment
-1. Upload entire folder to Cloudflare Pages
-2. Connect to GitHub repository (recommended)
-3. Deploy to: `focushub-6ah.pages.dev`
-
-### Supabase Configuration
-- URL: `https://zpbzursxjlhizminfvyd.supabase.co`
-- Already configured in `supabase-config.js`
-- Authentication enabled
-- Database schema ready
-
----
-
-## 🎯 CORE FEATURES (app.html)
-
-### Sprint Timer
-- Energy-adaptive durations (15/20/30 min)
-- Meeting toggle
-- Large timer display
-- Orange START button
-
-### Task Command Center
-- Bulk task input (paste list)
-- Holding area for triage
-- Three priority buckets:
-  - ADMIN (administrative tasks)
-  - DEEP WORK (focused work)
-  - STRATEGIC (high-level thinking)
-- Drag-and-drop between buckets
-- Sprint estimation per task (1-5 sprints)
-- Delete tasks with × button
-
-### System Intelligence (AI Coach)
-- **Intensity levels**: Supportive, Balanced, Tough Love
-- Real-time feedback and accountability
-- Performance grading (A-F)
-- Adaptive coaching style
-
-### Stats Dashboard
-- Sprint count (completed/target)
-- Wins tracking
-- Break count
-- Distraction count
-
-### Distraction Parking
-- Quick-capture distractions
-- Minimizable card
-- Focus mode support
-
----
-
-## 🎨 DESIGN SYSTEM
-
-### Brand Colors
-- **Industrial Orange**: #f45b07 (primary accent)
-- **Dark Theme**: Default
-- **Text**: Light on dark backgrounds
-
-### Typography
-- **Body**: 0.875rem (system fonts)
-- **Headings**: 1rem - 1.125rem
-- **Monospace**: SF Mono for numbers/data
-- **Labels**: 0.75rem, uppercase, letter-spacing
-
-### Spacing Scale
-- 0.5rem, 0.75rem, 1rem, 1.5rem, 2rem, 2.5rem
-
-### Border Radius
-- **Small**: 4px
-- **Medium**: 8px  
-- **Large**: 12px
-
-### Shadows
-- **Subtle**: `0 1px 3px rgba(0,0,0,0.1)`
-- **Medium**: `0 2px 8px rgba(0,0,0,0.08)`
-- **Strong**: `0 4px 12px rgba(244,91,7,0.1)`
-- **Enhanced**: `0 4px 20px rgba(244,91,7,0.2)`
+```
+focushub/
+├── 📄 Core Application Files
+│   ├── app.html                    # Main application
+│   ├── style.css                   # Main stylesheet
+│   ├── index.html                  # Landing page
+│   ├── start.html                  # Login/signup entry
+│   └── settings.html               # User settings
+│
+├── 🔐 Authentication & User Pages
+│   ├── login.html                  # Login page
+│   ├── signup.html                 # Signup page
+│   ├── logout.html                 # Professional logout
+│   └── subscription.html           # Subscription management
+│
+├── 👑 Admin & Analytics
+│   ├── admin.html                  # Admin panel
+│   ├── analytics-dashboard.html    # Analytics dashboard
+│   └── dashboard.html              # Insight Center (user dashboard)
+│
+├── 📚 Marketing & Info Pages
+│   ├── overview.html               # Product overview
+│   ├── how-to.html                 # How-to guide
+│   ├── guide.html                  # User guide
+│   ├── faq.html                    # FAQ
+│   ├── upgrade.html                # Upgrade page
+│   └── privacy.html                # Privacy policy (GDPR/CCPA)
+│
+├── 🧠 JavaScript Libraries
+│   ├── supabase-config.js          # Supabase connection
+│   ├── analytics.js                # Event tracking
+│   ├── keyboard-shortcuts.js       # Premium shortcuts
+│   ├── dashboard-supabase-sync.js  # Dashboard sync
+│   ├── weekly-reports.js           # Weekly reports (not integrated)
+│   └── firestore-data.js           # Legacy (not used)
+│
+├── 🧘 Reflection Libraries
+│   ├── reflections-expanded.js     # 50 universal reflections
+│   ├── reflections-buddhist.js     # Buddhist tradition
+│   ├── reflections-catholic.js     # Catholic tradition
+│   ├── reflections-christian.js    # Christian tradition
+│   ├── reflections-hindu.js        # Hindu tradition
+│   ├── reflections-islamic.js      # Islamic tradition
+│   └── reflections-jewish.js       # Jewish tradition
+│
+├── 🎨 Assets
+│   ├── FocusHub_horiinv.svg        # Horizontal logo (dark)
+│   ├── FocusHub_horinorm.svg       # Horizontal logo (light)
+│   ├── FocusHub_vertinv.svg        # Vertical logo (dark)
+│   ├── FocusHub_vertnorm.svg       # Vertical logo (light)
+│   ├── ronan-headshot.jpg          # Author photo
+│   ├── manifest.json               # PWA manifest
+│   └── service-worker.js           # PWA service worker (not activated)
+│
+├── 📚 docs/                        # All documentation (43 files)
+│   ├── README.md                   # Docs index
+│   ├── RELEASE_NOTES_V20.3.md      # Current release notes
+│   ├── DEPLOYMENT_CHECKLIST_V20.3.md
+│   ├── TROUBLESHOOTING_V20.3.md
+│   ├── QUICK_FIX_SUMMARY.md
+│   └── [40 more documentation files...]
+│
+├── 🗄️ sql/                         # All SQL scripts (17 files)
+│   ├── README.md                   # SQL index
+│   ├── SUPABASE_MEMBERSHIP_SETUP.sql
+│   ├── DASHBOARD_SCHEMA.sql
+│   ├── ANALYTICS_SCHEMA.sql
+│   ├── FIX_JOHNS_MEMBERSHIP.sql
+│   └── [13 more SQL scripts...]
+│
+└── 🔧 Utility Scripts
+    └── FORCE_START_DAY.js          # Emergency day start script
+```
 
 ---
 
-## 💡 KEY TECHNICAL DECISIONS
+## 🚀 Quick Start
 
-### Vanilla Stack
-- **HTML/CSS/JavaScript** - No build tools
-- **No frameworks** - Pure web standards
-- **Easy deployment** - Drag-and-drop to host
+### 1. Deploy to Cloudflare Pages
+Upload this entire directory to Cloudflare Pages or connect via GitHub.
 
-### State Management
-- LocalStorage for backup
-- Supabase for sync
-- In-memory state object
+### 2. Set Up Supabase Database
+Run these SQL scripts in order:
+```bash
+sql/SUPABASE_MEMBERSHIP_SETUP.sql
+sql/DASHBOARD_SCHEMA.sql
+sql/ANALYTICS_SCHEMA.sql
+```
 
-### Event Handling
-- Proper event listeners (no inline onclick)
-- Event propagation controlled
-- Data attributes for task actions
+### 3. Grant Admin Access
+```bash
+sql/FIX_JOHNS_MEMBERSHIP.sql
+```
 
-### Responsive Design
-- Desktop: Two-column layout
-- Mobile: Single column at 1200px breakpoint
-- Touch-friendly controls
+### 4. Configure Supabase Connection
+Update `supabase-config.js` with your credentials (already configured).
 
----
-
-## 🔧 RECENT FIXES
-
-### Latest Session (January 20, 2026)
-1. ✅ Delete button now works (event listeners)
-2. ✅ Sprint controls inline with task text
-3. ✅ Sprint number always visible
-4. ✅ System Intelligence card pops visually
-5. ✅ Grade display moved and labeled
-6. ✅ "Intensity" label added to dropdown
-7. ✅ Responsive grid improved
-
-### All Core Features Working
-- ✅ Task creation and deletion
-- ✅ Drag-and-drop between buckets
-- ✅ Sprint adjustment (▲▼)
-- ✅ Timer functionality
-- ✅ AI coaching
-- ✅ Stats tracking
-- ✅ Auth with Supabase
+### 5. Test Application
+- Visit `/start.html` to log in
+- Click "START DAY" modal on app.html
+- Verify settings show "👑 ADMIN"
 
 ---
 
-## 📱 BROWSER SUPPORT
+## 🐛 Known Issues & Fixes
 
-- **Chrome**: Full support
-- **Firefox**: Full support
-- **Safari**: Full support
-- **Edge**: Full support
-- **Mobile**: Responsive design
+### Issue: Settings Page SyntaxError
+**Status:** ✅ FIXED in V20.3  
+**Solution:** Removed duplicate `supabaseClient` declarations
 
----
+### Issue: Tasks Not Appearing
+**Cause:** Day not started  
+**Solution:** Click "START DAY" modal or run `FORCE_START_DAY.js`
 
-## 🔐 AUTHENTICATION
+### Issue: Settings Shows "FREE TIER"
+**Cause:** Membership record not in database  
+**Solution:** Run `sql/FIX_JOHNS_MEMBERSHIP.sql`
 
-### Supabase Setup
-- Email/password authentication
-- Session management
-- Protected routes
-- Auto-redirect on login
-
-### User Flow
-1. Landing page (index.html)
-2. Sign up (signup.html)
-3. Login → Redirect to app (app.html)
-4. Logout → Return to landing
+See `docs/TROUBLESHOOTING_V20.3.md` for complete guide.
 
 ---
 
-## 📊 PERFORMANCE
+## 📊 Database Schema
 
-### Targets
-- First Contentful Paint: < 1s
-- Time to Interactive: < 2s
-- Total page size: < 500KB
-- No jank on interactions
-
-### Optimizations
-- Minimal dependencies
-- Inline critical CSS
-- Lazy-load non-essential
-- LocalStorage caching
+### Tables
+1. **memberships** - User plans & admin flags
+2. **daily_history** - Daily performance tracking  
+3. **task_history** - Task completion logs
+4. **distraction_log** - Distraction tracking
+5. **analytics_events** - User interaction events
+6. **analytics_errors** - JavaScript error logs
+7. **analytics_sessions** - Session tracking
 
 ---
 
-## 🎯 BRAND VOICE
+## ✨ V20.3 Features
 
-**Tagline**: "Built for Brains That Wander, but Still Want to Win"
+### Bug Fixes
+- ✅ Sprint timer displays immediately
+- ✅ Park It actually stores distractions
+- ✅ Meeting mode fully functional
+- ✅ Task holding area debug logging
+- ✅ Settings page JavaScript error fixed
 
-**Attributes**:
-- Accountability (not gamification)
-- Tough love (direct feedback)
-- Military precision (field manual aesthetic)
-- ADHD-optimized (fast, clear, structured)
-- Focus-first (minimal distractions)
+### UI Improvements
+- ✅ "Energy Level" label (was "Energy")
+- ✅ Break button outline style
+- ✅ Modern meeting toggle switch
+- ✅ Logo size increased (60px)
+- ✅ Sticky header with backdrop blur
 
----
-
-## 📝 FUTURE ENHANCEMENTS
-
-### Potential Improvements
-- Light theme option
-- Custom icon set
-- Advanced animations
-- Mobile-specific gestures
-- Team features (optional)
-- Integrations (calendar, etc.)
-
-### NOT Planned (By Design)
-- ❌ Gamification (points, badges, streaks)
-- ❌ Social features (focus is solo)
-- ❌ Complex task hierarchy
-- ❌ Kanban views (too many options)
+### Privacy Policy
+- ✅ GDPR/CCPA compliant
+- ✅ Analytics disclosure
+- ✅ Subscription data disclosure
+- ✅ Admin transparency
 
 ---
 
-## 🆘 TROUBLESHOOTING
+## 📦 File Count
 
-### Issue: Buttons not working
-**Solution**: Hard refresh browser (Ctrl+Shift+R)
+- **HTML Pages:** 25+ files
+- **JavaScript:** 10 libraries
+- **Reflection Files:** 7 tradition libraries (350+ reflections)
+- **Documentation:** 43 markdown files
+- **SQL Scripts:** 17 database scripts
+- **Assets:** 5 SVG logos + images
 
-### Issue: Styles not updating
-**Solution**: Clear browser cache or add cache-busting query parameter
-
-### Issue: Auth not working
-**Solution**: Check Supabase credentials in supabase-config.js
-
-### Issue: Drag-and-drop not working
-**Solution**: Ensure event listeners are attached (check console for errors)
+**Total:** ~145 files
 
 ---
 
-## 📞 SUPPORT
+## 🔐 Admin Access
 
-### Technical Questions
-- Check documentation files in package
-- Review console for errors
-- Verify Supabase connection
-
-### Design Questions
-- See DESIGN_CONSULTANT_HANDOFF.md
-- Review brand voice guidelines above
+**Current Admin:** watersjb@gmail.com  
+**Plan:** Premium  
+**Admin Panel:** `/admin.html`  
+**Analytics:** `/analytics-dashboard.html`
 
 ---
 
-## 🎉 DEPLOYMENT CHECKLIST
+## 📞 Support
 
-- [ ] Upload all files to Cloudflare Pages
-- [ ] Verify Supabase URL in supabase-config.js
-- [ ] Test login flow
-- [ ] Test task creation/deletion
-- [ ] Test drag-and-drop
-- [ ] Test sprint controls
-- [ ] Test timer
-- [ ] Verify mobile responsiveness
-- [ ] Check all pages load correctly
-- [ ] Test logout
+**Bug Reports:** Use thumbs-down button in app  
+**Privacy Questions:** privacy@focushub.app  
+**General Support:** support@focushub.app
 
 ---
 
-## 📄 LICENSE
+## 🎯 Deployment Checklist
 
-Proprietary - FocusHub V6
-All rights reserved.
+See `docs/DEPLOYMENT_CHECKLIST_V20.3.md` for complete deployment guide.
+
+**Quick Version:**
+1. ✅ Deploy files to Cloudflare Pages
+2. ✅ Run SQL scripts in Supabase
+3. ✅ Hard refresh browser (Cmd+Shift+R)
+4. ✅ Test: Settings shows "👑 ADMIN"
+5. ✅ Test: Tasks add to holding area
+6. ✅ Test: Timer starts immediately
 
 ---
 
-**Build Date**: January 20, 2026
-**Version**: V6 (Production Ready)
-**Deploy To**: focushub-6ah.pages.dev
-**Contact**: John (Ronan E. Kane)
+**Next Version:** 20.4 - Additional polish and refinements

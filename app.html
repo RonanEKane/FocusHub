@@ -316,9 +316,11 @@
             
             // RESTORE MEETING MODE if it was active
             if (state.inMeeting) {
-                document.getElementById('meetingToggle').checked = true;
-                // Re-disable controls without showing messages
-                document.getElementById('startSprintBtn').disabled = true;
+                const meetingToggle = document.getElementById('meetingToggle');
+                const startBtn = document.getElementById('startSprintBtn');
+                
+                if (meetingToggle) meetingToggle.checked = true;
+                if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
                 console.log('📅 Meeting mode restored from previous session');
             }
@@ -1001,8 +1003,9 @@
                     state.sessionState = 'meeting';
                 }
                 
-                // DISABLE sprint controls
-                document.getElementById('startSprintBtn').disabled = true;
+                // DISABLE sprint controls - with safety checks
+                const startBtn = document.getElementById('startSprintBtn');
+                if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
                 
                 // UPDATE AI message
@@ -1011,8 +1014,9 @@
                 
                 console.log('📅 Meeting mode: ENABLED');
             } else {
-                // RE-ENABLE sprint controls
-                document.getElementById('startSprintBtn').disabled = false;
+                // RE-ENABLE sprint controls - with safety checks
+                const startBtn = document.getElementById('startSprintBtn');
+                if (startBtn) startBtn.disabled = false;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = false);
                 state.sessionState = 'idle';
                 
@@ -1156,12 +1160,20 @@
                 }
             });
             
-            document.getElementById('sprintsDone').textContent = state.sprintCount;
-            document.getElementById('sprintTarget').textContent = totalRequiredSprints;
-            document.getElementById('winsCount').textContent = state.tasks.wins.length;
-            document.getElementById('breaksCount').textContent = state.breaksCount;
-            document.getElementById('distractionsCount').textContent = state.distractionCount;
-            document.getElementById('distractionCountDisplay').textContent = state.distractionCount;
+            // SAFETY CHECKS: Only update elements if they exist
+            const sprintsDoneEl = document.getElementById('sprintsDone');
+            const sprintTargetEl = document.getElementById('sprintTarget');
+            const winsCountEl = document.getElementById('winsCount');
+            const breaksCountEl = document.getElementById('breaksCount');
+            const distractionsCountEl = document.getElementById('distractionsCount');
+            const distractionCountDisplayEl = document.getElementById('distractionCountDisplay');
+            
+            if (sprintsDoneEl) sprintsDoneEl.textContent = state.sprintCount;
+            if (sprintTargetEl) sprintTargetEl.textContent = totalRequiredSprints;
+            if (winsCountEl) winsCountEl.textContent = state.tasks.wins.length;
+            if (breaksCountEl) breaksCountEl.textContent = state.breaksCount;
+            if (distractionsCountEl) distractionsCountEl.textContent = state.distractionCount;
+            if (distractionCountDisplayEl) distractionCountDisplayEl.textContent = state.distractionCount;
             
             renderTasks();
             renderWins();
@@ -1222,7 +1234,9 @@
         // Grade removed per Studio Deck refactor - gamification eliminated
 
         function updateSystemState(message) {
-            document.getElementById('systemState').textContent = message;
+            const systemStateEl = document.getElementById('systemState');
+            if (!systemStateEl) return; // Safety check
+            systemStateEl.textContent = message;
         }
 
         function updateAIMessage(message) {
