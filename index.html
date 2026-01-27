@@ -13,9 +13,6 @@
         h1 { font-size: 3.5rem; font-weight: 800; color: #f55b07; margin-bottom: 1.5rem; line-height: 1.2; }
         .tagline { font-size: 1.75rem; color: #a0a0a0; margin-bottom: 1rem; max-width: 700px; }
         .subtitle { font-size: 1.125rem; color: #707070; margin-bottom: 3rem; max-width: 600px; }
-        .social-proof { display: flex; gap: 2rem; margin-bottom: 3rem; font-size: 0.875rem; color: #888; flex-wrap: wrap; justify-content: center; }
-        .proof-item { display: flex; align-items: center; gap: 0.5rem; }
-        .proof-number { font-size: 1.5rem; font-weight: 700; color: #f55b07; }
         .cta-container { display: flex; gap: 1.5rem; margin-bottom: 4rem; }
         .btn { padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 700; text-decoration: none; border-radius: 8px; transition: all 0.3s ease; display: inline-block; }
         .btn-primary { background: #f55b07; color: white; }
@@ -44,12 +41,10 @@
         .cta-section { text-align: center; padding: 5rem 2rem; background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%); }
         .cta-section h2 { font-size: 2.5rem; color: #f55b07; margin-bottom: 1rem; }
         .cta-section p { font-size: 1.25rem; color: #a0a0a0; margin-bottom: 2rem; }
-        .beta-badge { background: #f55b07; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.875rem; font-weight: 700; display: inline-block; margin-bottom: 2rem; }
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .tagline { font-size: 1.25rem; }
             .section-title { font-size: 2rem; }
-            .social-proof { flex-direction: column; gap: 0.5rem; }
             .cta-container { flex-direction: column; width: 100%; }
             .btn { width: 100%; }
             .features, .testimonials, .steps { grid-template-columns: 1fr; }
@@ -59,15 +54,11 @@
 <body>
     <div class="hero">
         <img src="FocusHub_icon.svg" alt="FocusHub" class="logo" onerror="this.style.display='none'">
-        <div class="beta-badge">BETA</div>
+        
         <h1>Built for Brains That Wander,<br>but Still Want to Win</h1>
         <p class="tagline">The productivity system that actually works for ADHD.</p>
         <p class="subtitle">No gentle nudges. No endless features. Just structure that clicks.</p>
-        <div class="social-proof">
-            <div class="proof-item"><span class="proof-number">1,200+</span><span>beta users</span></div>
-            <div class="proof-item"><span class="proof-number">15,000+</span><span>sprints completed</span></div>
-            <div class="proof-item"><span class="proof-number">4.8/5</span><span>user rating</span></div>
-        </div>
+        
         <div class="cta-container">
             <a href="signup.html" class="btn btn-primary">Start Free Trial</a>
             <a href="login.html" class="btn btn-secondary">Login</a>
@@ -148,7 +139,7 @@
     </div>
     <div class="cta-section">
         <h2>Ready to Stop Wandering?</h2>
-        <p>Join 1,200+ ADHD brains building better systems.</p>
+        <p>Start building a system that actually works for your brain.</p>
         <a href="signup.html" class="btn btn-primary">Start Free Trial</a>
         <p style="margin-top: 1rem; font-size: 0.875rem; color: #888;">No credit card required. 7 days free.</p>
     </div>

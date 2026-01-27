@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sign Up - FocusHub BETA</title>
+    <link rel="stylesheet" href="style.css?v=20.4">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+        .auth-box {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            padding: 3rem 2.5rem;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-medium);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--industrial-orange);
+        }
+        .mode-selector { margin: 1.5rem 0; }
+        .mode-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-option:hover {
+            border-color: var(--industrial-orange);
+            background: var(--bg-primary);
+        }
+        .mode-option input[type="radio"] {
+            margin-right: 1rem;
+            margin-top: 2px;
+        }
+        .mode-option-content { flex: 1; }
+        .mode-option strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        .mode-option p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--industrial-orange);
+            color: white;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-block {
+            width: 100%;
+            display: block;
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-link a {
+            color: var(--industrial-orange);
+            text-decoration: none;
+        }
+        .auth-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+        .auth-error {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 4px;
+            color: #ef4444;
+            font-size: 0.875rem;
+        }
+        .hidden { display: none !important; }
+    </style>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+</head>
+<body class="theme-dark">
+    <div class="auth-container">
+        <div class="auth-box" style="max-width: 1000px; position: relative;">
+            <!-- BETA badge -->
+            <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
+            
+            <img id="authLogo" src="FocusHub_vertinv.svg?v=3" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
+            
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Create account</h2>
+            
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <div id="signupError" class="auth-error hidden"></div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Create account</button>
+                
+                <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
+                    This creates your FocusHub account.
+                </p>
+            </form>
+            
+            <p class="auth-switch">
+                <a href="start.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.875rem;">Log in</a>
+            </p>
+        </div>
+    </div>
+
+<script>
+// Capture referral code from URL
+const urlParams = new URLSearchParams(window.location.search);
+const referralCode = urlParams.get('ref');
+if (referralCode) {
+    localStorage.setItem('focushub_referred_by', referralCode);
+    console.log('Referral tracked:', referralCode);
+}
+
+// Form submission
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    
+    const errorDiv = document.getElementById('signupError');
+    const submitBtn = document.querySelector('#signupForm button[type="submit"]');
+    
+    errorDiv.classList.add('hidden');
+    
+    if (!name || !email || !password) {
+        errorDiv.textContent = 'All fields required.';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    if (password.length < 8) {
+        errorDiv.textContent = 'Password must meet minimum length.';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Creating account...';
+    
+    try {
+        const result = await handleSignup(email, password, 'professional');
+        
+        if (result.success) {
+            // Store referral if exists
+            const referredBy = localStorage.getItem('focushub_referred_by');
+            if (referredBy) {
+                // TODO: Save to Supabase user_profiles.referred_by
+                console.log('User signed up via referral:', referredBy);
+                localStorage.removeItem('focushub_referred_by'); // Clear after use
+            }
+            
+            // Store name for profile
+            if (result.user) {
+                await supabaseClient
+                    .from('user_profiles')
+                    .update({ name: name })
+                    .eq('id', result.user.id);
+            }
+            
+            window.location.href = 'app.html';
+        } else {
+            errorDiv.textContent = result.error || 'Account creation failed.';
+            errorDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        errorDiv.textContent = 'An error occurred.';
+        errorDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+});
+
+// Theme detection
+function initTheme() {
+    // Signup page should always default to dark theme
+    const theme = localStorage.getItem('focushub_theme') || 'dark';
+    const authLogo = document.getElementById('authLogo');
+    
+    if (!authLogo) {
+        console.error('Auth logo not found!');
+        return;
+    }
+    
+    if (theme === 'dark' || !theme) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.body.classList.add('theme-dark');
+        document.body.classList.remove('theme-light');
+        authLogo.src = 'FocusHub_vertinv.svg?v=3'; // Dark = white text
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.body.classList.add('theme-light');
+        document.body.classList.remove('theme-dark');
+        authLogo.src = 'FocusHub_vertnorm.svg?v=3'; // Light = black text
+    }
+    
+    console.log('Signup theme initialized:', theme);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    document.getElementById('email').focus();
+});
+</script>
+
+</body>
+</html>

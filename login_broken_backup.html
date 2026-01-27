@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - FocusHub</title>
+    <link rel="stylesheet" href="style.css?v=20.4">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .login-container {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-medium);
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo-section img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 1rem;
+        }
+        .beta-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background: var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .error-message:not(:empty) {
+            display: block;
+        }
+        .link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        .text-center {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="FocusHub_vertnorm.svg" alt="FocusHub">
+            <div class="beta-badge">BETA</div>
+        </div>
+
+        <h1>Log in</h1>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm" onsubmit="handleSignin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <div class="forgot-password">
+                <a href="/forgot-password.html">Forgot password?</a>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">Log in</button>
+
+            <p class="helper-text">This logs you into your FocusHub workspace.</p>
+        </form>
+
+        <div class="create-account">
+            <a href="/signup.html">Create account</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle login
+        async function handleSignin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset error
+            errorMessage.classList.remove('show');
+            errorMessage.textContent = '';
+            
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                console.log('✅ Login successful:', data.user.id);
+                
+                // Redirect to app
+                window.location.href = '/app.html';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = error.message || 'Login failed. Please check your credentials.';
+                errorMessage.classList.add('show');
+                
+                // Re-enable button
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log in';
+            }
+        }
+
+        // Check if already logged in
+        async function checkExistingSession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    console.log('Already logged in, redirecting...');
+                    window.location.href = '/app.html';
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        }
+
+        // Initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkExistingSession);
+        } else {
+            checkExistingSession();
+        }
+
+        console.log('Login theme initialized: light');
+    </script>
+</body>
+</html>
