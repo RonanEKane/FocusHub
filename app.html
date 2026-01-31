@@ -294,7 +294,7 @@
                 <div class="monitor-header">
                     <h3>SYSTEM INTELLIGENCE</h3>
                     <div class="intensity-control">
-                        <span class="intensity-label">Agent Intensity</span>
+                        <span class="intensity-label">Intensity</span>
                         <div class="intensity-switch">
                             <button class="switch-btn" data-mode="supportive">SUPPORTIVE</button>
                             <button class="switch-btn active" data-mode="balanced">BALANCED</button>
@@ -387,7 +387,15 @@
             currentGrade: '-',
             lastDayStarted: null,     // DAY TRACKING
             lastActivityTime: null,   // DAY TRACKING
-            dayActive: false          // DAY TRACKING
+            dayActive: false,         // DAY TRACKING
+            // BEHAVIORAL PATTERN TRACKING (V20.6)
+            lastSprintCompleteTime: null,   // When last sprint finished
+            consecutiveBreaks: 0,            // Break count without focus
+            totalFocusTime: 0,               // Total minutes in focus this session
+            totalBreakTime: 0,               // Total minutes in breaks this session
+            lowEnergyChoiceCount: 0,         // Count of low energy selections
+            sprintAborts: 0,                 // Count of sprints stopped early
+            idleStartTime: null              // When user went idle
         };
 
         // ============================================
@@ -810,10 +818,29 @@
             // Timer buttons
             document.querySelectorAll('.timer-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // V20.6: Check if attempting to select break
+                    const isBreakBtn = this.classList.contains('timer-btn-break');
+                    const duration = parseInt(this.dataset.duration);
+                    
+                    if (isBreakBtn && duration === 5) {
+                        // Check if break is earned
+                        if (!checkBreakEligibility()) {
+                            return; // Block break selection
+                        }
+                    }
+                    
                     document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    state.timer.duration = parseInt(this.dataset.duration);
+                    state.timer.duration = duration;
                     state.timer.remaining = state.timer.duration * 60;
+                    
+                    // Mark as break type if break button
+                    if (isBreakBtn) {
+                        state.timer.type = 'break';
+                    } else {
+                        state.timer.type = 'focus';
+                    }
+                    
                     updateTimerDisplay();
                     saveState();
                 });
@@ -823,6 +850,15 @@
             document.getElementById('energyLevel').addEventListener('change', function() {
                 state.energyLevel = this.value;
                 localStorage.setItem('focushub_energy', this.value);
+                
+                // V20.6: Track low-energy selections
+                if (this.value === 'low') {
+                    state.lowEnergyChoiceCount++;
+                    saveState();
+                    
+                    // Check for priority mismatch pattern
+                    checkPriorityMismatch();
+                }
                 
                 const energyTimers = { low: 15, medium: 20, high: 30 };
                 state.timer.duration = energyTimers[this.value];
@@ -1297,6 +1333,9 @@
                 return;
             }
             
+            // V20.6: Reset idle tracking when starting sprint
+            state.idleStartTime = null;
+            
             // FIX RACE CONDITION: Clear any existing interval first
             if (state.timer.interval) {
                 clearInterval(state.timer.interval);
@@ -1334,36 +1373,94 @@
             
             saveState();
         }
+        
+        // V20.6: Separate break start function
+        function startBreak() {
+            if (state.timer.active) return;
+            if (!checkBreakEligibility()) return;
+            
+            state.idleStartTime = null;
+            
+            if (state.timer.interval) {
+                clearInterval(state.timer.interval);
+                state.timer.interval = null;
+            }
+
+            const now = Date.now();
+            state.timer.startTime = now;
+            state.timer.endTime = now + (5 * 60 * 1000); // 5-minute break
+            state.timer.active = true;
+            state.timer.type = 'break';
+            state.timer.duration = 5;
+            state.timer.remaining = 300;
+            state.sessionState = 'break';
+            
+            updateAIMessage('Break started. Return to focus after.');
+            resetInactivityMonitor();
+            updateTimerDisplay();
+            
+            state.timer.interval = setInterval(() => {
+                const timeLeft = Math.ceil((state.timer.endTime - Date.now()) / 1000);
+                state.timer.remaining = Math.max(0, timeLeft);
+                updateTimerDisplay();
+                
+                if (state.timer.remaining <= 0) {
+                    completeSprint();
+                }
+            }, 1000);
+            
+            saveState();
+        }
 
         function completeSprint() {
             clearInterval(state.timer.interval);
+            
+            // V20.6: Track focus vs break time
+            if (state.timer.type === 'focus') {
+                state.totalFocusTime += state.timer.duration;
+                state.consecutiveBreaks = 0; // Reset break counter on focus
+            } else if (state.timer.type === 'break') {
+                state.totalBreakTime += state.timer.duration;
+                state.consecutiveBreaks++;
+            }
+            
             state.timer.active = false;
             state.timer.startTime = null;
             state.timer.endTime = null;
-            state.sprintCount++;
+            
+            // Only increment sprint count for actual focus sessions
+            if (state.timer.type === 'focus') {
+                state.sprintCount++;
+                state.lastSprintCompleteTime = Date.now();
+            }
+            
             state.sessionState = 'idle';
             state.timer.remaining = state.timer.duration * 60;
+            state.idleStartTime = Date.now(); // V20.6: Start idle tracking
             
-            // AI COACH: Contextual performance feedback
-            const totalRequired = calculateTotalRequiredSprints();
-            const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
-                sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
-            
-            const message = getAICoachMessage('sprintComplete', {
-                sprintsDone: state.sprintCount,
-                required: totalRequired,
-                tasksLeft: tasksLeft
-            });
-            
-            updateAIMessage(message);
-            
-            // Check priority alignment
-            setTimeout(() => checkPriorityAlignment(), 2000);
+            // Only show sprint complete messages for focus sessions
+            if (state.timer.type === 'focus') {
+                // System Intelligence: Contextual performance feedback
+                const totalRequired = calculateTotalRequiredSprints();
+                const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
+                    sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
+                
+                const message = getAICoachMessage('sprintComplete', {
+                    sprintsDone: state.sprintCount,
+                    required: totalRequired,
+                    tasksLeft: tasksLeft
+                });
+                
+                updateAIMessage(message);
+                
+                // Check priority alignment
+                setTimeout(() => checkPriorityAlignment(), 2000);
+            }
             
             // Start inactivity monitor
             startInactivityMonitor();
             
-            // Start continuous AI monitoring
+            // Start continuous monitoring
             startAIMonitoring();
             
             saveState();
@@ -1876,6 +1973,139 @@
                     (ctx) => `Meeting finished. ${ctx.required} sprints remain. Meeting time is gone. Sprint time is now. Execute.`,
                     (ctx) => ctx.required > 6 ? `Back to work. ${ctx.required} sprints outstanding. Every meeting minute compounded your gap. START NOW.` : `Meeting complete. ${ctx.required} sprints. Execute.`
                 ]
+            },
+            
+            // PRIORITY MISALIGNMENT (V20.6) - Context: lowEnergyCount
+            priorityMismatch: {
+                supportive: [
+                    (ctx) => `You've been choosing easier modes while important work is waiting. When you're ready, try tackling the high-priority items.`,
+                    (ctx) => `I notice you're selecting low-energy modes repeatedly. The challenging work might benefit from more energy.`,
+                    (ctx) => `You've taken the easy path a few times. Consider whether you're ready to tackle something bigger.`
+                ],
+                balanced: [
+                    (ctx) => `Pattern detected: Low-energy selections with high-priority work pending. Consider your approach.`,
+                    (ctx) => `Multiple low-energy choices. High-priority items need attention at some point.`,
+                    (ctx) => `Low-energy mode selected ${ctx.lowEnergyCount} times. High-priority work remains.`
+                ],
+                tough: [
+                    (ctx) => `You keep choosing easy modes. High-priority work doesn't complete itself.`,
+                    (ctx) => `Avoidance pattern: ${ctx.lowEnergyCount} low-energy selections. Hard work is still there.`,
+                    (ctx) => `You're selecting comfort over challenge. The difficult work is what moves things forward.`
+                ]
+            },
+            
+            // BREAK DENIAL (V20.6) - Context: focusTime, breakAttempts
+            breakDenied: {
+                supportive: [
+                    (ctx) => `Consider doing some focus work before taking a break. Rest is more meaningful after effort.`,
+                    (ctx) => `A break works best after you've put in some focused time first.`,
+                    (ctx) => `You might find the break more refreshing if you complete some work first.`
+                ],
+                balanced: [
+                    (ctx) => `Insufficient focus time. Consider working before breaking. ${ctx.focusTime} minutes logged.`,
+                    (ctx) => `Break timing: Better after focus sessions. Current focus: ${ctx.focusTime} min.`,
+                    (ctx) => `Breaks work better after sustained focus. Try a sprint first.`
+                ],
+                tough: [
+                    (ctx) => `No focus time logged. Breaks follow work, not precede it.`,
+                    (ctx) => `Zero focused minutes. Start with work. Breaks come after.`,
+                    (ctx) => `You're trying to break without working. That's backwards.`
+                ]
+            },
+            
+            // EXCESSIVE BREAKS (V20.6) - Context: consecutiveBreaks, focusBreakRatio
+            excessiveBreaks: {
+                supportive: [
+                    (ctx) => `You've taken several breaks recently. Consider balancing that with some focused work.`,
+                    (ctx) => `Multiple breaks taken. Your focus time would benefit from some sustained attention.`,
+                    (ctx) => `Break time is outweighing work time. When you're ready, try a longer focus session.`
+                ],
+                balanced: [
+                    (ctx) => `${ctx.consecutiveBreaks} consecutive breaks. Focus:break ratio is ${ctx.focusBreakRatio}:1. Consider adjusting.`,
+                    (ctx) => `Break frequency high. Focus time would improve output. Consider your pattern.`,
+                    (ctx) => `Multiple breaks without equivalent focus. Ratio needs balancing.`
+                ],
+                tough: [
+                    (ctx) => `${ctx.consecutiveBreaks} breaks without sustained focus. This pattern limits results.`,
+                    (ctx) => `You're breaking more than working. That's not productive.`,
+                    (ctx) => `Break pattern detected. Work output requires focus time, not break time.`
+                ]
+            },
+            
+            // IDLE WITHOUT DECISION (V20.6) - Context: idleMinutes
+            idleInterruption: {
+                supportive: [
+                    (ctx) => `You've been paused for a while. When you're ready, choose your next step.`,
+                    (ctx) => `No activity for ${ctx.idleMinutes} minutes. Take your time, then decide what's next.`,
+                    (ctx) => `Extended pause noticed. Whenever you're ready to continue.`
+                ],
+                balanced: [
+                    (ctx) => `Idle for ${ctx.idleMinutes} minutes. Consider selecting your next action.`,
+                    (ctx) => `No activity detected. Time to choose: focus, break, or wrap up.`,
+                    (ctx) => `Extended idle period. Make a decision when ready.`
+                ],
+                tough: [
+                    (ctx) => `${ctx.idleMinutes} minutes idle. Time doesn't pause while you decide.`,
+                    (ctx) => `Extended inactivity. Choose direction or session time is wasted.`,
+                    (ctx) => `Idle state continuing. Make a choice.`
+                ]
+            },
+            
+            // START/STOP PATTERN (V20.6) - Context: abortCount
+            avoidancePattern: {
+                supportive: [
+                    (ctx) => `You keep starting and stopping. That's often a sign something feels challenging. What's getting in the way?`,
+                    (ctx) => `Multiple starts without completion. Let's try committing to just one full sprint.`,
+                    (ctx) => `Pattern noticed: Starting but not finishing. Consider what's making it hard to continue.`
+                ],
+                balanced: [
+                    (ctx) => `${ctx.abortCount} incomplete attempts. This pattern suggests avoidance.`,
+                    (ctx) => `Repeated starts without follow-through. Consider your resistance.`,
+                    (ctx) => `Start/stop cycle detected. Something is interfering with completion.`
+                ],
+                tough: [
+                    (ctx) => `${ctx.abortCount} starts. Zero completions. This is avoidance behavior.`,
+                    (ctx) => `You keep starting without finishing. That pattern prevents progress.`,
+                    (ctx) => `Multiple aborts. The pattern is clear: Avoiding sustained effort.`
+                ]
+            },
+            
+            // DISCOMFORT ABORT (V20.6) - Context: timeBeforeAbort
+            discomfortQuit: {
+                supportive: [
+                    (ctx) => `Sprint ended early. Often that's when the discomfort starts but the value begins. Want to try again?`,
+                    (ctx) => `Quick exit noticed. The initial discomfort usually passes if you push through.`,
+                    (ctx) => `Stopped at ${ctx.timeBeforeAbort} minutes. That's a common resistance point. Consider staying longer next time.`
+                ],
+                balanced: [
+                    (ctx) => `Sprint terminated early at ${ctx.timeBeforeAbort} minutes. Discomfort detected.`,
+                    (ctx) => `Early exit from focus. The discomfort phase is part of the process.`,
+                    (ctx) => `Stopped when difficulty increased. This pattern limits depth.`
+                ],
+                tough: [
+                    (ctx) => `Quit at ${ctx.timeBeforeAbort} minutes. That's exactly when real work starts.`,
+                    (ctx) => `You exit when it gets uncomfortable. That's where growth happens.`,
+                    (ctx) => `Early termination at resistance point. You're avoiding the productive phase.`
+                ]
+            },
+            
+            // CLEAN EXIT PROMPT (V20.6) - Context: refusalCount
+            cleanExit: {
+                supportive: [
+                    (ctx) => `It seems like this might not be the right time to work. That's completely okay. You can step away and return when you're ready.`,
+                    (ctx) => `You've resisted several times. Maybe it's better to pause and try again later when conditions are better.`,
+                    (ctx) => `Sometimes it's not the right moment. No judgment. Come back when you feel more prepared.`
+                ],
+                balanced: [
+                    (ctx) => `Pattern suggests this isn't an effective work session. Consider whether to continue or reschedule.`,
+                    (ctx) => `${ctx.refusalCount} avoidance signals. Evaluate if now is the right time.`,
+                    (ctx) => `Work resistance detected. Sometimes stepping away is the better choice.`
+                ],
+                tough: [
+                    (ctx) => `Multiple refusals detected. You're not engaging. Consider whether you should be here.`,
+                    (ctx) => `${ctx.refusalCount} avoidances. Session isn't productive. Reassess timing.`,
+                    (ctx) => `You're resisting consistently. This session isn't working.`
+                ]
             }
         };
         
@@ -1913,6 +2143,177 @@
             }
         }
         
+        // ============================================
+        // BEHAVIORAL PATTERN DETECTION (V20.6)
+        // ============================================
+        
+        // Check for repeated low-energy selections with high-priority work pending
+        function checkPriorityMismatch() {
+            // Count high-priority incomplete tasks
+            let highPriorityCount = 0;
+            ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                state.tasks[bucket].forEach(task => {
+                    if (!task.completed && task.priority === 'high') {
+                        highPriorityCount++;
+                    }
+                });
+            });
+            
+            // If high-priority work exists and user keeps choosing low energy
+            if (highPriorityCount > 0 && state.lowEnergyChoiceCount >= 3) {
+                const message = getAICoachMessage('priorityMismatch', {
+                    lowEnergyCount: state.lowEnergyChoiceCount
+                });
+                updateAIMessage(message);
+                
+                // V20.6: Softer approach - prompt without blocking
+                showToast('Consider tackling high-priority work with more energy.', 'warning', 5000);
+                
+                state.lowEnergyChoiceCount = 0;
+                saveState();
+                return true;
+            }
+            return false;
+        }
+        
+        // Check if break is earned (V20.6)
+        function checkBreakEligibility() {
+            const MIN_FOCUS_FOR_BREAK = 15; // Minutes
+            
+            // If trying to take a break without sufficient focus
+            if (state.totalFocusTime < MIN_FOCUS_FOR_BREAK) {
+                const message = getAICoachMessage('breakDenied', {
+                    focusTime: state.totalFocusTime,
+                    breakAttempts: state.consecutiveBreaks + 1
+                });
+                
+                updateAIMessage(message);
+                showToast('Consider doing some focus work before taking a break.', 'warning', 4000);
+                return false; // Block break if zero focus
+            }
+            
+            // Check if too many consecutive breaks - prompt but allow
+            if (state.consecutiveBreaks >= 2) {
+                const focusBreakRatio = state.totalFocusTime / Math.max(1, state.totalBreakTime);
+                
+                if (focusBreakRatio < 2) { // Less than 2:1 focus:break ratio
+                    const message = getAICoachMessage('excessiveBreaks', {
+                        consecutiveBreaks: state.consecutiveBreaks,
+                        focusBreakRatio: focusBreakRatio.toFixed(1)
+                    });
+                    
+                    updateAIMessage(message);
+                    showToast('Break frequency is high. Consider balancing with focus time.', 'warning', 5000);
+                    // Allow break but with warning
+                }
+            }
+            
+            return true;
+        }
+        
+        // Detect extended idle without decision (V20.6)
+        function checkIdleState() {
+            if (!state.idleStartTime) {
+                state.idleStartTime = Date.now();
+                return;
+            }
+            
+            const idleMinutes = Math.floor((Date.now() - state.idleStartTime) / 60000);
+            
+            if (idleMinutes >= 5) { // 5 minutes idle - extended period
+                const message = getAICoachMessage('idleInterruption', {
+                    idleMinutes: idleMinutes
+                });
+                
+                updateAIMessage(message);
+                showToast('You\'ve been idle for a while. Choose your next move.', 'info', 5000);
+                
+                state.idleStartTime = Date.now(); // Reset to avoid spam
+            }
+        }
+        
+        // Track sprint aborts for avoidance pattern (V20.6)
+        function detectAvoidancePattern() {
+            if (state.sprintAborts >= 3) {
+                const message = getAICoachMessage('avoidancePattern', {
+                    abortCount: state.sprintAborts
+                });
+                
+                updateAIMessage(message);
+                state.sprintAborts = 0;
+                saveState();
+            }
+        }
+        
+        // Detect avoidance patterns and provide coaching (V20.6)
+        let avoidanceMessageCount = 0;
+        function detectAvoidanceCoaching() {
+            avoidanceMessageCount++;
+            
+            if (avoidanceMessageCount >= 3) {
+                const message = getAICoachMessage('cleanExit', {
+                    refusalCount: avoidanceMessageCount
+                });
+                
+                updateAIMessage(message);
+                showToast('Consider whether this is the right time to work.', 'info', 5000);
+                avoidanceMessageCount = 0; // Reset counter
+            }
+        }
+        
+        // Intervention modal system (V20.6)
+        function showInterventionModal(message, actions, dismissable = false) {
+            // Create modal if doesn't exist
+            let modal = document.getElementById('interventionModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'interventionModal';
+                modal.className = 'intervention-modal';
+                modal.innerHTML = `
+                    <div class="intervention-content">
+                        <div class="intervention-message"></div>
+                        <div class="intervention-actions"></div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            // Set message
+            modal.querySelector('.intervention-message').textContent = message;
+            
+            // Set actions
+            const actionsContainer = modal.querySelector('.intervention-actions');
+            actionsContainer.innerHTML = '';
+            
+            actions.forEach(action => {
+                const btn = document.createElement('button');
+                btn.textContent = action.text;
+                btn.className = 'btn intervention-btn';
+                btn.onclick = action.action;
+                actionsContainer.appendChild(btn);
+            });
+            
+            // Show modal
+            modal.style.display = 'flex';
+            
+            // Handle dismissal
+            if (dismissable) {
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        detectRefusalPattern();
+                        hideInterventionModal();
+                    }
+                };
+            }
+        }
+        
+        function hideInterventionModal() {
+            const modal = document.getElementById('interventionModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
         // Monitor inactivity
         let inactivityTimer = null;
         function startInactivityMonitor() {
@@ -1928,6 +2329,9 @@
                         required: totalRequired
                     });
                     updateAIMessage(message);
+                    
+                    // V20.6: Check for idle intervention
+                    checkIdleState();
                     
                     // Remind again every 2 minutes
                     startInactivityMonitor();
@@ -2249,20 +2653,15 @@
     </footer>
     <script>
         // PWA Service Worker Registration (V20.4) - DISABLED due to cache errors
-        // TODO: Fix service worker caching strategy before re-enabling
-        /*
+        // V20.6: Unregister any existing service worker
         if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js")
-                    .then((registration) => {
-                        console.log("✅ SW registered:", registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log("❌ SW registration failed:", error);
-                    });
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log('🧹 Service worker unregistered');
+                }
             });
         }
-        */
     </script>
 </body>
 </html>

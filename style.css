@@ -82,6 +82,23 @@
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%) !important;
 }
 
+/* V20.6: Ensure system-monitor stays consistent in light mode */
+[data-theme="light"] .system-monitor {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="light"] .system-monitor:hover {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="light"] .monitor-header {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="light"] .monitor-header:hover {
+    background: var(--bg-secondary) !important;
+}
+
 [data-theme="light"] .ai-message-large::before {
     color: var(--industrial-orange);
 }
@@ -1969,6 +1986,71 @@ body {
     .switch-btn {
         font-size: 0.65rem;
         padding: 0.3rem 0.4rem;
+    }
+}
+
+/* ============================================
+   INTERVENTION MODAL (V20.6)
+   ============================================ */
+.intervention-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10001; /* Above onboarding */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.intervention-content {
+    background: var(--bg-primary);
+    border: 3px solid var(--danger);
+    border-radius: 8px;
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+
+.intervention-message {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.intervention-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.intervention-btn {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .intervention-content {
+        padding: 2rem 1.5rem;
+    }
+    
+    .intervention-message {
+        font-size: 1.125rem;
+    }
+    
+    .intervention-btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
     }
 }
 
