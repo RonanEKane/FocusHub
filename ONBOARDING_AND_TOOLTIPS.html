@@ -1,0 +1,195 @@
+<!-- ONBOARDING MODAL - ADD THIS TO APP.HTML AFTER <body> TAG -->
+
+<!-- Onboarding Modal -->
+<div id="onboardingModal" class="onboarding-modal" style="display: none;">
+    <div class="onboarding-content">
+        <!-- Step 1: Welcome -->
+        <div class="onboarding-step" id="onboard-step-1">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-primary);">
+                Welcome to FocusHub
+            </h1>
+            <p style="font-size: 1.25rem; margin-bottom: 2rem; color: var(--text-secondary);">
+                Built for brains that wander. Let's get you set up in 60 seconds.
+            </p>
+            <button class="btn-primary" onclick="showOnboardingStep(2)" style="padding: 1rem 3rem; font-size: 1.25rem;">
+                Let's Go →
+            </button>
+        </div>
+
+        <!-- Step 2: Three Buckets -->
+        <div class="onboarding-step" id="onboard-step-2" style="display: none;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-primary);">
+                The Three-Bucket System
+            </h2>
+            <p style="margin-bottom: 2rem;">
+                FocusHub uses only 3 task buckets. That's it. No folders, no tags, no endless organization.
+            </p>
+            
+            <div style="display: grid; gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--accent-primary);">
+                    <h3 style="color: var(--accent-primary); margin-bottom: 0.5rem;">📋 ADMIN</h3>
+                    <p style="color: var(--text-secondary);">Quick tasks. Emails. Scheduling. Things that take 1-2 sprints.</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ef4444;">
+                    <h3 style="color: #ef4444; margin-bottom: 0.5rem;">🎯 DEEP WORK</h3>
+                    <p style="color: var(--text-secondary);">Hard stuff. Writing. Coding. Design. Requires focus. 3-5 sprints.</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #10b981;">
+                    <h3 style="color: #10b981; margin-bottom: 0.5rem;">⚡ STRATEGIC</h3>
+                    <p style="color: var(--text-secondary);">Important long-term work. Planning. Big decisions. 2-4 sprints.</p>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="showOnboardingStep(3)" style="padding: 1rem 3rem;">
+                Got It →
+            </button>
+        </div>
+
+        <!-- Step 3: Sprint System -->
+        <div class="onboarding-step" id="onboard-step-3" style="display: none;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-primary);">
+                Sprint-Based Work
+            </h2>
+            <p style="margin-bottom: 1.5rem;">
+                Instead of endless to-do lists, you work in <strong>sprints</strong>.
+            </p>
+            
+            <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Here's how it works:</h3>
+                <ol style="margin-left: 1.5rem; line-height: 2;">
+                    <li>Choose your energy level (Low = 15min, Medium = 20min, High = 30min)</li>
+                    <li>Hit START SPRINT</li>
+                    <li>Work until the timer ends</li>
+                    <li>Take a break or start the next sprint</li>
+                </ol>
+            </div>
+            
+            <p style="margin-bottom: 2rem; color: var(--text-secondary);">
+                Each task shows how many sprints it needs. The system calculates your total sprint goal for the day.
+            </p>
+            
+            <button class="btn-primary" onclick="showOnboardingStep(4)" style="padding: 1rem 3rem;">
+                Next →
+            </button>
+        </div>
+
+        <!-- Step 4: The Agent -->
+        <div class="onboarding-step" id="onboard-step-4" style="display: none;">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-primary);">
+                Meet The Agent
+            </h2>
+            <p style="margin-bottom: 1.5rem;">
+                Your AI coach. Not gentle. Not mean. Just honest.
+            </p>
+            
+            <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; border: 2px solid var(--accent-primary);">
+                <p style="font-style: italic; font-size: 1.125rem; margin-bottom: 1rem;">
+                    "Sprint 3/8 complete. 5 sprints behind. Deficit severe. Start now."
+                </p>
+                <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                    — The Agent (Tough mode)
+                </p>
+            </div>
+            
+            <p style="margin-bottom: 2rem;">
+                The Agent adapts to your progress and calls out patterns. You can set intensity: Supportive, Balanced, or Tough.
+            </p>
+            
+            <button class="btn-primary" onclick="finishOnboarding()" style="padding: 1rem 3rem;">
+                Start My First Day →
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD THIS CSS TO STYLE.CSS OR IN A <style> TAG -->
+<style>
+.onboarding-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.onboarding-content {
+    background: var(--bg-primary);
+    border: 2px solid var(--accent-primary);
+    border-radius: 12px;
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.onboarding-step {
+    text-align: center;
+}
+
+.onboarding-step h2 {
+    text-align: center;
+}
+
+.onboarding-step p,
+.onboarding-step ol,
+.onboarding-step li {
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .onboarding-content {
+        padding: 2rem 1.5rem;
+    }
+}
+</style>
+
+<!-- ADD THIS JAVASCRIPT TO APP.HTML -->
+<script>
+// Check if user has seen onboarding
+function checkOnboarding() {
+    const hasSeenOnboarding = localStorage.getItem('focushub_onboarding_complete');
+    if (!hasSeenOnboarding && state.dayActive) {
+        document.getElementById('onboardingModal').style.display = 'flex';
+    }
+}
+
+function showOnboardingStep(stepNumber) {
+    // Hide all steps
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`onboard-step-${i}`).style.display = 'none';
+    }
+    // Show requested step
+    document.getElementById(`onboard-step-${stepNumber}`).style.display = 'block';
+}
+
+function finishOnboarding() {
+    localStorage.setItem('focushub_onboarding_complete', 'true');
+    document.getElementById('onboardingModal').style.display = 'none';
+    showToast('Welcome to FocusHub! Let\'s get to work.', 'success');
+}
+
+// Call this after init() completes
+// Add to the end of init() function:
+// setTimeout(checkOnboarding, 500);
+</script>
+
+<!-- TOOLTIPS - ADD THESE ATTRIBUTES TO BUTTONS IN APP.HTML -->
+<!--
+Examples:
+<button id="startSprintBtn" title="Start a focused work session">START SPRINT</button>
+<button id="parkBtn" title="Save this distraction to deal with later">PARK</button>
+<button id="endDayBtn" title="Complete your day and get graded">END DAY</button>
+<select id="energyLevel" title="Choose sprint length based on your energy">...</select>
+<button class="priority-indicator" title="Click to change task priority (High/Medium/Low)"></button>
+<button class="sprint-up" title="Increase sprint requirement">▲</button>
+<button class="sprint-down" title="Decrease sprint requirement">▼</button>
+-->
