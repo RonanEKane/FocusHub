@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SECURITY: Force HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Beta Access - FocusHub</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Join the FocusHub beta. Structure for wandering minds. Limited spots available with exclusive early-access pricing.">
+    <meta name="keywords" content="FocusHub beta, ADHD productivity, focus app beta, early access">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="FocusHub Beta - Structure for Wandering Minds">
+    <meta property="og:description" content="Join the beta. First 50 users get 50% off. Limited spots.">
+    <meta property="og:type" content="website">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #0a0a0a; 
+            color: #e0e0e0; 
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            position: relative;
+        }
+        
+        .beta-badge {
+            display: inline-block;
+            background: #f55b07;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            border: 2px solid #f55b07;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            max-width: 900px;
+        }
+        
+        .tagline {
+            font-size: 1.75rem;
+            color: #f55b07;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            color: #a0a0a0;
+            margin-bottom: 3rem;
+            max-width: 700px;
+        }
+        
+        /* CTA Buttons */
+        .cta-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .btn-primary {
+            background: #f55b07;
+            color: white;
+            border-color: #f55b07;
+        }
+        
+        .btn-primary:hover {
+            background: #ff6d1a;
+            border-color: #ff6d1a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 91, 7, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #f55b07;
+            border-color: #f55b07;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(245, 91, 7, 0.1);
+            border-color: #ff6d1a;
+        }
+        
+        .note {
+            font-size: 0.875rem;
+            color: #888;
+            margin-top: 1rem;
+        }
+        
+        /* Beta Offer Section */
+        .offer-section {
+            padding: 4rem 2rem;
+            background: #0d0d0d;
+            border-top: 3px solid #f55b07;
+            border-bottom: 3px solid #f55b07;
+        }
+        
+        .offer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .offer-title {
+            font-size: 2.5rem;
+            color: #f55b07;
+            margin-bottom: 2rem;
+            font-weight: 800;
+        }
+        
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .offer-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(245, 91, 7, 0.3);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .offer-card:hover {
+            border-color: #f55b07;
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        
+        .offer-card.featured {
+            border-color: #f55b07;
+            background: rgba(245, 91, 7, 0.05);
+        }
+        
+        .offer-badge {
+            display: inline-block;
+            background: #f55b07;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .offer-discount {
+            font-size: 3rem;
+            color: #f55b07;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+        
+        .offer-label {
+            font-size: 1.125rem;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .offer-desc {
+            font-size: 0.875rem;
+            color: #888;
+            line-height: 1.5;
+        }
+        
+        /* How It Works */
+        .how-section {
+            padding: 5rem 2rem;
+            background: #1a1a1a;
+        }
+        
+        .section-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            color: #f55b07;
+            text-align: center;
+            margin-bottom: 3rem;
+            font-weight: 800;
+        }
+        
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+        
+        .how-item {
+            text-align: center;
+        }
+        
+        .how-number {
+            width: 60px;
+            height: 60px;
+            background: #f55b07;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .how-title {
+            font-size: 1.5rem;
+            color: #f55b07;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .how-desc {
+            color: #a0a0a0;
+            line-height: 1.7;
+            font-size: 1.125rem;
+        }
+        
+        /* Target Audience */
+        .audience-section {
+            padding: 5rem 2rem;
+            background: #0d0d0d;
+        }
+        
+        .audience-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .audience-list {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .audience-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(245, 91, 7, 0.2);
+            font-size: 1.125rem;
+            color: #e0e0e0;
+        }
+        
+        .audience-list li:before {
+            content: "→";
+            color: #f55b07;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Email Capture */
+        .email-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .email-form {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .email-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(245, 91, 7, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .email-input:focus {
+            outline: none;
+            border-color: #f55b07;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .email-submit {
+            padding: 1rem 2.5rem;
+            background: #f55b07;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .email-submit:hover {
+            background: #ff6d1a;
+            transform: translateY(-2px);
+        }
+        
+        /* Final CTA */
+        .final-cta {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: #0a0a0a;
+        }
+        
+        .urgency {
+            font-size: 0.875rem;
+            color: #f55b07;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .tagline { font-size: 1.5rem; }
+            .subtitle { font-size: 1.125rem; }
+            .section-title { font-size: 2rem; }
+            .offer-title { font-size: 2rem; }
+            .cta-container { flex-direction: column; width: 100%; max-width: 400px; }
+            .btn { width: 100%; }
+            .offer-grid { grid-template-columns: 1fr; }
+            .how-grid { grid-template-columns: 1fr; }
+            .email-form { flex-direction: column; }
+            .email-input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="beta-badge">BETA ACCESS</div>
+        <h1>Can't stay on task?<br>We built this for you.</h1>
+        <p class="tagline">Structure for wandering minds.</p>
+        <p class="subtitle">The productivity system designed for ADHD. Energy-adaptive sprints. Firm accountability. Zero clutter.</p>
+        
+        <div class="cta-container">
+            <a href="signup.html" class="btn btn-primary">Join the Beta</a>
+            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+        
+        <p class="note">Free to start. Discounts applied automatically.</p>
+    </section>
+
+    <!-- Beta Offer Section -->
+    <section class="offer-section">
+        <div class="offer-container">
+            <h2 class="offer-title">Limited Beta Pricing</h2>
+            <p style="color: #a0a0a0; font-size: 1.125rem; margin-bottom: 2rem;">Early access. Real savings. Lock in your rate.</p>
+            
+            <div class="offer-grid">
+                <div class="offer-card featured">
+                    <div class="offer-badge">First 50 Users</div>
+                    <div class="offer-discount">50% OFF</div>
+                    <div class="offer-label">Lifetime Discount</div>
+                    <p class="offer-desc">Lock in half price for as long as you subscribe. First 50 spots only.</p>
+                </div>
+                
+                <div class="offer-card">
+                    <div class="offer-badge">Remaining Beta</div>
+                    <div class="offer-discount">25% OFF</div>
+                    <div class="offer-label">Locked-In Rate</div>
+                    <p class="offer-desc">Keep your discount permanently. Available to beta users until public launch.</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 2rem; color: #888; font-size: 0.875rem;">
+                See full pricing on <a href="upgrade.html" style="color: #f55b07; text-decoration: none;">subscription page</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-section" id="how-it-works">
+        <div class="section-container">
+            <h2 class="section-title">How FocusHub Works</h2>
+            
+            <div class="how-grid">
+                <div class="how-item">
+                    <div class="how-number">1</div>
+                    <h3 class="how-title">Structured Sessions</h3>
+                    <p class="how-desc">Energy-adaptive sprint timers (15/20/30 min). No arbitrary Pomodoros. Match your actual capacity.</p>
+                </div>
+                
+                <div class="how-item">
+                    <div class="how-number">2</div>
+                    <h3 class="how-title">System Accountability</h3>
+                    <p class="how-desc">AI tracks patterns. Calls out avoidance. Firm, not mean. Guides you back on track.</p>
+                </div>
+                
+                <div class="how-item">
+                    <div class="how-number">3</div>
+                    <h3 class="how-title">Adjustable Intensity</h3>
+                    <p class="how-desc">Supportive, Balanced, or Tough. Same structure. Different tone. You choose how direct the feedback is.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience -->
+    <section class="audience-section">
+        <div class="audience-content">
+            <h2 class="section-title">Built For</h2>
+            
+            <ul class="audience-list">
+                <li>People who start tasks but struggle to finish them</li>
+                <li>ADHD brains that wander despite good intentions</li>
+                <li>Anyone tired of productivity apps that require productivity to use</li>
+                <li>Those who need structure, not motivation</li>
+                <li>Professionals seeking measurable progress, not endless features</li>
+            </ul>
+            
+            <p style="margin-top: 2rem; font-size: 1.125rem; color: #e0e0e0;">
+                Real work. Measured sprints. Honest feedback.
+            </p>
+        </div>
+    </section>
+
+    <!-- Email Capture (Optional) -->
+    <section class="email-section">
+        <div class="email-container">
+            <h2 class="section-title">Not Ready Yet?</h2>
+            <p style="color: #a0a0a0; font-size: 1.125rem;">Save your spot. Get notified when more beta invites open.</p>
+            
+            <form class="email-form" action="#" method="POST">
+                <input type="email" class="email-input" placeholder="your.email@example.com" required>
+                <button type="submit" class="email-submit">Notify Me</button>
+            </form>
+            
+            <p class="note" style="margin-top: 1.5rem;">
+                <strong>Beta spots limited.</strong> Early access guaranteed with signup.
+            </p>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <p class="urgency">Limited Spots Available</p>
+        <h2 style="font-size: 2.5rem; color: #ffffff; margin-bottom: 1.5rem;">Start Building Better Focus</h2>
+        <p style="color: #a0a0a0; font-size: 1.125rem; margin-bottom: 2rem;">Join the beta. Lock in your discount. Get structure that works.</p>
+        
+        <a href="signup.html" class="btn btn-primary">Join the Beta</a>
+        
+        <p class="note" style="margin-top: 1.5rem;">
+            Free to start. Discounts applied automatically.
+        </p>
+    </section>
+</body>
+</html>
