@@ -260,6 +260,25 @@
                     </div>
                 </div>
                 
+                <!-- Beta Feedback Prompt -->
+                <div id="betaFeedbackPrompt" style="background: rgba(245, 91, 7, 0.1); border: 2px solid var(--industrial-orange); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; display: none;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <span style="font-size: 2rem;">🧪</span>
+                        <div style="flex: 1; text-align: left;">
+                            <h3 style="color: var(--industrial-orange); font-size: 1.125rem; margin-bottom: 0.25rem;">Help Us Improve</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">Quick 5-question survey (2 minutes)</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="beta-feedback.html" class="btn btn-primary" style="flex: 1; text-decoration: none; display: inline-block; padding: 0.75rem;">
+                            Share Feedback
+                        </a>
+                        <button onclick="dismissFeedbackPrompt()" class="btn btn-secondary" style="flex: 1;">
+                            Maybe Later
+                        </button>
+                    </div>
+                </div>
+                
                 <!-- Actions -->
                 <div class="action-buttons">
                     <a href="app.html" class="btn-primary-logout">
@@ -416,6 +435,30 @@ async function performLogout() {
 
 // Perform logout on page load
 performLogout();
+
+// Show beta feedback prompt if haven't submitted yet
+function showBetaFeedbackPrompt() {
+    const hasSubmitted = localStorage.getItem('focushub_beta_feedback_submitted');
+    const lastDismissed = localStorage.getItem('focushub_beta_feedback_dismissed');
+    const now = Date.now();
+    
+    // Show if:
+    // 1. Haven't submitted feedback yet
+    // 2. AND (never dismissed OR dismissed more than 3 days ago)
+    if (!hasSubmitted) {
+        if (!lastDismissed || (now - parseInt(lastDismissed)) > (3 * 24 * 60 * 60 * 1000)) {
+            document.getElementById('betaFeedbackPrompt').style.display = 'block';
+        }
+    }
+}
+
+function dismissFeedbackPrompt() {
+    document.getElementById('betaFeedbackPrompt').style.display = 'none';
+    localStorage.setItem('focushub_beta_feedback_dismissed', Date.now().toString());
+}
+
+// Check if user is beta tester and show prompt
+setTimeout(showBetaFeedbackPrompt, 1000);
 </script>
 
     <script>

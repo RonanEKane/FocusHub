@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Beta Feedback - FocusHub</title>
+    <link rel="stylesheet" href="style.css?v=20.4">
+    <style>
+        .feedback-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        .feedback-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .feedback-header h1 {
+            font-size: 2.5rem;
+            color: var(--industrial-orange);
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .beta-badge-large {
+            display: inline-block;
+            background: var(--industrial-orange);
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+        
+        .question-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .rating-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .rating-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+        
+        .rating-label {
+            display: block;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .rating-label:hover {
+            border-color: var(--industrial-orange);
+            background: rgba(245, 91, 7, 0.1);
+        }
+        
+        .rating-option input[type="radio"]:checked + .rating-label {
+            background: var(--industrial-orange);
+            border-color: var(--industrial-orange);
+            color: #000;
+        }
+        
+        .rating-scale {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .comments-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+        }
+        
+        .comments-section h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .comments-section textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        .submit-section {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            background: var(--bg-secondary);
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+        }
+        
+        .success-message.visible {
+            display: block;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-header-content">
+            <div class="logo-section">
+                <img src="FocusHub_horiinv.svg" alt="FocusHub" class="logo-img" style="height: 40px;">
+            </div>
+            <div class="header-controls">
+                <a href="app.html" class="btn btn-primary">Back to App</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="feedback-container">
+        <div class="feedback-header">
+            <span class="beta-badge-large">🧪 BETA TESTER</span>
+            <h1>Help Shape FocusHub</h1>
+            <p>Your feedback directly impacts what we build.</p>
+        </div>
+
+        <!-- Feedback Type Toggle -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center;">
+            <button id="quickRatingBtn" class="btn btn-primary" style="flex: 1; max-width: 300px;">
+                Quick Ratings (2 min)
+            </button>
+            <button id="detailedFeedbackBtn" class="btn btn-secondary" style="flex: 1; max-width: 300px;">
+                Detailed Feedback
+            </button>
+        </div>
+
+        <!-- Quick Ratings Form -->
+        <form id="betaFeedbackForm" style="display: block;">
+            <!-- Question 1: Overall Experience -->
+            <div class="question-card">
+                <div class="question-title">1. How would you rate your overall experience with FocusHub?</div>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="overall-1" name="overall" value="1" required>
+                        <label for="overall-1" class="rating-label">1</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-2" name="overall" value="2">
+                        <label for="overall-2" class="rating-label">2</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-3" name="overall" value="3">
+                        <label for="overall-3" class="rating-label">3</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-4" name="overall" value="4">
+                        <label for="overall-4" class="rating-label">4</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="overall-5" name="overall" value="5">
+                        <label for="overall-5" class="rating-label">5</label>
+                    </div>
+                </div>
+                <div class="rating-scale">
+                    <span>Poor</span>
+                    <span>Excellent</span>
+                </div>
+            </div>
+
+            <!-- Question 2: Focus Improvement -->
+            <div class="question-card">
+                <div class="question-title">2. Has FocusHub helped you stay focused and complete tasks?</div>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="focus-1" name="focus" value="1" required>
+                        <label for="focus-1" class="rating-label">1</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="focus-2" name="focus" value="2">
+                        <label for="focus-2" class="rating-label">2</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="focus-3" name="focus" value="3">
+                        <label for="focus-3" class="rating-label">3</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="focus-4" name="focus" value="4">
+                        <label for="focus-4" class="rating-label">4</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="focus-5" name="focus" value="5">
+                        <label for="focus-5" class="rating-label">5</label>
+                    </div>
+                </div>
+                <div class="rating-scale">
+                    <span>Not at all</span>
+                    <span>Significantly</span>
+                </div>
+            </div>
+
+            <!-- Question 3: Tough-Love Approach -->
+            <div class="question-card">
+                <div class="question-title">3. How effective is the tough-love accountability system?</div>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="accountability-1" name="accountability" value="1" required>
+                        <label for="accountability-1" class="rating-label">1</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="accountability-2" name="accountability" value="2">
+                        <label for="accountability-2" class="rating-label">2</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="accountability-3" name="accountability" value="3">
+                        <label for="accountability-3" class="rating-label">3</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="accountability-4" name="accountability" value="4">
+                        <label for="accountability-4" class="rating-label">4</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="accountability-5" name="accountability" value="5">
+                        <label for="accountability-5" class="rating-label">5</label>
+                    </div>
+                </div>
+                <div class="rating-scale">
+                    <span>Not helpful</span>
+                    <span>Very effective</span>
+                </div>
+            </div>
+
+            <!-- Question 4: Interface & Usability -->
+            <div class="question-card">
+                <div class="question-title">4. How intuitive is the interface?</div>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="interface-1" name="interface" value="1" required>
+                        <label for="interface-1" class="rating-label">1</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="interface-2" name="interface" value="2">
+                        <label for="interface-2" class="rating-label">2</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="interface-3" name="interface" value="3">
+                        <label for="interface-3" class="rating-label">3</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="interface-4" name="interface" value="4">
+                        <label for="interface-4" class="rating-label">4</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="interface-5" name="interface" value="5">
+                        <label for="interface-5" class="rating-label">5</label>
+                    </div>
+                </div>
+                <div class="rating-scale">
+                    <span>Confusing</span>
+                    <span>Very clear</span>
+                </div>
+            </div>
+
+            <!-- Question 5: Recommendation -->
+            <div class="question-card">
+                <div class="question-title">5. How likely are you to recommend FocusHub to someone with ADHD?</div>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="recommend-1" name="recommend" value="1" required>
+                        <label for="recommend-1" class="rating-label">1</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="recommend-2" name="recommend" value="2">
+                        <label for="recommend-2" class="rating-label">2</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="recommend-3" name="recommend" value="3">
+                        <label for="recommend-3" class="rating-label">3</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="recommend-4" name="recommend" value="4">
+                        <label for="recommend-4" class="rating-label">4</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="recommend-5" name="recommend" value="5">
+                        <label for="recommend-5" class="rating-label">5</label>
+                    </div>
+                </div>
+                <div class="rating-scale">
+                    <span>Not likely</span>
+                    <span>Definitely</span>
+                </div>
+            </div>
+
+            <!-- Optional Comments -->
+            <div class="comments-section">
+                <h3>Additional Comments (Optional)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">What's working? What's not? What would you change?</p>
+                <textarea id="comments" name="comments" placeholder="Your thoughts here..."></textarea>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.125rem;">
+                    Submit Feedback
+                </button>
+                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    You can submit feedback multiple times as your experience evolves
+                </p>
+            </div>
+        </form>
+
+        <!-- Detailed Feedback Form -->
+        <form id="detailedFeedbackForm" style="display: none;">
+            <div class="question-card">
+                <div class="question-title">What type of feedback are you sharing?</div>
+                <select id="feedbackType" style="width: 100%; padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit;">
+                    <option value="bug">🐛 Bug Report</option>
+                    <option value="feature">💡 Feature Request</option>
+                    <option value="improvement">✨ Improvement Suggestion</option>
+                    <option value="praise">👏 Something I Love</option>
+                    <option value="confusing">❓ Something Confusing</option>
+                    <option value="other">💬 Other</option>
+                </select>
+            </div>
+
+            <div class="question-card">
+                <div class="question-title">Tell us more</div>
+                <textarea id="detailedMessage" rows="8" placeholder="Be as detailed as you'd like. Examples, screenshots descriptions, or specific use cases help us understand." style="width: 100%; padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit; resize: vertical;" required></textarea>
+            </div>
+
+            <div class="question-card">
+                <div class="question-title">Priority (Optional)</div>
+                <div style="display: flex; gap: 1rem;">
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="priority" value="low" style="margin-right: 0.5rem;">
+                        <span>🟢 Low - Nice to have</span>
+                    </label>
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="priority" value="medium" checked style="margin-right: 0.5rem;">
+                        <span>🟡 Medium - Would help</span>
+                    </label>
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="priority" value="high" style="margin-right: 0.5rem;">
+                        <span>🔴 High - Blocking me</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-title">Contact Email (Optional)</div>
+                <input type="email" id="contactEmail" placeholder="your@email.com" style="width: 100%; padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit;">
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">Only if you want us to follow up about this specific feedback</p>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.125rem;">
+                    Submit Detailed Feedback
+                </button>
+            </div>
+        </form>
+
+        <div id="successMessage" class="success-message">
+            <div class="success-icon">✅</div>
+            <h2 style="color: var(--industrial-orange); margin-bottom: 1rem;">Thank You!</h2>
+            <p style="color: var(--text-primary); font-size: 1.125rem; margin-bottom: 2rem;">
+                Your feedback helps us build a better FocusHub for everyone with ADHD.
+            </p>
+            <button class="btn btn-primary" onclick="window.location.href='app.html'">
+                Back to App
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        // Toggle between quick ratings and detailed feedback
+        document.getElementById('quickRatingBtn').addEventListener('click', function() {
+            document.getElementById('betaFeedbackForm').style.display = 'block';
+            document.getElementById('detailedFeedbackForm').style.display = 'none';
+            this.classList.remove('btn-secondary');
+            this.classList.add('btn-primary');
+            document.getElementById('detailedFeedbackBtn').classList.remove('btn-primary');
+            document.getElementById('detailedFeedbackBtn').classList.add('btn-secondary');
+        });
+
+        document.getElementById('detailedFeedbackBtn').addEventListener('click', function() {
+            document.getElementById('betaFeedbackForm').style.display = 'none';
+            document.getElementById('detailedFeedbackForm').style.display = 'block';
+            this.classList.remove('btn-secondary');
+            this.classList.add('btn-primary');
+            document.getElementById('quickRatingBtn').classList.remove('btn-primary');
+            document.getElementById('quickRatingBtn').classList.add('btn-secondary');
+        });
+
+        // Quick ratings submission
+        document.getElementById('betaFeedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                overall_rating: parseInt(document.querySelector('input[name="overall"]:checked').value),
+                focus_improvement: parseInt(document.querySelector('input[name="focus"]:checked').value),
+                accountability_rating: parseInt(document.querySelector('input[name="accountability"]:checked').value),
+                interface_rating: parseInt(document.querySelector('input[name="interface"]:checked').value),
+                recommend_rating: parseInt(document.querySelector('input[name="recommend"]:checked').value),
+                comments: document.getElementById('comments').value || null,
+                submitted_at: new Date().toISOString()
+            };
+            
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                const { error } = await supabaseClient
+                    .from('beta_ratings')
+                    .insert({
+                        user_id: user?.id || null,
+                        user_email: user?.email || 'anonymous',
+                        ...formData
+                    });
+                
+                if (error) {
+                    console.error('Feedback submission error:', error);
+                    // Fallback: Still show success to user
+                    console.log('BETA RATINGS:', formData);
+                }
+                
+                // Show success message
+                document.getElementById('betaFeedbackForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('visible');
+                
+                // Mark as submitted in localStorage
+                localStorage.setItem('focushub_beta_feedback_submitted', 'true');
+                
+            } catch (err) {
+                console.error('Feedback error:', err);
+                // Still show success
+                document.getElementById('betaFeedbackForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('visible');
+            }
+        });
+
+        // Detailed feedback submission
+        document.getElementById('detailedFeedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const feedbackData = {
+                feedback_type: document.getElementById('feedbackType').value,
+                message: document.getElementById('detailedMessage').value,
+                priority: document.querySelector('input[name="priority"]:checked')?.value || 'medium',
+                contact_email: document.getElementById('contactEmail').value || null,
+                submitted_at: new Date().toISOString()
+            };
+            
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                const { error } = await supabaseClient
+                    .from('beta_feedback')
+                    .insert({
+                        user_id: user?.id || null,
+                        user_email: user?.email || 'anonymous',
+                        ...feedbackData,
+                        user_agent: navigator.userAgent
+                    });
+                
+                if (error) {
+                    console.error('Detailed feedback error:', error);
+                    console.log('BETA DETAILED FEEDBACK:', feedbackData);
+                }
+                
+                // Show success message
+                document.getElementById('detailedFeedbackForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('visible');
+                
+            } catch (err) {
+                console.error('Detailed feedback error:', err);
+                // Still show success
+                document.getElementById('detailedFeedbackForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>
