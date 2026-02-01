@@ -1183,26 +1183,30 @@
 
         // SMART DASHBOARD REDIRECT: Route based on plan
         function redirectToDashboard() {
-            let plan = 'free';
+            // V21: Proper tier-based routing
+            // FREE tier → overview.html (localStorage only, basic stats)
+            // PREMIUM tier → dashboard.html (Supabase sync, advanced analytics)
             
-            // Try to get plan from localStorage first (faster)
+            let tier = 'free';
+            
+            // Check membership tier from localStorage
             try {
                 const membership = localStorage.getItem('focushub_membership');
                 if (membership) {
                     const data = JSON.parse(membership);
-                    plan = data.plan || 'free';
+                    tier = data.tier || 'free';
                 }
             } catch (e) {
-                console.log('Could not parse membership, defaulting to free');
+                console.log('Could not parse membership, defaulting to free tier');
             }
             
-            // Route based on plan
-            if (plan === 'premium') {
-                console.log('🎯 Redirecting to premium dashboard...');
-                window.location.href = 'dashboard.html'; // Insight Center - full analytics
+            // Route based on tier
+            if (tier === 'premium') {
+                console.log('🎯 Premium user → dashboard.html (Supabase analytics)');
+                window.location.href = 'dashboard.html';
             } else {
-                console.log('🎯 Redirecting to free dashboard...');
-                window.location.href = 'overview.html'; // Mission Control - basic stats
+                console.log('🎯 Free user → overview.html (localStorage stats)');
+                window.location.href = 'overview.html';
             }
         }
         
