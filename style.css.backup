@@ -591,7 +591,7 @@ body {
     border-radius: 2px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.875rem;
-    resize: none; /* FIXED: Disable resize to prevent layout shifts */
+    resize: vertical;
 }
 
 .parse-btn-compact {
@@ -628,7 +628,7 @@ body {
     border-radius: 2px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.875rem;
-    resize: none; /* FIXED: Disable resize to prevent layout shifts */
+    resize: vertical;
     margin-bottom: 1rem;
 }
 
