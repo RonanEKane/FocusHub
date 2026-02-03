@@ -398,6 +398,52 @@
         };
 
         // ============================================
+        // SESSION DATA TRACKING (ENHANCED COACHING)
+        // Tracks time-based patterns for smarter coaching
+        // ============================================
+        const sessionData = {
+            sessionStartTime: Date.now(),
+            lastActionTime: Date.now(),
+            breakHistory: [],
+            sessionHistory: []
+        };
+        
+        // Update last action time on any user interaction
+        function updateLastAction() {
+            sessionData.lastActionTime = Date.now();
+        }
+        
+        // Initialize session history from localStorage
+        function initializeSessionHistory() {
+            const stored = localStorage.getItem('sessionHistory');
+            if (stored) {
+                sessionData.sessionHistory = JSON.parse(stored);
+            }
+        }
+        
+        // Save session to history
+        function saveSessionToHistory(session) {
+            sessionData.sessionHistory.push(session);
+            // Keep last 30 sessions
+            if (sessionData.sessionHistory.length > 30) {
+                sessionData.sessionHistory = sessionData.sessionHistory.slice(-30);
+            }
+            localStorage.setItem('sessionHistory', JSON.stringify(sessionData.sessionHistory));
+        }
+        
+        // Track break in history
+        function trackBreak() {
+            sessionData.breakHistory.push({
+                time: Date.now(),
+                duration: state.timer.duration
+            });
+            updateLastAction();
+        }
+        
+        // Initialize on load
+        initializeSessionHistory();
+
+        // ============================================
         // INITIALIZATION - CAREFUL WITH AUTH
         // ============================================
         async function init() {
@@ -1398,6 +1444,9 @@
             state.timer.remaining = 300;
             state.sessionState = 'break';
             
+            // ENHANCED COACHING: Track break
+            trackBreak();
+            
             updateAIMessage('Break started. Return to focus after.');
             resetInactivityMonitor();
             updateTimerDisplay();
@@ -1623,9 +1672,153 @@
         }
 
         // ============================================
+        // ENHANCED CONTEXT CALCULATION FUNCTIONS
+        // Time awareness, pattern recognition, humanity
+        // ============================================
+        
+        function getEnhancedContext(baseContext) {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // Time awareness
+            const minutesSinceLastAction = calculateMinutesSinceLastAction();
+            const hoursSinceLastSession = calculateHoursSinceLastSession();
+            
+            // Today's stats
+            const todayFocusTime = getTodayTotalFocusMinutes();
+            const todayBreakTime = getTodayTotalBreakMinutes();
+            const todaySessionCount = getTodaySessionCount();
+            
+            // Yesterday comparison
+            const yesterdayFocusTime = getYesterdayFocusMinutes();
+            const consecutiveDays = getConsecutiveDaysStreak();
+            
+            // Current session
+            const sessionStartTime = sessionData.sessionStartTime || now;
+            const sessionMinutes = Math.floor((now - sessionStartTime) / 60000);
+            const sessionJustStarted = sessionMinutes < 5;
+            
+            // Behavioral patterns
+            const avgSessionLength = getAverageSessionLength();
+            const avgTimeBeforeAbort = getAverageAbortTime();
+            const timeBetweenBreaks = getTimeBetweenLastTwoBreaks();
+            
+            return {
+                ...baseContext,
+                // Time context
+                timeOfDay: currentHour,
+                minutesSinceLastAction,
+                hoursSinceLastSession,
+                sessionJustStarted,
+                sessionMinutes,
+                
+                // Today vs Yesterday
+                todayFocusTime,
+                yesterdayFocusTime,
+                todayBreakTime,
+                todaySessionCount,
+                consecutiveDays,
+                
+                // Patterns
+                avgSessionLength,
+                avgTimeBeforeAbort,
+                timeBetweenBreaks,
+                
+                // Session info
+                previousSessionMinutes: getPreviousSessionDuration(),
+                previousSessionLong: getPreviousSessionDuration() > 60
+            };
+        }
+        
+        function calculateMinutesSinceLastAction() {
+            if (!sessionData.lastActionTime) return 0;
+            return Math.floor((Date.now() - sessionData.lastActionTime) / 60000);
+        }
+        
+        function calculateHoursSinceLastSession() {
+            const sessions = getSessionHistory();
+            if (sessions.length < 2) return 0;
+            const lastSessionEnd = sessions[sessions.length - 2].endTime;
+            if (!lastSessionEnd) return 0;
+            return Math.floor((Date.now() - lastSessionEnd) / 3600000);
+        }
+        
+        function getTodayTotalFocusMinutes() {
+            const today = new Date().toDateString();
+            const sessions = getSessionHistory().filter(s => 
+                new Date(s.startTime).toDateString() === today
+            );
+            return sessions.reduce((sum, s) => sum + (s.focusMinutes || 0), 0);
+        }
+        
+        function getTodayTotalBreakMinutes() {
+            const today = new Date().toDateString();
+            const sessions = getSessionHistory().filter(s => 
+                new Date(s.startTime).toDateString() === today
+            );
+            return sessions.reduce((sum, s) => sum + (s.breakMinutes || 0), 0);
+        }
+        
+        function getTodaySessionCount() {
+            const today = new Date().toDateString();
+            return getSessionHistory().filter(s => 
+                new Date(s.startTime).toDateString() === today
+            ).length;
+        }
+        
+        function getYesterdayFocusMinutes() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+            const sessions = getSessionHistory().filter(s => 
+                new Date(s.startTime).toDateString() === yesterdayStr
+            );
+            return sessions.reduce((sum, s) => sum + (s.focusMinutes || 0), 0);
+        }
+        
+        function getConsecutiveDaysStreak() {
+            // Simple implementation - can be enhanced
+            const streak = parseInt(localStorage.getItem('consecutiveDaysStreak') || '0');
+            return streak;
+        }
+        
+        function getAverageSessionLength() {
+            const sessions = getSessionHistory().filter(s => s.duration > 0);
+            if (sessions.length === 0) return 0;
+            const total = sessions.reduce((sum, s) => sum + s.duration, 0);
+            return Math.floor(total / sessions.length);
+        }
+        
+        function getAverageAbortTime() {
+            const aborted = getSessionHistory().filter(s => s.aborted && s.duration > 0);
+            if (aborted.length === 0) return 0;
+            const total = aborted.reduce((sum, s) => sum + s.duration, 0);
+            return Math.floor(total / aborted.length);
+        }
+        
+        function getTimeBetweenLastTwoBreaks() {
+            const breaks = sessionData.breakHistory || [];
+            if (breaks.length < 2) return 0;
+            const lastTwo = breaks.slice(-2);
+            return Math.floor((lastTwo[1].time - lastTwo[0].time) / 60000);
+        }
+        
+        function getPreviousSessionDuration() {
+            const sessions = getSessionHistory();
+            if (sessions.length < 2) return 0;
+            return sessions[sessions.length - 2].duration || 0;
+        }
+        
+        function getSessionHistory() {
+            const history = localStorage.getItem('sessionHistory');
+            return history ? JSON.parse(history) : [];
+        }
+
+        // ============================================
         // SYSTEM INTELLIGENCE COMPLETE LIBRARY
         // 3 Intensity Levels + Contextual Intelligence
         // 150+ Total Messages for Variety
+        // ENHANCED WITH TIME/PATTERN AWARENESS
         // ============================================
         
         const aiCoachLibrary = {
@@ -1997,98 +2190,272 @@
                 ]
             },
             
-            // BREAK DENIAL (V20.6) - Context: focusTime, breakAttempts
+            // BREAK DENIAL (V20.6 ENHANCED) - Context: focusTime, breakAttempts
+            // Tough love at core for all levels - delivery differs
             breakDenied: {
                 supportive: [
-                    (ctx) => `Consider doing some focus work before taking a break. Rest is more meaningful after effort.`,
-                    (ctx) => `A break works best after you've put in some focused time first.`,
-                    (ctx) => `You might find the break more refreshing if you complete some work first.`
+                    (ctx) => {
+                        if (ctx.sessionJustStarted) {
+                            return `Hey, I see you just opened the app ${ctx.minutesSinceLastAction} minutes ago. I know it's tempting to ease in, but starting with work builds better momentum than starting with a break. Trust me on this one.`;
+                        } else if (ctx.todayFocusTime > 60) {
+                            return `You've already done ${ctx.todayFocusTime} minutes today—solid work. That said, this particular session hasn't started yet. One sprint, then break properly.`;
+                        } else {
+                            return `I know the resistance is strong right now. That's normal. But taking a break before you've done anything just makes the resistance stronger when you come back. Let's try one quick sprint first.`;
+                        }
+                    },
+                    (ctx) => {
+                        if (ctx.focusTime === 0) {
+                            return `Breaks hit different after you've actually worked. Your brain literally rewards you more when rest is earned. Try 15 minutes first—you'll feel the difference.`;
+                        } else {
+                            return `You might really need this break—I get that. But I've noticed breaks feel more restorative when they follow even 15 minutes of focus. Worth trying?`;
+                        }
+                    },
+                    (ctx) => {
+                        const breakAttempts = ctx.breakAttempts || 0;
+                        if (breakAttempts > 2) {
+                            return `Third break attempt without focus. I get it—resistance is real. But avoiding doesn't make it easier. One sprint makes the break feel earned.`;
+                        } else {
+                            return `You might find the break more refreshing if you complete some work first. Rest follows effort—that's when it actually restores you.`;
+                        }
+                    }
                 ],
                 balanced: [
-                    (ctx) => `Insufficient focus time. Consider working before breaking. ${ctx.focusTime} minutes logged.`,
-                    (ctx) => `Break timing: Better after focus sessions. Current focus: ${ctx.focusTime} min.`,
-                    (ctx) => `Breaks work better after sustained focus. Try a sprint first.`
+                    (ctx) => {
+                        if (ctx.focusTime === 0 && ctx.yesterdayFocusTime > 0) {
+                            return `You did ${ctx.yesterdayFocusTime} minutes yesterday. Today: zero. Give me one sprint, then break. Your pattern matters.`;
+                        } else if (ctx.minutesSinceLastAction < 10) {
+                            return `${ctx.minutesSinceLastAction} minutes in and trying to break? Not quite time yet. Your brain performs better with momentum—start a sprint first.`;
+                        } else {
+                            return `Insufficient focus time logged. Breaks work better psychologically when they follow effort. Try ${ctx.focusTime === 0 ? '15' : '10'} more minutes.`;
+                        }
+                    },
+                    (ctx) => {
+                        const breakAttempts = ctx.breakAttempts || 0;
+                        if (breakAttempts > 2) {
+                            return `Third break attempt. I know starting is hard, but you need at least one sprint under your belt. The avoidance pattern only makes it worse.`;
+                        } else {
+                            return `Break timing: Better after focus sessions. Current focus: ${ctx.focusTime} min. That's not enough to earn rest yet.`;
+                        }
+                    },
+                    (ctx) => `Breaks work better after sustained focus. Complete a sprint—then the break actually feels like rest instead of procrastination.`
                 ],
                 tough: [
-                    (ctx) => `No focus time logged. Breaks follow work, not precede it.`,
-                    (ctx) => `Zero focused minutes. Start with work. Breaks come after.`,
-                    (ctx) => `You're trying to break without working. That's backwards.`
+                    (ctx) => {
+                        if (ctx.minutesSinceLastAction < 5) {
+                            return `You literally just sat down ${ctx.minutesSinceLastAction} minutes ago. Work first, break later. That's how this works.`;
+                        } else if (ctx.minutesSinceLastAction < 15 && ctx.focusTime === 0) {
+                            return `${ctx.minutesSinceLastAction} minutes in and already want a break? You haven't done anything yet. Start working.`;
+                        } else {
+                            return `Zero focus time today. Breaks are earned through work. You want rest? Earn it first.`;
+                        }
+                    },
+                    (ctx) => {
+                        const timeOfDay = ctx.timeOfDay || new Date().getHours();
+                        if (timeOfDay < 10 && ctx.focusTime === 0) {
+                            return `You just woke up and want a break already? Coffee, then work. Breaks come after effort.`;
+                        } else if (timeOfDay > 20 && ctx.focusTime === 0) {
+                            return `Late start and trying to break immediately? Focus first, then rest. Otherwise go to bed.`;
+                        } else {
+                            return `No work logged. Breaks follow effort, not precede it. This is backwards.`;
+                        }
+                    },
+                    (ctx) => {
+                        const breakAttempts = ctx.breakAttempts || 0;
+                        if (breakAttempts >= 3) {
+                            return `This is the third time you've tried to break without working today. The pattern is clear: You're avoiding work. Call it what it is.`;
+                        } else {
+                            return `You're trying to break without working. That's not how productive days happen. Execute first.`;
+                        }
+                    }
                 ]
             },
             
-            // EXCESSIVE BREAKS (V20.6) - Context: consecutiveBreaks, focusBreakRatio
+            // EXCESSIVE BREAKS (V20.6 ENHANCED) - Context: consecutiveBreaks, focusBreakRatio
+            // Time-aware, pattern recognition, direct
             excessiveBreaks: {
                 supportive: [
-                    (ctx) => `You've taken several breaks recently. Consider balancing that with some focused work.`,
-                    (ctx) => `Multiple breaks taken. Your focus time would benefit from some sustained attention.`,
-                    (ctx) => `Break time is outweighing work time. When you're ready, try a longer focus session.`
+                    (ctx) => {
+                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
+                            return `You've taken ${ctx.todayBreakTime} minutes of breaks and ${ctx.todayFocusTime} minutes of focus today. When you're ready, let's shift that balance toward more focus time.`;
+                        } else {
+                            return `You've taken several breaks recently. Your work will benefit from some sustained attention now.`;
+                        }
+                    },
+                    (ctx) => `Multiple breaks taken. Consider balancing with a longer focus session—your output will improve and you'll feel better about the rest.`,
+                    (ctx) => `Break time is outweighing work time. I know extended focus is hard, but it's where the real progress happens.`
                 ],
                 balanced: [
-                    (ctx) => `${ctx.consecutiveBreaks} consecutive breaks. Focus:break ratio is ${ctx.focusBreakRatio}:1. Consider adjusting.`,
-                    (ctx) => `Break frequency high. Focus time would improve output. Consider your pattern.`,
-                    (ctx) => `Multiple breaks without equivalent focus. Ratio needs balancing.`
+                    (ctx) => {
+                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
+                            const ratio = (ctx.todayFocusTime / ctx.todayBreakTime).toFixed(1);
+                            return `Today: ${ctx.todayFocusTime}min focus, ${ctx.todayBreakTime}min breaks. Ratio: ${ratio}:1. For productivity, aim for at least 3:1.`;
+                        } else {
+                            return `${ctx.consecutiveBreaks} consecutive breaks. Focus:break ratio needs adjustment for meaningful output.`;
+                        }
+                    },
+                    (ctx) => `Break frequency high. Multiple breaks without equivalent focus limits what you can accomplish. Consider your pattern.`,
+                    (ctx) => `Multiple breaks logged. Output requires focused time blocks, not fragmented attention. Balance needs correction.`
                 ],
                 tough: [
-                    (ctx) => `${ctx.consecutiveBreaks} breaks without sustained focus. This pattern limits results.`,
-                    (ctx) => `You're breaking more than working. That's not productive.`,
-                    (ctx) => `Break pattern detected. Work output requires focus time, not break time.`
+                    (ctx) => {
+                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
+                            return `Real talk: ${ctx.todayBreakTime} minutes on breaks, ${ctx.todayFocusTime} minutes working today. That ratio doesn't build anything.`;
+                        } else {
+                            return `${ctx.consecutiveBreaks} breaks without sustained focus. This pattern limits results. Work requires work, not rest.`;
+                        }
+                    },
+                    (ctx) => {
+                        if (ctx.consecutiveBreaks >= 3) {
+                            return `This is your third break in a row. At some point you need to admit you're avoiding work. That's fine—but call it what it is.`;
+                        } else {
+                            return `You're breaking more than working. This pattern guarantees you'll feel unproductive tonight.`;
+                        }
+                    },
+                    (ctx) => {
+                        const timeBetweenBreaks = ctx.timeBetweenBreaks || 0;
+                        if (timeBetweenBreaks > 0 && timeBetweenBreaks < 20) {
+                            return `${timeBetweenBreaks} minutes between breaks. You're pacing the room instead of working. Sit down and focus.`;
+                        } else {
+                            return `Fourth break. Each one makes the next sprint harder to start. This avoidance pattern has diminishing returns.`;
+                        }
+                    }
                 ]
             },
             
-            // IDLE WITHOUT DECISION (V20.6) - Context: idleMinutes
+            // IDLE WITHOUT DECISION (V20.6 ENHANCED) - Context: idleMinutes
+            // Direct, time-aware, calls out indecision
             idleInterruption: {
                 supportive: [
-                    (ctx) => `You've been paused for a while. When you're ready, choose your next step.`,
-                    (ctx) => `No activity for ${ctx.idleMinutes} minutes. Take your time, then decide what's next.`,
-                    (ctx) => `Extended pause noticed. Whenever you're ready to continue.`
+                    (ctx) => {
+                        if (ctx.idleMinutes > 20) {
+                            return `You've been paused for ${ctx.idleMinutes} minutes. That's a long time to be undecided. When you're ready, pick something—focus, break, or close the app.`;
+                        } else {
+                            return `You've been paused for a while. No rush, but staying in limbo uses mental energy. Make a choice when ready.`;
+                        }
+                    },
+                    (ctx) => `No activity for ${ctx.idleMinutes} minutes. Take your time deciding, but remember: indecision is its own form of stress.`,
+                    (ctx) => `Extended pause noticed. Whatever you choose—work, break, or stepping away—is fine. Just choose something.`
                 ],
                 balanced: [
-                    (ctx) => `Idle for ${ctx.idleMinutes} minutes. Consider selecting your next action.`,
-                    (ctx) => `No activity detected. Time to choose: focus, break, or wrap up.`,
-                    (ctx) => `Extended idle period. Make a decision when ready.`
+                    (ctx) => {
+                        if (ctx.idleMinutes > 25) {
+                            return `Idle for ${ctx.idleMinutes} minutes. The longer you sit undecided, the harder it gets to start anything. Choose: focus, break, or close.`;
+                        } else {
+                            return `Idle for ${ctx.idleMinutes} minutes. Indecision burns energy. Select your next action.`;
+                        }
+                    },
+                    (ctx) => `No activity detected. Time to choose: focus, break, or wrap up. Limbo doesn't serve you.`,
+                    (ctx) => `Extended idle period. Make a decision—sitting here thinking about it achieves nothing.`
                 ],
                 tough: [
-                    (ctx) => `${ctx.idleMinutes} minutes idle. Time doesn't pause while you decide.`,
-                    (ctx) => `Extended inactivity. Choose direction or session time is wasted.`,
-                    (ctx) => `Idle state continuing. Make a choice.`
+                    (ctx) => {
+                        if (ctx.idleMinutes > 30) {
+                            return `You've been staring at this screen for ${ctx.idleMinutes} minutes. Make a decision: work, break, or close the app. Indecision is its own form of avoidance.`;
+                        } else if (ctx.idleMinutes > 15) {
+                            return `${ctx.idleMinutes} minutes of nothing. The longer you sit here undecided, the harder it gets to start. Pick something.`;
+                        } else {
+                            return `${ctx.idleMinutes} minutes idle. You're burning mental energy deciding instead of doing. Choose now.`;
+                        }
+                    },
+                    (ctx) => {
+                        const timeOfDay = ctx.timeOfDay || new Date().getHours();
+                        if (timeOfDay >= 22) {
+                            return `It's after ${timeOfDay}:00 and you've been idle for ${ctx.idleMinutes} minutes. Either commit to working or go to bed. This limbo helps nobody.`;
+                        } else {
+                            return `Idle time is wasted time. Either start working or close the app. Sitting here "thinking about it" achieves nothing.`;
+                        }
+                    },
+                    (ctx) => `${ctx.idleMinutes} minutes idle. Time doesn't pause while you decide. Make a choice or accept that you're avoiding.`
                 ]
             },
             
-            // START/STOP PATTERN (V20.6) - Context: abortCount
+            // START/STOP PATTERN (V20.6 ENHANCED) - Context: abortCount
+            // Empathetic but firm, identifies root causes
             avoidancePattern: {
                 supportive: [
-                    (ctx) => `You keep starting and stopping. That's often a sign something feels challenging. What's getting in the way?`,
-                    (ctx) => `Multiple starts without completion. Let's try committing to just one full sprint.`,
-                    (ctx) => `Pattern noticed: Starting but not finishing. Consider what's making it hard to continue.`
+                    (ctx) => {
+                        if (ctx.abortCount >= 4) {
+                            return `You keep starting and stopping (${ctx.abortCount} times). That's often a sign the task feels overwhelming. What's actually getting in the way? Can we break it smaller?`;
+                        } else {
+                            return `You keep starting and stopping. That's often a sign something feels challenging. Let's try committing to just one full sprint—even if it's 15 minutes.`;
+                        }
+                    },
+                    (ctx) => `Multiple starts without completion. Pattern noticed: Starting but not finishing. Consider what's making it hard to continue—is the task too big?`,
+                    (ctx) => {
+                        const avgAbortTime = ctx.avgTimeBeforeAbort || 5;
+                        return `You tend to stop around the ${avgAbortTime}-minute mark. That's when initial discomfort kicks in. The work doesn't get easier by restarting—try pushing through once.`;
+                    }
                 ],
                 balanced: [
-                    (ctx) => `${ctx.abortCount} incomplete attempts. This pattern suggests avoidance.`,
-                    (ctx) => `Repeated starts without follow-through. Consider your resistance.`,
-                    (ctx) => `Start/stop cycle detected. Something is interfering with completion.`
+                    (ctx) => {
+                        if (ctx.abortCount >= 5) {
+                            return `This is the ${ctx.abortCount}th time you've started without finishing today. Something's blocking you—and avoiding it won't make it easier. What's actually going on?`;
+                        } else {
+                            return `${ctx.abortCount} incomplete attempts. This pattern suggests avoidance. The task isn't getting easier by circling it.`;
+                        }
+                    },
+                    (ctx) => {
+                        return `You keep starting then stopping. That usually means the task feels overwhelming. Try breaking it down smaller—like, embarrassingly small. Just do one tiny piece.`;
+                    },
+                    (ctx) => {
+                        const avgTimeBeforeAbort = ctx.avgTimeBeforeAbort || 5;
+                        return `You abort around the ${avgTimeBeforeAbort}-minute mark consistently. That's when discomfort kicks in. The work doesn't get easier by restarting—you just reset the discomfort timer.`;
+                    }
                 ],
                 tough: [
-                    (ctx) => `${ctx.abortCount} starts. Zero completions. This is avoidance behavior.`,
-                    (ctx) => `You keep starting without finishing. That pattern prevents progress.`,
-                    (ctx) => `Multiple aborts. The pattern is clear: Avoiding sustained effort.`
+                    (ctx) => {
+                        if (ctx.abortCount >= 5) {
+                            return `${ctx.abortCount} starts. Zero completions. This is textbook avoidance behavior. The pattern is clear—you're circling the work instead of doing it.`;
+                        } else {
+                            return `${ctx.abortCount} starts without finishing. You keep restarting when it gets uncomfortable. That pattern prevents any real progress.`;
+                        }
+                    },
+                    (ctx) => `You keep starting without finishing. Each restart makes the next attempt harder. The avoidance pattern compounds. Complete one sprint.`,
+                    (ctx) => {
+                        const avgAbortTime = ctx.avgTimeBeforeAbort || 5;
+                        return `Multiple aborts at the ${avgAbortTime}-minute mark. You quit exactly when real work starts. That's where growth happens—and you're avoiding it.`;
+                    }
                 ]
             },
             
-            // DISCOMFORT ABORT (V20.6) - Context: timeBeforeAbort
+            // DISCOMFORT ABORT (V20.6 ENHANCED) - Context: timeBeforeAbort
+            // Identifies resistance points, encourages push-through
             discomfortQuit: {
                 supportive: [
-                    (ctx) => `Sprint ended early. Often that's when the discomfort starts but the value begins. Want to try again?`,
-                    (ctx) => `Quick exit noticed. The initial discomfort usually passes if you push through.`,
-                    (ctx) => `Stopped at ${ctx.timeBeforeAbort} minutes. That's a common resistance point. Consider staying longer next time.`
+                    (ctx) => {
+                        if (ctx.timeBeforeAbort < 10) {
+                            return `Sprint ended at ${ctx.timeBeforeAbort} minutes. That's exactly when the initial discomfort starts—but also when the value begins. Want to try pushing to 15 next time?`;
+                        } else {
+                            return `Stopped at ${ctx.timeBeforeAbort} minutes. Often that's a common resistance point. The discomfort usually passes if you push through it.`;
+                        }
+                    },
+                    (ctx) => `Quick exit noticed at ${ctx.timeBeforeAbort} minutes. The initial resistance is normal—it usually fades around minute 10-12. Consider staying longer next time.`,
+                    (ctx) => `Sprint ended early. That's often when the discomfort starts but the productive phase begins. The breakthrough comes after the resistance.`
                 ],
                 balanced: [
-                    (ctx) => `Sprint terminated early at ${ctx.timeBeforeAbort} minutes. Discomfort detected.`,
-                    (ctx) => `Early exit from focus. The discomfort phase is part of the process.`,
-                    (ctx) => `Stopped when difficulty increased. This pattern limits depth.`
+                    (ctx) => {
+                        if (ctx.timeBeforeAbort < 8) {
+                            return `Sprint terminated at ${ctx.timeBeforeAbort} minutes. That's before you hit flow state. Discomfort is part of the process—it signals the brain is engaging.`;
+                        } else {
+                            return `Early exit from focus at ${ctx.timeBeforeAbort} minutes. The discomfort phase is where adaptation happens. Pushing through builds capacity.`;
+                        }
+                    },
+                    (ctx) => `Stopped when difficulty increased (${ctx.timeBeforeAbort} min). This pattern limits how deep you can go. Flow state requires getting past initial resistance.`,
+                    (ctx) => `Sprint ended at ${ctx.timeBeforeAbort} minutes. The resistance point. Real work starts after discomfort, not before it.`
                 ],
                 tough: [
-                    (ctx) => `Quit at ${ctx.timeBeforeAbort} minutes. That's exactly when real work starts.`,
-                    (ctx) => `You exit when it gets uncomfortable. That's where growth happens.`,
-                    (ctx) => `Early termination at resistance point. You're avoiding the productive phase.`
+                    (ctx) => {
+                        if (ctx.timeBeforeAbort < 10) {
+                            return `Quit at ${ctx.timeBeforeAbort} minutes. That's exactly when real work starts. You're stopping at the threshold of productivity.`;
+                        } else {
+                            return `Terminated at ${ctx.timeBeforeAbort} minutes—right when it got uncomfortable. That's where growth happens. You're avoiding the productive phase.`;
+                        }
+                    },
+                    (ctx) => `You exit when it gets uncomfortable. That's where actual work happens. Quitting at discomfort guarantees you never reach deep focus.`,
+                    (ctx) => {
+                        const avgAbortTime = ctx.avgTimeBeforeAbort || ctx.timeBeforeAbort;
+                        return `Early termination at ${ctx.timeBeforeAbort} minutes. Your pattern: quit at ~${avgAbortTime} min when resistance appears. That's the exact moment to continue, not stop.`;
+                    }
                 ]
             },
             
@@ -2119,11 +2486,14 @@
             
             if (!messages) return 'System operational.';
             
+            // Enhance context with time awareness and pattern recognition
+            const enhancedCtx = getEnhancedContext(context);
+            
             // Pick random message from array
             const message = messages[Math.floor(Math.random() * messages.length)];
             
-            // If message is function, call with context; otherwise return string
-            return typeof message === 'function' ? message(context) : message;
+            // If message is function, call with enhanced context; otherwise return string
+            return typeof message === 'function' ? message(enhancedCtx) : message;
         }
         
         // Check if user is focusing on low priority items
