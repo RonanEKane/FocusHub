@@ -360,16 +360,10 @@
         // ============================================
         const state = {
             sprintCount: 0,
-            dailySprintTarget: 0,  // FIXED: Track initial target, doesn't decrease when tasks complete
             breaksCount: 0,
             distractionCount: 0,
             sessionState: 'idle',
             inMeeting: false,  // MEETING MODE: Track if user is in a meeting
-            // VERSION & STUDENT MODE (Part 2)
-            version: 'lite',  // 'lite', 'student', 'premium'
-            sessionMode: false,  // true for students (session-based vs clock-based)
-            currentStudySession: null,  // Current study session number for students
-            todayStudySessions: [],  // Array of today's study sessions
             tasks: {
                 holding: [],
                 admin: [],
@@ -450,63 +444,6 @@
         initializeSessionHistory();
 
         // ============================================
-        // VERSION & FEATURE GATING (STUDENT VERSION)
-        // ============================================
-        
-        function hasFeature(feature) {
-            const version = state.version || 'lite';
-            
-            const features = {
-                // Core features (all versions)
-                threeBuckets: ['lite', 'student', 'premium'],
-                energySelection: ['lite', 'student', 'premium'],
-                distractionParking: ['lite', 'student', 'premium'],
-                unlimitedSprints: ['lite', 'student', 'premium'], // UPDATED: Lite gets unlimited
-                
-                // Analytics
-                basicAnalytics: ['lite', 'student', 'premium'], // All get basic
-                supabaseAnalytics: ['student', 'premium'], // Stored in Supabase
-                fullAnalytics: ['premium'], // Full dashboard with charts
-                
-                // Reflections
-                generalReflections: ['lite', 'student', 'premium'], // All get general
-                chooseReflectionTradition: ['student', 'premium'], // Can choose tradition
-                
-                // Student-specific
-                sessionMode: ['student'], // Session-based tracking
-                
-                // Premium-only
-                meetingMode: ['premium'],
-                timeBlocking: ['premium'],
-                weeklyReports: ['premium'],
-                dataExport: ['premium'],
-                projectManagement: ['premium']
-            };
-            
-            return features[feature]?.includes(version) || false;
-        }
-        
-        function getVersion() {
-            // Check localStorage first, then default to lite
-            try {
-                const membership = localStorage.getItem('focushub_membership');
-                if (membership) {
-                    const data = JSON.parse(membership);
-                    return data.version || 'lite';
-                }
-            } catch (e) {
-                console.error('Error reading membership:', e);
-            }
-            return 'lite';
-        }
-        
-        function initializeVersion() {
-            state.version = getVersion();
-            state.sessionMode = (state.version === 'student');
-            console.log('📦 Version initialized:', state.version, 'Session mode:', state.sessionMode);
-        }
-
-        // ============================================
         // INITIALIZATION - CAREFUL WITH AUTH
         // ============================================
         async function init() {
@@ -539,9 +476,6 @@
             
             // Load app regardless of auth status
             loadState();
-            
-            // Initialize version and feature gating
-            initializeVersion();
             
             // Sync theme UI with restored theme
             syncThemeUI();
@@ -1668,35 +1602,22 @@
         
         // Calculate total required sprints from all non-completed tasks
         function calculateTotalRequiredSprints() {
-            // If we already have a daily target set, return it (don't recalculate)
-            if (state.dailySprintTarget > 0) {
-                return state.dailySprintTarget;
-            }
-            
             let total = 0;
             let taskDetails = [];
             
-            // Count sprints from ALL tasks (including completed ones in wins)
+            // Count sprints from active buckets (not holding, not completed)
             ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                 state.tasks[bucket].forEach(task => {
-                    const sprints = task.sprints || 1;
-                    total += sprints;
-                    taskDetails.push(`${task.title}: ${sprints}`);
+                    if (!task.completed) {
+                        const sprints = task.sprints || 1;
+                        total += sprints;
+                        taskDetails.push(`${task.title}: ${sprints}`);
+                    }
                 });
-            });
-            
-            // Also count completed tasks (in wins)
-            state.tasks.wins.forEach(task => {
-                const sprints = task.sprints || 1;
-                total += sprints;
-                taskDetails.push(`${task.title} (✓): ${sprints}`);
             });
             
             // Default minimum of 5 sprints if no tasks
             const finalTotal = Math.max(5, total);
-            
-            // Set the daily target (only happens once per day)
-            state.dailySprintTarget = finalTotal;
             
             console.log('📊 Sprint Calculation:', {
                 tasksFound: taskDetails.length,
@@ -1805,19 +1726,8 @@
                 
                 // Session info
                 previousSessionMinutes: getPreviousSessionDuration(),
-                previousSessionLong: getPreviousSessionDuration() > 60,
-                
-                // Student-specific context
-                sessionNumber: state.currentStudySession || todaySessionCount,
-                lastSessionAborted: getLastSessionAborted()
+                previousSessionLong: getPreviousSessionDuration() > 60
             };
-        }
-        
-        function getLastSessionAborted() {
-            const sessions = getSessionHistory();
-            if (sessions.length === 0) return false;
-            const lastSession = sessions[sessions.length - 1];
-            return lastSession.aborted || false;
         }
         
         function calculateMinutesSinceLastAction() {
@@ -2566,136 +2476,12 @@
                     (ctx) => `${ctx.refusalCount} avoidances. Session isn't productive. Reassess timing.`,
                     (ctx) => `You're resisting consistently. This session isn't working.`
                 ]
-            },
-            
-            // ============================================
-            // STUDENT-SPECIFIC COACHING (SESSION-BASED)
-            // ============================================
-            
-            // STUDY SESSION START - Context: sessionNumber, timeOfDay, hoursSinceLastSession
-            studySessionStart: {
-                supportive: [
-                    (ctx) => {
-                        if (ctx.sessionNumber === 1) {
-                            return `First study session of the day. Starting is the hardest part, and you just did it. Now let's make it productive.`;
-                        } else if (ctx.sessionNumber >= 3) {
-                            return `Session ${ctx.sessionNumber} today—you're building a solid study day. Remember: progress over perfection.`;
-                        } else {
-                            return `Another study session. You're showing up. That matters. Let's make this one count.`;
-                        }
-                    }
-                ],
-                balanced: [
-                    (ctx) => {
-                        const hoursSince = ctx.hoursSinceLastSession || 0;
-                        if (hoursSince > 24) {
-                            return `First session in ${Math.floor(hoursSince)}+ hours. Long gap. Let's rebuild momentum—start with something manageable.`;
-                        } else if (ctx.timeOfDay >= 22) {
-                            return `Late-night session (${ctx.timeOfDay}:00). Your focus will fade faster. Plan for shorter sprints with more breaks.`;
-                        } else {
-                            return `Study session ${ctx.sessionNumber} starting. Set an intention: what's the one thing you need to accomplish?`;
-                        }
-                    }
-                ],
-                tough: [
-                    (ctx) => {
-                        if (ctx.sessionNumber === 1 && ctx.timeOfDay > 15) {
-                            return `First session and it's after 3pm. Late start, but you're here. No excuses now—make this count.`;
-                        } else if (ctx.sessionNumber >= 3) {
-                            return `Third study session today. Your classmates are on Netflix. You're choosing different. Don't waste this momentum.`;
-                        } else if (ctx.lastSessionAborted) {
-                            return `Last session: started strong, quit early. This time: finish what you start.`;
-                        } else {
-                            return `Let's go. Phone face-down, distractions off. You know what needs to happen.`;
-                        }
-                    }
-                ]
-            },
-            
-            // LATE NIGHT CHECK - Context: timeOfDay, sessionMinutes, todaySessionCount
-            lateNightStudy: {
-                supportive: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 23) {
-                            return `It's late (${ctx.timeOfDay}:00). Your focus won't be as sharp as daytime. Be kind to yourself—shorter sprints are fine. Or consider if sleep would serve you better.`;
-                        } else {
-                            return `Late evening session. Your brain is tired. Quality over quantity tonight.`;
-                        }
-                    }
-                ],
-                balanced: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 22 && ctx.todaySessionCount === 1) {
-                            return `Late-night session and it's your only one today. If this is crisis mode, make every minute count. If you're just procrastinating sleep, consider starting fresh tomorrow.`;
-                        } else {
-                            return `Late session (${ctx.timeOfDay}:00). If you're genuinely productive, great. If this is guilt-studying, sleep might be smarter.`;
-                        }
-                    }
-                ],
-                tough: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 23 && ctx.sessionMinutes < 30) {
-                            return `It's past 11pm and you've studied ${ctx.sessionMinutes} minutes. If you're pulling an all-nighter, commit. If not, go to sleep and study effectively tomorrow.`;
-                        } else if (ctx.timeOfDay >= 1 && ctx.timeOfDay < 5) {
-                            return `It's ${ctx.timeOfDay}am. Real question: is this productive studying or guilt-driven busywork? Sometimes sleep is the better choice.`;
-                        } else {
-                            return `Late night studying. Your retention is lower than daytime. This better be exam prep, not procrastination.`;
-                        }
-                    }
-                ]
-            },
-            
-            // LONG GAP BETWEEN SESSIONS - Context: hoursSinceLastSession
-            sessionGap: {
-                supportive: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 48) {
-                            return `It's been ${Math.floor(ctx.hoursSinceLastSession / 24)} days. Long break. No judgment—just notice that consistency helps momentum. Welcome back.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)} hours since last session. That's okay. You're here now. Let's use this time well.`;
-                        }
-                    }
-                ],
-                balanced: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 36) {
-                            return `${Math.floor(ctx.hoursSinceLastSession)} hours since last session. Extended gaps make restarting harder. Try to maintain rhythm.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)}h gap since last session. Consistency builds momentum. Keep that in mind.`;
-                        }
-                    }
-                ],
-                tough: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 48) {
-                            return `First session in ${Math.floor(ctx.hoursSinceLastSession / 24)} days. That gap is a problem. Consistency beats intensity.`;
-                        } else if (ctx.hoursSinceLastSession > 24) {
-                            return `24+ hour gap since last session. Long breaks kill momentum. You know this. Fix the pattern.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)}h gap. Every long gap makes the next start harder.`;
-                        }
-                    }
-                ]
             }
         };
         
         // Get AI message based on intensity mode and context
         function getAICoachMessage(category, context = {}) {
             const mode = state.currentMode || 'balanced';
-            
-            // STUDENT MODE: Use student-specific messages where available
-            if (state.sessionMode && aiCoachLibrary[`student${category.charAt(0).toUpperCase() + category.slice(1)}`]) {
-                // Try student version first (e.g., 'studySessionStart' instead of 'sessionStart')
-                const studentCategory = `student${category.charAt(0).toUpperCase() + category.slice(1)}`;
-                const studentMessages = aiCoachLibrary[studentCategory]?.[mode];
-                if (studentMessages) {
-                    const message = studentMessages[Math.floor(Math.random() * studentMessages.length)];
-                    const enhancedCtx = getEnhancedContext(context);
-                    return typeof message === 'function' ? message(enhancedCtx) : message;
-                }
-            }
-            
-            // Use regular messages
             const messages = aiCoachLibrary[category]?.[mode];
             
             if (!messages) return 'System operational.';
@@ -3151,9 +2937,6 @@
             state.dayActive = true;
             state.lastDayStarted = Date.now();
             state.lastActivityTime = Date.now();
-            
-            // FIXED: Reset daily sprint target so it recalculates with today's tasks
-            state.dailySprintTarget = 0;
             
             // Save state
             saveState();

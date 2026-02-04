@@ -225,6 +225,99 @@
         .back-link:hover {
             color: var(--industrial-orange);
         }
+        
+        /* VERSION SELECTOR STYLES */
+        .current-plan {
+            background: var(--bg-primary);
+            border: 2px solid var(--industrial-orange);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .plan-badge.lite {
+            background: #666;
+            color: white;
+        }
+        
+        .plan-badge.student {
+            background: var(--industrial-orange);
+            color: white;
+        }
+        
+        .plan-badge.premium {
+            background: linear-gradient(135deg, #f55b07 0%, #ff8c42 100%);
+            color: white;
+        }
+        
+        .plan-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .version-options {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .version-option {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 4px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .version-option:hover {
+            border-color: var(--industrial-orange);
+            background: var(--bg-elevated);
+        }
+        
+        .version-option.selected {
+            border-color: var(--industrial-orange);
+            background: rgba(245, 91, 7, 0.1);
+        }
+        
+        .version-option-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .version-icon {
+            font-size: 1.5rem;
+        }
+        
+        .version-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        
+        .version-price {
+            margin-left: auto;
+            font-weight: 700;
+            color: var(--industrial-orange);
+        }
+        
+        .version-features {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -263,6 +356,52 @@
             </div>
         </div>
 
+        <!-- Account Type / Version -->
+        <div class="settings-section">
+            <h2 class="section-title">💳 Account Type</h2>
+            
+            <div class="current-plan">
+                <div class="plan-badge student" id="currentPlanBadge">🎓 Student</div>
+                <p class="plan-description" id="currentPlanDescription">Session-based tracking • $9/month</p>
+                <button class="btn-secondary" onclick="toggleVersionSelector()">Change Plan</button>
+            </div>
+            
+            <div class="version-options" id="versionOptions" style="display: none;">
+                <div class="version-option" data-version="lite" onclick="selectVersion('lite')">
+                    <div class="version-option-header">
+                        <span class="version-icon">🆓</span>
+                        <span class="version-name">Lite</span>
+                        <span class="version-price">Free</span>
+                    </div>
+                    <div class="version-features">
+                        Unlimited sprints • Basic analytics • General reflections
+                    </div>
+                </div>
+                
+                <div class="version-option selected" data-version="student" onclick="selectVersion('student')">
+                    <div class="version-option-header">
+                        <span class="version-icon">🎓</span>
+                        <span class="version-name">Student</span>
+                        <span class="version-price">$9/month</span>
+                    </div>
+                    <div class="version-features">
+                        Session-based tracking • Student coaching • Choose reflection traditions • Supabase sync
+                    </div>
+                </div>
+                
+                <div class="version-option" data-version="premium" onclick="selectVersion('premium')">
+                    <div class="version-option-header">
+                        <span class="version-icon">💼</span>
+                        <span class="version-name">Premium</span>
+                        <span class="version-price">$19/month</span>
+                    </div>
+                    <div class="version-features">
+                        Everything in Student • Meeting mode • Full analytics • Weekly reports • Data export
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Preferences -->
         <div class="settings-section">
             <h2 class="section-title">🎨 Preferences</h2>
@@ -284,13 +423,13 @@
                 <div class="setting-info">
                     <div class="setting-label">
                         Reflection Tradition
-                        <span class="premium-badge" id="reflectionPremiumBadge">🔒 PREMIUM</span>
+                        <span class="premium-badge" id="reflectionPremiumBadge" style="display: none;">🔒 LITE ONLY: GENERAL</span>
                     </div>
-                    <div class="setting-description">Choose your daily reflection source</div>
+                    <div class="setting-description">Choose your daily reflection source (Student & Premium)</div>
                 </div>
                 <div class="setting-control">
                     <select id="reflectionSelect" class="setting-select">
-                        <option value="secular">Secular</option>
+                        <option value="secular">Secular / Humanist</option>
                         <option value="catholic">Catholic</option>
                         <option value="protestant">Protestant</option>
                         <option value="stoic">Stoic</option>
@@ -720,6 +859,119 @@
                 document.getElementById('feedbackSuccess').style.display = 'block';
             }
         });
+
+        // ============================================
+        // VERSION SELECTOR
+        // ============================================
+        
+        function toggleVersionSelector() {
+            const options = document.getElementById('versionOptions');
+            options.style.display = options.style.display === 'none' ? 'grid' : 'none';
+        }
+        
+        function selectVersion(version) {
+            // Update selected state
+            document.querySelectorAll('.version-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-version="${version}"]`).classList.add('selected');
+            
+            // Update membership
+            const membership = {
+                version: version,
+                tier: version === 'lite' ? 'free' : version,
+                updated_at: new Date().toISOString()
+            };
+            
+            localStorage.setItem('focushub_membership', JSON.stringify(membership));
+            
+            // Update display
+            updateVersionDisplay(version);
+            
+            // Hide options
+            document.getElementById('versionOptions').style.display = 'none';
+            
+            // Update reflection tradition access
+            updateReflectionAccess(version);
+            
+            // Show confirmation
+            alert(`Plan changed to ${getVersionName(version)}. Refresh the app to apply changes.`);
+        }
+        
+        function updateVersionDisplay(version) {
+            const badge = document.getElementById('currentPlanBadge');
+            const description = document.getElementById('currentPlanDescription');
+            
+            const versionData = {
+                lite: {
+                    badge: '🆓 Lite',
+                    description: 'Free • Basic features',
+                    class: 'lite'
+                },
+                student: {
+                    badge: '🎓 Student',
+                    description: 'Session-based tracking • $9/month',
+                    class: 'student'
+                },
+                premium: {
+                    badge: '💼 Premium',
+                    description: 'Full features • $19/month',
+                    class: 'premium'
+                }
+            };
+            
+            const data = versionData[version];
+            badge.textContent = data.badge;
+            badge.className = `plan-badge ${data.class}`;
+            description.textContent = data.description;
+        }
+        
+        function getVersionName(version) {
+            const names = { lite: 'Lite', student: 'Student', premium: 'Premium' };
+            return names[version] || version;
+        }
+        
+        function updateReflectionAccess(version) {
+            const reflectionBadge = document.getElementById('reflectionPremiumBadge');
+            const reflectionSelect = document.getElementById('reflectionSelect');
+            
+            if (version === 'lite') {
+                reflectionBadge.style.display = 'inline';
+                reflectionSelect.disabled = true;
+                reflectionSelect.value = 'secular';
+            } else {
+                reflectionBadge.style.display = 'none';
+                reflectionSelect.disabled = false;
+            }
+        }
+        
+        function initializeVersionDisplay() {
+            try {
+                const membership = localStorage.getItem('focushub_membership');
+                let version = 'lite';
+                
+                if (membership) {
+                    const data = JSON.parse(membership);
+                    version = data.version || data.tier || 'lite';
+                }
+                
+                updateVersionDisplay(version);
+                updateReflectionAccess(version);
+                
+                // Update selected option
+                document.querySelectorAll('.version-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                const selected = document.querySelector(`[data-version="${version}"]`);
+                if (selected) selected.classList.add('selected');
+                
+            } catch (e) {
+                console.error('Error initializing version display:', e);
+            }
+        }
+        
+        // Initialize version display
+        initializeVersionDisplay();
 
         init();
     </script>
