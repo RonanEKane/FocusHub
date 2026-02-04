@@ -254,6 +254,11 @@
             color: white;
         }
         
+        .plan-badge.regular {
+            background: linear-gradient(135deg, #4a90e2 0%, #67b8ff 100%);
+            color: white;
+        }
+        
         .plan-badge.premium {
             background: linear-gradient(135deg, #f55b07 0%, #ff8c42 100%);
             color: white;
@@ -374,18 +379,29 @@
                         <span class="version-price">Free</span>
                     </div>
                     <div class="version-features">
-                        Unlimited sprints • Basic analytics • General reflections
+                        Unlimited sprints • Basic analytics • General reflections only
                     </div>
                 </div>
                 
-                <div class="version-option selected" data-version="student" onclick="selectVersion('student')">
+                <div class="version-option" data-version="student" onclick="selectVersion('student')">
                     <div class="version-option-header">
                         <span class="version-icon">🎓</span>
                         <span class="version-name">Student</span>
                         <span class="version-price">$9/month</span>
                     </div>
                     <div class="version-features">
-                        Session-based tracking • Student coaching • Choose reflection traditions • Supabase sync
+                        Session-based tracking • Student coaching • Choose traditions • Supabase sync
+                    </div>
+                </div>
+                
+                <div class="version-option selected" data-version="regular" onclick="selectVersion('regular')">
+                    <div class="version-option-header">
+                        <span class="version-icon">⚡</span>
+                        <span class="version-name">Regular</span>
+                        <span class="version-price">$14/month</span>
+                    </div>
+                    <div class="version-features">
+                        Clock-based tracking • Professional coaching • Choose traditions • Analytics
                     </div>
                 </div>
                 
@@ -396,7 +412,7 @@
                         <span class="version-price">$19/month</span>
                     </div>
                     <div class="version-features">
-                        Everything in Student • Meeting mode • Full analytics • Weekly reports • Data export
+                        Everything in Regular • Meeting mode • Full analytics • Weekly reports • Data export
                     </div>
                 </div>
             </div>
@@ -913,6 +929,11 @@
                     description: 'Session-based tracking • $9/month',
                     class: 'student'
                 },
+                regular: {
+                    badge: '⚡ Regular',
+                    description: 'Clock-based professional • $14/month',
+                    class: 'regular'
+                },
                 premium: {
                     badge: '💼 Premium',
                     description: 'Full features • $19/month',
@@ -927,7 +948,7 @@
         }
         
         function getVersionName(version) {
-            const names = { lite: 'Lite', student: 'Student', premium: 'Premium' };
+            const names = { lite: 'Lite', student: 'Student', regular: 'Regular', premium: 'Premium' };
             return names[version] || version;
         }
         

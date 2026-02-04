@@ -280,7 +280,7 @@
         <!-- Header -->
         <div class="upgrade-header">
             <h1>Choose Your Plan</h1>
-            <p>Built for brains that wander, but still want to win. No games, no fluff—just structure that works.</p>
+            <p>Built for brains that wander, but still want to win. Four tiers to match your needs.</p>
         </div>
         
         <!-- Monthly/Annual Toggle -->
@@ -292,91 +292,122 @@
         
         <!-- Pricing Cards -->
         <div class="pricing-grid">
-            <!-- Lite -->
+            <!-- Lite (Free) -->
             <div class="pricing-card">
-                <div class="tier-emoji">💡</div>
+                <div class="tier-emoji">🆓</div>
                 <div class="tier-name">Lite</div>
-                <div class="tier-tagline">Core productivity, no frills</div>
+                <div class="tier-tagline">Try it free, no limits</div>
                 
                 <div class="tier-price">
-                    <div class="price-amount" id="litePrice">$3.99</div>
+                    <div class="price-amount">$0</div>
                     <div class="price-period">/month</div>
-                    <div class="price-trial">7 days free, no card required</div>
+                    <div class="price-trial">Forever free</div>
                 </div>
                 
-                <button class="tier-cta secondary" onclick="selectPlan('lite', 'monthly')" id="liteCTA">
-                    Start Free Trial
+                <button class="tier-cta secondary" onclick="window.location.href='signup.html'">
+                    Start Free
                 </button>
                 
                 <ul class="features-list">
-                    <li><span class="feature-check">✓</span> Sprint timer (energy-based)</li>
-                    <li><span class="feature-check">✓</span> Task management (3 buckets)</li>
+                    <li><span class="feature-check">✓</span> <strong>Unlimited sprints per day</strong></li>
+                    <li><span class="feature-check">✓</span> Three-bucket system</li>
+                    <li><span class="feature-check">✓</span> Energy-adaptive timers</li>
                     <li><span class="feature-check">✓</span> Distraction parking</li>
-                    <li><span class="feature-check">✓</span> AI tough-love accountability</li>
-                    <li><span class="feature-check">✓</span> Daily grading</li>
-                    <li><span class="feature-check">✓</span> Daily Wisdom Foundation (7 Traditions)</li>
-                    <li><span class="feature-check">✓</span> Basic analytics (30 days)</li>
-                    <li><span class="feature-x">✗</span> Multi-device sync</li>
-                    <li><span class="feature-x">✗</span> Keyboard shortcuts</li>
-                    <li><span class="feature-x">✗</span> Data export</li>
+                    <li><span class="feature-check">✓</span> Tough-love coaching</li>
+                    <li><span class="feature-check">✓</span> General reflections</li>
+                    <li><span class="feature-check">✓</span> Basic analytics (localStorage)</li>
+                    <li><span class="feature-x">✗</span> Choose reflection traditions</li>
+                    <li><span class="feature-x">✗</span> Supabase sync</li>
+                    <li><span class="feature-x">✗</span> Meeting mode</li>
                 </ul>
             </div>
             
-            <!-- Pro -->
+            <!-- Student -->
             <div class="pricing-card popular">
-                <div class="popular-badge">MOST POPULAR</div>
-                <div class="tier-emoji">⚡</div>
-                <div class="tier-name">Pro</div>
-                <div class="tier-tagline">Sync everywhere, work anywhere</div>
+                <div class="popular-badge">BEST FOR STUDENTS</div>
+                <div class="tier-emoji">🎓</div>
+                <div class="tier-name">Student</div>
+                <div class="tier-tagline">Session-based for irregular schedules</div>
                 
                 <div class="tier-price">
-                    <div class="price-amount" id="proPrice">$9.99</div>
+                    <div class="price-amount" id="studentPriceMonthly">$9</div>
                     <div class="price-period">/month</div>
-                    <div class="price-trial">First 14 days: $4.99</div>
+                    <div class="price-trial">Save $10/month vs Premium</div>
                 </div>
                 
-                <button class="tier-cta" onclick="selectPlan('pro', 'monthly')" id="proCTA">
-                    Start Trial at $4.99
+                <button class="tier-cta" onclick="selectPlan('student', 'monthly')">
+                    Upgrade to Student
                 </button>
                 
                 <ul class="features-list">
                     <li><span class="feature-check">✓</span> <strong>Everything in Lite</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>Multi-device sync</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>Premium keyboard shortcuts</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>Data export (CSV/JSON)</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>Pomodoro variations</strong></li>
-                    <li><span class="feature-check">✓</span> Unlimited analytics</li>
-                    <li><span class="feature-check">✓</span> Weekly summary emails</li>
-                    <li><span class="feature-x">✗</span> Reflection tradition choice</li>
-                    <li><span class="feature-x">✗</span> Advanced analytics</li>
+                    <li><span class="feature-check">✓</span> <strong>Session-based tracking</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Student-specific coaching</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Choose reflection traditions (7)</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Supabase analytics sync</strong></li>
+                    <li><span class="feature-check">✓</span> Late-night awareness</li>
+                    <li><span class="feature-check">✓</span> Session gap detection</li>
+                    <li><span class="feature-x">✗</span> Meeting mode</li>
+                    <li><span class="feature-x">✗</span> Full analytics dashboard</li>
+                    <li><span class="feature-x">✗</span> Weekly reports</li>
+                </ul>
+            </div>
+            
+            <!-- Regular / Professional -->
+            <div class="pricing-card">
+                <div class="tier-emoji">⚡</div>
+                <div class="tier-name">Regular</div>
+                <div class="tier-tagline">Professional clock-based tracking</div>
+                
+                <div class="tier-price">
+                    <div class="price-amount">$14</div>
+                    <div class="price-period">/month</div>
+                    <div class="price-trial">Best value for professionals</div>
+                </div>
+                
+                <button class="tier-cta" onclick="selectPlan('regular', 'monthly')">
+                    Upgrade to Regular
+                </button>
+                
+                <ul class="features-list">
+                    <li><span class="feature-check">✓</span> <strong>Everything in Lite</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Clock-based professional tracking</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Professional coaching</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Choose reflection traditions (7)</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Supabase analytics sync</strong></li>
+                    <li><span class="feature-check">✓</span> Priority email support</li>
+                    <li><span class="feature-x">✗</span> Meeting mode</li>
+                    <li><span class="feature-x">✗</span> Full analytics dashboard</li>
+                    <li><span class="feature-x">✗</span> Weekly reports</li>
+                    <li><span class="feature-x">✗</span> Data export</li>
                 </ul>
             </div>
             
             <!-- Premium -->
             <div class="pricing-card">
-                <div class="tier-emoji">⭐</div>
+                <div class="tier-emoji">💼</div>
                 <div class="tier-name">Premium</div>
-                <div class="tier-tagline">Maximum focus, minimum distraction</div>
+                <div class="tier-tagline">Power user features + full analytics</div>
                 
                 <div class="tier-price">
-                    <div class="price-amount" id="premiumPrice">$19.99</div>
+                    <div class="price-amount" id="premiumPriceMonthly">$19</div>
                     <div class="price-period">/month</div>
-                    <div class="price-trial">First 14 days: $9.99</div>
+                    <div class="price-trial">For serious productivity</div>
                 </div>
                 
-                <button class="tier-cta" onclick="selectPlan('premium', 'monthly')" id="premiumCTA">
-                    Start Trial at $9.99
+                <button class="tier-cta" onclick="selectPlan('premium', 'monthly')">
+                    Upgrade to Premium
                 </button>
                 
                 <ul class="features-list">
-                    <li><span class="feature-check">✓</span> <strong>Everything in Pro</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>Choose reflection tradition</strong> (7 options)</li>
-                    <li><span class="feature-check">✓</span> <strong>Advanced analytics dashboard</strong></li>
-                    <li><span class="feature-check">✓</span> <strong>AI intensity control</strong></li>
-                    <li><span class="feature-check">✓</span> Custom sprint durations</li>
-                    <li><span class="feature-check">✓</span> Focus Mode (distraction-free)</li>
-                    <li><span class="feature-check">✓</span> Beta features early access</li>
-                    <li><span class="feature-check">✓</span> API access</li>
+                    <li><span class="feature-check">✓</span> <strong>Everything in Regular</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Meeting mode</strong> (pause for meetings)</li>
+                    <li><span class="feature-check">✓</span> <strong>Full analytics dashboard</strong> (charts, insights)</li>
+                    <li><span class="feature-check">✓</span> <strong>Weekly email reports</strong></li>
+                    <li><span class="feature-check">✓</span> <strong>Data export</strong> (CSV/JSON)</li>
+                    <li><span class="feature-check">✓</span> Time blocking calendar</li>
+                    <li><span class="feature-check">✓</span> Advanced behavioral insights</li>
+                    <li><span class="feature-check">✓</span> VIP priority support</li>
                 </ul>
             </div>
         </div>
@@ -386,11 +417,27 @@
             <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Frequently Asked Questions</h2>
             
             <div class="faq-item">
-                <div class="faq-question">How do trials work?</div>
+                <div class="faq-question">What's the difference between versions?</div>
                 <div class="faq-answer">
-                    <strong>Lite:</strong> 7 days completely free, no card required. After trial, enter card to continue at $3.99/mo.<br><br>
-                    <strong>Pro:</strong> Enter card, charged $4.99 immediately for 14 days. On day 15, you must actively choose to continue at $9.99/mo (no auto-charge).<br><br>
-                    <strong>Premium:</strong> Enter card, charged $9.99 immediately for 14 days. On day 15, you must actively choose to continue at $19.99/mo (no auto-charge).
+                    <strong>Lite (Free):</strong> Perfect for trying FocusHub. Unlimited sprints, core features, localStorage analytics. General reflections only.<br><br>
+                    <strong>Student ($9/month):</strong> Session-based tracking for irregular schedules. Student-specific coaching, choose reflection traditions, Supabase sync. Perfect for students with late-night study sessions.<br><br>
+                    <strong>Regular ($14/month):</strong> Clock-based professional tracking. Professional coaching, choose reflection traditions, Supabase analytics. Perfect for 9-5 professionals.<br><br>
+                    <strong>Premium ($19/month):</strong> Everything plus meeting mode, full analytics dashboard, weekly reports, data export. For power users who need advanced features.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Can I switch between plans?</div>
+                <div class="faq-answer">
+                    Yes! Go to Settings and click "Change Plan" under Account Type. Monthly billing adjusts automatically. No data loss when switching.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">What's the difference between Student and Regular?</div>
+                <div class="faq-answer">
+                    <strong>Student:</strong> Session-based (no clock assumptions). Coaching says "Study Session 2" not "It's 3pm". Perfect for irregular schedules, cramming, late-night studying.<br><br>
+                    <strong>Regular:</strong> Clock-based (assumes 9-5 schedule). Coaching says "It's Tuesday afternoon" and tracks required sprints per day. Better for consistent work schedules.
                 </div>
             </div>
             
