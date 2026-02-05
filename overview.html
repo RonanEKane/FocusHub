@@ -327,23 +327,18 @@
         // LOCALSTORAGE AUTHENTICATION CHECK
         // ============================================
         
-        // Check if user is logged in
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        // User is already authenticated (came from app.html)
+        // No need to check auth here - if they can access app.html, they're logged in
         
-        if (!currentUser) {
-            // Not logged in, redirect to start page
-            window.location.href = 'start.html';
-        }
-        
-        // User is logged in, set up logout function
+        // Set up logout function
         window.handleFirebaseLogout = function() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('focushub_current_user');
+                localStorage.clear(); // Clear all app data
                 window.location.href = 'start.html';
             }
         };
         
-        console.log('✅ User authenticated:', currentUser.email);
+        console.log('✅ Dashboard loaded');
     </script>
     
         function initDashboard() {
@@ -353,14 +348,9 @@
 
     <script>
         // ============================================
-        // AUTHENTICATION CHECK (LEGACY - FIREBASE ABOVE)
+        // DASHBOARD INITIALIZATION
         // ============================================
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            // Not logged in, redirect to auth
-            window.location.href = 'start.html';
-        }
+        // User is already authenticated if they reached this page
         
         // ============================================
         // USER-SPECIFIC STORAGE HELPERS

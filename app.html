@@ -1299,31 +1299,10 @@
 
         // SMART DASHBOARD REDIRECT: Route based on plan
         function redirectToDashboard() {
-            // V21: Proper tier-based routing
-            // FREE tier → overview.html (localStorage only, basic stats)
-            // PREMIUM tier → dashboard.html (Supabase sync, advanced analytics)
-            
-            let tier = 'free';
-            
-            // Check membership tier from localStorage
-            try {
-                const membership = localStorage.getItem('focushub_membership');
-                if (membership) {
-                    const data = JSON.parse(membership);
-                    tier = data.tier || 'free';
-                }
-            } catch (e) {
-                console.log('Could not parse membership, defaulting to free tier');
-            }
-            
-            // Route based on tier
-            if (tier === 'premium') {
-                console.log('🎯 Premium user → dashboard.html (Supabase analytics)');
-                window.location.href = 'dashboard.html';
-            } else {
-                console.log('🎯 Free user → overview.html (localStorage stats)');
-                window.location.href = 'overview.html';
-            }
+            // Always redirect to overview.html for now
+            // overview.html handles all tiers properly
+            console.log('🎯 Redirecting to overview.html');
+            window.location.href = 'overview.html';
         }
         
         function endDay() {
@@ -1337,7 +1316,8 @@
         function calculateDayGrade() {
             // Calculate based on: sprints completed, tasks finished, breaks taken
             const totalRequired = calculateTotalRequiredSprints();
-            const sprintCompletion = Math.min(100, (state.sprintCount / totalRequired) * 100);
+            const sprintCompletion = totalRequired > 0 ? 
+                Math.min(100, (state.sprintCount / totalRequired) * 100) : 0;
             
             const tasksCompleted = state.tasks.wins.length;
             const totalTasks = tasksCompleted + 
@@ -2857,14 +2837,22 @@
             const mode = state.currentMode || 'balanced';
             
             // STUDENT MODE: Use student-specific messages where available
-            if (state.sessionMode && aiCoachLibrary[`student${category.charAt(0).toUpperCase() + category.slice(1)}`]) {
-                // Try student version first (e.g., 'studySessionStart' instead of 'sessionStart')
-                const studentCategory = `student${category.charAt(0).toUpperCase() + category.slice(1)}`;
-                const studentMessages = aiCoachLibrary[studentCategory]?.[mode];
-                if (studentMessages) {
-                    const message = studentMessages[Math.floor(Math.random() * studentMessages.length)];
-                    const enhancedCtx = getEnhancedContext(context);
-                    return typeof message === 'function' ? message(enhancedCtx) : message;
+            if (state.sessionMode) {
+                // Map regular categories to student categories
+                const studentCategoryMap = {
+                    'sessionStart': 'studySessionStart',
+                    'lateNight': 'lateNightStudy',
+                    'sessionGap': 'sessionGap'
+                };
+                
+                const studentCategory = studentCategoryMap[category];
+                if (studentCategory && aiCoachLibrary[studentCategory]) {
+                    const studentMessages = aiCoachLibrary[studentCategory][mode];
+                    if (studentMessages) {
+                        const message = studentMessages[Math.floor(Math.random() * studentMessages.length)];
+                        const enhancedCtx = getEnhancedContext(context);
+                        return typeof message === 'function' ? message(enhancedCtx) : message;
+                    }
                 }
             }
             
