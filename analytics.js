@@ -11,7 +11,7 @@ const FocusHubAnalytics = {
     // Initialize analytics
     async init() {
         try {
-            this.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            this.supabaseClient = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { data: { user } } = await this.supabaseClient.auth.getUser();
             this.currentUser = user;
             

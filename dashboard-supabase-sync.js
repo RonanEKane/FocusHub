@@ -10,7 +10,8 @@ const DashboardSync = {
     
     // Initialize
     async init() {
-        this.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Use the global supabaseClient from supabase-config.js
+        this.supabaseClient = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data: { user } } = await this.supabaseClient.auth.getUser();
         this.currentUser = user;
         return user;
@@ -199,11 +200,25 @@ const DashboardSync = {
     }
 };
 
-// Auto-initialize when script loads
+// Auto-initialize when script loads (wait for Supabase)
 (async function() {
     try {
-        await DashboardSync.init();
-        console.log('✅ Dashboard Supabase sync initialized');
+        // Wait for supabaseClient to be available
+        if (typeof supabaseClient === 'undefined') {
+            console.warn('⚠️ Dashboard sync: Waiting for Supabase...');
+            // Retry after a short delay
+            setTimeout(async () => {
+                if (typeof supabaseClient !== 'undefined') {
+                    await DashboardSync.init();
+                    console.log('✅ Dashboard Supabase sync initialized');
+                } else {
+                    console.warn('⚠️ Dashboard sync: Supabase not available, running without sync');
+                }
+            }, 100);
+        } else {
+            await DashboardSync.init();
+            console.log('✅ Dashboard Supabase sync initialized');
+        }
     } catch (error) {
         console.error('❌ Error initializing dashboard sync:', error);
     }
