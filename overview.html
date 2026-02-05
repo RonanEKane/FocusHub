@@ -320,8 +320,6 @@
     <!-- Weekly Reports -->
     <script src="weekly-reports.js"></script>
 
-    <script type="module">
-        // Import Firebase
     <script>
         // ============================================
         // LOCALSTORAGE AUTHENTICATION CHECK
@@ -340,11 +338,6 @@
         
         console.log('✅ Dashboard loaded');
     </script>
-    
-        function initDashboard() {
-            // Dashboard initialization continues below
-        }
-    </script>
 
     <script>
         // ============================================
@@ -353,18 +346,19 @@
         // User is already authenticated if they reached this page
         
         // ============================================
-        // USER-SPECIFIC STORAGE HELPERS
+        // STORAGE HELPERS (No user-specific keys needed)
         // ============================================
         function getUserKey(baseKey) {
-            return currentUser ? `${baseKey}_${currentUser.id}` : baseKey;
+            // Simply return base key - no user-specific keying needed
+            return baseKey;
         }
         
         function getUserItem(baseKey) {
-            return localStorage.getItem(getUserKey(baseKey));
+            return localStorage.getItem(baseKey);
         }
         
         function setUserItem(baseKey, value) {
-            localStorage.setItem(getUserKey(baseKey), value);
+            localStorage.setItem(baseKey, value);
         }
         
         // Display current mode
@@ -374,23 +368,26 @@
                 modeEl.textContent = getModeDisplayName().toUpperCase();
             }
             
-            // Show admin link if user is admin
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const userFull = users.find(u => u.id === currentUser.id);
-            if (userFull && userFull.plan === 'admin') {
-                document.getElementById('adminLink').classList.remove('hidden');
+            // Check if admin from membership
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                if (membership.is_admin) {
+                    const adminLink = document.getElementById('adminLink');
+                    if (adminLink) adminLink.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log('Could not check admin status');
             }
             
             // Show upgrade button if user is on free plan
-            if (userFull && userFull.plan === 'free') {
-                document.getElementById('upgradeBtn').classList.remove('hidden');
-            }
-            
-            // Check for admin impersonation
-            const adminReturn = sessionStorage.getItem('admin_return');
-            if (adminReturn) {
-                document.getElementById('impersonationBanner').classList.remove('hidden');
-                document.getElementById('impersonatedEmail').textContent = currentUser.email;
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                if (!membership.version || membership.version === 'lite') {
+                    const upgradeBtn = document.getElementById('upgradeBtn');
+                    if (upgradeBtn) upgradeBtn.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log('Could not check membership');
             }
         }
         
