@@ -317,6 +317,10 @@
     <!-- Mode Configuration System -->
     <script src="config.js"></script>
     
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
     <!-- Weekly Reports -->
     <script src="weekly-reports.js"></script>
 
@@ -745,7 +749,7 @@
         checkSessionState();
         updateDashboardTimer();
         loadStats();
-        loadUserTier();
+        loadUserTier(); // Now properly loads from Supabase
         initPremiumAnalytics();
     </script>
     
@@ -756,20 +760,13 @@
         
         async function loadUserTier() {
             try {
-                // Get user tier from Supabase
+                // Get user tier from Supabase (function from supabase-config.js)
                 const tier = await getUserTier();
-                const trialStatus = await checkTrialStatus();
                 
-                // Update tier badge
-                const tierBadge = document.getElementById('tierBadge');
-                const tierEmoji = document.getElementById('tierEmoji');
+                // Update tier name
                 const tierName = document.getElementById('tierName');
-                
-                if (tierBadge && tierEmoji && tierName) {
-                    tierEmoji.textContent = getTierEmoji(tier);
+                if (tierName) {
                     tierName.textContent = getTierDisplayName(tier).toUpperCase();
-                    tierBadge.style.borderColor = getTierColor(tier);
-                    tierName.style.color = getTierColor(tier);
                 }
                 
                 // Show upgrade button for non-premium users
@@ -781,52 +778,12 @@
                     }
                 }
                 
-                // Show trial banner if in trial
-                if (trialStatus.inTrial) {
-                    showTrialBanner(trialStatus.daysRemaining, tier);
-                }
-                
-                // Store tier in session for quick access
-                sessionStorage.setItem('focushub_user_tier', tier);
-                
             } catch (error) {
                 console.error('Error loading user tier:', error);
                 // Fallback to lite tier display
                 const tierName = document.getElementById('tierName');
                 if (tierName) tierName.textContent = 'LITE';
             }
-        }
-        
-        function showTrialBanner(daysRemaining, tier) {
-            // Create trial banner if it doesn't exist
-            let banner = document.getElementById('trialBanner');
-            if (!banner) {
-                banner = document.createElement('div');
-                banner.id = 'trialBanner';
-                banner.style.cssText = `
-                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
-                    border: 1px solid rgba(168, 85, 247, 0.3);
-                    padding: 1rem;
-                    text-align: center;
-                    margin-bottom: 1.5rem;
-                    border-radius: 8px;
-                `;
-                
-                const container = document.querySelector('.mission-control .container');
-                const firstChild = container.firstElementChild;
-                container.insertBefore(banner, firstChild);
-            }
-            
-            let message = '';
-            if (tier === 'lite') {
-                message = `⏱️ <strong>${daysRemaining} days left</strong> in your free trial. <a href="upgrade.html" style="color: var(--industrial-orange); font-weight: 600;">Subscribe to Lite ($3.99/mo)</a> to continue after trial.`;
-            } else {
-                const tierPrice = tier === 'pro' ? '$4.99' : '$9.99';
-                const fullPrice = tier === 'pro' ? '$9.99/mo' : '$19.99/mo';
-                message = `⏱️ <strong>${daysRemaining} days left</strong> at trial rate (${tierPrice}). <a href="upgrade.html" style="color: var(--industrial-orange); font-weight: 600;">Continue at ${fullPrice}</a> or downgrade.`;
-            }
-            
-            banner.innerHTML = `<p style="margin: 0; font-size: 0.875rem; color: var(--text-primary);">${message}</p>`;
         }
     </script>
     
@@ -838,7 +795,7 @@
         let currentAnalyticsPeriod = 30; // Default to 30 days
         
         async function initPremiumAnalytics() {
-            // Check if user has premium access
+            // Check if user has premium access via Supabase
             const isPremium = await checkPremiumAccess();
             
             const analyticsSection = document.getElementById('premiumAnalyticsSection');
@@ -859,7 +816,7 @@
         }
         
         async function checkPremiumAccess() {
-            // Check if user has premium tier from Supabase
+            // Use Supabase function from supabase-config.js
             try {
                 const isPremium = await isPremiumUser();
                 return isPremium;

@@ -1299,10 +1299,28 @@
 
         // SMART DASHBOARD REDIRECT: Route based on plan
         function redirectToDashboard() {
-            // Always redirect to overview.html for now
-            // overview.html handles all tiers properly
-            console.log('🎯 Redirecting to overview.html');
-            window.location.href = 'overview.html';
+            // Route based on user tier/admin status
+            // Premium/Admin → dashboard.html (full analytics, Supabase sync)
+            // Free/Lite → overview.html (basic stats, localStorage)
+            
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                const version = membership.version || 'lite';
+                const isAdmin = membership.is_admin === true;
+                
+                // Admin or Premium gets full dashboard
+                if (isAdmin || version === 'premium') {
+                    console.log('🎯 Premium/Admin → dashboard.html (full analytics)');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    console.log('🎯 Free/Lite → overview.html (basic stats)');
+                    window.location.href = 'overview.html';
+                }
+            } catch (e) {
+                // Fallback to overview
+                console.log('🎯 Fallback → overview.html');
+                window.location.href = 'overview.html';
+            }
         }
         
         function endDay() {
@@ -1508,8 +1526,8 @@
             // Remove modal
             cancelGrading();
             
-            // Redirect to dashboard
-            window.location.href = 'overview.html';
+            // Redirect to appropriate dashboard based on tier
+            redirectToDashboard();
         }
 
         // DAY TRACKING: Check if day should auto-end (midnight + 2 hrs inactivity)

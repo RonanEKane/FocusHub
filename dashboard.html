@@ -182,23 +182,18 @@
         // LOCALSTORAGE AUTHENTICATION CHECK
         // ============================================
         
-        // Check if user is logged in
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
+        // User is already authenticated (came from app.html)
+        // No need to check auth - if they can access app, they're logged in
         
-        if (!currentUser) {
-            // Not logged in, redirect to start page
-            window.location.href = 'start.html';
-        }
-        
-        // User is logged in, set up logout function
+        // Set up logout function
         window.handleFirebaseLogout = function() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('focushub_current_user');
+                localStorage.clear(); // Clear all app data
                 window.location.href = 'start.html';
             }
         };
         
-        console.log('✅ User authenticated:', currentUser.email);
+        console.log('✅ Dashboard loaded');
     </script>
     
         function initDashboard() {
@@ -208,28 +203,24 @@
 
     <script>
         // ============================================
-        // AUTHENTICATION CHECK (LEGACY - FIREBASE ABOVE)
+        // DASHBOARD INITIALIZATION
         // ============================================
-        const currentUser = JSON.parse(localStorage.getItem('focushub_current_user') || 'null');
-        
-        if (!currentUser) {
-            // Not logged in, redirect to auth
-            window.location.href = 'start.html';
-        }
+        // User is already authenticated if they reached this page
         
         // ============================================
-        // USER-SPECIFIC STORAGE HELPERS
+        // STORAGE HELPERS (No user-specific keys needed)
         // ============================================
         function getUserKey(baseKey) {
-            return currentUser ? `${baseKey}_${currentUser.id}` : baseKey;
+            // Simply return base key - no user-specific keying needed
+            return baseKey;
         }
         
         function getUserItem(baseKey) {
-            return localStorage.getItem(getUserKey(baseKey));
+            return localStorage.getItem(baseKey);
         }
         
         function setUserItem(baseKey, value) {
-            localStorage.setItem(getUserKey(baseKey), value);
+            localStorage.setItem(baseKey, value);
         }
         
         // Display current mode
@@ -239,23 +230,21 @@
                 modeEl.textContent = getModeDisplayName().toUpperCase();
             }
             
-            // Show admin link if user is admin
-            const users = JSON.parse(localStorage.getItem('focushub_users') || '[]');
-            const userFull = users.find(u => u.id === currentUser.id);
-            if (userFull && userFull.plan === 'admin') {
-                document.getElementById('adminLink').classList.remove('hidden');
-            }
-            
-            // Show upgrade button if user is on free plan
-            if (userFull && userFull.plan === 'free') {
-                document.getElementById('upgradeBtn').classList.remove('hidden');
-            }
-            
-            // Check for admin impersonation
-            const adminReturn = sessionStorage.getItem('admin_return');
-            if (adminReturn) {
-                document.getElementById('impersonationBanner').classList.remove('hidden');
-                document.getElementById('impersonatedEmail').textContent = currentUser.email;
+            // Check if admin from membership
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                if (membership.is_admin) {
+                    const adminLink = document.getElementById('adminLink');
+                    if (adminLink) adminLink.classList.remove('hidden');
+                }
+                
+                // Show upgrade button for free/lite users
+                if (!membership.version || membership.version === 'lite') {
+                    const upgradeBtn = document.getElementById('upgradeBtn');
+                    if (upgradeBtn) upgradeBtn.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log('Could not check membership');
             }
         }
         
