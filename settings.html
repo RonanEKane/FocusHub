@@ -366,8 +366,11 @@
             <h2 class="section-title">💳 Account Type</h2>
             
             <div class="current-plan">
-                <div class="plan-badge student" id="currentPlanBadge">🎓 Student</div>
-                <p class="plan-description" id="currentPlanDescription">Session-based tracking • $9/month</p>
+                <div class="plan-badge premium" id="currentPlanBadge">💼 Premium</div>
+                <p class="plan-description" id="currentPlanDescription">Full features • $19/month</p>
+                <p class="admin-note" id="adminNote" style="display: none; color: var(--industrial-orange); margin-top: 0.5rem; font-weight: 600;">
+                    🔓 ADMIN: Full access to all features + ability to switch between tiers
+                </p>
                 <button class="btn-secondary" onclick="toggleVersionSelector()">Change Plan</button>
             </div>
             
@@ -615,11 +618,19 @@
                         isAdmin = membership.is_admin || false;
                         console.log('✅ Membership loaded:', { plan: currentPlan, isAdmin: isAdmin });
                         
+                        // ADMIN FIX: If admin, treat as premium with version override capability
+                        const effectiveVersion = isAdmin ? 'premium' : (membership.version || currentPlan || 'lite');
+                        
                         // Save to localStorage for other functions to access
                         localStorage.setItem('focushub_membership', JSON.stringify({
                             plan: currentPlan,
-                            is_admin: isAdmin
+                            version: effectiveVersion,
+                            tier: effectiveVersion,
+                            is_admin: isAdmin,
+                            updated_at: new Date().toISOString()
                         }));
+                        
+                        console.log('💾 Saved to localStorage:', { version: effectiveVersion, isAdmin });
                     } else {
                         console.warn('⚠️ No membership found in database');
                     }
@@ -649,6 +660,9 @@
             updateMembershipUI(currentPlan, isAdmin);
             applyFeatureGates(currentPlan, isAdmin);
             loadSettings();
+            
+            // Initialize version display AFTER membership loaded
+            initializeVersionDisplay();
         }
 
         function updateMembershipUI(plan, isAdmin) {
@@ -970,10 +984,20 @@
             try {
                 const membership = localStorage.getItem('focushub_membership');
                 let version = 'lite';
+                let isAdmin = false;
                 
                 if (membership) {
                     const data = JSON.parse(membership);
-                    version = data.version || data.tier || 'lite';
+                    version = data.version || data.tier || data.plan || 'lite';
+                    isAdmin = data.is_admin || false;
+                }
+                
+                console.log('🎨 Initializing version display:', { version, isAdmin });
+                
+                // Show admin note if admin
+                const adminNote = document.getElementById('adminNote');
+                if (adminNote && isAdmin) {
+                    adminNote.style.display = 'block';
                 }
                 
                 updateVersionDisplay(version);
@@ -991,8 +1015,7 @@
             }
         }
         
-        // Initialize version display
-        initializeVersionDisplay();
+        // Don't call initializeVersionDisplay here anymore - it's called in init()
 
         init();
     </script>

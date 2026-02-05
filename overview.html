@@ -155,6 +155,14 @@
                 </table>
             </div>
             
+            <!-- Grade History Section -->
+            <div class="stats-table" style="margin-top: 2rem;">
+                <h3 class="stats-title">📊 GRADE HISTORY</h3>
+                <div id="gradeHistoryContent" style="margin-top: 1rem;">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            
             <!-- Subject Breakdown (Student Mode Only) -->
             <div id="subjectBreakdownSection" class="stats-table hidden" style="margin-top: 2rem;">
                 <h3 class="stats-title">📚 SUBJECT BREAKDOWN</h3>
@@ -527,6 +535,75 @@
             
             // Subject breakdown (student mode only)
             loadSubjectBreakdown();
+            
+            // Load grade history
+            loadGradeHistory();
+        }
+        
+        // Load and display grade history
+        function loadGradeHistory() {
+            const gradeHistory = JSON.parse(localStorage.getItem('focushub_grade_history') || '[]');
+            const container = document.getElementById('gradeHistoryContent');
+            
+            if (gradeHistory.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No grades yet. Complete a day to see your first grade!</p>';
+                return;
+            }
+            
+            // Show last 10 grades
+            const recent = gradeHistory.slice(-10).reverse();
+            
+            let html = '<div style="display: grid; gap: 1rem;">';
+            
+            recent.forEach(grade => {
+                const date = new Date(grade.date);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                const aligned = grade.systemGrade === grade.userGrade;
+                const alignmentIcon = aligned ? '✅' : '⚠️';
+                const alignmentText = aligned ? 'Aligned' : 'Misaligned';
+                const alignmentColor = aligned ? '#10b981' : '#f59e0b';
+                
+                html += `
+                    <div style="background: var(--bg-primary); padding: 1.5rem; border-radius: 4px; border-left: 4px solid ${alignmentColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.875rem;">${dateStr}</span>
+                            <span style="color: ${alignmentColor}; font-weight: 600; font-size: 0.875rem;">${alignmentIcon} ${alignmentText}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.25rem;">System Grade</div>
+                                <div style="color: var(--industrial-orange); font-size: 1.5rem; font-weight: 700;">${grade.systemGrade}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.25rem;">Your Grade</div>
+                                <div style="color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">${grade.userGrade}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.25rem;">Sprints</div>
+                                <div style="color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">${grade.sprints}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Add alignment stats
+            const totalGrades = gradeHistory.length;
+            const alignedCount = gradeHistory.filter(g => g.systemGrade === g.userGrade).length;
+            const alignmentRate = ((alignedCount / totalGrades) * 100).toFixed(0);
+            
+            html += `
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-elevated); border-radius: 4px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Self-Assessment Accuracy</div>
+                    <div style="color: var(--industrial-orange); font-size: 2rem; font-weight: 700;">${alignmentRate}%</div>
+                    <div style="color: var(--text-secondary); font-size: 0.75rem;">${alignedCount} of ${totalGrades} aligned</div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
         }
         
         // Calculate and display subject breakdown
