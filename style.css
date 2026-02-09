@@ -1782,9 +1782,11 @@ body {
     background: var(--bg-primary);
     z-index: 9999;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* FIXED: Changed from 'center' to allow scrolling */
     justify-content: center;
     padding: 2rem;
+    overflow-y: auto; /* FIXED: Enable vertical scrolling */
+    -webkit-overflow-scrolling: touch; /* FIXED: Smooth scrolling on iOS */
 }
 
 .start-day-content {
@@ -1793,6 +1795,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    margin: auto 0; /* FIXED: Center vertically when content fits, allow scroll when it doesn't */
 }
 
 .start-day-header {
@@ -1965,6 +1968,33 @@ body {
     }
     
     .ai-text {
+        font-size: 0.9rem;
+    }
+    
+    /* MOBILE FIX: Start Day Modal - ensure scrollability and proper sizing */
+    .start-day-modal {
+        padding: 1rem; /* Reduce padding on mobile */
+    }
+    
+    .start-day-content {
+        gap: 1.5rem; /* Tighter spacing */
+    }
+    
+    .start-day-header h2 {
+        font-size: 1.5rem; /* Smaller heading */
+    }
+    
+    .reflection-section {
+        padding: 1.5rem; /* Less padding */
+    }
+    
+    .reflection-text {
+        font-size: 1rem; /* Smaller text for mobile */
+        line-height: 1.6;
+    }
+    
+    .btn-start-day {
+        padding: 1rem; /* Slightly smaller button */
         font-size: 0.9rem;
     }
 }

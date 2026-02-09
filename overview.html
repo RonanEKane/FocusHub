@@ -365,11 +365,35 @@
             localStorage.setItem(baseKey, value);
         }
         
+        // Get mode display name from state
+        function getModeDisplayName() {
+            try {
+                const state = JSON.parse(localStorage.getItem('focushub_state') || '{}');
+                const mode = state.currentMode || 'balanced';
+                
+                const modeNames = {
+                    'supportive': 'Supportive',
+                    'balanced': 'Balanced',
+                    'tough': 'Tough'
+                };
+                
+                return modeNames[mode] || 'Balanced';
+            } catch (e) {
+                console.error('Error getting mode:', e);
+                return 'Balanced';
+            }
+        }
+        
+        // Make it available globally
+        window.getModeDisplayName = getModeDisplayName;
+        
         // Display current mode
         function displayCurrentMode() {
             const modeEl = document.getElementById('currentMode');
-            if (modeEl && window.getModeDisplayName) {
-                modeEl.textContent = getModeDisplayName().toUpperCase();
+            if (modeEl) {
+                const modeName = getModeDisplayName().toUpperCase();
+                modeEl.textContent = modeName;
+                console.log('✅ Mode set to:', modeName);
             }
             
             // Check if admin from membership

@@ -36,7 +36,14 @@
     <link rel="preload" href="style.css?v=20.4" as="style">
     <link rel="stylesheet" href="style.css?v=20.4">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- REFLECTION LIBRARIES: All 7 traditions (350+ reflections total) -->
     <script src="reflections-expanded.js"></script>
+    <script src="reflections-catholic.js"></script>
+    <script src="reflections-christian.js"></script>
+    <script src="reflections-buddhist.js"></script>
+    <script src="reflections-islamic.js"></script>
+    <script src="reflections-jewish.js"></script>
+    <script src="reflections-hindu.js"></script>
     <script src="keyboard-shortcuts.js"></script>
 </head>
 <body class="preload">
@@ -3289,24 +3296,38 @@
             // Get user's reflection tradition preference (default to secular)
             const tradition = localStorage.getItem('focushub_reflection_tradition') || 'secular';
             
-            // Get reflections based on tradition
-            // For now, use EXPANDED_REFLECTIONS (universal/secular)
-            // TODO: Load tradition-specific files dynamically if needed
-            const reflections = typeof EXPANDED_REFLECTIONS !== 'undefined' ? EXPANDED_REFLECTIONS : [];
+            // FIXED: Actually use the selected tradition instead of always using secular
+            // Map tradition names to their reflection arrays
+            const traditionMap = {
+                'secular': typeof EXPANDED_REFLECTIONS !== 'undefined' ? EXPANDED_REFLECTIONS : [],
+                'catholic': typeof REFLECTIONS_CATHOLIC !== 'undefined' ? REFLECTIONS_CATHOLIC : [],
+                'christian': typeof REFLECTIONS_CHRISTIAN !== 'undefined' ? REFLECTIONS_CHRISTIAN : [],
+                'buddhist': typeof REFLECTIONS_BUDDHIST !== 'undefined' ? REFLECTIONS_BUDDHIST : [],
+                'islamic': typeof REFLECTIONS_ISLAMIC !== 'undefined' ? REFLECTIONS_ISLAMIC : [],
+                'jewish': typeof REFLECTIONS_JEWISH !== 'undefined' ? REFLECTIONS_JEWISH : [],
+                'hindu': typeof REFLECTIONS_HINDU !== 'undefined' ? REFLECTIONS_HINDU : []
+            };
+            
+            // Get reflections for chosen tradition, fallback to secular if not found
+            let reflections = traditionMap[tradition] || traditionMap['secular'];
+            console.log(`📿 Loading ${tradition} reflections:`, reflections.length, 'available');
             
             // Fallback if no reflections loaded
             if (reflections.length === 0) {
                 document.getElementById('dailyReflection').textContent = "Focus is the art of knowing what to ignore.";
                 document.getElementById('reflectionSource').textContent = "— Practical Wisdom";
+                console.warn('⚠️ No reflections loaded for tradition:', tradition);
                 return;
             }
             
-            // Pick random reflection
+            // Pick random reflection from chosen tradition
             const reflection = reflections[Math.floor(Math.random() * reflections.length)];
             
-            // Display reflection (format from expanded library)
+            // Display reflection (format from tradition library)
             document.getElementById('dailyReflection').textContent = reflection.text;
             document.getElementById('reflectionSource').textContent = reflection.attribution || reflection.headline;
+            
+            console.log(`✅ Showing ${tradition} reflection:`, reflection.headline);
             
             // Set up start button
             document.getElementById('startDayBtn').addEventListener('click', startNewDay);

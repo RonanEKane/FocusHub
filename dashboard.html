@@ -7,6 +7,245 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Insight Center - FocusHub</title>
     <link rel="stylesheet" href="style.css?v=20.4">
+    <style>
+        /* Dashboard Visual Improvements */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .bento-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .bento-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-micro-label {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            opacity: 0.6;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-large {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 0.75rem;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .activity-context,
+        .score-context {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .trend-up {
+            color: #22C55E;
+            font-weight: 600;
+        }
+        
+        .streak-value {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .gauge-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        .gauge-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .bar-chart-mini {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+            height: 80px;
+            margin-top: 1.5rem;
+        }
+        
+        .bar-mini {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .bar-fill {
+            width: 100%;
+            background: var(--primary-color);
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+        }
+        
+        .bar-day {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .intention-visual {
+            margin: 1.5rem 0;
+        }
+        
+        .intention-bar,
+        .reality-bar {
+            margin-bottom: 1rem;
+        }
+        
+        .intention-fill,
+        .reality-fill {
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 1rem;
+        }
+        
+        .intention-label,
+        .reality-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .intention-stats {
+            display: flex;
+            gap: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .stats-table {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stats-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stats-table tr {
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .stats-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        .stats-table td {
+            padding: 1rem 0;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .stat-value {
+            text-align: right;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        .primary-action {
+            width: 100%;
+            padding: 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 3rem;
+            transition: all 0.2s ease;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .primary-action:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+        }
+        
+        .action-icon {
+            margin-right: 1rem;
+        }
+        
+        /* Dark mode specific improvements */
+        [data-theme="dark"] .bento-card {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        [data-theme="dark"] .bento-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="dashboard-supabase-sync.js"></script>
@@ -216,11 +455,35 @@
             localStorage.setItem(baseKey, value);
         }
         
+        // Get mode display name from state
+        function getModeDisplayName() {
+            try {
+                const state = JSON.parse(localStorage.getItem('focushub_state') || '{}');
+                const mode = state.currentMode || 'balanced';
+                
+                const modeNames = {
+                    'supportive': 'Supportive',
+                    'balanced': 'Balanced',
+                    'tough': 'Tough'
+                };
+                
+                return modeNames[mode] || 'Balanced';
+            } catch (e) {
+                console.error('Error getting mode:', e);
+                return 'Balanced';
+            }
+        }
+        
+        // Make it available globally for overview.html
+        window.getModeDisplayName = getModeDisplayName;
+        
         // Display current mode
         function displayCurrentMode() {
             const modeEl = document.getElementById('currentMode');
-            if (modeEl && window.getModeDisplayName) {
-                modeEl.textContent = getModeDisplayName().toUpperCase();
+            if (modeEl) {
+                const modeName = getModeDisplayName().toUpperCase();
+                modeEl.textContent = modeName;
+                console.log('✅ Mode set to:', modeName);
             }
             
             // Check if admin from membership
@@ -271,19 +534,28 @@
 
         // Load stats from history
         function loadStats() {
-            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            console.log('📊 Loading dashboard stats...');
+            
+            const historyRaw = getUserItem('focushub_history');
+            console.log('Raw history data:', historyRaw ? historyRaw.substring(0, 100) + '...' : 'null');
+            
+            const history = JSON.parse(historyRaw || '[]');
+            console.log('Parsed history length:', history.length);
             
             if (history.length === 0) {
+                console.log('⚠️ No history data found - showing empty state');
                 return;
             }
 
             // Calculate total sprints
-            const totalSprints = history.reduce((sum, day) => sum + day.sprintCount, 0);
+            const totalSprints = history.reduce((sum, day) => sum + (day.sprintCount || 0), 0);
+            console.log('Total sprints:', totalSprints);
             document.getElementById('totalSprints').textContent = totalSprints;
             document.getElementById('totalSprintsContext').textContent = totalSprints;
 
             // Calculate total tasks
-            const totalTasks = history.reduce((sum, day) => sum + day.tasksCompleted, 0);
+            const totalTasks = history.reduce((sum, day) => sum + (day.tasksCompleted || 0), 0);
+            console.log('Total tasks:', totalTasks);
             document.getElementById('totalTasks').textContent = totalTasks;
 
             // Calculate streak (consecutive days with B+ or higher)
@@ -297,6 +569,7 @@
                     break;
                 }
             }
+            console.log('Streak:', streak);
             document.getElementById('dayStreak').textContent = streak;
 
             // Calculate average grade
@@ -311,6 +584,7 @@
                 return sum + (gradeValues[day.userGrade || day.autoGrade] || 0);
             }, 0) / history.length;
             
+            console.log('Average grade value:', avgGradeValue);
             document.getElementById('avgGrade').textContent = avgGradeValue.toFixed(1);
             document.getElementById('focusScore').textContent = ((avgGradeValue / 4.3) * 100).toFixed(0) + '%';
 
@@ -318,19 +592,24 @@
             document.getElementById('daysLogged').textContent = history.length;
 
             // Average distractions
-            const avgDistractions = (history.reduce((sum, day) => sum + day.distractionCount, 0) / history.length).toFixed(1);
+            const avgDistractions = (history.reduce((sum, day) => sum + (day.distractionCount || 0), 0) / history.length).toFixed(1);
             document.getElementById('avgDistractions').textContent = avgDistractions;
 
             // Sprint completion rate
             const sprintRate = history.reduce((sum, day) => {
-                return sum + Math.min((day.sprintCount / day.plannedSprints) * 100, 100);
+                const planned = day.plannedSprints || 5;
+                const completed = day.sprintCount || 0;
+                return sum + Math.min((completed / planned) * 100, 100);
             }, 0) / history.length;
+            console.log('Sprint completion rate:', sprintRate);
             document.getElementById('sprintRate').textContent = sprintRate.toFixed(0) + '%';
 
             // Weekly chart (last 7 days)
             const last7 = history.slice(-7);
             const chartHTML = last7.map(day => {
-                const percentage = Math.min((day.sprintCount / day.plannedSprints) * 100, 100);
+                const planned = day.plannedSprints || 5;
+                const completed = day.sprintCount || 0;
+                const percentage = Math.min((completed / planned) * 100, 100);
                 const color = percentage >= 100 ? '#22C55E' : '#ef4444';
                 const date = new Date(day.date);
                 const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -347,6 +626,19 @@
             const intentions = JSON.parse(getUserItem('focushub_intentions') || '[]');
             const intentionCount = intentions.length;
             const followedThrough = intentions.filter(i => i.completed).length;
+            
+            console.log('Intentions:', intentionCount, 'Followed through:', followedThrough);
+            document.getElementById('intentionCount').textContent = intentionCount;
+            document.getElementById('realityCount').textContent = followedThrough;
+            
+            const intentionPercent = intentionCount > 0 ? 100 : 0;
+            const realityPercent = intentionCount > 0 ? (followedThrough / intentionCount * 100) : 0;
+            
+            document.getElementById('intentionFill').style.width = intentionPercent + '%';
+            document.getElementById('realityFill').style.width = realityPercent + '%';
+            
+            console.log('✅ Dashboard stats loaded successfully');
+        }
             
             document.getElementById('intentionCount').textContent = intentionCount;
             document.getElementById('realityCount').textContent = followedThrough;
@@ -443,11 +735,12 @@
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                dashboardLogo.src = 'FocusHub_vertdark.svg';
+                dashboardLogo.src = 'FocusHub_vertinv.svg';  // FIXED: Use correct filename
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
                 dashboardLogo.src = 'FocusHub_vertnorm.svg';
             }
+            console.log('✅ Theme initialized:', theme);
         }
 
         // Check session state and update button
