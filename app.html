@@ -1556,11 +1556,34 @@
             // Auto-end if: different day AND 2+ hours inactive
             if (isDifferentDay && hoursInactive >= 2) {
                 console.log('🌙 Auto-ending day: new day + 2hrs inactivity');
+                
+                // FIXED: Move incomplete tasks to holding before ending
+                ['admin', 'deepwork', 'strategic'].forEach(bucket => {
+                    state.tasks[bucket].forEach(task => {
+                        if (!task.completed) {
+                            task.bucket = 'holding';
+                            state.tasks.holding.push(task);
+                        }
+                    });
+                    state.tasks[bucket] = [];
+                });
+                
+                // Clear wins for new day
+                state.tasks.wins = [];
+                
+                // Mark day as ended
                 state.dayActive = false;
                 state.lastDayStarted = null;
                 state.lastActivityTime = null;
+                
+                // Reset counts for new day
+                state.sprintCount = 0;
+                state.breaksCount = 0;
+                state.distractionCount = 0;
+                state.dailySprintTarget = 0;
+                
                 saveState();
-                alert('Session ended. Previous day logged.');
+                alert('Session ended. Incomplete tasks moved to holding area.');
                 redirectToDashboard();
                 return true;
             }
@@ -3375,12 +3398,81 @@
         }
 
         // ============================================
+        // AUTO-LOGOUT AFTER INACTIVITY (7 DAYS)
+        // Prevents stale sessions when Supabase pauses
+        // ============================================
+        const INACTIVITY_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+        function checkSessionExpiry() {
+            const lastActivity = localStorage.getItem('focushub_last_activity');
+            
+            if (lastActivity) {
+                const timeSinceActivity = Date.now() - parseInt(lastActivity);
+                
+                if (timeSinceActivity > INACTIVITY_TIMEOUT) {
+                    console.log('⏰ Session expired due to inactivity (>7 days)');
+                    
+                    // Clear all local data except theme preference
+                    const keysToKeep = ['focushub_theme'];
+                    const allKeys = Object.keys(localStorage);
+                    
+                    allKeys.forEach(key => {
+                        if (key.startsWith('focushub_') && !keysToKeep.includes(key)) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                    
+                    // Sign out from Supabase
+                    if (window.supabaseClient) {
+                        supabaseClient.auth.signOut().catch(err => {
+                            console.error('Error signing out:', err);
+                        });
+                    }
+                    
+                    // Redirect to login with message
+                    sessionStorage.setItem('logout_reason', 'Session expired due to inactivity. Please log in again.');
+                    window.location.replace('./login.html');
+                    return true;
+                }
+            }
+            
+            // Update last activity timestamp
+            localStorage.setItem('focushub_last_activity', Date.now().toString());
+            return false;
+        }
+
+        // Check on page load and update activity timestamp on interactions
+        function initActivityTracking() {
+            // Check if session expired
+            if (checkSessionExpiry()) {
+                return; // Redirect happened
+            }
+            
+            // Update activity timestamp on user interactions
+            ['click', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+                let hasTracked = false;
+                document.addEventListener(event, () => {
+                    if (!hasTracked) {
+                        localStorage.setItem('focushub_last_activity', Date.now().toString());
+                        hasTracked = true;
+                        // Reset after 1 minute to avoid excessive writes
+                        setTimeout(() => { hasTracked = false; }, 60000);
+                    }
+                }, { passive: true });
+            });
+        }
+
+        // ============================================
         // INITIALIZE
         // ============================================
         // ============================================
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', () => {
+                initActivityTracking();
+                init();
+            });
         } else {
+            initActivityTracking();
             init();
         }
     </script>

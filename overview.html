@@ -793,11 +793,14 @@
                     tierName.textContent = getTierDisplayName(tier).toUpperCase();
                 }
                 
-                // Show upgrade button for non-premium users
+                // Show upgrade button ONLY for non-premium, non-admin users
                 const upgradeBtn = document.getElementById('upgradeBtn');
                 if (upgradeBtn) {
                     const isPremium = await isPremiumUser();
-                    if (!isPremium) {
+                    const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                    const isAdmin = membership.is_admin;
+                    
+                    if (!isPremium && !isAdmin) {
                         upgradeBtn.classList.remove('hidden');
                     }
                 }

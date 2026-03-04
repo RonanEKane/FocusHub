@@ -197,13 +197,41 @@
                 
             } catch (error) {
                 console.error('Login error:', error);
-                loginError.textContent = error.message || 'Invalid email or password';
+                
+                // Provide helpful error messages
+                let errorMsg = error.message || 'Invalid email or password';
+                
+                // Handle specific error types
+                if (errorMsg === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMsg = 'Connection error. Unable to reach authentication server. Please check your internet connection and try again.';
+                } else if (errorMsg.includes('Invalid login credentials')) {
+                    errorMsg = 'Invalid email or password. Please check and try again.';
+                } else if (errorMsg.includes('Email not confirmed')) {
+                    errorMsg = 'Please check your email and click the confirmation link before logging in.';
+                } else if (errorMsg.includes('temporarily unavailable')) {
+                    errorMsg = 'Service temporarily unavailable. Please try again in a few minutes.';
+                }
+                
+                loginError.textContent = errorMsg;
                 loginError.classList.remove('hidden');
                 
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Sign In';
             }
         });
+
+        // Show logout reason if present (from auto-logout)
+        const logoutReason = sessionStorage.getItem('logout_reason');
+        if (logoutReason) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = 'background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-size: 0.9rem;';
+            messageDiv.textContent = logoutReason;
+            
+            const form = document.getElementById('loginForm');
+            form.insertBefore(messageDiv, form.firstChild);
+            
+            sessionStorage.removeItem('logout_reason');
+        }
 
         // Initialize
         checkSession();

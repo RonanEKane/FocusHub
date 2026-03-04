@@ -494,8 +494,11 @@
                     if (adminLink) adminLink.classList.remove('hidden');
                 }
                 
-                // Show upgrade button for free/lite users
-                if (!membership.version || membership.version === 'lite') {
+                // Show upgrade button ONLY for free/lite users (NOT for premium or admin)
+                const isPremium = membership.version === 'premium' || membership.version === 'standard' || membership.version === 'student';
+                const isAdmin = membership.is_admin;
+                
+                if (!isPremium && !isAdmin && (!membership.version || membership.version === 'lite')) {
                     const upgradeBtn = document.getElementById('upgradeBtn');
                     if (upgradeBtn) upgradeBtn.classList.remove('hidden');
                 }
