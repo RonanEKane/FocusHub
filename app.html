@@ -1025,7 +1025,24 @@
                 holdingBefore: state.tasks.holding.length
             });
             
+            let addedCount = 0;
+            let duplicateCount = 0;
+            
             tasks.forEach(taskText => {
+                const cleanText = taskText.trim().toLowerCase();
+                
+                // Check for duplicates in holding area (case-insensitive)
+                const isDuplicate = state.tasks.holding.some(existingTask => 
+                    existingTask.text.toLowerCase() === cleanText
+                );
+                
+                if (isDuplicate) {
+                    console.log('⚠️ Duplicate detected, skipping:', taskText);
+                    duplicateCount++;
+                    return; // Skip this task
+                }
+                
+                // Add task if not duplicate
                 const task = {
                     id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     text: taskText.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;'),
@@ -1035,17 +1052,28 @@
                     bucket: 'holding'
                 };
                 state.tasks.holding.push(task);
+                addedCount++;
             });
             
             console.log('📝 After adding:', {
                 holdingAfter: state.tasks.holding.length,
+                added: addedCount,
+                duplicates: duplicateCount,
                 tasks: state.tasks.holding
             });
             
             document.getElementById('taskInput').value = '';
             saveState();
             renderAll();
-            showMicroConfirm('Tasks added to holding area');
+            
+            // Show appropriate message
+            if (addedCount > 0 && duplicateCount > 0) {
+                showMicroConfirm(`Added ${addedCount} task${addedCount > 1 ? 's' : ''}, skipped ${duplicateCount} duplicate${duplicateCount > 1 ? 's' : ''}`);
+            } else if (addedCount > 0) {
+                showMicroConfirm(`Added ${addedCount} task${addedCount > 1 ? 's' : ''} to holding area`);
+            } else if (duplicateCount > 0) {
+                showMicroConfirm(`All tasks already exist in holding area`);
+            }
         }
 
         function renderTasks() {
