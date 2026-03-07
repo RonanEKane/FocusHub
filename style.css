@@ -672,6 +672,20 @@ body {
     min-height: 60px; /* Smaller drop target when empty */
 }
 
+/* TWO-COLUMN LAYOUT for holding area tasks */
+#holdingTasks {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 0.75rem; /* Space between columns */
+}
+
+/* On small screens, go back to single column */
+@media (max-width: 768px) {
+    #holdingTasks {
+        grid-template-columns: 1fr;
+    }
+}
+
 .holding-header {
     display: flex;
     justify-content: space-between;

@@ -1513,7 +1513,77 @@
             if (modal) modal.remove();
         }
         
-        function completeDay(systemGrade, userGrade) {
+        // ============================================
+        // PREMIUM TIER DETECTION & SUPABASE SYNC
+        // ============================================
+        
+        function isPremiumTier() {
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                const premiumVersions = ['premium', 'standard', 'student'];
+                return premiumVersions.includes(membership.version) || membership.is_admin;
+            } catch (e) {
+                console.error('Error checking tier:', e);
+                return false;
+            }
+        }
+        
+        async function syncHistoryToSupabase(dayData) {
+            if (!window.supabaseClient) {
+                console.log('⚠️ Supabase not available, saving locally only');
+                return false;
+            }
+            
+            if (!isPremiumTier()) {
+                console.log('📭 Free tier - history saved locally only');
+                return false;
+            }
+            
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    console.log('⚠️ No user logged in');
+                    return false;
+                }
+                
+                // Prepare data for Supabase
+                const historyRecord = {
+                    user_id: user.id,
+                    completed_date: dayData.date,
+                    system_grade: dayData.systemGrade,
+                    user_grade: dayData.userGrade,
+                    sprint_count: dayData.sprints || 0,
+                    tasks_completed: dayData.tasks || 0,
+                    breaks_taken: dayData.breaks || 0,
+                    distractions_count: state.distractionCount || 0,
+                    completed_tasks: state.tasks.wins || [],
+                    intentions: state.intentions || []
+                };
+                
+                console.log('💎 Syncing history to Supabase (Premium):', historyRecord);
+                
+                // Upsert (insert or update if exists)
+                const { error } = await supabaseClient
+                    .from('day_history')
+                    .upsert(historyRecord, {
+                        onConflict: 'user_id,completed_date'
+                    });
+                
+                if (error) {
+                    console.error('❌ Error syncing history to Supabase:', error);
+                    return false;
+                }
+                
+                console.log('✅ History synced to Supabase successfully');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error in syncHistoryToSupabase:', error);
+                return false;
+            }
+        }
+        
+        async function completeDay(systemGrade, userGrade) {
             // Save grades
             state.currentGrade = systemGrade;
             const gradingData = {
@@ -1525,11 +1595,19 @@
                 breaks: state.breaksCount
             };
             
-            // Save to history
+            // ALWAYS save to localStorage first (works offline, instant)
             const history = JSON.parse(localStorage.getItem('focushub_grade_history') || '[]');
             history.push(gradingData);
             if (history.length > 90) history.shift(); // Keep 90 days
             localStorage.setItem('focushub_grade_history', JSON.stringify(history));
+            
+            // PREMIUM: Also sync to Supabase for cross-device access
+            if (isPremiumTier()) {
+                console.log('💎 Premium tier detected - syncing to cloud');
+                await syncHistoryToSupabase(gradingData);
+            } else {
+                console.log('📱 Free tier - history saved locally only');
+            }
             
             // Move incomplete tasks back to holding
             ['admin', 'deepwork', 'strategic'].forEach(bucket => {

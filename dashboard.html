@@ -535,14 +535,97 @@
         // Display mode on load
         displayCurrentMode();
 
+        // ============================================
+        // PREMIUM TIER DETECTION & SUPABASE SYNC
+        // ============================================
+        
+        function isPremiumTier() {
+            try {
+                const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+                const premiumVersions = ['premium', 'standard', 'student'];
+                return premiumVersions.includes(membership.version) || membership.is_admin;
+            } catch (e) {
+                console.error('Error checking tier:', e);
+                return false;
+            }
+        }
+        
+        async function loadHistoryFromSupabase() {
+            if (!window.supabaseClient) {
+                console.log('⚠️ Supabase not available');
+                return null;
+            }
+            
+            if (!isPremiumTier()) {
+                console.log('📭 Free tier - using localStorage only');
+                return null;
+            }
+            
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    console.log('⚠️ No user logged in');
+                    return null;
+                }
+                
+                console.log('💎 Premium tier - loading history from Supabase');
+                
+                const { data: history, error } = await supabaseClient
+                    .from('day_history')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('completed_date', { ascending: false })
+                    .limit(90); // Last 90 days
+                
+                if (error) {
+                    console.error('❌ Error loading history from Supabase:', error);
+                    return null;
+                }
+                
+                if (!history || history.length === 0) {
+                    console.log('📭 No history in Supabase yet');
+                    return null;
+                }
+                
+                // Convert Supabase format to localStorage format
+                const formattedHistory = history.map(day => ({
+                    date: day.completed_date,
+                    systemGrade: day.system_grade,
+                    userGrade: day.user_grade,
+                    sprints: day.sprint_count,
+                    tasks: day.tasks_completed,
+                    breaks: day.breaks_taken,
+                    distractions: day.distractions_count,
+                    wins: day.completed_tasks,
+                    intentions: day.intentions
+                }));
+                
+                // Also save to localStorage as cache
+                localStorage.setItem('focushub_grade_history', JSON.stringify(formattedHistory));
+                
+                console.log('✅ Loaded', formattedHistory.length, 'days from Supabase');
+                return formattedHistory;
+                
+            } catch (error) {
+                console.error('❌ Error in loadHistoryFromSupabase:', error);
+                return null;
+            }
+        }
+
         // Load stats from history
-        function loadStats() {
+        async function loadStats() {
             console.log('📊 Loading dashboard stats...');
             
-            const historyRaw = getUserItem('focushub_history');
-            console.log('Raw history data:', historyRaw ? historyRaw.substring(0, 100) + '...' : 'null');
+            // PREMIUM: Try to load from Supabase first
+            let history = await loadHistoryFromSupabase();
             
-            const history = JSON.parse(historyRaw || '[]');
+            // Fallback to localStorage if Supabase fails or free tier
+            if (!history) {
+                const historyRaw = getUserItem('focushub_grade_history');
+                console.log('Raw history data:', historyRaw ? historyRaw.substring(0, 100) + '...' : 'null');
+                history = JSON.parse(historyRaw || '[]');
+            }
+            
             console.log('Parsed history length:', history.length);
             
             if (history.length === 0) {
@@ -551,13 +634,13 @@
             }
 
             // Calculate total sprints
-            const totalSprints = history.reduce((sum, day) => sum + (day.sprintCount || 0), 0);
+            const totalSprints = history.reduce((sum, day) => sum + (day.sprints || day.sprints || day.sprintCount || day.sprint_count || day.sprint_count || 0), 0);
             console.log('Total sprints:', totalSprints);
             document.getElementById('totalSprints').textContent = totalSprints;
             document.getElementById('totalSprintsContext').textContent = totalSprints;
 
             // Calculate total tasks
-            const totalTasks = history.reduce((sum, day) => sum + (day.tasksCompleted || 0), 0);
+            const totalTasks = history.reduce((sum, day) => sum + (day.tasks || day.tasksCompleted || day.tasks_completed || 0), 0);
             console.log('Total tasks:', totalTasks);
             document.getElementById('totalTasks').textContent = totalTasks;
 
@@ -601,7 +684,7 @@
             // Sprint completion rate
             const sprintRate = history.reduce((sum, day) => {
                 const planned = day.plannedSprints || 5;
-                const completed = day.sprintCount || 0;
+                const completed = day.sprints || day.sprintCount || day.sprint_count || 0;
                 return sum + Math.min((completed / planned) * 100, 100);
             }, 0) / history.length;
             console.log('Sprint completion rate:', sprintRate);
@@ -611,7 +694,7 @@
             const last7 = history.slice(-7);
             const chartHTML = last7.map(day => {
                 const planned = day.plannedSprints || 5;
-                const completed = day.sprintCount || 0;
+                const completed = day.sprints || day.sprintCount || day.sprint_count || 0;
                 const percentage = Math.min((completed / planned) * 100, 100);
                 const color = percentage >= 100 ? '#22C55E' : '#ef4444';
                 const date = new Date(day.date);
@@ -676,7 +759,8 @@
             }
             
             // Get completed tasks from history
-            const history = JSON.parse(getUserItem('focushub_history') || '[]');
+            // FIXED: Read from focushub_grade_history (where app.html saves it)
+            const history = JSON.parse(getUserItem('focushub_grade_history') || '[]');
             const subjectSprints = {};
             
             // Calculate sprints per subject from all history
