@@ -1907,74 +1907,109 @@
         }
         
         function notifyTimerComplete(timerType) {
+            console.log('🔔 Timer complete - triggering alerts');
+            
             const isSprint = timerType === 'focus';
-            const title = isSprint ? '🎯 Sprint Complete!' : '⚡ Break Over!';
-            const body = isSprint 
-                ? `Great work on that ${state.timer.duration}-minute sprint! Time for a break.`
-                : 'Break time is up. Ready for another sprint?';
+            const title = isSprint ? '🎯 SPRINT COMPLETE!' : '⚡ BREAK OVER!';
             
-            // Get user preferences
-            const enableNotifications = localStorage.getItem('enableNotifications') !== 'false'; // Default true
-            const autoFocusTab = localStorage.getItem('autoFocusTab') !== 'false'; // Default true
-            const playSound = localStorage.getItem('playTimerSound') !== 'false'; // Default true
+            // 1. PLAY LOUD SOUND (always, can't be ignored)
+            playLoudTimerAlert();
             
-            // 1. Desktop notification (if enabled and permission granted)
-            if (enableNotifications && Notification.permission === 'granted') {
+            // 2. FLASH TAB TITLE AGGRESSIVELY (always)
+            flashTabTitleAggressive(title);
+            
+            // 3. DESKTOP NOTIFICATION (if permission granted)
+            if ('Notification' in window && Notification.permission === 'granted') {
                 try {
                     const notification = new Notification(title, {
-                        body: body,
+                        body: isSprint 
+                            ? `Time's up! Take a break or start another sprint.`
+                            : 'Break over! Ready to focus?',
                         icon: '/FocusHub_vertnorm.svg',
-                        badge: '/FocusHub_vertnorm.svg',
-                        requireInteraction: true, // Stays until user clicks
+                        requireInteraction: true,
                         tag: 'timer-complete',
-                        vibrate: [200, 100, 200], // Mobile vibration
-                        silent: !playSound
+                        vibrate: [200, 100, 200, 100, 200]
                     });
                     
-                    // Click notification → focus tab
                     notification.onclick = () => {
                         window.focus();
                         notification.close();
+                        showTimerCompleteModal(isSprint);
                     };
                 } catch (e) {
                     console.log('Notification error:', e);
                 }
             }
             
-            // 2. Auto-focus tab (if enabled)
-            if (autoFocusTab) {
-                try {
-                    window.focus();
-                } catch (e) {
-                    console.log('Auto-focus error:', e);
-                }
+            // 4. TRY TO FOCUS WINDOW (might work)
+            try {
+                window.focus();
+            } catch (e) {
+                console.log('Focus attempt failed:', e);
             }
             
-            // 3. Flash tab title (always, as fallback)
-            flashTabTitle(title);
-            
-            // 4. Play sound (if enabled and not already played by notification)
-            if (playSound && (!enableNotifications || Notification.permission !== 'granted')) {
-                playTimerSound();
+            // 5. SHOW BLOCKING MODAL (immediately - user must acknowledge)
+            showTimerCompleteModal(isSprint);
+        }
+        
+        function playLoudTimerAlert() {
+            // Play 3 beeps in succession - LOUD and noticeable
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Beep 1
+                setTimeout(() => playBeep(audioContext, 800, 0.3), 0);
+                // Beep 2
+                setTimeout(() => playBeep(audioContext, 1000, 0.3), 300);
+                // Beep 3
+                setTimeout(() => playBeep(audioContext, 800, 0.4), 600);
+                
+            } catch (e) {
+                console.log('Sound error:', e);
             }
         }
         
-        function flashTabTitle(message) {
+        function playBeep(audioContext, frequency, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Louder
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        function flashTabTitleAggressive(message) {
             const originalTitle = document.title;
             let flash = true;
+            let count = 0;
             
             // Clear any existing flash
             if (titleFlashInterval) {
                 clearInterval(titleFlashInterval);
             }
             
-            // Flash every second
+            // Flash faster - every 500ms
             titleFlashInterval = setInterval(() => {
-                document.title = flash ? message : originalTitle;
+                document.title = flash ? `🔔 ${message}` : `⚠️ ${message}`;
                 flash = !flash;
-            }, 1000);
+                count++;
+                
+                // Stop after 60 flashes (30 seconds) or when user returns
+                if (count > 60 || !document.hidden) {
+                    clearInterval(titleFlashInterval);
+                    document.title = originalTitle;
+                }
+            }, 500);
             
-            // Stop flashing when user returns to tab
+            // Also stop when user returns
             const stopFlashing = () => {
                 if (!document.hidden) {
                     clearInterval(titleFlashInterval);
@@ -1983,37 +2018,192 @@
                 }
             };
             document.addEventListener('visibilitychange', stopFlashing);
-            
-            // Auto-stop after 30 seconds
-            setTimeout(() => {
-                clearInterval(titleFlashInterval);
-                document.title = originalTitle;
-            }, 30000);
         }
         
-        function playTimerSound() {
-            // Simple beep using Web Audio API
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800; // Pleasant frequency
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (e) {
-                console.log('Sound playback error:', e);
+        function showTimerCompleteModal(isSprint) {
+            // Remove any existing modal
+            const existingModal = document.getElementById('timerCompleteModal');
+            if (existingModal) existingModal.remove();
+            
+            // Create BLOCKING fullscreen modal
+            const modal = document.createElement('div');
+            modal.id = 'timerCompleteModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 99999;
+                animation: fadeIn 0.3s;
+            `;
+            
+            const content = isSprint ? `
+                <div style="
+                    background: var(--bg-secondary);
+                    padding: 3rem;
+                    border-radius: 12px;
+                    max-width: 500px;
+                    width: 90%;
+                    border: 3px solid var(--industrial-orange);
+                    text-align: center;
+                    animation: slideIn 0.3s;
+                ">
+                    <h1 style="
+                        color: var(--industrial-orange);
+                        font-size: 2.5rem;
+                        margin-bottom: 1rem;
+                    ">🎯 SPRINT COMPLETE!</h1>
+                    
+                    <p style="
+                        color: var(--text-primary);
+                        font-size: 1.2rem;
+                        margin-bottom: 2rem;
+                        line-height: 1.6;
+                    ">You crushed that ${state.timer.duration}-minute focus session!<br>What's your next move?</p>
+                    
+                    <button onclick="takeBreakFromModal()" style="
+                        width: 100%;
+                        padding: 1.2rem;
+                        margin-bottom: 1rem;
+                        background: var(--industrial-orange);
+                        color: var(--bg-primary);
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        🧘 Take 5-Minute Break
+                    </button>
+                    
+                    <button onclick="startAnotherSprintFromModal()" style="
+                        width: 100%;
+                        padding: 1.2rem;
+                        margin-bottom: 1rem;
+                        background: transparent;
+                        color: var(--industrial-orange);
+                        border: 2px solid var(--industrial-orange);
+                        border-radius: 6px;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='rgba(255,102,0,0.1)'" onmouseout="this.style.background='transparent'">
+                        🔥 Start Another Sprint
+                    </button>
+                    
+                    <button onclick="closeTimerModalOnly()" style="
+                        width: 100%;
+                        padding: 1rem;
+                        background: transparent;
+                        color: var(--text-secondary);
+                        border: 1px solid var(--border-light);
+                        border-radius: 6px;
+                        font-size: 0.95rem;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.borderColor='var(--text-secondary)'" onmouseout="this.style.borderColor='var(--border-light)'">
+                        Just Dismiss
+                    </button>
+                </div>
+            ` : `
+                <div style="
+                    background: var(--bg-secondary);
+                    padding: 3rem;
+                    border-radius: 12px;
+                    max-width: 500px;
+                    width: 90%;
+                    border: 3px solid var(--industrial-orange);
+                    text-align: center;
+                ">
+                    <h1 style="
+                        color: var(--industrial-orange);
+                        font-size: 2.5rem;
+                        margin-bottom: 1rem;
+                    ">⚡ BREAK OVER!</h1>
+                    
+                    <p style="
+                        color: var(--text-primary);
+                        font-size: 1.2rem;
+                        margin-bottom: 2rem;
+                        line-height: 1.6;
+                    ">Time to get back to work!<br>Ready for another sprint?</p>
+                    
+                    <button onclick="startAnotherSprintFromModal()" style="
+                        width: 100%;
+                        padding: 1.2rem;
+                        margin-bottom: 1rem;
+                        background: var(--industrial-orange);
+                        color: var(--bg-primary);
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                    ">
+                        🔥 Start Sprint
+                    </button>
+                    
+                    <button onclick="closeTimerModalOnly()" style="
+                        width: 100%;
+                        padding: 1rem;
+                        background: transparent;
+                        color: var(--text-secondary);
+                        border: 1px solid var(--border-light);
+                        border-radius: 6px;
+                        font-size: 0.95rem;
+                        cursor: pointer;
+                    ">
+                        Dismiss
+                    </button>
+                </div>
+            `;
+            
+            modal.innerHTML = content;
+            document.body.appendChild(modal);
+            
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from { transform: translateY(-50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function takeBreakFromModal() {
+            closeTimerModalOnly();
+            startBreak();
+        }
+        
+        function startAnotherSprintFromModal() {
+            closeTimerModalOnly();
+            startSprint();
+        }
+        
+        function closeTimerModalOnly() {
+            const modal = document.getElementById('timerCompleteModal');
+            if (modal) modal.remove();
+            
+            // Stop tab flashing
+            if (titleFlashInterval) {
+                clearInterval(titleFlashInterval);
+                document.title = 'FocusHub';
             }
         }
-
+        
         function completeSprint() {
             clearInterval(state.timer.interval);
             
