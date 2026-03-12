@@ -542,8 +542,10 @@
         function isPremiumTier() {
             try {
                 const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
-                const premiumVersions = ['premium', 'standard', 'student'];
-                return premiumVersions.includes(membership.version) || membership.is_admin;
+                const premiumPlans = ['premium', 'standard', 'student'];
+                // Check both 'plan' and 'version' for compatibility
+                const userPlan = membership.plan || membership.version;
+                return premiumPlans.includes(userPlan) || membership.is_admin;
             } catch (e) {
                 console.error('Error checking tier:', e);
                 return false;

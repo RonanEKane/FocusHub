@@ -400,6 +400,8 @@
             lastDayStarted: null,     // DAY TRACKING
             lastActivityTime: null,   // DAY TRACKING
             dayActive: false,         // DAY TRACKING
+            sessionNumber: 1,         // STUDENT: Track multiple sessions per day
+            sessionStartTime: null,   // STUDENT: When current session started
             // BEHAVIORAL PATTERN TRACKING (V20.6)
             lastSprintCompleteTime: null,   // When last sprint finished
             consecutiveBreaks: 0,            // Break count without focus
@@ -1340,11 +1342,11 @@
             
             try {
                 const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
-                const version = membership.version || 'lite';
+                const userPlan = membership.plan || membership.version || 'lite';
                 const isAdmin = membership.is_admin === true;
                 
                 // Admin or Premium gets full dashboard
-                if (isAdmin || version === 'premium') {
+                if (isAdmin || userPlan === 'premium' || userPlan === 'standard' || userPlan === 'student') {
                     console.log('🎯 Premium/Admin → dashboard.html (full analytics)');
                     window.location.href = 'dashboard.html';
                 } else {
@@ -1520,8 +1522,10 @@
         function isPremiumTier() {
             try {
                 const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
-                const premiumVersions = ['premium', 'standard', 'student'];
-                return premiumVersions.includes(membership.version) || membership.is_admin;
+                const premiumPlans = ['premium', 'standard', 'student'];
+                // Check both 'plan' and 'version' for compatibility
+                const userPlan = membership.plan || membership.version;
+                return premiumPlans.includes(userPlan) || membership.is_admin;
             } catch (e) {
                 console.error('Error checking tier:', e);
                 return false;
@@ -1557,17 +1561,18 @@
                     breaks_taken: dayData.breaks || 0,
                     distractions_count: state.distractionCount || 0,
                     completed_tasks: state.tasks.wins || [],
-                    intentions: state.intentions || []
+                    intentions: state.intentions || [],
+                    // STUDENT: Session tracking
+                    session_number: dayData.session_number || 1,
+                    session_duration_minutes: dayData.session_duration_minutes || 0
                 };
                 
                 console.log('💎 Syncing history to Supabase (Premium):', historyRecord);
                 
-                // Upsert (insert or update if exists)
+                // Insert (not upsert) - allow multiple sessions per day for students
                 const { error } = await supabaseClient
                     .from('day_history')
-                    .upsert(historyRecord, {
-                        onConflict: 'user_id,completed_date'
-                    });
+                    .insert(historyRecord);
                 
                 if (error) {
                     console.error('❌ Error syncing history to Supabase:', error);
@@ -1586,13 +1591,24 @@
         async function completeDay(systemGrade, userGrade) {
             // Save grades
             state.currentGrade = systemGrade;
+            
+            // Check if student tier
+            const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+            const isStudent = membership.plan === 'student';
+            
             const gradingData = {
                 date: new Date().toISOString(),
                 systemGrade,
                 userGrade,
                 sprints: state.sprintCount,
                 tasks: state.tasks.wins.length,
-                breaks: state.breaksCount
+                breaks: state.breaksCount,
+                // STUDENT: Add session tracking
+                session_number: isStudent ? state.sessionNumber : 1,
+                session_start: state.sessionStartTime || state.lastDayStarted,
+                session_end: Date.now(),
+                session_duration_minutes: state.sessionStartTime ? 
+                    Math.round((Date.now() - state.sessionStartTime) / 60000) : 0
             };
             
             // ALWAYS save to localStorage first (works offline, instant)
@@ -1620,19 +1636,28 @@
                 state.tasks[bucket] = [];
             });
             
-            // Clear wins for new day
+            // Clear wins for new session
             state.tasks.wins = [];
             
-            // Reset counts
+            // Reset counts for new session
             state.sprintCount = 0;
             state.breaksCount = 0;
             state.distractionCount = 0;
-            state.dailySprintTarget = 0; // Reset for new day
+            state.dailySprintTarget = 0;
             
-            // DAY TRACKING: Mark day as ended
-            state.dayActive = false;
-            state.lastDayStarted = null;
-            state.lastActivityTime = null;
+            // STUDENT: Don't mark day as ended - allow new session
+            // STANDARD/PREMIUM: Mark day as ended
+            if (!isStudent) {
+                state.dayActive = false;
+                state.lastDayStarted = null;
+                state.lastActivityTime = null;
+                state.sessionNumber = 1;
+            } else {
+                // Student: Keep day active, can start new session
+                state.dayActive = false; // Temporarily false until they start next session
+                state.sessionStartTime = null; // Reset session start
+                console.log(`📚 Session #${state.sessionNumber} complete - can start another today`);
+            }
             
             saveState();
             
@@ -1762,6 +1787,17 @@
                 return;
             }
             
+            // Request notification permission on first sprint ever
+            const hasRequestedPermission = localStorage.getItem('notificationPermissionRequested');
+            if (!hasRequestedPermission && 'Notification' in window && Notification.permission === 'default') {
+                requestNotificationPermission().then(granted => {
+                    if (granted) {
+                        console.log('✅ Notifications enabled');
+                    }
+                });
+                localStorage.setItem('notificationPermissionRequested', 'true');
+            }
+            
             // V20.6: Reset idle tracking when starting sprint
             state.idleStartTime = null;
             
@@ -1844,6 +1880,140 @@
             saveState();
         }
 
+        // ============================================
+        // TIMER COMPLETION NOTIFICATIONS
+        // Desktop notifications + Auto-focus tab
+        // Works for all tiers
+        // ============================================
+        
+        let titleFlashInterval = null;
+        
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('Browser does not support notifications');
+                return false;
+            }
+            
+            if (Notification.permission === 'granted') {
+                return true;
+            }
+            
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                return permission === 'granted';
+            }
+            
+            return false;
+        }
+        
+        function notifyTimerComplete(timerType) {
+            const isSprint = timerType === 'focus';
+            const title = isSprint ? '🎯 Sprint Complete!' : '⚡ Break Over!';
+            const body = isSprint 
+                ? `Great work on that ${state.timer.duration}-minute sprint! Time for a break.`
+                : 'Break time is up. Ready for another sprint?';
+            
+            // Get user preferences
+            const enableNotifications = localStorage.getItem('enableNotifications') !== 'false'; // Default true
+            const autoFocusTab = localStorage.getItem('autoFocusTab') !== 'false'; // Default true
+            const playSound = localStorage.getItem('playTimerSound') !== 'false'; // Default true
+            
+            // 1. Desktop notification (if enabled and permission granted)
+            if (enableNotifications && Notification.permission === 'granted') {
+                try {
+                    const notification = new Notification(title, {
+                        body: body,
+                        icon: '/FocusHub_vertnorm.svg',
+                        badge: '/FocusHub_vertnorm.svg',
+                        requireInteraction: true, // Stays until user clicks
+                        tag: 'timer-complete',
+                        vibrate: [200, 100, 200], // Mobile vibration
+                        silent: !playSound
+                    });
+                    
+                    // Click notification → focus tab
+                    notification.onclick = () => {
+                        window.focus();
+                        notification.close();
+                    };
+                } catch (e) {
+                    console.log('Notification error:', e);
+                }
+            }
+            
+            // 2. Auto-focus tab (if enabled)
+            if (autoFocusTab) {
+                try {
+                    window.focus();
+                } catch (e) {
+                    console.log('Auto-focus error:', e);
+                }
+            }
+            
+            // 3. Flash tab title (always, as fallback)
+            flashTabTitle(title);
+            
+            // 4. Play sound (if enabled and not already played by notification)
+            if (playSound && (!enableNotifications || Notification.permission !== 'granted')) {
+                playTimerSound();
+            }
+        }
+        
+        function flashTabTitle(message) {
+            const originalTitle = document.title;
+            let flash = true;
+            
+            // Clear any existing flash
+            if (titleFlashInterval) {
+                clearInterval(titleFlashInterval);
+            }
+            
+            // Flash every second
+            titleFlashInterval = setInterval(() => {
+                document.title = flash ? message : originalTitle;
+                flash = !flash;
+            }, 1000);
+            
+            // Stop flashing when user returns to tab
+            const stopFlashing = () => {
+                if (!document.hidden) {
+                    clearInterval(titleFlashInterval);
+                    document.title = originalTitle;
+                    document.removeEventListener('visibilitychange', stopFlashing);
+                }
+            };
+            document.addEventListener('visibilitychange', stopFlashing);
+            
+            // Auto-stop after 30 seconds
+            setTimeout(() => {
+                clearInterval(titleFlashInterval);
+                document.title = originalTitle;
+            }, 30000);
+        }
+        
+        function playTimerSound() {
+            // Simple beep using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800; // Pleasant frequency
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Sound playback error:', e);
+            }
+        }
+
         function completeSprint() {
             clearInterval(state.timer.interval);
             
@@ -1855,6 +2025,8 @@
                 state.totalBreakTime += state.timer.duration;
                 state.consecutiveBreaks++;
             }
+            
+            const timerType = state.timer.type; // Store before clearing
             
             state.timer.active = false;
             state.timer.startTime = null;
@@ -1869,6 +2041,12 @@
             state.sessionState = 'idle';
             state.timer.remaining = state.timer.duration * 60;
             state.idleStartTime = Date.now(); // V20.6: Start idle tracking
+            
+            // ============================================
+            // TIMER COMPLETION ALERTS
+            // Notify user when timer ends (all tiers)
+            // ============================================
+            notifyTimerComplete(timerType);
             
             // Only show sprint complete messages for focus sessions
             if (state.timer.type === 'focus') {
@@ -3476,10 +3654,26 @@
             state.timer.duration = energyTimers[selectedEnergy];
             state.timer.remaining = state.timer.duration * 60;
             
-            // Mark day as active
+            // Check if this is a new session for student tier
+            const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
+            const isStudent = membership.plan === 'student';
+            const today = new Date().toDateString();
+            const lastStarted = state.lastDayStarted ? new Date(state.lastDayStarted).toDateString() : null;
+            
+            // If student and same day, increment session number
+            if (isStudent && lastStarted === today) {
+                state.sessionNumber++;
+                console.log(`📚 Student: Starting session #${state.sessionNumber} today`);
+            } else {
+                // New day or not a student - reset session number
+                state.sessionNumber = 1;
+            }
+            
+            // Mark day/session as active
             state.dayActive = true;
             state.lastDayStarted = Date.now();
             state.lastActivityTime = Date.now();
+            state.sessionStartTime = Date.now(); // Track when this session started
             
             // FIXED: Reset daily sprint target so it recalculates with today's tasks
             state.dailySprintTarget = 0;
@@ -3500,7 +3694,12 @@
             document.addEventListener('click', recordActivity);
             document.addEventListener('keypress', recordActivity);
             
-            console.log('✅ Day started successfully');
+            if (isStudent && state.sessionNumber > 1) {
+                console.log(`✅ Session #${state.sessionNumber} started`);
+                showMicroConfirm(`Session #${state.sessionNumber} started`);
+            } else {
+                console.log('✅ Day started successfully');
+            }
         }
 
         // ============================================
