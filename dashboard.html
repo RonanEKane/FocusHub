@@ -727,20 +727,6 @@
             
             console.log('✅ Dashboard stats loaded successfully');
         }
-            
-            document.getElementById('intentionCount').textContent = intentionCount;
-            document.getElementById('realityCount').textContent = followedThrough;
-            
-            if (intentionCount > 0) {
-                const intentionPercent = 100;
-                const realityPercent = (followedThrough / intentionCount) * 100;
-                document.getElementById('intentionFill').style.width = intentionPercent + '%';
-                document.getElementById('realityFill').style.width = realityPercent + '%';
-            }
-            
-            // Subject breakdown (student mode only)
-            loadSubjectBreakdown();
-        }
         
         // Calculate and display subject breakdown
         function loadSubjectBreakdown() {

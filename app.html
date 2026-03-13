@@ -3394,24 +3394,6 @@
         }
         
         // Check if user is focusing on low priority items
-        function checkPriorityAlignment() {
-            let lowPriorityCount = 0;
-            let highPriorityCount = 0;
-            
-            ['admin', 'deepwork', 'strategic'].forEach(bucket => {
-                state.tasks[bucket].forEach(task => {
-                    if (!task.completed) {
-                        if (task.priority === 'low') lowPriorityCount++;
-                        if (task.priority === 'high') highPriorityCount++;
-                    }
-                });
-            });
-            
-            // If mostly low priority items in active buckets, alert
-            if (lowPriorityCount > highPriorityCount && highPriorityCount > 0) {
-                updateAIMessage(getAIMessage('lowPriorityFocus'));
-            }
-        }
         
         // ============================================
         // BEHAVIORAL PATTERN DETECTION (V20.6)
