@@ -24,6 +24,7 @@
                 <span class="status-text">SYSTEM STATUS: ONLINE</span>
             </div>
             <div class="status-time" id="currentTime"></div>
+            <button id="themeToggle" class="btn-home" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--primary-color); cursor: pointer; font-size: 0.875rem; font-weight: 600;">🌙 DARK</button>
             <a href="admin.html" id="adminLink" class="btn-home hidden" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--primary-color); font-weight: 600; font-size: 0.875rem; text-decoration: none;">🛠️ Admin</a>
             <button id="logoutBtn" class="btn-home" style="margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem;">Logout</button>
         </div>
@@ -365,6 +366,43 @@
             localStorage.setItem(baseKey, value);
         }
         
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        function initTheme() {
+            const theme = localStorage.getItem('focushub_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeButton(theme);
+            
+            // Update logo based on theme
+            const logo = document.getElementById('overviewLogo');
+            if (logo) {
+                logo.src = theme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+            }
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('focushub_theme', newTheme);
+            updateThemeButton(newTheme);
+            
+            // Update logo based on theme
+            const logo = document.getElementById('overviewLogo');
+            if (logo) {
+                logo.src = newTheme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+            }
+        }
+        
+        function updateThemeButton(theme) {
+            const btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.textContent = theme === 'dark' ? '☀️ LIGHT' : '🌙 DARK';
+            }
+        }
+        
         // Get mode display name from state
         function getModeDisplayName() {
             try {
@@ -696,19 +734,6 @@
         }
 
         // Theme detection and logo swap
-        function initTheme() {
-            const theme = localStorage.getItem('focushub_theme') || 'dark';
-            const dashboardLogo = document.getElementById('dashboardLogo');
-            
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                dashboardLogo.src = 'FocusHub_vertinv.svg'; // Dark = white text
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                dashboardLogo.src = 'FocusHub_vertnorm.svg'; // Light = black text
-            }
-        }
-
         // Check session state and update button
         function checkSessionState() {
             const sessionState = getUserItem('focushub_session_state');
@@ -768,6 +793,9 @@
                 window.handleFirebaseLogout();
             }
         });
+        
+        // Theme toggle handler
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
         initTheme();
         checkSessionState();

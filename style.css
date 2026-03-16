@@ -2546,3 +2546,31 @@ input:focus, select:focus, textarea:focus {
     }
 }
 
+/* ============================================
+   PRIMARY ACTION BUTTON (Dashboard/Overview)
+   ============================================ */
+.primary-action {
+    width: 100%;
+    padding: 1.5rem;
+    background: var(--industrial-orange);
+    color: #000000; /* Always black text - visible in both light and dark mode */
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 3rem;
+    transition: all 0.2s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.primary-action:hover {
+    background: #ff6600;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
+}
+
+.action-icon {
+    margin-right: 1rem;
+}
+
