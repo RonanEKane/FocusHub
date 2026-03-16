@@ -737,6 +737,10 @@
             document.getElementById('logoutBtn').addEventListener('click', async function() {
                 if (confirm('Are you sure you want to logout?')) {
                     try {
+                        // CRITICAL: Save state before logging out (preserves tasks!)
+                        saveState();
+                        console.log('✅ State saved before logout');
+                        
                         // Save session stats for logout page
                         const logoutStats = {
                             sprints: state.sprintCount || 0,
@@ -750,6 +754,8 @@
                         
                     } catch (error) {
                         console.error('Logout error:', error);
+                        // Still save state even if there's an error
+                        saveState();
                         window.location.href = 'logout.html';
                     }
                 }
@@ -1668,27 +1674,23 @@
             redirectToDashboard();
         }
 
-        // DAY TRACKING: Check if day should auto-end (midnight + 2 hrs inactivity)
+        // DAY TRACKING: Check if day should auto-end (new calendar day)
         function checkDayExpiration() {
             if (!state.dayActive || !state.lastDayStarted) return false;
             
             const now = new Date();
             const startDate = new Date(state.lastDayStarted);
-            const lastActivity = state.lastActivityTime ? new Date(state.lastActivityTime) : now;
             
-            // Check if it's a different day
+            // Check if it's a different calendar day
             const isDifferentDay = now.getDate() !== startDate.getDate() || 
                                    now.getMonth() !== startDate.getMonth() || 
                                    now.getFullYear() !== startDate.getFullYear();
             
-            // Calculate hours since last activity
-            const hoursInactive = (now - lastActivity) / (1000 * 60 * 60);
-            
-            // Auto-end if: different day AND 2+ hours inactive
-            if (isDifferentDay && hoursInactive >= 2) {
-                console.log('🌙 Auto-ending day: new day + 2hrs inactivity');
+            // Auto-end if it's a different day (period)
+            if (isDifferentDay) {
+                console.log('🌙 Auto-ending day: new calendar day detected');
                 
-                // FIXED: Move incomplete tasks to holding before ending
+                // Move incomplete tasks to holding before ending
                 ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                     state.tasks[bucket].forEach(task => {
                         if (!task.completed) {
@@ -1714,7 +1716,7 @@
                 state.dailySprintTarget = 0;
                 
                 saveState();
-                alert('Session ended. Incomplete tasks moved to holding area.');
+                alert('Previous session auto-ended (new day). Incomplete tasks moved to holding area.');
                 redirectToDashboard();
                 return true;
             }
@@ -3942,6 +3944,12 @@
         // ============================================
         // INITIALIZE
         // ============================================
+        // Auto-save state when page closes/refreshes
+        window.addEventListener('beforeunload', () => {
+            saveState();
+            console.log('✅ State auto-saved on page unload');
+        });
+        
         // ============================================
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
