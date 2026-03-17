@@ -2697,340 +2697,485 @@
         // ============================================
         
         const aiCoachLibrary = {
-            // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft
+            // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft, tasksCompleted, meetingMinutes
             sprintComplete: {
                 supportive: [
-                    (ctx) => `Sprint ${ctx.sprintsDone} done! ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' closed so far — real progress. ' : ''}${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go. You\'ve got this!' : 'You\'re on track!'}`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} complete! ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remaining — keep moving forward.' : 'Excellent — board is clear!'}`,
-                    (ctx) => `Nice work! ${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins today. ' : ''}Keep that momentum going!`,
-                    (ctx) => `Sprint complete! ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' finished. ' : ''}${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left today.`,
-                    (ctx) => `Another sprint in the books! ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} on the board. You're building real progress.`,
-                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} to go. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completed today — solid.' : 'Stay focused.'}`,
-                    (ctx) => `${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} logged. ${ctx.tasksLeft} tasks remaining. Keep going!`
+                    (ctx) => `Sprint ${ctx.sprintsDone} in the books. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' done — that\'s real progress. ' : ''}${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go. You\'ve got the rhythm now.' : 'You hit the target. That\'s worth acknowledging.'}`,
+                    (ctx) => `Sprint complete! Your brain just did something hard. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still on deck — keep riding this.' : 'Board is clearing. Beautiful.'}`,
+                    (ctx) => `That's ${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''}. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' win' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' today. ' : ''}Momentum is a real thing — don\'t let it cool.`,
+                    (ctx) => `Locked in and finished. Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' left — you\'re building something here.' : 'Daily target hit. Take a breath.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${ctx.tasksCompleted > 0 ? 'Tasks are falling. ' : ''}The gap between who you want to be and who you are gets smaller every sprint.`,
+                    (ctx) => `Done. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remaining — pick the one that matters most next.' : 'All clear. Exceptional day.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} complete. ${ctx.required - ctx.sprintsDone > 2 ? 'Still ' + (ctx.required - ctx.sprintsDone) + ' to go — but look how far you\'ve come.' : ctx.required - ctx.sprintsDone > 0 ? 'Almost there. One more push.' : 'Target met. You showed up.'}`,
+                    (ctx) => `Solid focus. That sprint counts. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completed so far — compound that.' : ctx.tasksLeft + ' tasks waiting. Pick your next target.'}`,
+                    (ctx) => `${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} logged. Every one of those was a choice to show up. ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more choices to make today.' : 'You made all of them. Well done.'}`,
+                    (ctx) => `Sprint done. ${ctx.meetingMinutes > 0 ? ctx.meetingMinutes + ' min in meetings already absorbed — your available time is shorter. ' : ''}${ctx.tasksLeft > 0 ? 'Keep moving.' : 'Clear board. Good work.'}`,
+                    (ctx) => `One more sprint behind you. ${ctx.sprintsDone > 1 ? 'You\'ve done this ' + ctx.sprintsDone + ' times today — each one is proof you\'re capable of the next.' : 'First sprint done. The hardest one is always the first.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} complete. The ADHD brain works best with exactly this: time-boxed, focused, done. You just used your brain the right way.`,
+                    (ctx) => `Focus time logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' crossed off. ' : ''}That feels different from a day where nothing got done, doesn\'t it?`,
+                    (ctx) => `Sprint done! ${ctx.required - ctx.sprintsDone > 0 ? 'Keep the streak going — ' + (ctx.required - ctx.sprintsDone) + ' more.' : 'Full day of sprints complete. You earned this.'}`,
+                    (ctx) => `${ctx.sprintsDone === 1 ? 'First sprint in the bag. The day has officially started.' : ctx.sprintsDone === ctx.required ? 'Last required sprint done. Full commitment.' : 'Sprint ' + ctx.sprintsDone + ' complete. Steady and consistent — that\'s the whole game.'}`
                 ],
                 balanced: [
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
                         const progressNote = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} complete. ` : '';
-                        return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${progressNote}${gap > 0 ? gap + ' remaining.' : 'On target.'}`;
+                        return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${progressNote}${gap > 0 ? gap + ' remaining. Stay on pace.' : 'On target.'}`;
                     },
-                    (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' closed — maintain pace.' : 'Maintain pace.'}`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left to target.`,
-                    (ctx) => `Work session complete. ${ctx.sprintsDone}/${ctx.required} done. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks resolved. ' : ''}Progress acceptable.`,
-                    (ctx) => `Sprint logged. ${ctx.required - ctx.sprintsDone} remaining. ${ctx.tasksLeft} tasks active.`,
-                    (ctx) => `Session ${ctx.sprintsDone} complete. Continue at current pace.`,
-                    (ctx) => `Sprint finished. ${ctx.required - ctx.sprintsDone} more to meet daily target.`
+                    (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} active. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' closed — maintain that rate.' : 'No completions yet — identify the next finishable item.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left to target. ${ctx.tasksLeft > 0 ? 'Tasks pending — execution is the job.' : 'Board clear.'}`,
+                    (ctx) => `Work session complete. ${ctx.sprintsDone}/${ctx.required} done. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks resolved. ' : ''}Progress is measurable. Keep it.`,
+                    (ctx) => `Sprint logged. ${ctx.required - ctx.sprintsDone} remaining. ${ctx.tasksLeft} tasks in queue. Output, not effort.`,
+                    (ctx) => `${ctx.sprintsDone} of ${ctx.required} complete. ${ctx.meetingMinutes > 0 ? 'Meetings: ' + ctx.meetingMinutes + ' min (excluded from score). ' : ''}Maintain current pace.`,
+                    (ctx) => `Sprint finished. ${ctx.required - ctx.sprintsDone} more to meet daily target. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks done — that\'s the scoreboard.' : 'Focus on closing tasks, not just running sprints.'}`,
+                    (ctx) => `Session ${ctx.sprintsDone} complete. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' items unresolved. Identify blockers.' : 'All tasks resolved. Strong session.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone}/${ctx.required}. ${ctx.required - ctx.sprintsDone > 3 ? 'Gap exists — close it methodically.' : ctx.required - ctx.sprintsDone > 0 ? 'Close. Finish strong.' : 'Complete.'}`,
+                    (ctx) => `Logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' closed — that\'s the real metric. ' : ''}${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} remain.`,
+                    (ctx) => `Sprint complete. Task throughput: ${ctx.tasksCompleted}. Sprints remaining: ${ctx.required - ctx.sprintsDone}. Continue at this pace.`,
+                    (ctx) => `${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' to go. Each sprint either closes a gap or opens one — keep closing.' : 'Schedule met. Evaluate remaining tasks.'}`,
+                    (ctx) => `Sprint recorded. ${ctx.tasksLeft > 0 ? 'Active tasks: ' + ctx.tasksLeft + '. Sprint without task completion is partial productivity — close something.' : 'Full task resolution. High-output session.'}`,
+                    (ctx) => `${ctx.sprintsDone}/${ctx.required} sprints. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completions — output is real.' : 'Task list unchanged. Identify what you can finish next sprint.'}`,
+                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone === 0 ? 'Daily target achieved.' : ctx.required - ctx.sprintsDone + ' remaining.'} Consistency produces results. Maintain it.`
                 ],
                 tough: [
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
                         const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} closed — that's the work. ` : '';
-                        if (gap > 5) return `Sprint ${ctx.sprintsDone}/${ctx.required} done. ${wins}Still ${gap} behind. Close the gap now.`;
-                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required}. ${wins}${gap} sprints behind. Move.`;
-                        if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${wins}${gap} left. Pick up the pace.`;
-                        return `Sprint complete. ${wins}${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' task' + (ctx.tasksLeft !== 1 ? 's' : '') + ' remaining. Don\'t stop.' : 'On target. Maintain.'}`;
+                        if (gap > 5) return `Sprint ${ctx.sprintsDone}/${ctx.required}. ${wins}${gap} behind. The gap doesn't care about effort. Close it.`;
+                        if (gap > 2) return `Sprint ${ctx.sprintsDone}/${ctx.required}. ${wins}${gap} sprints short. Pace is insufficient. Accelerate.`;
+                        if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required}. ${wins}${gap} left. Don't coast now.`;
+                        return `Target hit. ${wins}${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still open — finishing is the job.' : 'Board clear. This is what a good day looks like.'}`;
                     },
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        return `Sprint done. ${gap > 0 ? gap + ' more required.' : 'Target hit.'} ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks complete — results, not effort.' : 'Results, not effort.'}`;
+                        return `Sprint done. ${gap > 0 ? gap + ' more required.' : 'Daily target met.'} ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks completed — results matter.' : 'Sprints without task output are just running in place.'}`;
                     },
-                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items need execution. Keep going.`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items need execution. Finishing tasks — not just running sprints — is the scoreboard.`,
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} down. ` : '';
-                        return gap > 4 ? `${wins}${gap} sprints behind. Gap unacceptable. Immediate action.` : `Sprint logged. ${wins}${gap} remain. Move.`;
+                        return gap > 4 ? `${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks done. ' : ''}${gap} sprints behind. That gap compounds. Address it now.` : `Sprint logged. ${gap > 0 ? gap + ' remain.' : 'Target reached.'} Keep executing.`;
                     },
-                    (ctx) => `Sprint complete. ${ctx.required - ctx.sprintsDone} still needed. ${ctx.meetingMinutes > 0 ? ctx.meetingMinutes + ' min in meetings excluded. ' : ''}Next.`,
-                    (ctx) => `One sprint done. ${ctx.required - ctx.sprintsDone} pending. Accelerate.`,
+                    (ctx) => `Sprint complete. ${ctx.required - ctx.sprintsDone} still needed. ${ctx.meetingMinutes > 0 ? ctx.meetingMinutes + ' min in meetings excluded — no excuse from here forward. ' : ''}Next.`,
+                    (ctx) => `${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' to go. Every sprint you skip is a debt you pay later.' : 'Target hit. Now close the remaining tasks.'}`,
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
                         const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} wins today. ` : '';
-                        if (gap > 6) return `Sprint ${ctx.sprintsDone}. ${wins}${gap} behind — close it. Now.`;
-                        return `Sprint done. ${wins}${gap} more. Execute.`;
-                    }
+                        if (gap > 6) return `Sprint ${ctx.sprintsDone}. ${wins}${gap} behind. No recovery without execution. Now.`;
+                        return `Sprint done. ${wins}${gap > 0 ? gap + ' more. Execute.' : 'On target. Don\'t stop.'}`;
+                    },
+                    (ctx) => `Logged. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks unfinished — sprints without completions are just activity, not progress.' : 'Board clear. Good. Now maintain it.'}`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        return gap > 3 ? `Behind by ${gap}. You can still close this. But only if the next sprint starts now.` : gap > 0 ? `${gap} sprint${gap > 1 ? 's' : ''} left. Finish what you started.` : `Target met. ${ctx.tasksLeft > 0 ? 'Now finish the tasks.' : 'Clean execution.'}`;
+                    },
+                    (ctx) => `Sprint ${ctx.sprintsDone} complete. The clock didn't stop while you were working — it won't stop between sprints either. ${ctx.required - ctx.sprintsDone > 0 ? 'Next sprint. Now.' : 'Target reached. Finish the tasks.'}`,
+                    (ctx) => `Done. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks closed — that\'s actual output. ' : 'No task completions yet. A sprint that moves nothing forward is just time in a chair. '}${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' sprints left.' : 'Target hit.'}`,
+                    (ctx) => `${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} in. ${ctx.required - ctx.sprintsDone > 0 ? 'You\'re not done. ' + (ctx.required - ctx.sprintsDone) + ' remaining.' : 'Full target achieved. Don\'t waste it — close the open tasks.'}`,
+                    (ctx) => `Sprint complete. You showed up. Now show results. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks open — pick one and close it next sprint.' : 'Board clear. Execute tomorrow with the same intensity.'}`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        return `Sprint logged. ${gap > 5 ? 'You\'re significantly behind. ' + gap + ' sprints still required. This is recoverable only if you start immediately.' : gap > 2 ? gap + ' behind. Pace is behind target. Accelerate.' : gap > 0 ? gap + ' left. Close it.' : 'Done. Now finish the tasks.'}`;
+                    },
+                    (ctx) => `${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' sprints left. ' + (ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins so far — now go get more.' : 'Tasks aren\'t closing themselves. Work them.') : 'All sprints complete. ' + (ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still open. Finish them.' : 'Full board cleared. Excellent.')}`
                 ]
             },
-            
+
             // TASK COMPLETION - Context: priority, sprintValue, tasksLeft
             taskComplete: {
                 supportive: [
-                    (ctx) => `Excellent! Task complete (+${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''}). ${ctx.tasksLeft} more to go!`,
-                    (ctx) => `Way to go! Another task checked off. You're making real progress.`,
-                    (ctx) => `Task done! That's the kind of follow-through that gets results.`,
-                    (ctx) => `Fantastic! Task finished. You're building momentum beautifully.`,
-                    (ctx) => `Great execution! Task complete. ${ctx.tasksLeft} remaining on your list.`,
-                    (ctx) => `Well done! That's another win. Keep this energy going!`,
-                    (ctx) => `Task closed successfully. You're getting things done today!`
+                    (ctx) => `Task closed! ${ctx.priority === 'high' ? 'That was a high-priority item — that\'s the most important kind of win. ' : ''}${ctx.tasksLeft} more on the board. Keep that energy.`,
+                    (ctx) => `Done. Crossed off. Gone. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remaining — one down at a time.' : 'Board is clear! That\'s a complete day.'}`,
+                    (ctx) => `+${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} credited. Task complete. Completion is a skill and you just practiced it.`,
+                    (ctx) => `That's a win. ${ctx.priority === 'high' ? 'High-priority item finished — this is what actually moves the needle. ' : ''}${ctx.tasksLeft} left. You're doing the real work.`,
+                    (ctx) => `Task finished! Every completed item is proof you can follow through. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' more to go.' : 'Full clear! Outstanding work.'}`,
+                    (ctx) => `Closed out. ${ctx.sprintValue >= 3 ? 'That was a big one (+' + ctx.sprintValue + ') — well earned. ' : ''}${ctx.tasksLeft > 0 ? 'Next task is waiting.' : 'Everything\'s done. Excellent.'}`,
+                    (ctx) => `Task complete. You said you'd do it and you did. That matters more than it seems. ${ctx.tasksLeft} remaining.`,
+                    (ctx) => `${ctx.priority === 'high' ? '🔥 High-priority item cleared. That\'s the work that moves things forward.' : 'Task closed.'} ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' still on the list.' : 'All done!'}`,
+                    (ctx) => `Done! The resistance you felt before starting? Gone now, right? ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' more tasks. Ride this feeling.' : 'Board cleared. Perfect execution.'}`,
+                    (ctx) => `Item resolved. +${ctx.sprintValue} to your tally. ${ctx.tasksLeft > 0 ? 'What\'s the next one you can finish?' : 'Nothing left. You actually did it all.'}`,
+                    (ctx) => `Completed! With ADHD, finishing things is genuinely harder than starting them. This is a real win. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' more.' : 'Everything done!'}`,
+                    (ctx) => `Task done. ${ctx.tasksLeft === 0 ? 'Board is empty. That doesn\'t happen by accident — you made it happen.' : 'The list is getting shorter. ' + ctx.tasksLeft + ' left.'}`,
+                    (ctx) => `Closed. ${ctx.priority === 'high' ? 'That was the important one — the one that actually changes outcomes. ' : ''}${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remain. Keep the momentum.' : 'All wrapped up. Great session.'}`,
+                    (ctx) => `+${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} earned. Task complete. Each one of these is a promise kept to yourself.`,
+                    (ctx) => `${ctx.tasksLeft === 0 ? 'Last task done. Clean sweep. You set out to finish everything and you did.' : 'Task resolved. ' + ctx.tasksLeft + ' remaining. You\'re on a roll — stay on it.'}`
                 ],
                 balanced: [
                     (ctx) => `Task complete (+${ctx.sprintValue}). ${ctx.tasksLeft} remaining. Continue.`,
-                    (ctx) => ctx.priority === 'high' ? `High-priority item complete. Progress acceptable.` : `Task closed. ${ctx.tasksLeft} remain.`,
-                    (ctx) => `Item marked done. Sprint count updated. Next task.`,
-                    (ctx) => `Task finished. ${ctx.tasksLeft} active items remain in queue.`,
-                    (ctx) => `Work item closed. ${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} credited. Continue execution.`,
-                    (ctx) => ctx.priority === 'high' ? `High-value work complete. Maintain focus on priorities.` : `Task complete. ${ctx.tasksLeft} pending.`,
-                    (ctx) => `Item resolved. Sprint total updated. Proceed to next objective.`
+                    (ctx) => ctx.priority === 'high' ? `High-priority item resolved. This is what moves the needle. ${ctx.tasksLeft} remain.` : `Task closed. ${ctx.tasksLeft} remain. Maintain output.`,
+                    (ctx) => `Item closed. Sprint count updated. ${ctx.tasksLeft > 0 ? 'Identify next completable task.' : 'Queue empty. Strong output.'}`,
+                    (ctx) => `Task finished. ${ctx.tasksLeft} active items remain. Rate: ${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} credited.`,
+                    (ctx) => `Work item closed. ${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} credited. ${ctx.tasksLeft > 0 ? 'Next.' : 'Complete.'}`,
+                    (ctx) => ctx.priority === 'high' ? `High-value deliverable complete. Measurable progress. ${ctx.tasksLeft} remain.` : `Task complete. ${ctx.tasksLeft} pending.`,
+                    (ctx) => `Resolved. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' items in queue. Task throughput is the real metric.' : 'Queue clear. Session successful.'}`,
+                    (ctx) => `+${ctx.sprintValue} logged. ${ctx.tasksLeft} tasks remain. Output is the only thing that counts.`,
+                    (ctx) => `Completed. ${ctx.priority === 'high' ? 'High-priority impact. ' : ''}${ctx.tasksLeft} unresolved. Keep closing.`,
+                    (ctx) => `Task done. ${ctx.tasksLeft > 0 ? 'Momentum is an asset — don\'t waste it. Next task.' : 'Full completion. Productive session.'}`,
+                    (ctx) => `Item resolved. Throughput: ${ctx.sprintValue} sprint${ctx.sprintValue > 1 ? 's' : ''} earned. ${ctx.tasksLeft} remain in queue.`,
+                    (ctx) => `Closed. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' remaining. Consistent task closure is how good days are built.' : 'Queue empty. All deliverables resolved.'}`,
+                    (ctx) => `${ctx.priority === 'high' ? 'High-priority resolved — impact logged.' : 'Task closed.'} ${ctx.tasksLeft} left. Keep the cadence.`,
+                    (ctx) => `Task complete. ${ctx.sprintValue >= 3 ? '+' + ctx.sprintValue + ' sprints credited — high-value work finished.' : '+' + ctx.sprintValue + ' credited.'} ${ctx.tasksLeft} remain.`,
+                    (ctx) => `Done. ${ctx.tasksLeft === 0 ? 'All items resolved. Maximum session output.' : ctx.tasksLeft + ' tasks still active. Maintain task closure rate.'}`
                 ],
                 tough: [
                     (ctx) => {
-                        if (ctx.priority === 'low') return `Low-priority task closed. Question: Why wasn't this delegated or eliminated? ${ctx.tasksLeft} real tasks remain.`;
-                        if (ctx.priority === 'high' && ctx.sprintValue >= 3) return `High-value item complete (+${ctx.sprintValue} sprints). This is what winning looks like. Next.`;
-                        return `Task done. ${ctx.tasksLeft} remain. Clock's running.`;
+                        if (ctx.priority === 'low') return `Low-priority task closed. Be honest: should that have been delegated, deferred, or deleted? ${ctx.tasksLeft} real tasks remain.`;
+                        if (ctx.priority === 'high' && ctx.sprintValue >= 3) return `High-value item done (+${ctx.sprintValue} sprints). That's what winning looks like. Next.`;
+                        return `Task done. ${ctx.tasksLeft} remain. Clock's still running.`;
                     },
-                    (ctx) => ctx.priority === 'high' ? `Finally. High-priority complete. Should have been done hours ago. ${ctx.tasksLeft} left.` : `Task closed. ${ctx.tasksLeft} items still require execution.`,
-                    (ctx) => `One down. ${ctx.tasksLeft} to go. Execution speed insufficient. Accelerate.`,
+                    (ctx) => ctx.priority === 'high' ? `High-priority closed. Good. That's what you should be doing. ${ctx.tasksLeft} left.` : `Task closed. ${ctx.tasksLeft} items still require execution. Don't stop.`,
+                    (ctx) => `One down. ${ctx.tasksLeft} to go. Task completion rate is the only metric that matters at the end of the day.`,
                     (ctx) => {
-                        if (ctx.priority === 'low') return `Low-priority complete. ${ctx.tasksLeft} items remain. Question priorities.`;
-                        if (ctx.priority === 'high') return `High-priority closed. About time. ${ctx.tasksLeft} tasks pending.`;
-                        return `Task done. ${ctx.tasksLeft} more. Speed inadequate.`;
+                        if (ctx.priority === 'low') return `Low-priority cleared. ${ctx.tasksLeft} items remain. Question whether you're optimizing for comfort or impact.`;
+                        if (ctx.priority === 'high') return `High-priority resolved. ${ctx.tasksLeft} remaining. This is the pace you need to maintain.`;
+                        return `Task done. ${ctx.tasksLeft} more. Pace adequate. Continue.`;
                     },
-                    (ctx) => ctx.priority === 'low' ? `Another low-priority task. ${ctx.tasksLeft} remain. Time allocation questionable.` : `Task complete. ${ctx.tasksLeft} left. Move faster.`,
-                    (ctx) => `Task closed. ${ctx.tasksLeft} pending. Your pace puts completion at risk. Execute.`,
+                    (ctx) => `${ctx.sprintValue >= 4 ? 'Major deliverable complete (+' + ctx.sprintValue + '). Exceptional. ' : 'Task closed. '}${ctx.tasksLeft} remain. Execution is a habit. Build it.`,
+                    (ctx) => `Closed. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' pending. Unfinished work has a cost — pay it now or pay it later.' : 'Complete. This is what discipline looks like.'}`,
                     (ctx) => {
-                        if (ctx.priority === 'high' && ctx.sprintValue >= 4) return `Major deliverable complete (+${ctx.sprintValue}). Exceptional work. More of this.`;
-                        return `Task done. ${ctx.tasksLeft} remain. Current rate insufficient.`;
-                    }
+                        if (ctx.priority === 'low' && ctx.tasksLeft > 2) return `Low-priority task while high-value work waits. ${ctx.tasksLeft} remaining. Audit your priorities.`;
+                        return `Task done. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' left. Move.' : 'Clear. Don\'t waste it.'}`;
+                    },
+                    (ctx) => `+${ctx.sprintValue}. Task closed. ${ctx.tasksLeft} remain. Output is non-negotiable — keep producing.`,
+                    (ctx) => ctx.priority === 'high' ? `That was the important one. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' left. Repeat.' : 'Board clear. Strong execution.'}` : `Done. ${ctx.tasksLeft} more. Task throughput matters more than time in seat.`,
+                    (ctx) => `Resolved. ${ctx.tasksLeft > 0 ? 'Next task. No gap between completions.' : 'Everything finished. You delivered.'}`,
+                    (ctx) => `Task complete. ${ctx.tasksLeft === 0 ? 'Full clear. That\'s the standard. Hold it.' : ctx.tasksLeft + ' unfinished. Every task left at end of day is a vote for tomorrow being harder.'}`,
+                    (ctx) => `${ctx.priority === 'low' ? 'Low-priority item. Fine, but make sure the high-priority ones get the same attention.' : 'Closed.'} ${ctx.tasksLeft} remain. Don't slow down.`,
+                    (ctx) => `Done. ${ctx.sprintValue >= 3 ? 'That was a heavyweight task. Good. ' : ''}${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' remaining. The board doesn\'t clear itself.' : 'Board clear. That\'s complete execution.'}`,
+                    (ctx) => `Task resolved. ${ctx.tasksLeft} left. The goal isn't to feel busy — it's to finish things. ${ctx.tasksLeft === 0 ? 'You finished everything.' : 'Keep finishing.'}`,
+                    (ctx) => `+${ctx.sprintValue} logged. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remain. No celebration until the board is clear.' : 'Board empty. That\'s full execution. Respect it.'}`
                 ]
             },
-            
-            // INACTIVITY - Context: minutesIdle, sprintsDone, required
+
+            // INACTIVITY / IDLE TOO LONG - Context: gap, minutesSinceLastAction
             inactivity: {
                 supportive: [
-                    (ctx) => `Hey there! You've been idle for a bit. Ready to tackle the next sprint?`,
-                    (ctx) => `Taking a break? No problem! When you're ready, ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} await.`,
-                    (ctx) => `Noticed some downtime. Whenever you're ready to continue, I'm here!`,
-                    (ctx) => `Quick break? Totally fine! ${ctx.required - ctx.sprintsDone} sprints when you're refreshed.`,
-                    (ctx) => `Taking a breather? Good self-care. Ready to resume when you are!`,
-                    (ctx) => `No activity detected. Take your time! Work resumes when you're ready.`,
-                    (ctx) => `Looks like a pause. ${ctx.required - ctx.sprintsDone} sprints waiting whenever you're set!`
+                    (ctx) => `Hey — you've been quiet for a bit. That's okay. Whenever you're ready, the timer is here. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' left today.' : 'You\'ve done what you needed to — just checking in.'}`,
+                    (ctx) => `Noticed some time has passed. No pressure — just a gentle nudge. The work is still here when you are.`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes of quiet. Sometimes the brain needs that. When you come back, start with the smallest possible next step.`,
+                    (ctx) => `Still here. Just checking in. ${ctx.gap > 0 ? 'You\'ve got ' + ctx.gap + ' sprints on the board — one at a time.' : 'No sprints remaining. You can wrap up or keep going.'}`,
+                    (ctx) => `The resistance between sprints is real. If you're stuck, just start the timer. You don't have to feel ready. You just have to start.`,
+                    (ctx) => `A little pause is fine. A long pause is where momentum goes to die. Whenever you're ready — one sprint.`,
+                    (ctx) => `${ctx.minutesSinceLastAction > 20 ? 'Over 20 minutes between actions — let\'s get back. ' : ''}The work didn't finish itself. But it won't feel as heavy once you start.`,
+                    (ctx) => `You've been still for ${ctx.minutesSinceLastAction} minutes. That might be rest or it might be avoidance — only you know which. Either way, let's try one sprint.`,
+                    (ctx) => `Still with you. ${ctx.gap > 0 ? ctx.gap + ' sprints available. The first one is always the hardest.' : 'Target met — if you need to step away, that\'s fine.'}`,
+                    (ctx) => `Idle time detected. Start small — just set the timer. The brain kicks in once the clock starts.`,
+                    (ctx) => `Time check: ${ctx.minutesSinceLastAction} minutes have passed. ADHD brains can lose time without noticing — you might not even realize you drifted. One sprint resets everything.`,
+                    (ctx) => `${ctx.gap > 0 ? ctx.gap + ' sprints still available today.' : 'Sprints done for the day.'} You showed up — the hardest part. Now stay just a little longer.`,
+                    (ctx) => `Checking in. ${ctx.minutesSinceLastAction} minutes of quiet isn't always wasted — sometimes ideas need space. But if this wasn't intentional, let's start something.`,
+                    (ctx) => `The gap between sprints is where days get lost. ${ctx.gap > 0 ? 'You\'ve still got ' + ctx.gap + ' ahead of you. Let\'s not let them slip.' : 'Target met. Come back tomorrow ready to go.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes since your last sprint. No judgment — just awareness. The best time to start the next one is right now.`
                 ],
                 balanced: [
-                    (ctx) => `Inactivity detected. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} remaining.`,
-                    (ctx) => `No progress for ${ctx.minutesIdle} minutes. Resume work when ready.`,
-                    (ctx) => `Session paused. ${ctx.required - ctx.sprintsDone} sprints still required.`,
-                    (ctx) => `Work stopped. ${ctx.required - ctx.sprintsDone} sprints pending completion.`,
-                    (ctx) => `Idle period detected. Resume to maintain schedule.`,
-                    (ctx) => `No activity logged. ${ctx.required - ctx.sprintsDone} sprint requirement unchanged.`,
-                    (ctx) => `Extended pause. ${ctx.required - ctx.sprintsDone} sprints remain on today's target.`
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes idle. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' remaining. Resume work.' : 'Requirements met. Optional to continue.'}`,
+                    (ctx) => `System idle. Inactivity detected. ${ctx.gap > 0 ? 'Start next sprint.' : 'Daily target met.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes since last action. ${ctx.gap > 2 ? 'Significant gap in productivity window.' : 'Minor delay.'} Resume.`,
+                    (ctx) => `Idle period: ${ctx.minutesSinceLastAction} min. ${ctx.gap > 0 ? ctx.gap + ' sprints unfinished. Return to work.' : 'Schedule complete.'}`,
+                    (ctx) => `Inactivity flag. ${ctx.gap > 0 ? 'Remaining sprints: ' + ctx.gap + '. Each idle minute reduces your available time.' : 'Target achieved. Session can close.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction}+ minutes unproductive. Pattern interruption required. Start a sprint.`,
+                    (ctx) => `Work gap detected. ${ctx.gap > 0 ? 'Focus window is finite. ' + ctx.gap + ' sprints remain.' : 'Requirements satisfied.'}`,
+                    (ctx) => `Idle. The difference between a productive day and a wasted one is usually made right here. ${ctx.gap > 0 ? 'Start.' : 'Day complete.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes of downtime. ${ctx.gap > 0 ? 'Reactivate.' : 'All done.'}`,
+                    (ctx) => `Timer sitting unused for ${ctx.minutesSinceLastAction} min. ${ctx.gap > 0 ? 'Sprint. Now.' : 'Session complete.'}`,
+                    (ctx) => `Unplanned break: ${ctx.minutesSinceLastAction} minutes. ${ctx.gap > 0 ? 'Resume sprint cadence. ' + ctx.gap + ' remaining.' : 'Target met.'}`,
+                    (ctx) => `Inactivity detected. ${ctx.minutesSinceLastAction} minutes elapsed. ${ctx.gap > 0 ? 'Identify your next task and start the sprint.' : 'Requirements complete.'}`,
+                    (ctx) => `${ctx.gap > 0 ? ctx.gap + ' sprints on schedule, zero in progress.' : 'Sprints complete.'} ${ctx.gap > 0 ? 'Close the gap. Start.' : 'Well done.'}`,
+                    (ctx) => `Idle state: ${ctx.minutesSinceLastAction} min. ${ctx.gap > 3 ? 'Significant time loss. Recover with focused sprint.' : ctx.gap > 0 ? 'Minor gap. Resume.' : 'Complete.'}`,
+                    (ctx) => `Work cadence interrupted at ${ctx.minutesSinceLastAction} minutes. ${ctx.gap > 0 ? 'Reestablish rhythm. Start a sprint.' : 'Day complete. Close the session.'}`
                 ],
                 tough: [
-                    (ctx) => {
-                        const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 6) return `${ctx.minutesIdle} minutes idle. You're ${gap} sprints behind. Every minute compounds the deficit. Move NOW.`;
-                        if (gap > 4) return `Inactivity detected. ${gap} sprint${gap > 1 ? 's' : ''} remaining. Requirements don't negotiate. Execute.`;
-                        return `Work stopped. Session still active. Either continue or end day.`;
-                    },
-                    (ctx) => `${ctx.minutesIdle}+ minutes wasted. ${ctx.required - ctx.sprintsDone} sprints won't complete themselves. Start now.`,
-                    (ctx) => `Extended inactivity logged. Gap widening. Immediate action required.`,
-                    (ctx) => {
-                        const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 5) return `Idle. ${gap} sprints behind. This is why deadlines get missed. Start immediately.`;
-                        return `${ctx.minutesIdle} minutes gone. ${gap} sprints pending. Time doesn't pause for you.`;
-                    },
-                    (ctx) => `Inactivity period logged. ${ctx.required - ctx.sprintsDone} sprints still required. Delays unacceptable. Move.`,
-                    (ctx) => `Work paused. ${ctx.required - ctx.sprintsDone} sprints remain. Your schedule is collapsing. Execute now.`,
-                    (ctx) => {
-                        const gap = ctx.required - ctx.sprintsDone;
-                        return gap > 7 ? `CRITICAL: ${ctx.minutesIdle}min idle, ${gap} sprints behind. Complete failure trajectory. START NOW.` : `Idle too long. ${gap} remain. Execute.`;
-                    }
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes gone. That's ${ctx.minutesSinceLastAction} minutes you're not getting back. ${ctx.gap > 0 ? ctx.gap + ' sprints still required. Start now.' : 'Day complete — don\'t manufacture extra waste.'}`,
+                    (ctx) => `Idle for ${ctx.minutesSinceLastAction} minutes. While you're sitting there, time is making decisions for you. ${ctx.gap > 0 ? 'Override it. Start.' : 'Done for today.'}`,
+                    (ctx) => `${ctx.gap > 0 ? ctx.gap + ' sprints unfinished and the clock doesn\'t pause for hesitation. What\'s the actual obstacle?' : 'Requirements met. Close the session.'}`,
+                    (ctx) => `You've been inactive ${ctx.minutesSinceLastAction} minutes. That's not rest — rest comes after work. ${ctx.gap > 0 ? 'Get back to it.' : 'Session complete.'}`,
+                    (ctx) => `Dead time: ${ctx.minutesSinceLastAction} min. ${ctx.gap > 3 ? 'You\'re building a deficit that gets harder to close the longer you wait.' : ctx.gap > 0 ? ctx.gap + ' sprints left. Don\'t waste the day.' : 'Done.'}`,
+                    (ctx) => `The gap between knowing what to do and doing it is where productivity dies. ${ctx.gap > 0 ? ctx.gap + ' sprints are waiting. Close it.' : 'Day complete.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes of inaction. Each one makes the next sprint feel harder. The only fix is to start. Now.`,
+                    (ctx) => `You're not resting. You're avoiding. ${ctx.gap > 0 ? ctx.gap + ' sprints remain. The discomfort of starting is less than the cost of not starting.' : 'Target met. Close out.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} idle minutes. Time you can't recover. ${ctx.gap > 0 ? 'Sprint. The justification can wait.' : 'Done.'}`,
+                    (ctx) => `Inactivity is a decision. You're deciding not to work. If that's intentional, close the session. If not — start the timer. Now.`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes between sprints. The day is getting shorter and the task list isn't. ${ctx.gap > 0 ? ctx.gap + ' sprints left. Move.' : 'Complete. Don\'t manufacture reasons to linger.'}`,
+                    (ctx) => `Every minute of avoidance is a minute you owe yourself later. ${ctx.gap > 0 ? ctx.gap + ' sprints remaining. Pay it forward — start now.' : 'Day done.'}`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes wasted. That's not recoverable. What is recoverable: the ${ctx.gap > 0 ? ctx.gap + ' sprints still ahead of you.' : 'sense of having finished what you came here to do. Close the session.'}`,
+                    (ctx) => `Idle for ${ctx.minutesSinceLastAction} min. The work that makes you proud isn't happening while you're sitting here doing nothing. ${ctx.gap > 0 ? 'Start a sprint.' : 'Done.'}`,
+                    (ctx) => `You know what needs to happen. You're just not doing it. ${ctx.gap > 0 ? ctx.gap + ' sprints. Start.' : 'Day complete. Close it.'}`
                 ]
             },
-            
+
             // DISTRACTION PARKED - Context: distractionCount
             distractionParked: {
                 supportive: [
-                    (ctx) => `Distraction parked! Good job recognizing and capturing it.`,
-                    (ctx) => `Nice catch! Distraction logged. Back to focused work.`,
-                    (ctx) => `Distraction handled. You're staying on track!`,
-                    (ctx) => `Well caught! Distraction captured. Refocus and continue.`,
-                    (ctx) => `Great awareness! Distraction logged. Return to your task.`,
-                    (ctx) => `Distraction noted. Good call capturing it for later!`,
-                    (ctx) => `Nice save! Distraction parked. Back to your current focus.`
+                    (ctx) => `Distraction captured and parked. Smart move — now it can't steal your focus. Back to the sprint.`,
+                    (ctx) => `Logged it. Your brain can let it go now. That's the whole point of the parking lot.`,
+                    (ctx) => `Parked! You didn't ignore it, you just deferred it intelligently. That's the ADHD move that actually works.`,
+                    (ctx) => `Got it. Filed away. Your future self will handle it. Right now: back to what matters.`,
+                    (ctx) => `Distraction ${ctx.distractionCount > 1 ? '#' + ctx.distractionCount + ' ' : ''}captured. This system exists so your brain doesn't have to hold everything. Trust it.`,
+                    (ctx) => `Logged and shelved. The thought won't disappear — it'll be right there when you're done. Now back to work.`,
+                    (ctx) => `Good instinct to park it instead of chase it. Distractions feel urgent and usually aren't. Sprint continues.`,
+                    (ctx) => `Parked. You just practiced one of the hardest ADHD skills: deferring without losing it. Well done.`,
+                    (ctx) => `Distraction captured. ${ctx.distractionCount > 2 ? 'Brain is busy today — that\'s okay. Keep parking, keep focusing.' : 'Noted and stored. Back to it.'}`,
+                    (ctx) => `Got it. The parking lot is doing its job. So are you. Resume.`,
+                    (ctx) => `Captured. The ADHD brain doesn't forget — it just misfires. The parking lot redirects that misfire into something useful. You're using your brain well.`,
+                    (ctx) => `Parked and safe. You won't lose it. Now you get to keep your focus AND follow up on that later. Best of both worlds.`,
+                    (ctx) => `${ctx.distractionCount > 3 ? 'Busy brain day — ' + ctx.distractionCount + ' things parked. That\'s not a problem, that\'s the system working.' : 'Distraction captured.'} Keep your focus on the current task.`,
+                    (ctx) => `Logged. That thought was trying to pull you away. You redirected it instead. That's discipline with a system behind it.`,
+                    (ctx) => `Distraction parked. Every time you do this instead of chasing the rabbit hole, you're training your brain to trust the system. It gets easier.`
                 ],
                 balanced: [
-                    (ctx) => `Distraction logged. Refocus on current work.`,
-                    (ctx) => `Item parked. Return to sprint tasks.`,
-                    (ctx) => ctx.distractionCount > 3 ? `Distraction #${ctx.distractionCount}. Pattern forming.` : `Distraction captured. Continue.`,
-                    (ctx) => `Interruption logged. Resume primary work.`,
-                    (ctx) => ctx.distractionCount > 4 ? `Distraction #${ctx.distractionCount} captured. Frequency notable.` : `Distraction parked. Refocus.`,
-                    (ctx) => `Item noted for later. Return to active sprint.`,
-                    (ctx) => `Distraction recorded. ${ctx.distractionCount} total today. Continue work.`
+                    (ctx) => `Distraction logged. Return focus to current task.`,
+                    (ctx) => `Captured and parked. ${ctx.distractionCount > 3 ? 'High distraction volume today. ' : ''}Resume sprint.`,
+                    (ctx) => `Distraction deferred. This is the correct protocol. Continue.`,
+                    (ctx) => `Logged. Focus reallocated. Sprint active.`,
+                    (ctx) => `Distraction ${ctx.distractionCount > 1 ? '(' + ctx.distractionCount + ' today) ' : ''}parked. Maintain sprint focus.`,
+                    (ctx) => `Noted and stored. Don't let the parking lot become a procrastination tool. Back to work.`,
+                    (ctx) => `Parked. ${ctx.distractionCount > 4 ? 'Distraction frequency high — assess environment.' : 'Continue.'}`,
+                    (ctx) => `Captured. The system is working. Now let the system work and get back to your sprint.`,
+                    (ctx) => `Logged. Each distraction parked instead of chased is a small win. Keep going.`,
+                    (ctx) => `Distraction deferred. Current task still active. Focus.`,
+                    (ctx) => `Parked. ${ctx.distractionCount} total today. ${ctx.distractionCount > 5 ? 'High scatter — consider reducing environmental triggers.' : 'Normal volume. Continue.'}`,
+                    (ctx) => `Captured. Review parked items after the sprint. Right now: back to the task at hand.`,
+                    (ctx) => `Logged and stored. Parking distractions is how you protect the sprint. Continue protecting it.`,
+                    (ctx) => `Distraction deferred to review queue. Sprint focus maintained. Good protocol.`,
+                    (ctx) => `${ctx.distractionCount > 1 ? ctx.distractionCount + ' distractions captured today.' : 'Distraction captured.'} System functioning correctly. Resume.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.distractionCount > 7) return `Distraction #${ctx.distractionCount}. Pattern severe. Address root cause or accept failure.`;
-                        if (ctx.distractionCount > 5) return `Distraction #${ctx.distractionCount} parked. Pattern detected. Address root cause or accept compromised output.`;
-                        if (ctx.distractionCount > 2) return `Distraction logged (total: ${ctx.distractionCount}). Recurring interruptions signal environment or discipline issues.`;
-                        return `Distraction parked. Refocus immediate.`;
-                    },
-                    (ctx) => `Another distraction (#${ctx.distractionCount}). Focus is a choice. Choose better.`,
-                    (ctx) => ctx.distractionCount > 4 ? `Distraction epidemic. ${ctx.distractionCount} logged today. This is why you're behind.` : `Noted. Refocus now.`,
-                    (ctx) => {
-                        if (ctx.distractionCount > 6) return `${ctx.distractionCount} distractions today. Environment toxic or discipline absent. Fix this.`;
-                        return `Distraction #${ctx.distractionCount}. Concentration broken. Refocus immediately.`;
-                    },
-                    (ctx) => ctx.distractionCount > 5 ? `Distraction ${ctx.distractionCount}. Pattern unmistakable. You're sabotaging your own work.` : `Distraction logged. Focus required.`,
-                    (ctx) => `Another interruption (#${ctx.distractionCount}). Quality output requires sustained focus. Improve.`,
-                    (ctx) => {
-                        if (ctx.distractionCount > 8) return `CRITICAL: ${ctx.distractionCount} distractions. This is catastrophic for productivity. Address immediately.`;
-                        return `Distraction ${ctx.distractionCount}. Each break costs 15+ minutes. Calculate the cost.`;
-                    }
+                    (ctx) => `Parked. Now stop letting the brain wander and get back to the sprint. The parking lot isn't a trophy — the work is.`,
+                    (ctx) => `Logged. ${ctx.distractionCount > 3 ? 'That\'s ' + ctx.distractionCount + ' distractions today — your environment or your mental state needs attention.' : 'Good. Now keep that focus.'}`,
+                    (ctx) => `Captured. Distraction managed. Now execute. The sprint doesn't care about what just crossed your mind.`,
+                    (ctx) => `${ctx.distractionCount > 4 ? ctx.distractionCount + ' distractions parked. High scatter today. Lock in.' : 'Parked. Back to work. No more detours.'}`,
+                    (ctx) => `Distraction deferred. Smart. Now make sure the next thing you do is sprint-related, not another detour.`,
+                    (ctx) => `Logged and shelved. Your focus is the resource. Stop spending it on things that can wait.`,
+                    (ctx) => `Parked. Now the real question: what's causing the distraction volume? Fix the source, not just the symptom.`,
+                    (ctx) => `Captured. Sprint is still running. Don't let parking distractions become a habit of avoiding the actual work.`,
+                    (ctx) => `${ctx.distractionCount} parked today. Good system use. Now demonstrate you can actually stay on task for the remainder of this sprint.`,
+                    (ctx) => `Logged. The only distraction that costs you now is spending more time thinking about it. Back to work.`,
+                    (ctx) => `Captured. ${ctx.distractionCount > 5 ? ctx.distractionCount + ' today. That\'s a lot. Something is disrupting your focus beyond normal ADHD scatter — identify it.' : 'Filed. Now stay on the sprint.'}`,
+                    (ctx) => `Parked. A distraction captured is better than a distraction chased. But a sprint completed is better than either. Continue.`,
+                    (ctx) => `Logged. Every time you park instead of chase, you're making a choice for the work. Make that choice count by actually finishing the sprint.`,
+                    (ctx) => `${ctx.distractionCount > 3 ? 'Pattern: ' + ctx.distractionCount + ' distractions in one sprint. Your environment is working against you. Address it.' : 'Captured. Sprint focus restored. Keep it.'}`,
+                    (ctx) => `Distraction parked. Good. Now the work: can you finish the current sprint without parking another one? Try.`
                 ]
             },
-            
+
             // SESSION START - Context: required
             sessionStart: {
                 supportive: [
-                    (ctx) => `Session started! ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} planned for today. Let's make it a great day!`,
-                    (ctx) => `Ready to go! Timer active. You've got this!`,
-                    (ctx) => `Sprint underway! Stay focused and trust the process.`,
-                    (ctx) => `Here we go! ${ctx.required} sprints on the agenda. You're going to crush this!`,
-                    (ctx) => `Session active! Time to make progress. You're ready for this.`,
-                    (ctx) => `Timer started! ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} ahead. Let's do great work!`,
-                    (ctx) => `Sprint beginning! Focus engaged. You've prepared well for this.`
+                    (ctx) => `Timer running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board today. You don't have to feel ready — you just have to start. You already did the hard part.`,
+                    (ctx) => `Sprint started. Your brain is about to shift gears. Give it 5 minutes before you judge how it's going.`,
+                    (ctx) => `Here we go. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} planned. No matter what happened before today, this sprint is a clean slate.`,
+                    (ctx) => `Timer active. You showed up — that's genuinely half the battle. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} and you're building something real.`,
+                    (ctx) => `Sprint underway! The goal isn't perfection in this sprint — it's completion. ${ctx.required} on the agenda. Let's see what you can do.`,
+                    (ctx) => `Clock started. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} ahead. The version of you that finishes today is built one sprint at a time. This is sprint one.`,
+                    (ctx) => `Let's go. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on your schedule. Focus on the task in front of you — nothing else exists right now.`,
+                    (ctx) => `Timer running! Your ADHD brain works best with time pressure and structure. You just gave it both. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} planned.`,
+                    (ctx) => `Sprint active. ${ctx.required} planned for today. Trust the system, trust the timer, trust yourself.`,
+                    (ctx) => `Started. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. The hardest one to start is always the first. It's running now.`,
+                    (ctx) => `Clock is ticking. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} planned. The secret most people don't tell you: you don't need motivation. You need the timer. It's running.`,
+                    (ctx) => `Sprint launched. ${ctx.required} on the agenda. Whatever is on that task list, it's more doable than it feels. One sprint at a time.`,
+                    (ctx) => `Timer started. Today's goal is ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''}. That's it. Manageable, concrete, achievable. Let's go.`,
+                    (ctx) => `Focus session active. The next ${ctx.required > 1 ? ctx.required + ' sprints' : 'sprint'} are your whole job right now. Everything else can wait.`,
+                    (ctx) => `Running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} ahead. You don't need to know how the whole day unfolds — just this sprint. Start here.`
                 ],
                 balanced: [
-                    (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required. Timer running.`,
-                    (ctx) => `Sprint started. Focus mode engaged. Execute.`,
-                    (ctx) => `Timer active. ${ctx.required} sprints on today's agenda.`,
-                    (ctx) => `Work session initiated. ${ctx.required} sprint requirement. Begin execution.`,
-                    (ctx) => `Sprint commenced. Timer running. ${ctx.required} sprints scheduled.`,
-                    (ctx) => `Session launched. ${ctx.required} sprint target established. Proceed.`,
-                    (ctx) => `Timer started. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required. Execute tasks.`
+                    (ctx) => `Sprint active. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required today. Clock is running — execute.`,
+                    (ctx) => `Timer started. ${ctx.required} on today's schedule. Minimize context-switching. Maximize output.`,
+                    (ctx) => `Work session initiated. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. Single task focus. Begin.`,
+                    (ctx) => `Timer running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. Task selection made — now execute without second-guessing.`,
+                    (ctx) => `Sprint started. Performance window open. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required — deliver.`,
+                    (ctx) => `Active. ${ctx.required} sprints planned. Eliminate distractions, identify your current task, and produce output.`,
+                    (ctx) => `Clock running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. The metric that matters: tasks completed. Start closing them.`,
+                    (ctx) => `Session underway. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} planned. Stay on task. Output is the goal.`,
+                    (ctx) => `Timer active. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on today's agenda. No multitasking. One thing, fully done.`,
+                    (ctx) => `Sprint initiated. ${ctx.required} required. Every minute in this sprint is either productive or it isn't. Make it productive.`,
+                    (ctx) => `Focus session started. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on schedule. Identify highest-priority task. Begin immediately.`,
+                    (ctx) => `Timer running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. Clear your screen of everything except the current task.`,
+                    (ctx) => `Sprint active. ${ctx.required} on the agenda. Phone down, notifications off, task in front of you. Work.`,
+                    (ctx) => `Clock started. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''}. Work the current task until the timer ends. Then evaluate and repeat.`,
+                    (ctx) => `Session in progress. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. One task. Full focus. Complete output.`
                 ],
                 tough: [
-                    (ctx) => `Session active. ${ctx.required} sprint${ctx.required > 1 ? 's' : ''} required today. Timer running. Execute.`,
-                    (ctx) => `Sprint started. ${ctx.required} sprint requirement locked. No excuses. Perform.`,
-                    (ctx) => `FOCUS MODE: ${ctx.required} sprints required. Timer running. Results expected.`,
-                    (ctx) => `Session initiated. ${ctx.required} sprint minimum. Failure not an option. Execute now.`,
-                    (ctx) => `Timer active. ${ctx.required} sprints required. Your performance is being measured. Deliver.`,
-                    (ctx) => `Sprint started. ${ctx.required} sprint target established. Excuses irrelevant. Execute.`,
-                    (ctx) => `Session launched. ${ctx.required} sprint requirement. This is your job. Perform.`
+                    (ctx) => `Clock running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. Your performance is being tracked. Deliver results, not activity.`,
+                    (ctx) => `Timer active. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. You don't get credit for starting — you get credit for finishing. Go.`,
+                    (ctx) => `Sprint started. ${ctx.required} required today. Every minute you waste here is a minute of debt you pay at the end of the day.`,
+                    (ctx) => `Running. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} to complete. Don't mistake motion for progress. Close tasks.`,
+                    (ctx) => `Clock started. ${ctx.required} required. The time you spent not working doesn't disappear from the schedule — execute accordingly.`,
+                    (ctx) => `Timer live. ${ctx.required} sprints. No excuses from here — just output.`,
+                    (ctx) => `Active. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. The gap between your intentions and your results is closed right now, in this sprint. Start closing it.`,
+                    (ctx) => `Sprint running. ${ctx.required} on the board. The clock doesn't negotiate. Neither should you. Execute.`,
+                    (ctx) => `${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. Timer is live. The only variable you control is your output. Make it count.`,
+                    (ctx) => `Running. ${ctx.required} sprints. You wanted structure. You have it. Now use it — or the structure was just theater.`,
+                    (ctx) => `Sprint active. ${ctx.required} required. Sitting here thinking about working is not working. Close a task before this timer ends.`,
+                    (ctx) => `Timer started. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required today. The timer is indifferent to how you feel. Let that be a relief — just work.`,
+                    (ctx) => `Running. ${ctx.required} on the schedule. You set this up. You started the sprint. Now deliver something real before it ends.`,
+                    (ctx) => `Clock live. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''}. The task in front of you is the only thing that matters right now. Do it.`,
+                    (ctx) => `Sprint started. ${ctx.required} required. Every sprint that ends with zero task progress is a sprint wasted. Don't waste this one.`
                 ]
             },
-            
-            // TASK MOVED - Context: toBucket, fromBucket
+
+            // TASK MOVED - Context: priority, bucket
             taskMoved: {
                 supportive: [
-                    (ctx) => ctx.toBucket === 'strategic' ? `Great prioritization! Moved to Strategic.` : `Task reclassified. Nice organization!`,
-                    (ctx) => `Task moved successfully. You're staying organized!`,
-                    (ctx) => `Good call on the priority adjustment!`,
-                    (ctx) => `Nice organizational move! Task reclassified appropriately.`,
-                    (ctx) => ctx.toBucket === 'deepwork' ? `Perfect! Deep Work bucket is for focused tasks.` : `Task moved. Good priority management!`,
-                    (ctx) => `Excellent categorization! Task properly classified.`,
-                    (ctx) => `Smart move! Task priority adjusted well.`
+                    (ctx) => `Task updated! Good — keeping the board current means you always know what's real.`,
+                    (ctx) => `Moved and organized. A clean task list is easier for the ADHD brain to navigate. Good habit.`,
+                    (ctx) => `Updated. ${ctx.priority === 'high' ? 'High-priority flag set — your future self will thank you for that.' : 'Board is current.'}`,
+                    (ctx) => `Task repositioned. Having everything in the right place reduces the mental overhead of deciding what's next.`,
+                    (ctx) => `Board updated. ${ctx.bucket ? 'In ' + ctx.bucket + ' now. ' : ''}An organized workspace is a productive workspace.`,
+                    (ctx) => `Moved. You're managing the system, not just reacting to it. That's a real skill.`,
+                    (ctx) => `Updated. The board reflects reality now — that's exactly what it's for.`,
+                    (ctx) => `Task moved. Keep the system accurate and it keeps working for you.`,
+                    (ctx) => `Repositioned. ${ctx.priority === 'high' ? 'High priority — make sure it gets sprint time today.' : 'Board current. Keep moving.'}`,
+                    (ctx) => `Updated. A well-organized task list is half the battle. The other half is the timer you're about to start.`,
+                    (ctx) => `Task moved. The external brain is only as useful as the effort you put into keeping it accurate. You just did that.`,
+                    (ctx) => `Repositioned and current. ${ctx.priority === 'high' ? 'That high-priority flag is a promise to yourself. Keep it.' : 'Good board hygiene pays off when the pressure is on.'}`,
+                    (ctx) => `Updated. When everything is in the right place, decisions about what to do next happen faster. You just made tomorrow easier.`,
+                    (ctx) => `Board current. ${ctx.bucket ? ctx.bucket.charAt(0).toUpperCase() + ctx.bucket.slice(1) + ' bucket updated.' : 'Task organized.'} Keep the system honest.`,
+                    (ctx) => `Moved. Organization done. Now do something even harder: start a sprint on it.`
                 ],
                 balanced: [
-                    (ctx) => `Task moved to ${ctx.toBucket.toUpperCase()}. Priority updated.`,
-                    (ctx) => `Reclassification complete. Continue.`,
-                    (ctx) => `Task priority adjusted.`,
-                    (ctx) => `Item moved from ${ctx.fromBucket.toUpperCase()} to ${ctx.toBucket.toUpperCase()}.`,
-                    (ctx) => `Task categorization updated. Priority reflects new placement.`,
-                    (ctx) => `Classification change logged. Proceed.`,
-                    (ctx) => `Task bucket reassigned. Priority modified accordingly.`
+                    (ctx) => `Task repositioned. Board updated. Continue.`,
+                    (ctx) => `Updated. ${ctx.priority === 'high' ? 'High-priority flagged — ensure appropriate attention.' : 'Maintain accurate board state.'}`,
+                    (ctx) => `Task moved to ${ctx.bucket || 'new position'}. Board current.`,
+                    (ctx) => `Repositioned. Accurate task state enables better decisions. Continue.`,
+                    (ctx) => `Updated. Board maintenance is productive work. Keep it current.`,
+                    (ctx) => `Task moved. ${ctx.priority ? 'Priority: ' + ctx.priority + '.' : ''} Resume execution.`,
+                    (ctx) => `Board updated. Task organization reduces decision overhead.`,
+                    (ctx) => `Repositioned. Accurate prioritization improves throughput. Continue.`,
+                    (ctx) => `Task updated. Board reflects current state. Proceed.`,
+                    (ctx) => `Moved. Keep the system honest and it keeps you honest.`,
+                    (ctx) => `Task repositioned. ${ctx.priority === 'high' ? 'High-priority item requires sprint allocation today.' : 'Board state accurate.'} Continue.`,
+                    (ctx) => `Updated. Current board state: accurate. That's the baseline for effective execution.`,
+                    (ctx) => `Moved. ${ctx.bucket ? 'Placed in ' + ctx.bucket + '.' : 'Repositioned.'} Good system maintenance. Resume work.`,
+                    (ctx) => `Board updated. Organized task state reduces decision fatigue. Continue executing.`,
+                    (ctx) => `Task moved and current. Accurate board = accurate understanding of workload. Keep it maintained.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.toBucket === 'strategic') return `Task moved to STRATEGIC. Good. High-value work gets priority.`;
-                        if (ctx.toBucket === 'admin' && ctx.fromBucket === 'strategic') return `Task downgraded to ADMIN. Question: Was this ever truly strategic?`;
-                        return `Task reclassified to ${ctx.toBucket.toUpperCase()}. Ensure alignment with objectives.`;
-                    },
-                    (ctx) => ctx.toBucket === 'strategic' ? `Finally. Strategic work identified. Should have been there from the start.` : `Task moved. Priority reassessed.`,
-                    (ctx) => `Reclassification logged. Better late than never.`,
-                    (ctx) => {
-                        if (ctx.toBucket === 'admin' && ctx.fromBucket === 'deepwork') return `DEEP WORK → ADMIN. Prioritization failure. This should have been obvious.`;
-                        if (ctx.toBucket === 'strategic') return `Moved to STRATEGIC. Correct placement. High-value focus required.`;
-                        return `Task moved to ${ctx.toBucket.toUpperCase()}. Validate priority logic.`;
-                    },
-                    (ctx) => `Priority adjusted. ${ctx.toBucket === 'strategic' ? 'High-value focus appropriate.' : 'Confirm this is correct classification.'}`,
-                    (ctx) => `Task reclassified from ${ctx.fromBucket.toUpperCase()} to ${ctx.toBucket.toUpperCase()}. Question: Why wasn't this right initially?`,
-                    (ctx) => ctx.toBucket === 'admin' ? `Task demoted to ADMIN. Low-value work identified. Consider delegation.` : `Reclassification complete.`
+                    (ctx) => `Moved. Don't let board maintenance become a substitute for actually working the tasks.`,
+                    (ctx) => `Task repositioned. ${ctx.priority === 'high' ? 'High-priority — that flag means it needs to get done today, not just ranked.' : 'Now execute, don\'t just organize.'}`,
+                    (ctx) => `Updated. The board isn't the work — it's a map. Start walking.`,
+                    (ctx) => `Repositioned. ${ctx.priority === 'low' ? 'Low-priority task management while high-value work waits. Audit your focus.' : 'Good. Now close it.'}`,
+                    (ctx) => `Board updated. You can organize forever or you can execute. Do both, but not in that order.`,
+                    (ctx) => `Moved. Task management is useful; task avoidance disguised as management is not. Know the difference.`,
+                    (ctx) => `Updated. Now pick the most important item on that board and spend the next sprint on it. Not the easiest one.`,
+                    (ctx) => `Repositioned. Board accurate. Now the real question: when does this task get done?`,
+                    (ctx) => `Task moved. Good. The board is a tool, not the product. Start producing.`,
+                    (ctx) => `Updated. ${ctx.priority === 'high' ? 'High-priority. No more deferring it — run a sprint on it next.' : 'Keep the board current. Keep executing.'}`,
+                    (ctx) => `Moved. Organizing tasks instead of working them is a familiar trap. The task list doesn't get shorter by rearranging it.`,
+                    (ctx) => `Board updated. How long has that item been sitting there? Moving it doesn't close it. A sprint does.`,
+                    (ctx) => `Repositioned. ${ctx.priority === 'low' ? 'Ask yourself: does this actually need to happen today, or are you using it to avoid the harder items?' : 'Good. Start the sprint that closes it.'}`,
+                    (ctx) => `Task moved. The board is tidy. Now make the work match it.`,
+                    (ctx) => `Updated. That took 10 seconds. Closing the task will take one sprint. Do that next.`
                 ]
             },
-            
-            // SPRINT ADJUSTED - Context: newSprints, oldSprints, totalRequired
+
+            // SPRINT ADJUSTED - Context: newDuration, oldDuration, energyLevel
             sprintAdjusted: {
                 supportive: [
-                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Sprint estimate increased. You're being thorough - that's smart!` : `Sprint estimate reduced. Nice efficiency!`,
-                    (ctx) => `Estimate updated to ${ctx.newSprints} sprints. Total required: ${ctx.totalRequired}.`,
-                    (ctx) => `Good adjustment! Total now ${ctx.totalRequired} sprints.`,
-                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Increased to ${ctx.newSprints} sprints. Good catch on the complexity!` : `Reduced to ${ctx.newSprints}. Great efficiency!`,
-                    (ctx) => `Sprint value adjusted. You're managing scope well!`,
-                    (ctx) => `Updated to ${ctx.newSprints} sprints. Total target: ${ctx.totalRequired}.`,
-                    (ctx) => `Nice adjustment! Task properly estimated now.`
+                    (ctx) => `Timer set to ${ctx.newDuration} minutes. ${ctx.newDuration < (ctx.oldDuration || 20) ? 'Lower energy day — that\'s honest. A shorter sprint that happens beats a longer one that doesn\'t.' : 'High energy — go use it.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint queued. Matching your timer to your energy level is smart ADHD management.`,
+                    (ctx) => `Adjusted to ${ctx.newDuration} min. ${ctx.energyLevel === 'low' ? 'Low energy: 15 minutes of real focus is worth more than an hour of pretending to work.' : ctx.energyLevel === 'high' ? 'High energy: make this sprint count.' : 'Good calibration.'}`,
+                    (ctx) => `Sprint length updated to ${ctx.newDuration} minutes. Honest self-assessment is a superpower. Use this sprint well.`,
+                    (ctx) => `Set to ${ctx.newDuration} min. The right length sprint is the one you'll actually finish. Go.`,
+                    (ctx) => `${ctx.newDuration}-minute sprint locked in. ${ctx.energyLevel === 'low' ? 'Even on low days, consistent small wins build the habit.' : 'You\'ve got energy — commit to the work.'}`,
+                    (ctx) => `Timer: ${ctx.newDuration} minutes. Adapting to your energy state is working with your brain, not against it.`,
+                    (ctx) => `Adjusted. ${ctx.newDuration} minutes. Don't judge the length — judge the quality of focus in it.`,
+                    (ctx) => `Set to ${ctx.newDuration} min. ${ctx.newDuration >= 30 ? 'Full-length sprint. Your brain is in a good place — use it.' : 'Right-sized for your current state. Start it.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint ready. You calibrated, now execute.`,
+                    (ctx) => `${ctx.newDuration} minutes set. On low-energy days, this kind of adjustment is the difference between doing something and doing nothing. Good call.`,
+                    (ctx) => `Adjusted to ${ctx.newDuration} min. The ADHD brain varies more than most — matching your sprint length to your current state isn't an excuse, it's strategy.`,
+                    (ctx) => `Sprint: ${ctx.newDuration} minutes. Whatever that amount of time produces is better than zero. Start it.`,
+                    (ctx) => `Set to ${ctx.newDuration} min. ${ctx.energyLevel === 'high' ? 'High energy is a limited resource today — invest it in the work that matters most.' : ctx.energyLevel === 'medium' ? 'Solid energy. Use it.' : 'Low energy, but committed. That combination is underrated.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint queued. Whatever you can give in these ${ctx.newDuration} minutes — give it.`
                 ],
                 balanced: [
-                    (ctx) => `Sprint estimate: ${ctx.oldSprints} → ${ctx.newSprints}. Total required: ${ctx.totalRequired}.`,
-                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Estimate increased. Total: ${ctx.totalRequired}.` : `Estimate reduced. Total: ${ctx.totalRequired}.`,
-                    (ctx) => `Sprint count adjusted. Requirements updated.`,
-                    (ctx) => `Task estimate modified: ${ctx.oldSprints} to ${ctx.newSprints} sprints. Total: ${ctx.totalRequired}.`,
-                    (ctx) => `Sprint value changed. Total requirement now ${ctx.totalRequired}.`,
-                    (ctx) => `Estimate adjustment logged. New total: ${ctx.totalRequired} sprints.`,
-                    (ctx) => `Sprint requirement updated. ${ctx.newSprints} sprints now allocated.`
+                    (ctx) => `Sprint duration: ${ctx.newDuration} minutes. ${ctx.energyLevel ? 'Energy: ' + ctx.energyLevel + '.' : ''} Proceed.`,
+                    (ctx) => `Timer adjusted to ${ctx.newDuration} min. Calibrate to your state, then execute.`,
+                    (ctx) => `${ctx.newDuration}-minute sprint set. Duration reflects energy level. Begin.`,
+                    (ctx) => `Adjusted from ${ctx.oldDuration || '?'} to ${ctx.newDuration} minutes. Execute accordingly.`,
+                    (ctx) => `Sprint length: ${ctx.newDuration} min. ${ctx.energyLevel === 'high' ? 'High energy — push for output.' : ctx.energyLevel === 'low' ? 'Low energy — focus quality over quantity.' : 'Proceed.'}`,
+                    (ctx) => `Duration set: ${ctx.newDuration} minutes. Accurate energy assessment improves completion rate.`,
+                    (ctx) => `Timer: ${ctx.newDuration} min. Calibration complete. Start sprint.`,
+                    (ctx) => `${ctx.newDuration}-minute sprint configured. ${ctx.energyLevel ? ctx.energyLevel.charAt(0).toUpperCase() + ctx.energyLevel.slice(1) + ' energy mode.' : ''} Execute.`,
+                    (ctx) => `Sprint adjusted. ${ctx.newDuration} minutes. The timer is set correctly — now use it.`,
+                    (ctx) => `Set: ${ctx.newDuration} min. Proceed.`,
+                    (ctx) => `Duration: ${ctx.newDuration} minutes. ${ctx.energyLevel === 'low' ? 'Lower output expected — acceptable. Consistent is better than sporadic.' : 'Produce output proportional to your energy state.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint queued. Energy level accounted for. Begin.`,
+                    (ctx) => `Adjusted. ${ctx.newDuration} min. Energy-calibrated sprints produce better completion rates. Proceed.`,
+                    (ctx) => `Sprint length: ${ctx.newDuration} min. Select your task and start immediately — no warm-up needed.`,
+                    (ctx) => `Timer set: ${ctx.newDuration} minutes. All that's left is to run it. Go.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.newSprints > ctx.oldSprints) return `Sprint requirement increased to ${ctx.newSprints}. Total required now: ${ctx.totalRequired}. Adjust expectations accordingly.`;
-                        return `Sprint estimate reduced. Was initial assessment inflated?`;
-                    },
-                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Scope creep detected. ${ctx.newSprints} sprints now required. This is why projects fail.` : `Estimate decreased. Should have been right the first time.`,
-                    (ctx) => `Sprint value changed to ${ctx.newSprints}. Total required: ${ctx.totalRequired}. Plan better.`,
-                    (ctx) => {
-                        if (ctx.newSprints > ctx.oldSprints) return `Estimate inflated from ${ctx.oldSprints} to ${ctx.newSprints}. Total now ${ctx.totalRequired}. Poor initial scoping.`;
-                        return `Reduced to ${ctx.newSprints}. Initial estimate was wrong. Improve estimation accuracy.`;
-                    },
-                    (ctx) => ctx.newSprints > ctx.oldSprints ? `Sprint count increased. ${ctx.totalRequired} total required. Lack of planning evident.` : `Estimate cut. Question: Was this task ever understood?`,
-                    (ctx) => `Adjustment: ${ctx.oldSprints} → ${ctx.newSprints}. Total: ${ctx.totalRequired}. ${ctx.newSprints > ctx.oldSprints ? 'Scope control failure.' : 'Initial estimate questionable.'}`,
-                    (ctx) => {
-                        if (ctx.newSprints > ctx.oldSprints && ctx.newSprints - ctx.oldSprints > 2) return `Major increase: ${ctx.oldSprints} → ${ctx.newSprints}. Total ${ctx.totalRequired}. This is mismanagement.`;
-                        return `Sprint modified to ${ctx.newSprints}. Total: ${ctx.totalRequired}. Estimate correctly from the start.`;
-                    }
+                    (ctx) => `${ctx.newDuration}-minute sprint. ${ctx.newDuration < 20 ? 'Short sprint — acceptable if you\'re genuinely depleted. Unacceptable if you\'re just avoiding.' : ctx.newDuration >= 30 ? 'Full 30. Good. Now deliver 30 minutes of actual work, not 30 minutes of sitting at a desk.' : 'Set. Now execute it fully.'}`,
+                    (ctx) => `Adjusted to ${ctx.newDuration} min. Energy assessment is fine — but the output expectation doesn't change. Produce.`,
+                    (ctx) => `${ctx.newDuration} minutes. ${ctx.energyLevel === 'low' ? 'Low energy is a reason to adjust duration — it\'s not a reason to underperform within that duration.' : 'Start. Work the full sprint.'}`,
+                    (ctx) => `Timer: ${ctx.newDuration} min. That's the sprint. Run it completely, without manufacturing reasons to quit early.`,
+                    (ctx) => `Set to ${ctx.newDuration}. ${ctx.newDuration < 20 ? 'Fine for low energy. But if you\'re choosing low to avoid hard work, the length doesn\'t solve that.' : 'Good. Execute.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint locked. You've calibrated. Now prove the calibration was honest.`,
+                    (ctx) => `Adjusted. ${ctx.newDuration} minutes. The sprint length is not an excuse — it's a structure. Use it.`,
+                    (ctx) => `${ctx.newDuration} min set. One full sprint, fully worked. Not adjusted mid-sprint, not abandoned. Deliver.`,
+                    (ctx) => `Sprint: ${ctx.newDuration} minutes. If you selected this duration honestly, you'll have no problem completing it. Go.`,
+                    (ctx) => `Timer set: ${ctx.newDuration} min. Now stop adjusting and start executing.`,
+                    (ctx) => `${ctx.newDuration} minutes. The number is fine. What matters is what happens inside those ${ctx.newDuration} minutes. Make them count.`,
+                    (ctx) => `Set to ${ctx.newDuration} min. ${ctx.energyLevel === 'low' ? 'Low energy isn\'t license to phone it in — it\'s information about how to pace yourself. Pace yourself, but work.' : 'Start. Full sprint. No early exits.'}`,
+                    (ctx) => `${ctx.newDuration}-minute sprint. You calibrated. Now execute with the same honesty you just applied to setting the timer.`,
+                    (ctx) => `Duration: ${ctx.newDuration} min. The work doesn't care how long the sprint is. It cares whether you do it. Do it.`,
+                    (ctx) => `Set: ${ctx.newDuration} minutes. The sprint is ${ctx.newDuration} minutes long regardless of how it feels after 5. Run the full thing.`
                 ]
             },
-            
-            // DEFAULT IDLE STATE - Context: gap (required - done)
+
+            // IDLE STATE (displayed when system is idle, checking in) - Context: gap
             idleState: {
                 supportive: [
-                    (ctx) => ctx.gap > 0 ? `Ready when you are! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining today.` : `You've completed today's requirements! Additional work is optional.`,
-                    (ctx) => `System idle. Start a sprint whenever you're ready!`,
-                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints left. You can do this!` : `Almost there! ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} to go.`,
-                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Begin when you're ready!` : `Requirements met! Excellent work today.`,
-                    (ctx) => `System ready. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on your schedule. Start when set!`,
-                    (ctx) => ctx.gap > 3 ? `${ctx.gap} sprints ahead. You've got plenty of time!` : `Just ${ctx.gap} more! You're so close!`,
-                    (ctx) => ctx.gap === 0 ? `Target achieved! Consider additional work or enjoy your success.` : `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} waiting.`
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left today. No pressure — just ready when you are.` : `All sprints complete! You can add more or call it a win. Either way, well done.`,
+                    (ctx) => `System ready. ${ctx.gap > 0 ? 'The next sprint is waiting whenever you are.' : 'Requirements met. Today was a good day.'}`,
+                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints ahead of you. Pick the task you want to work on and start the clock.` : ctx.gap > 0 ? `Just ${ctx.gap} more. You're close — finish strong.` : `Done! That's a complete day.`,
+                    (ctx) => ctx.gap > 0 ? `Ready when you are. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on the board. Which task gets the next focused block?` : `Target met. You showed up and followed through.`,
+                    (ctx) => `Idle mode. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' remaining. Take a breath, then pick back up.' : 'Nothing left to do but feel good about today.'}`,
+                    (ctx) => ctx.gap > 3 ? `${ctx.gap} sprints available — you've got time to make this day count. One at a time.` : ctx.gap > 0 ? `Almost there. ${ctx.gap} more sprint${ctx.gap !== 1 ? 's' : ''}.` : `Finished. Excellent work.`,
+                    (ctx) => `Timer is ready. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' to go.' : 'All done for today.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} waiting. The hardest one is always the next one — but you've started before. You can do it again.` : `Complete. Every sprint today was a win.`,
+                    (ctx) => `Paused. ${ctx.gap > 0 ? 'Ready to pick back up when you are. ' + ctx.gap + ' left.' : 'Target reached. Strong day.'}`,
+                    (ctx) => ctx.gap === 0 ? `All requirements met. You planned your day and executed it. That's the whole game.` : `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on the board. Start the next one when you're set.`,
+                    (ctx) => ctx.gap > 0 ? `Taking a breath between sprints. Healthy. ${ctx.gap} more to go when you're ready.` : `Day complete. The version of you that finished every sprint today made the right calls.`,
+                    (ctx) => `Standing by. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' available. Whenever you\'re ready.' : 'All done. Solid execution.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. Not urgent. But every one you do is a better ending to today.` : `Target complete. Nothing left to prove today — you did the work.`,
+                    (ctx) => `Ready. ${ctx.gap > 0 ? 'The next sprint is just a click away. ' + ctx.gap + ' left.' : 'Full completion. Own it.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on the board. Still time in the day. Make it count.` : `Done. Shut it down and recover — you earned it.`
                 ],
                 balanced: [
-                    (ctx) => ctx.gap > 0 ? `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Start when ready.` : `Requirements met. Additional work optional.`,
-                    (ctx) => `Session paused. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} required.`,
-                    (ctx) => `Idle. Start next sprint to continue progress.`,
-                    (ctx) => ctx.gap > 0 ? `No active sprint. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} pending.` : `Daily target reached. Proceed as needed.`,
-                    (ctx) => `System idle. ${ctx.gap} sprint requirement unchanged.`,
-                    (ctx) => `Awaiting input. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remain in queue.`,
-                    (ctx) => ctx.gap === 0 ? `Sprint requirement fulfilled. Continue working optional.` : `Idle mode. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} scheduled.`
+                    (ctx) => ctx.gap > 0 ? `System idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. Start next sprint.` : `Requirements met. Session complete.`,
+                    (ctx) => `Idle. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' pending. Awaiting input.' : 'Daily target achieved.'}`,
+                    (ctx) => ctx.gap > 2 ? `${ctx.gap} sprints outstanding. Resume when ready.` : ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} to target. Continue.` : `Complete.`,
+                    (ctx) => `Timer ready. ${ctx.gap > 0 ? ctx.gap + ' sprints on schedule.' : 'Schedule complete.'}`,
+                    (ctx) => `Paused. ${ctx.gap > 0 ? 'Outstanding: ' + ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + '. Resume.' : 'Target achieved.'}`,
+                    (ctx) => `${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' remain on today\'s schedule. Initiate next sprint.' : 'Daily requirements satisfied.'}`,
+                    (ctx) => `Standby. ${ctx.gap > 0 ? ctx.gap + ' sprints unstarted. Execute.' : 'All complete.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} remaining. Each idle minute is a choice to not work. Make a different choice.` : `Schedule complete. Productive session.`,
+                    (ctx) => `Ready state. ${ctx.gap > 0 ? 'Sprint count: ' + ctx.gap + ' left.' : 'Daily target hit.'}`,
+                    (ctx) => ctx.gap === 0 ? `Target achieved. Plan tomorrow or close the session.` : `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} pending. Start.`,
+                    (ctx) => `Idle. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' on the schedule.' : 'Requirements complete.'} ${ctx.gap > 0 ? 'Initiate next sprint to maintain productivity.' : 'Good output today.'}`,
+                    (ctx) => `Between sprints. ${ctx.gap > 0 ? ctx.gap + ' remaining. Keep the cadence.' : 'Full target reached. Strong session.'}`,
+                    (ctx) => `System ready. ${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' on today\'s plan. Execute the next one.' : 'All sprints complete. Evaluate open tasks.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} unstarted. Time window is finite. Begin.` : `Daily target met. Close session or run additional sprints.`,
+                    (ctx) => `Idle state. ${ctx.gap > 0 ? 'Resume: ' + ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' remaining.' : 'Target achieved. Session successful.'}`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.gap > 5) return `IDLE: ${ctx.gap} sprints behind. Start next sprint NOW. Every second matters.`;
-                        if (ctx.gap > 2) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. No time to waste. Move.`;
-                        if (ctx.gap > 0) return `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. Idle unacceptable. Execute.`;
-                        return `Requirements met. Additional work optional.`;
-                    },
-                    (ctx) => ctx.gap > 0 ? `Idle state unacceptable. ${ctx.gap} sprints required. Execute immediately.` : `Day complete. Reassess if more work warranted.`,
-                    (ctx) => ctx.gap > 3 ? `System idle. You're ${ctx.gap} sprints behind. Every second counts. START NOW.` : `${ctx.gap} left. Start now.`,
-                    (ctx) => {
-                        if (ctx.gap > 4) return `CRITICAL IDLE: ${ctx.gap} sprints behind schedule. Failure trajectory. Execute immediately.`;
-                        if (ctx.gap > 1) return `${ctx.gap} sprints pending. Idle time unacceptable. Move.`;
-                        return ctx.gap === 1 ? `One sprint remains. Finish it. No excuses.` : `Target met. Assess next actions.`;
-                    },
-                    (ctx) => ctx.gap > 0 ? `Idle. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} required. Your performance depends on starting NOW.` : `Requirements complete. Additional work discretionary.`,
-                    (ctx) => {
-                        if (ctx.gap > 6) return `SEVERE: ${ctx.gap} sprints behind. Complete project failure imminent. START IMMEDIATELY.`;
-                        return ctx.gap > 0 ? `${ctx.gap} sprints remain. Delays compound. Execute now.` : `Day complete. Plan tomorrow.`;
-                    },
-                    (ctx) => ctx.gap > 2 ? `Idle unacceptable. ${ctx.gap} sprints outstanding. This is why deadlines slip. Execute.` : ctx.gap > 0 ? `${ctx.gap} remain. Start now.` : `Complete.`
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} unfinished. The timer is sitting there. Start it.` : `Day complete. Don't manufacture reasons to stay or to leave — just execute the plan.`,
+                    (ctx) => ctx.gap > 3 ? `${ctx.gap} sprints behind. You're burning daylight. Get moving.` : ctx.gap > 0 ? `${ctx.gap} left. Finish what you started.` : `Complete.`,
+                    (ctx) => ctx.gap > 0 ? `Idle is how good days become wasted ones. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. Start the next one now.` : `Done. Don't waste the win by sitting here.`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} outstanding. The delay doesn't close the gap — only the sprint does.` : `Daily target hit. Log tomorrow's tasks and close.`,
+                    (ctx) => `System idle. ${ctx.gap > 0 ? ctx.gap + ' sprints remaining. Every minute of delay is a minute of pressure at the end of the day. Start now.' : 'Done.'}`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left and no reason not to start. So start.` : `Complete. That's what you came here to do.`,
+                    (ctx) => ctx.gap > 0 ? `Paused with ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} remaining. The work didn't pause with you.` : `Finished. Close the session.`,
+                    (ctx) => ctx.gap > 2 ? `${ctx.gap} unfinished. Momentum is expensive to rebuild once lost. Start before you lose it completely.` : ctx.gap > 0 ? `${ctx.gap} left. End the day on your terms — finish the sprints.` : `Day done. Good execution.`,
+                    (ctx) => `${ctx.gap > 0 ? ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + ' remain. The gap between you and done is exactly ' + ctx.gap + ' sprint' + (ctx.gap !== 1 ? 's' : '') + '. Start closing it.' : 'Complete.'}`,
+                    (ctx) => ctx.gap > 0 ? `Idle is a decision. Make a better one. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left.` : `Target reached. Strong work.`,
+                    (ctx) => ctx.gap > 0 ? `Every minute you wait makes the remaining ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} feel heavier. The only fix is to start one. Now.` : `Done. Productive day. Don\'t ruin it by lingering.`,
+                    (ctx) => ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} on the board. You didn\'t come here to look at it. Start.` : `Target complete. The board is clear. So is the rest of your day.`,
+                    (ctx) => ctx.gap > 3 ? `${ctx.gap} sprints and a finite day. The math isn\'t complicated. Start the next sprint.` : ctx.gap > 0 ? `${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. It\'s not a lot. Finish it.` : `Done. Good day.`,
+                    (ctx) => ctx.gap > 0 ? `Sitting here isn\'t resting — you\'re just delaying the same sprint you\'ll eventually have to run. Run it now.` : `Complete. Results logged.`,
+                    (ctx) => ctx.gap > 0 ? `The sprint timer works when you use it. ${ctx.gap} sprint${ctx.gap !== 1 ? 's' : ''} left. Use it.` : `Full target. Shut it down.`
                 ]
             },
-            
+
             // RESUME FROM MEETING - Context: required, duration (minutes)
             resumeFromMeeting: {
                 supportive: [
@@ -3038,441 +3183,475 @@
                     (ctx) => `Back in the chair. ${ctx.duration ? ctx.duration + ' min in meetings — noted. ' : ''}${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remaining. Ready when you are.`,
                     (ctx) => `Meeting wrapped! Meetings happen. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} left today — let's make them count.`,
                     (ctx) => `Welcome back. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on your schedule. Pick up where you left off.`,
-                    (ctx) => `Refocus time. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Start whenever you're ready.`
+                    (ctx) => `Refocus time. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. The meeting is behind you — the work is ahead. Start whenever you're ready.`,
+                    (ctx) => `Meeting complete. Your score excludes that time — fair is fair. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} still available. Let's go.`,
+                    (ctx) => `Back! Meetings are real work even if they don't feel like it. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} ahead — let's close the day strong.`,
+                    (ctx) => `${ctx.duration ? ctx.duration + ' minutes in a meeting — that\'s legitimate work time. ' : ''}${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. One sprint at a time.`,
+                    (ctx) => `Meeting behind you. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} ahead. Your brain might need a minute to shift gears — that's normal. Take a breath, then start.`,
+                    (ctx) => `Post-meeting refocus. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remaining. The hardest part of returning from a meeting is starting again — you're already past the first hurdle.`,
+                    (ctx) => `Meeting done. ${ctx.duration ? ctx.duration + ' min of your day went to that — it counted for something, even if it doesn\'t feel like it. ' : ''}${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} still ahead. You\'ve got time.`,
+                    (ctx) => `Welcome back to your work. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. The meeting happened — it\'s over. This is what\'s next.`
                 ],
                 balanced: [
                     (ctx) => `Meeting complete${ctx.duration ? ` (${ctx.duration} min)` : ''}. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required — meetings excluded from your score.`,
-                    (ctx) => `Back to work. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} pending. That meeting time doesn't count against you.`,
+                    (ctx) => `Back to work. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} pending. Meeting time tracked separately — doesn't count against you.`,
                     (ctx) => `Meeting logged. Resume execution. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the schedule.`,
-                    (ctx) => `Refocus. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Meeting time tracked separately.`,
-                    (ctx) => `Done with meetings. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} left. Start your next sprint.`
+                    (ctx) => `Refocus. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Meeting time excluded from productivity calculation.`,
+                    (ctx) => `Done with meetings. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} left. Start your next sprint.`,
+                    (ctx) => `Meeting mode off. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. ${ctx.duration ? ctx.duration + ' min meeting time logged separately.' : ''} Execute.`,
+                    (ctx) => `Back to execution. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. Meetings are overhead — execution is the job.`,
+                    (ctx) => `Meeting complete. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Focus window is open.`,
+                    (ctx) => `Post-meeting. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. ${ctx.duration ? ctx.duration + ' min excluded from score. ' : ''}Resume.`,
+                    (ctx) => `Returning from meeting${ctx.duration ? ' (' + ctx.duration + ' min)' : ''}. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on schedule. Identify highest-priority task and begin.`,
+                    (ctx) => `Meeting time logged and excluded. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remaining on today\'s schedule. Continue.`,
+                    (ctx) => `Back. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} pending. Context-switch handled — now execute.`
                 ],
                 tough: [
                     (ctx) => ctx.required > 8 ? `Meeting done. ${ctx.required} sprints still required — and yes, the clock kept running. That's the job. Execute.` : `Meeting complete. ${ctx.required} sprints. Meetings are overhead. Execution is the job. START.`,
                     (ctx) => `Back from meeting. ${ctx.required} sprints outstanding. Meeting time doesn't count against your grade — slacking after does. Move.`,
                     (ctx) => `Meeting over${ctx.duration ? ` — ${ctx.duration} min logged` : ''}. ${ctx.required} sprints needed. Refocus immediately.`,
                     (ctx) => `Meeting finished. ${ctx.required} sprints remain. You don't control meetings. You do control what happens next. Execute.`,
-                    (ctx) => ctx.required > 6 ? `Back to work. ${ctx.required} sprints outstanding. Meeting time is excluded — no excuses from here. START.` : `Meeting done. ${ctx.required} sprints. Execute.`
+                    (ctx) => ctx.required > 6 ? `Back to work. ${ctx.required} sprints outstanding. Meeting time is excluded — no excuses from here. START.` : `Meeting done. ${ctx.required} sprints. Execute.`,
+                    (ctx) => `Meeting behind you. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} ahead. The time was legitimate — now so is the expectation that you deliver. Go.`,
+                    (ctx) => `${ctx.required} sprints required. The meeting is over. The score doesn't include that time. What it does include is everything from right now forward.`,
+                    (ctx) => `Done. Meeting logged, time excluded, ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Clock is running. Execute.`,
+                    (ctx) => `Meeting complete. Your schedule didn't pause — ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} still required. The meeting is the reason, not the excuse. Start.`,
+                    (ctx) => `${ctx.required} sprints. You were in a meeting — that's legitimate. Now you're not. There's no gap between the end of the meeting and the start of the sprint. Begin.`,
+                    (ctx) => `Post-meeting. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required. The meeting is categorically different from avoidance — it's already excluded from your score. Now close the remaining sprints.`,
+                    (ctx) => `Back. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} outstanding. You don't control meetings. You do control right now. Start the timer.`
                 ]
             },
-            
-            // PRIORITY MISALIGNMENT (V20.6) - Context: lowEnergyCount
+
+            // PRIORITY MISMATCH - Context: lowEnergyCount
             priorityMismatch: {
                 supportive: [
-                    (ctx) => `You've been choosing easier modes while important work is waiting. When you're ready, try tackling the high-priority items.`,
-                    (ctx) => `I notice you're selecting low-energy modes repeatedly. The challenging work might benefit from more energy.`,
-                    (ctx) => `You've taken the easy path a few times. Consider whether you're ready to tackle something bigger.`
+                    (ctx) => `Noticing a pattern: lower-energy modes while important work is waiting. When you feel ready, the high-priority tasks will have the biggest impact on your day.`,
+                    (ctx) => `You've been picking the easier path — that's human. But some of those high-priority items might feel lighter than you're expecting. Worth trying?`,
+                    (ctx) => `Low-energy mode ${ctx.lowEnergyCount} times. Your brain might be protecting itself from hard work. That's understandable — but consider one high-priority sprint when you're set.`,
+                    (ctx) => `The high-priority tasks are still there waiting. They won't get easier by avoiding them — but a 15-minute sprint might surprise you.`,
+                    (ctx) => `Gentle nudge: the important work tends to create the most relief once it's done. What's the smallest part of a high-priority task you could tackle right now?`,
+                    (ctx) => `Pattern spotted: selecting lower intensity while high-value work accumulates. No judgment — just awareness. The high-priority items will feel better to have done.`,
+                    (ctx) => `You've been choosing manageable over important. That's a coping strategy, not a work strategy. Try one sprint on the hard thing — it's usually less hard than it looks.`,
+                    (ctx) => `The most important tasks on your list are probably the ones you keep scrolling past. They deserve a sprint. What happens if you give one of them the next ${ctx.lowEnergyCount > 2 ? '15' : '20'} minutes?`,
+                    (ctx) => `Low energy is real — but sometimes what feels like low energy is actually high resistance to a specific task. A 15-minute sprint might reveal which it is.`,
+                    (ctx) => `You've got high-priority items that need attention. They're not going anywhere. The question is whether you meet them now or under more pressure later.`
                 ],
                 balanced: [
-                    (ctx) => `Pattern detected: Low-energy selections with high-priority work pending. Consider your approach.`,
-                    (ctx) => `Multiple low-energy choices. High-priority items need attention at some point.`,
-                    (ctx) => `Low-energy mode selected ${ctx.lowEnergyCount} times. High-priority work remains.`
+                    (ctx) => `Pattern: low-energy selection with high-priority work pending. Evaluate whether this matches your actual state or is avoidance.`,
+                    (ctx) => `${ctx.lowEnergyCount} low-energy selections. High-priority tasks remain unaddressed. Redirect focus.`,
+                    (ctx) => `Low-energy mode selected repeatedly. High-priority work requires attention — allocate accordingly.`,
+                    (ctx) => `Priority misalignment detected. High-value tasks are being deferred. Adjust.`,
+                    (ctx) => `Selecting low intensity while important work accumulates is a prioritization problem. Address it.`,
+                    (ctx) => `${ctx.lowEnergyCount}x low-energy mode. High-priority items are in queue. At some point today, they need a full sprint.`,
+                    (ctx) => `Task prioritization pattern: comfort over impact. High-priority work has a cost if it stays undone. Recalibrate.`,
+                    (ctx) => `${ctx.lowEnergyCount} low-energy sprint selections. Check: are you energy-managing, or task-avoiding?`,
+                    (ctx) => `High-priority tasks pending. Low-energy pattern continued for ${ctx.lowEnergyCount} selections. Shift to high-priority work now.`,
+                    (ctx) => `Low-intensity selection pattern. High-value work deferred ${ctx.lowEnergyCount} times. This has a compounding cost. Address it.`
                 ],
                 tough: [
-                    (ctx) => `You keep choosing easy modes. High-priority work doesn't complete itself.`,
-                    (ctx) => `Avoidance pattern: ${ctx.lowEnergyCount} low-energy selections. Hard work is still there.`,
-                    (ctx) => `You're selecting comfort over challenge. The difficult work is what moves things forward.`
+                    (ctx) => `You keep choosing the easy mode. ${ctx.lowEnergyCount} times. The high-priority work is still there — it doesn't care about your energy level.`,
+                    (ctx) => `Low-energy selections: ${ctx.lowEnergyCount}. High-priority tasks: waiting. This pattern has a name: avoidance. Change it.`,
+                    (ctx) => `${ctx.lowEnergyCount} times you've chosen low intensity. Hard work is hard — but deferring it just means doing it under more pressure later.`,
+                    (ctx) => `You're optimizing for comfort and calling it energy management. The high-priority tasks still need to get done. Pick one.`,
+                    (ctx) => `Low-energy mode ${ctx.lowEnergyCount} times while important work sits. You have enough energy to make a decision. Decide to do the hard work.`,
+                    (ctx) => `Pattern clear: ${ctx.lowEnergyCount} easy selections, high-priority tasks untouched. This is how important things never get done. Break the pattern.`,
+                    (ctx) => `You're not low-energy. You're avoiding. There's a difference. The fix is the same: pick the hard task, start the timer, begin.`,
+                    (ctx) => `${ctx.lowEnergyCount} low-energy sprints. Here's the honest version: the important work isn't getting easier by aging on the list. Run a hard sprint.`,
+                    (ctx) => `Easy tasks don't move the needle. You've done ${ctx.lowEnergyCount} of them. What actually matters is still undone. Do it.`,
+                    (ctx) => `${ctx.lowEnergyCount} comfortable choices. Comfort won't look good at end-of-day review. Neither will the high-priority items still sitting on your list.`
                 ]
             },
-            
-            // BREAK DENIAL (V20.6 ENHANCED) - Context: focusTime, breakAttempts
-            // Tough love at core for all levels - delivery differs
+
+            // BREAK DENIED - Context: minutesSinceLastAction, todayFocusTime, yesterdayFocusTime
             breakDenied: {
                 supportive: [
-                    (ctx) => {
-                        if (ctx.sessionJustStarted) {
-                            return `Hey, I see you just opened the app ${ctx.minutesSinceLastAction} minutes ago. I know it's tempting to ease in, but starting with work builds better momentum than starting with a break. Trust me on this one.`;
-                        } else if (ctx.todayFocusTime > 60) {
-                            return `You've already done ${ctx.todayFocusTime} minutes today—solid work. That said, this particular session hasn't started yet. One sprint, then break properly.`;
-                        } else {
-                            return `I know the resistance is strong right now. That's normal. But taking a break before you've done anything just makes the resistance stronger when you come back. Let's try one quick sprint first.`;
-                        }
-                    },
-                    (ctx) => {
-                        if (ctx.focusTime === 0) {
-                            return `Breaks hit different after you've actually worked. Your brain literally rewards you more when rest is earned. Try 15 minutes first—you'll feel the difference.`;
-                        } else {
-                            return `You might really need this break—I get that. But I've noticed breaks feel more restorative when they follow even 15 minutes of focus. Worth trying?`;
-                        }
-                    },
-                    (ctx) => {
-                        const breakAttempts = ctx.breakAttempts || 0;
-                        if (breakAttempts > 2) {
-                            return `Third break attempt without focus. I get it—resistance is real. But avoiding doesn't make it easier. One sprint makes the break feel earned.`;
-                        } else {
-                            return `You might find the break more refreshing if you complete some work first. Rest follows effort—that's when it actually restores you.`;
-                        }
-                    }
+                    (ctx) => `Break sounds good — but you haven't started yet! A quick sprint first makes the break feel earned. Just 15 minutes, then full permission.`,
+                    (ctx) => `You've been here ${ctx.minutesSinceLastAction} minutes without a sprint. Starting before breaking is the rule that makes breaks meaningful. One sprint, then rest.`,
+                    (ctx) => ctx.todayFocusTime > 0 ? `You've done ${ctx.todayFocusTime} minutes today — a break is fair. But one more sprint first to keep the rhythm going.` : `Breaks work best after focus. Give yourself something to rest from — one sprint, then full permission.`,
+                    (ctx) => `The break will feel so much better after a sprint. Your brain knows the difference between earned rest and avoidance. Give it something to rest from.`,
+                    (ctx) => `One sprint, then break — that's the contract. It's not a punishment, it's the structure that makes the system work.`,
+                    (ctx) => `${ctx.yesterdayFocusTime > 0 ? 'You did ' + ctx.yesterdayFocusTime + ' min yesterday. ' : ''}Starting today with a break before a sprint sets a pattern that\'s hard to recover from. One sprint first.`,
+                    (ctx) => `Break request noted. To unlock it: one sprint. Even 15 minutes. Then rest as long as you need.`,
+                    (ctx) => `You need to give yourself something to take a break from. One sprint — even a short one — makes the rest feel different. Better. Earned.`,
+                    (ctx) => `The break is right there. It just has one requirement: a sprint first. Not because you have to earn rest — because the break works better when it follows focus.`,
+                    (ctx) => `One sprint and the break is yours. That's the whole deal. Start the timer, work through it, then rest with a clear conscience.`
                 ],
                 balanced: [
-                    (ctx) => {
-                        if (ctx.focusTime === 0 && ctx.yesterdayFocusTime > 0) {
-                            return `You did ${ctx.yesterdayFocusTime} minutes yesterday. Today: zero. Give me one sprint, then break. Your pattern matters.`;
-                        } else if (ctx.minutesSinceLastAction < 10) {
-                            return `${ctx.minutesSinceLastAction} minutes in and trying to break? Not quite time yet. Your brain performs better with momentum—start a sprint first.`;
-                        } else {
-                            return `Insufficient focus time logged. Breaks work better psychologically when they follow effort. Try ${ctx.focusTime === 0 ? '15' : '10'} more minutes.`;
-                        }
-                    },
-                    (ctx) => {
-                        const breakAttempts = ctx.breakAttempts || 0;
-                        if (breakAttempts > 2) {
-                            return `Third break attempt. I know starting is hard, but you need at least one sprint under your belt. The avoidance pattern only makes it worse.`;
-                        } else {
-                            return `Break timing: Better after focus sessions. Current focus: ${ctx.focusTime} min. That's not enough to earn rest yet.`;
-                        }
-                    },
-                    (ctx) => `Breaks work better after sustained focus. Complete a sprint—then the break actually feels like rest instead of procrastination.`
+                    (ctx) => `Break requires at least one completed sprint. ${ctx.minutesSinceLastAction > 0 ? ctx.minutesSinceLastAction + ' minutes in, no output. ' : ''}Complete a sprint first.`,
+                    (ctx) => `Break unavailable: no prior sprint completed. Work before rest — initiate sprint.`,
+                    (ctx) => `${ctx.todayFocusTime > 0 ? ctx.todayFocusTime + ' minutes focused today. ' : 'No focus time logged. '}Break protocol: sprint first, then break.`,
+                    (ctx) => `Break denied — prerequisites unmet. Complete one sprint to unlock break.`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes elapsed without sprint. Break follows work. Start a sprint.`,
+                    (ctx) => `No sprint logged this session. Break unavailable. Sequence: work, then rest.`,
+                    (ctx) => `Break request before sprint: declined. System requires work output before rest. Execute a sprint.`,
+                    (ctx) => `Break protocol not met. One sprint required. Complete it, then break as needed.`,
+                    (ctx) => `Work-first requirement active. ${ctx.minutesSinceLastAction} minutes in with no sprint. Start one.`,
+                    (ctx) => `Break pending one sprint completion. Sprint first, break immediately after.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.minutesSinceLastAction < 5) {
-                            return `You literally just sat down ${ctx.minutesSinceLastAction} minutes ago. Work first, break later. That's how this works.`;
-                        } else if (ctx.minutesSinceLastAction < 15 && ctx.focusTime === 0) {
-                            return `${ctx.minutesSinceLastAction} minutes in and already want a break? You haven't done anything yet. Start working.`;
-                        } else {
-                            return `Zero focus time today. Breaks are earned through work. You want rest? Earn it first.`;
-                        }
-                    },
-                    (ctx) => {
-                        const timeOfDay = ctx.timeOfDay || new Date().getHours();
-                        if (timeOfDay < 10 && ctx.focusTime === 0) {
-                            return `You just woke up and want a break already? Coffee, then work. Breaks come after effort.`;
-                        } else if (timeOfDay > 20 && ctx.focusTime === 0) {
-                            return `Late start and trying to break immediately? Focus first, then rest. Otherwise go to bed.`;
-                        } else {
-                            return `No work logged. Breaks follow effort, not precede it. This is backwards.`;
-                        }
-                    },
-                    (ctx) => {
-                        const breakAttempts = ctx.breakAttempts || 0;
-                        if (breakAttempts >= 3) {
-                            return `This is the third time you've tried to break without working today. The pattern is clear: You're avoiding work. Call it what it is.`;
-                        } else {
-                            return `You're trying to break without working. That's not how productive days happen. Execute first.`;
-                        }
-                    }
+                    (ctx) => `No. You haven't done a sprint yet. You don't get a break before you do the work.`,
+                    (ctx) => `${ctx.minutesSinceLastAction} minutes of nothing, and now a break? That's not a break — that's just not working. Sprint first.`,
+                    (ctx) => `Breaks are for after work. You haven't done any. The answer is no. Start a sprint.`,
+                    (ctx) => `You came here to work. You haven't yet. A break now is just avoiding with extra steps. Sprint.`,
+                    (ctx) => `${ctx.todayFocusTime > 0 ? ctx.todayFocusTime + ' minutes today — a break has some case. But one more sprint earns it properly.' : 'Zero sprints. Zero breaks. That\'s the rule. Start working.'}`,
+                    (ctx) => `Break before first sprint: not happening. The system doesn't work that way. Neither should you. Go.`,
+                    (ctx) => `No sprint, no break. This isn't negotiable. Start the timer.`,
+                    (ctx) => `You want a break from what, exactly? You haven't done anything yet. Complete a sprint, then the break is earned.`,
+                    (ctx) => `The system is simple: work, then rest. You skipped the first part. Fix that.`,
+                    (ctx) => `Not yet. The break is available — after one sprint. One. Start.`
                 ]
             },
-            
-            // EXCESSIVE BREAKS (V20.6 ENHANCED) - Context: consecutiveBreaks, focusBreakRatio
-            // Time-aware, pattern recognition, direct
+
+            // EXCESSIVE BREAKS - Context: breakCount, sprintCount
             excessiveBreaks: {
                 supportive: [
-                    (ctx) => {
-                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
-                            return `You've taken ${ctx.todayBreakTime} minutes of breaks and ${ctx.todayFocusTime} minutes of focus today. When you're ready, let's shift that balance toward more focus time.`;
-                        } else {
-                            return `You've taken several breaks recently. Your work will benefit from some sustained attention now.`;
-                        }
-                    },
-                    (ctx) => `Multiple breaks taken. Consider balancing with a longer focus session—your output will improve and you'll feel better about the rest.`,
-                    (ctx) => `Break time is outweighing work time. I know extended focus is hard, but it's where the real progress happens.`
+                    (ctx) => `${ctx.breakCount} breaks and ${ctx.sprintCount} sprint${ctx.sprintCount !== 1 ? 's' : ''} today. The ratio is a little heavy on breaks. You might feel better with one more sprint under your belt before the next one.`,
+                    (ctx) => `Lots of breaks today — that's okay, but notice if they're helping you reset or helping you avoid. Either way, a sprint now would balance the day nicely.`,
+                    (ctx) => `${ctx.breakCount} breaks logged. Rest is legitimate — but the work needs matching time. Ready for another sprint?`,
+                    (ctx) => `Break pattern detected. Sometimes lots of breaks mean the task feels overwhelming. Is there a smaller chunk you could start?`,
+                    (ctx) => `${ctx.breakCount} breaks, ${ctx.sprintCount} sprint${ctx.sprintCount !== 1 ? 's' : ''}. The balance is a bit off — but you're still here, which counts for something. One more sprint?`,
+                    (ctx) => `High break frequency. No judgment — but check in: is rest the issue, or is something about the work feeling stuck?`,
+                    (ctx) => `${ctx.breakCount} breaks today. You keep coming back — that matters. One more sprint to close the gap on the break count.`,
+                    (ctx) => `More breaks than usual today. Bodies and brains have days like this. But even one solid sprint between breaks changes the character of the day.`,
+                    (ctx) => `${ctx.breakCount} breaks. The ADHD brain sometimes cycles through restlessness that mimics needing a break. A sprint might actually help more than another break right now.`,
+                    (ctx) => `You've been generous with the breaks today. No shame — but the work is still waiting. One sprint changes the balance.`
                 ],
                 balanced: [
-                    (ctx) => {
-                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
-                            const ratio = (ctx.todayFocusTime / ctx.todayBreakTime).toFixed(1);
-                            return `Today: ${ctx.todayFocusTime}min focus, ${ctx.todayBreakTime}min breaks. Ratio: ${ratio}:1. For productivity, aim for at least 3:1.`;
-                        } else {
-                            return `${ctx.consecutiveBreaks} consecutive breaks. Focus:break ratio needs adjustment for meaningful output.`;
-                        }
-                    },
-                    (ctx) => `Break frequency high. Multiple breaks without equivalent focus limits what you can accomplish. Consider your pattern.`,
-                    (ctx) => `Multiple breaks logged. Output requires focused time blocks, not fragmented attention. Balance needs correction.`
+                    (ctx) => `Break-to-sprint ratio: ${ctx.breakCount}:${ctx.sprintCount}. Imbalanced toward rest. Adjust.`,
+                    (ctx) => `${ctx.breakCount} breaks, ${ctx.sprintCount} sprints. Work-rest balance skewed. Resume sprint cadence.`,
+                    (ctx) => `Excessive break frequency detected. Output-to-downtime ratio insufficient. Sprint required.`,
+                    (ctx) => `${ctx.breakCount} breaks logged today. Sprint count: ${ctx.sprintCount}. Recalibrate toward execution.`,
+                    (ctx) => `Break cadence exceeds sprint cadence. Course-correct: fewer breaks, more work blocks.`,
+                    (ctx) => `Pattern: ${ctx.breakCount} breaks vs ${ctx.sprintCount} sprints. This ratio doesn't produce good outcomes. Sprint.`,
+                    (ctx) => `Break overuse detected. ${ctx.breakCount} rest periods, ${ctx.sprintCount} work periods. Rebalance.`,
+                    (ctx) => `${ctx.breakCount} breaks, ${ctx.sprintCount} sprints. Adjust. Work output is below what the schedule requires.`,
+                    (ctx) => `Disproportionate rest-to-work ratio. Sprint to restore balance.`,
+                    (ctx) => `${ctx.breakCount} breaks taken. ${ctx.sprintCount} sprints completed. Correct the imbalance — sprint now.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.todayBreakTime && ctx.todayFocusTime) {
-                            return `Real talk: ${ctx.todayBreakTime} minutes on breaks, ${ctx.todayFocusTime} minutes working today. That ratio doesn't build anything.`;
-                        } else {
-                            return `${ctx.consecutiveBreaks} breaks without sustained focus. This pattern limits results. Work requires work, not rest.`;
-                        }
-                    },
-                    (ctx) => {
-                        if (ctx.consecutiveBreaks >= 3) {
-                            return `This is your third break in a row. At some point you need to admit you're avoiding work. That's fine—but call it what it is.`;
-                        } else {
-                            return `You're breaking more than working. This pattern guarantees you'll feel unproductive tonight.`;
-                        }
-                    },
-                    (ctx) => {
-                        const timeBetweenBreaks = ctx.timeBetweenBreaks || 0;
-                        if (timeBetweenBreaks > 0 && timeBetweenBreaks < 20) {
-                            return `${timeBetweenBreaks} minutes between breaks. You're pacing the room instead of working. Sit down and focus.`;
-                        } else {
-                            return `Fourth break. Each one makes the next sprint harder to start. This avoidance pattern has diminishing returns.`;
-                        }
-                    }
+                    (ctx) => `${ctx.breakCount} breaks. ${ctx.sprintCount} sprint${ctx.sprintCount !== 1 ? 's' : ''}. You're spending more time resting than working. That's a problem.`,
+                    (ctx) => `More breaks than sprints today. That's not a work pattern — that's a break pattern with occasional work. Fix it.`,
+                    (ctx) => `${ctx.breakCount} breaks. The breaks aren't recharging you — they're enabling avoidance. Get back to work.`,
+                    (ctx) => `Break count: ${ctx.breakCount}. Sprint count: ${ctx.sprintCount}. The math doesn't work. Every extra break is a sprint you're not doing.`,
+                    (ctx) => `You've taken ${ctx.breakCount} breaks. The pattern is clear. The solution is also clear: less resting, more working.`,
+                    (ctx) => `${ctx.breakCount} breaks, ${ctx.sprintCount} sprints. This is how days end with everything still on the list. Sprint.`,
+                    (ctx) => `Excessive breaks. Each one makes the next sprint harder to start. You're not solving fatigue — you're building avoidance. Start a sprint.`,
+                    (ctx) => `${ctx.breakCount} breaks to ${ctx.sprintCount} sprints. That ratio doesn't produce results. You know what does. Start the timer.`,
+                    (ctx) => `More rest than work today. The tasks don't care about your break count. Sprint.`,
+                    (ctx) => `${ctx.breakCount} breaks. If each one was necessary, fine. But ${ctx.breakCount} in a day suggests something else is going on. Either way: sprint next, not break.`
                 ]
             },
-            
-            // IDLE WITHOUT DECISION (V20.6 ENHANCED) - Context: idleMinutes
-            // Direct, time-aware, calls out indecision
+
+            // IDLE INTERRUPTION - Context: idleMinutes
             idleInterruption: {
                 supportive: [
-                    (ctx) => {
-                        if (ctx.idleMinutes > 20) {
-                            return `You've been paused for ${ctx.idleMinutes} minutes. That's a long time to be undecided. When you're ready, pick something—focus, break, or close the app.`;
-                        } else {
-                            return `You've been paused for a while. No rush, but staying in limbo uses mental energy. Make a choice when ready.`;
-                        }
-                    },
-                    (ctx) => `No activity for ${ctx.idleMinutes} minutes. Take your time deciding, but remember: indecision is its own form of stress.`,
-                    (ctx) => `Extended pause noticed. Whatever you choose—work, break, or stepping away—is fine. Just choose something.`
+                    (ctx) => `Hey — ${ctx.idleMinutes} minutes have slipped by. No pressure, just a check-in. Is everything okay? If you're ready, the timer's right here.`,
+                    (ctx) => `Noticed you've been quiet for ${ctx.idleMinutes} minutes. Sometimes a break from the screen is needed. When you're back, pick one small thing to start with.`,
+                    (ctx) => `${ctx.idleMinutes} min of quiet. The ADHD brain can time-travel without warning — if you got lost, that's okay. Find your way back with one sprint.`,
+                    (ctx) => `Time check: ${ctx.idleMinutes} minutes idle. If that was a real break, great. If it wasn't intentional, let's reset with a sprint.`,
+                    (ctx) => `${ctx.idleMinutes} minutes have passed. You might have gotten pulled into something else — totally normal. When you're back, just start the next sprint.`,
+                    (ctx) => `Idle alert. ${ctx.idleMinutes} minutes gone. Whatever pulled you away, it's done now. Come back and start fresh.`,
+                    (ctx) => `${ctx.idleMinutes} min have passed. If you needed that time, no problem. If you're ready, one sprint gets you back in the groove.`,
+                    (ctx) => `Checking in after ${ctx.idleMinutes} quiet minutes. Time blindness is real — if you lost track, no judgment. Let's restart.`,
+                    (ctx) => `${ctx.idleMinutes} minutes. Was that intentional? If yes — welcome back. If no — that's time blindness doing its thing. One sprint resets the clock.`,
+                    (ctx) => `You've been away for ${ctx.idleMinutes} minutes. The session is still here. The work is still here. Ready to pick it back up?`
                 ],
                 balanced: [
-                    (ctx) => {
-                        if (ctx.idleMinutes > 25) {
-                            return `Idle for ${ctx.idleMinutes} minutes. The longer you sit undecided, the harder it gets to start anything. Choose: focus, break, or close.`;
-                        } else {
-                            return `Idle for ${ctx.idleMinutes} minutes. Indecision burns energy. Select your next action.`;
-                        }
-                    },
-                    (ctx) => `No activity detected. Time to choose: focus, break, or wrap up. Limbo doesn't serve you.`,
-                    (ctx) => `Extended idle period. Make a decision—sitting here thinking about it achieves nothing.`
+                    (ctx) => `Idle: ${ctx.idleMinutes} minutes. Resume sprint activity.`,
+                    (ctx) => `${ctx.idleMinutes}-minute gap detected. Return to work.`,
+                    (ctx) => `Inactivity: ${ctx.idleMinutes} min. Work session requires active sprints. Initiate one.`,
+                    (ctx) => `${ctx.idleMinutes} minutes unproductive. Identify current task and start sprint.`,
+                    (ctx) => `Idle period: ${ctx.idleMinutes} min. This is recoverable. Start a sprint now.`,
+                    (ctx) => `${ctx.idleMinutes} minutes since last activity. Resume.`,
+                    (ctx) => `Gap detected: ${ctx.idleMinutes} min. Work doesn't complete itself. Start the timer.`,
+                    (ctx) => `${ctx.idleMinutes}-minute idle period. Interruption noted. Resume work.`,
+                    (ctx) => `Inactivity flag: ${ctx.idleMinutes} min elapsed. Start next sprint.`,
+                    (ctx) => `${ctx.idleMinutes} minutes of downtime. Productive window is shorter now. Sprint.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.idleMinutes > 30) {
-                            return `You've been staring at this screen for ${ctx.idleMinutes} minutes. Make a decision: work, break, or close the app. Indecision is its own form of avoidance.`;
-                        } else if (ctx.idleMinutes > 15) {
-                            return `${ctx.idleMinutes} minutes of nothing. The longer you sit here undecided, the harder it gets to start. Pick something.`;
-                        } else {
-                            return `${ctx.idleMinutes} minutes idle. You're burning mental energy deciding instead of doing. Choose now.`;
-                        }
-                    },
-                    (ctx) => {
-                        const timeOfDay = ctx.timeOfDay || new Date().getHours();
-                        if (timeOfDay >= 22) {
-                            return `It's after ${timeOfDay}:00 and you've been idle for ${ctx.idleMinutes} minutes. Either commit to working or go to bed. This limbo helps nobody.`;
-                        } else {
-                            return `Idle time is wasted time. Either start working or close the app. Sitting here "thinking about it" achieves nothing.`;
-                        }
-                    },
-                    (ctx) => `${ctx.idleMinutes} minutes idle. Time doesn't pause while you decide. Make a choice or accept that you're avoiding.`
+                    (ctx) => `${ctx.idleMinutes} minutes. Gone. That time is already spent — what you do with the next 20 is still up to you. Sprint.`,
+                    (ctx) => `${ctx.idleMinutes} minutes idle. Not a break — a lapse. The difference: breaks are planned. Start a sprint.`,
+                    (ctx) => `You've been gone ${ctx.idleMinutes} minutes. Every minute of that was a choice. Make a different choice now.`,
+                    (ctx) => `${ctx.idleMinutes} minutes wasted. It happens. It doesn't have to keep happening. Start the timer.`,
+                    (ctx) => `${ctx.idleMinutes} idle minutes added to the gap. The clock doesn't care. You should. Sprint now.`,
+                    (ctx) => `Gap: ${ctx.idleMinutes} minutes. You're behind where you were ${ctx.idleMinutes} minutes ago. The only direction is forward. Start.`,
+                    (ctx) => `${ctx.idleMinutes} minutes of nothing. The day's getting shorter. Sprint.`,
+                    (ctx) => `${ctx.idleMinutes} minutes gone. That's unrecoverable. The next ${ctx.idleMinutes} minutes are not — use them. Start a sprint.`,
+                    (ctx) => `You drifted for ${ctx.idleMinutes} minutes. Welcome back. Now actually come back — start the sprint.`,
+                    (ctx) => `${ctx.idleMinutes} idle minutes is ${ctx.idleMinutes} minutes of work debt. Stop adding to it. Sprint.`
                 ]
             },
-            
-            // START/STOP PATTERN (V20.6 ENHANCED) - Context: abortCount
-            // Empathetic but firm, identifies root causes
+
+            // AVOIDANCE PATTERN - Context: abortCount, avgTimeBeforeAbort
             avoidancePattern: {
                 supportive: [
                     (ctx) => {
-                        if (ctx.abortCount >= 4) {
-                            return `You keep starting and stopping (${ctx.abortCount} times). That's often a sign the task feels overwhelming. What's actually getting in the way? Can we break it smaller?`;
-                        } else {
-                            return `You keep starting and stopping. That's often a sign something feels challenging. Let's try committing to just one full sprint—even if it's 15 minutes.`;
-                        }
+                        if (ctx.abortCount >= 4) return `You've started and stopped ${ctx.abortCount} times. That pattern usually means something about the task feels overwhelming — not that you can't do it. What's the smallest possible piece you could tackle?`;
+                        return `Starting and stopping is really common with ADHD. The trick is making the first step so small it can't be avoided. What's one sentence, one email, one minute you could actually do right now?`;
                     },
-                    (ctx) => `Multiple starts without completion. Pattern noticed: Starting but not finishing. Consider what's making it hard to continue—is the task too big?`,
+                    (ctx) => `${ctx.abortCount} starts without completing a full sprint. That's the resistance talking — not your ability. Try committing to just the first 5 minutes. Just 5.`,
                     (ctx) => {
-                        const avgAbortTime = ctx.avgTimeBeforeAbort || 5;
-                        return `You tend to stop around the ${avgAbortTime}-minute mark. That's when initial discomfort kicks in. The work doesn't get easier by restarting—try pushing through once.`;
-                    }
+                        const t = ctx.avgTimeBeforeAbort || 5;
+                        return `You tend to stop around the ${t}-minute mark. That's actually right when the brain starts to settle in — just past it, the work gets easier. Stay in one more time.`;
+                    },
+                    (ctx) => `The start-stop pattern is a signal, not a verdict. Something about the current task is triggering avoidance. Can you name what's hard about it?`,
+                    (ctx) => `${ctx.abortCount} attempts. You keep coming back — that's actually the harder thing. Now let's stay for one full sprint. You've shown up. Stay.`,
+                    (ctx) => `Avoidance is the brain trying to protect you from discomfort. It's trying to help — just badly. One full sprint proves to it that the work is survivable.`,
+                    (ctx) => `Multiple starts suggest the task feels hard to begin. That's normal. The resistance at the start is the highest it gets — it gets lighter once you're in.`,
+                    (ctx) => `${ctx.abortCount} incomplete attempts. The fact that you keep starting means part of you wants to do this. That part is right. Give it one full sprint.`,
+                    (ctx) => `The ADHD brain excels at starting and struggles with sustaining. You've proven the starting part ${ctx.abortCount} times. Now sustain — just through one sprint.`,
+                    (ctx) => `You haven't failed ${ctx.abortCount} times — you've started ${ctx.abortCount} times. That's actually a lot of momentum. Channel it into one completion.`
                 ],
                 balanced: [
                     (ctx) => {
-                        if (ctx.abortCount >= 5) {
-                            return `This is the ${ctx.abortCount}th time you've started without finishing today. Something's blocking you—and avoiding it won't make it easier. What's actually going on?`;
-                        } else {
-                            return `${ctx.abortCount} incomplete attempts. This pattern suggests avoidance. The task isn't getting easier by circling it.`;
-                        }
+                        if (ctx.abortCount >= 4) return `${ctx.abortCount} incomplete sprints. Repeated starts without follow-through indicate task avoidance. Identify the blocker and address it.`;
+                        return `Multiple incomplete sprints detected. Start-abandon pattern reducing output. Commit to one full sprint.`;
                     },
+                    (ctx) => `${ctx.abortCount} starts without completion. This pattern compounds. Complete one full sprint to break it.`,
                     (ctx) => {
-                        return `You keep starting then stopping. That usually means the task feels overwhelming. Try breaking it down smaller—like, embarrassingly small. Just do one tiny piece.`;
+                        const t = ctx.avgTimeBeforeAbort || 5;
+                        return `Abandonment typically occurs at ${t} minutes. That's a consistent pattern — recognize it as a pattern, not a reason to stop. Push past it.`;
                     },
-                    (ctx) => {
-                        const avgTimeBeforeAbort = ctx.avgTimeBeforeAbort || 5;
-                        return `You abort around the ${avgTimeBeforeAbort}-minute mark consistently. That's when discomfort kicks in. The work doesn't get easier by restarting—you just reset the discomfort timer.`;
-                    }
+                    (ctx) => `Avoidance pattern confirmed: ${ctx.abortCount} incomplete attempts. Diagnosis doesn't fix it — one completed sprint does.`,
+                    (ctx) => `Repeated abandonment reduces momentum and compounds the gap. Complete the next sprint regardless of discomfort.`,
+                    (ctx) => `${ctx.abortCount} aborted sprints. Throughput: zero. Correction: start and finish one sprint, then evaluate.`,
+                    (ctx) => `Pattern: multiple starts, no completions. Address the underlying resistance or accept reduced output. Recommended: push through once.`,
+                    (ctx) => `${ctx.abortCount} incomplete sprints logged. Task avoidance pattern. Break it with one full sprint — no early exit.`,
+                    (ctx) => `Avoidance confirmed. ${ctx.abortCount} starts, zero completions. Change one variable: don't stop this time.`,
+                    (ctx) => `Pattern: start, abort, repeat. ${ctx.abortCount} iterations. The pattern breaks when one sprint completes. Make it this one.`
                 ],
                 tough: [
                     (ctx) => {
-                        if (ctx.abortCount >= 5) {
-                            return `${ctx.abortCount} starts. Zero completions. This is textbook avoidance behavior. The pattern is clear—you're circling the work instead of doing it.`;
-                        } else {
-                            return `${ctx.abortCount} starts without finishing. You keep restarting when it gets uncomfortable. That pattern prevents any real progress.`;
-                        }
+                        if (ctx.abortCount >= 4) return `${ctx.abortCount} times you've started and quit. That's not a technique problem — that's a discipline problem. Complete the next sprint. Full stop.`;
+                        return `You keep starting and quitting. Starting is easy. Finishing is the job. Do one full sprint.`;
                     },
-                    (ctx) => `You keep starting without finishing. Each restart makes the next attempt harder. The avoidance pattern compounds. Complete one sprint.`,
+                    (ctx) => `${ctx.abortCount} abandoned sprints. The pattern is clear. The fix is also clear: don't stop this time. No quitting until the timer ends.`,
                     (ctx) => {
-                        const avgAbortTime = ctx.avgTimeBeforeAbort || 5;
-                        return `Multiple aborts at the ${avgAbortTime}-minute mark. You quit exactly when real work starts. That's where growth happens—and you're avoiding it.`;
-                    }
+                        const t = ctx.avgTimeBeforeAbort || 5;
+                        return `You quit around ${t} minutes. You know it's coming. The only thing that changes it is choosing not to quit this time. Make that choice.`;
+                    },
+                    (ctx) => `Avoidance is costing you more than the task would. ${ctx.abortCount} incomplete sprints. Finish the next one.`,
+                    (ctx) => `${ctx.abortCount} attempts, zero completions. This isn't bad luck. It's a pattern you're choosing. Choose differently.`,
+                    (ctx) => `You've quit ${ctx.abortCount} times. Every quit makes the next start harder. The only way out is through — complete a sprint.`,
+                    (ctx) => `${ctx.abortCount} starts, no finish. At some point, the avoidance becomes the problem, not the task. Commit. Run the full sprint.`,
+                    (ctx) => `${ctx.abortCount} incomplete sprints. You know the pattern. You know the fix. The only question is whether you're going to do it. Do it.`,
+                    (ctx) => `Every time you abort, the task gets heavier in your head. The only thing that makes it lighter is completing a sprint. Do that.`,
+                    (ctx) => `${ctx.abortCount} starts, ${ctx.abortCount} quits. One variable changed: you don't stop this time. That's all it takes. Run the sprint.`
                 ]
             },
-            
-            // DISCOMFORT ABORT (V20.6 ENHANCED) - Context: timeBeforeAbort
-            // Identifies resistance points, encourages push-through
+
+            // DISCOMFORT QUIT - Context: timeBeforeAbort
             discomfortQuit: {
                 supportive: [
                     (ctx) => {
-                        if (ctx.timeBeforeAbort < 10) {
-                            return `Sprint ended at ${ctx.timeBeforeAbort} minutes. That's exactly when the initial discomfort starts—but also when the value begins. Want to try pushing to 15 next time?`;
-                        } else {
-                            return `Stopped at ${ctx.timeBeforeAbort} minutes. Often that's a common resistance point. The discomfort usually passes if you push through it.`;
-                        }
+                        if (ctx.timeBeforeAbort < 10) return `Sprint ended at ${ctx.timeBeforeAbort} minutes. That's exactly when the uncomfortable part starts — but it's also exactly when the focus starts too. Next time, try staying through it.`;
+                        return `Stopped at ${ctx.timeBeforeAbort} minutes. The discomfort you felt is normal — it actually signals you were doing real work. It usually fades by minute 12-15.`;
                     },
-                    (ctx) => `Quick exit noticed at ${ctx.timeBeforeAbort} minutes. The initial resistance is normal—it usually fades around minute 10-12. Consider staying longer next time.`,
-                    (ctx) => `Sprint ended early. That's often when the discomfort starts but the productive phase begins. The breakthrough comes after the resistance.`
+                    (ctx) => `Quick exit at ${ctx.timeBeforeAbort} min. The initial resistance is real — your brain is protesting the effort. It almost always passes if you stay with it.`,
+                    (ctx) => `Sprint ended early at ${ctx.timeBeforeAbort} minutes. That's the hard part. The breakthrough usually comes just after that feeling. Try to stay past it once.`,
+                    (ctx) => `${ctx.timeBeforeAbort} minutes in, then out. The discomfort at that point is temporary — and it's proof something hard is happening. That's the work.`,
+                    (ctx) => `Stopped at ${ctx.timeBeforeAbort} min. You'll feel better about the sprint if you can push through that wall even once — it makes every sprint after it easier.`,
+                    (ctx) => `Exit at ${ctx.timeBeforeAbort} minutes. No judgment. Just notice: was that a real need, or was it the resistance? Both are valid, but they have different next steps.`,
+                    (ctx) => `Sprint cut short at ${ctx.timeBeforeAbort} min. The discomfort that triggered this is normal — it gets easier to recognize and push through with practice.`,
+                    (ctx) => `${ctx.timeBeforeAbort} minutes, then stopped. That moment you stopped? That's not a signal the work is too hard. It's a signal the work is real. Try going further.`,
+                    (ctx) => `Sprint ended at ${ctx.timeBeforeAbort} min. The resistance that caused it is expected — it's what starting a hard thing feels like. The next sprint, try outlasting it.`,
+                    (ctx) => `Exited at ${ctx.timeBeforeAbort} minutes. ADHD brains feel discomfort intensely at the start of hard work. That feeling is not the truth — it's just the beginning.`
                 ],
                 balanced: [
                     (ctx) => {
-                        if (ctx.timeBeforeAbort < 8) {
-                            return `Sprint terminated at ${ctx.timeBeforeAbort} minutes. That's before you hit flow state. Discomfort is part of the process—it signals the brain is engaging.`;
-                        } else {
-                            return `Early exit from focus at ${ctx.timeBeforeAbort} minutes. The discomfort phase is where adaptation happens. Pushing through builds capacity.`;
-                        }
+                        if (ctx.timeBeforeAbort < 8) return `Sprint terminated at ${ctx.timeBeforeAbort} minutes. Below minimum threshold. Initial discomfort is not a valid exit signal — complete the sprint.`;
+                        return `Sprint ended at ${ctx.timeBeforeAbort} minutes. Pattern: quitting at discomfort onset. Target: run one full sprint through the resistance.`;
                     },
-                    (ctx) => `Stopped when difficulty increased (${ctx.timeBeforeAbort} min). This pattern limits how deep you can go. Flow state requires getting past initial resistance.`,
-                    (ctx) => `Sprint ended at ${ctx.timeBeforeAbort} minutes. The resistance point. Real work starts after discomfort, not before it.`
+                    (ctx) => `Early exit: ${ctx.timeBeforeAbort} min. Discomfort is an expected part of focused work, not a reason to stop. Complete next sprint in full.`,
+                    (ctx) => `Sprint cut at ${ctx.timeBeforeAbort} minutes. This is below target. Identify the specific discomfort and push through it once.`,
+                    (ctx) => `Quit at ${ctx.timeBeforeAbort} min. Pattern noted. Next sprint: run to completion regardless of discomfort.`,
+                    (ctx) => `Early termination: ${ctx.timeBeforeAbort} minutes. Incomplete sprint does not count toward daily target. Complete one.`,
+                    (ctx) => `Exit at ${ctx.timeBeforeAbort} min. Discomfort is temporary; incomplete sprints are permanent. Next sprint: finish it.`,
+                    (ctx) => `Sprint abandoned at ${ctx.timeBeforeAbort} minutes. One full-length sprint required to establish baseline.`,
+                    (ctx) => `${ctx.timeBeforeAbort} min, then exit. Early termination pattern. Complete the next sprint fully.`,
+                    (ctx) => `Discomfort exit at ${ctx.timeBeforeAbort} min. Expected pattern. Override it next sprint.`,
+                    (ctx) => `Sprint cut short: ${ctx.timeBeforeAbort} minutes. Consistent full-sprint completion required. Achieve it.`
                 ],
                 tough: [
                     (ctx) => {
-                        if (ctx.timeBeforeAbort < 10) {
-                            return `Quit at ${ctx.timeBeforeAbort} minutes. That's exactly when real work starts. You're stopping at the threshold of productivity.`;
-                        } else {
-                            return `Terminated at ${ctx.timeBeforeAbort} minutes—right when it got uncomfortable. That's where growth happens. You're avoiding the productive phase.`;
-                        }
+                        if (ctx.timeBeforeAbort < 8) return `${ctx.timeBeforeAbort} minutes. That's not a sprint — that's a warmup. You quit before the work even started. Run a full sprint.`;
+                        return `Quit at ${ctx.timeBeforeAbort} minutes. The discomfort you felt is what doing real work feels like. You stopped before it counted.`;
                     },
-                    (ctx) => `You exit when it gets uncomfortable. That's where actual work happens. Quitting at discomfort guarantees you never reach deep focus.`,
-                    (ctx) => {
-                        const avgAbortTime = ctx.avgTimeBeforeAbort || ctx.timeBeforeAbort;
-                        return `Early termination at ${ctx.timeBeforeAbort} minutes. Your pattern: quit at ~${avgAbortTime} min when resistance appears. That's the exact moment to continue, not stop.`;
-                    }
+                    (ctx) => `Sprint terminated at ${ctx.timeBeforeAbort} min. If discomfort is your exit condition, you'll never complete a sprint. That's not acceptable. Go again.`,
+                    (ctx) => `${ctx.timeBeforeAbort} minutes, then quit. You built up to the discomfort and ran. That behavior costs you everything. Complete a sprint.`,
+                    (ctx) => `Early exit: ${ctx.timeBeforeAbort} min. That moment of wanting to quit is the exact moment where real work happens. You left just before it.`,
+                    (ctx) => `Quit at ${ctx.timeBeforeAbort} minutes. The resistance you felt is the work asking if you're serious. You said no. Try again and say yes.`,
+                    (ctx) => `${ctx.timeBeforeAbort} minutes. Short. The discomfort is the signal you're doing something hard — not the signal to stop.`,
+                    (ctx) => `Sprint cut at ${ctx.timeBeforeAbort} min. Every time you quit at discomfort, you teach your brain that quitting is the answer. Unlearn it. Finish the next one.`,
+                    (ctx) => `${ctx.timeBeforeAbort} minutes and out. The discomfort you quit on is cheaper than the regret of another incomplete sprint. Run the full thing.`,
+                    (ctx) => `Exit at ${ctx.timeBeforeAbort} min. Discomfort is not an emergency. It's a status report. Keep working.`,
+                    (ctx) => `Sprint ended at ${ctx.timeBeforeAbort} minutes. That's not enough. The work that produces results happens in the minutes after ${ctx.timeBeforeAbort}. Stay in next time.`
                 ]
             },
-            
-            // CLEAN EXIT PROMPT (V20.6) - Context: refusalCount
+
+            // CLEAN EXIT - Context: refusalCount
             cleanExit: {
                 supportive: [
-                    (ctx) => `It seems like this might not be the right time to work. That's completely okay. You can step away and return when you're ready.`,
-                    (ctx) => `You've resisted several times. Maybe it's better to pause and try again later when conditions are better.`,
-                    (ctx) => `Sometimes it's not the right moment. No judgment. Come back when you feel more prepared.`
+                    (ctx) => `You've tried a few times and it's not clicking today. That's real — forcing focus when it's completely unavailable often backfires. Come back when the conditions are better.`,
+                    (ctx) => `Sometimes the most productive thing is knowing when to step away. Rest fully, then return ready to go. No shame in reading your own limits.`,
+                    (ctx) => `${ctx.refusalCount} attempts suggest today might not be the right window. Step away intentionally — not as defeat, but as a strategic reset.`,
+                    (ctx) => `It's okay to close out for today. What matters is that you showed up. Come back tomorrow with a clear first task already chosen.`,
+                    (ctx) => `You came back ${ctx.refusalCount} times — that persistence is worth something even if the session didn't produce much. Rest and return.`,
+                    (ctx) => `Sometimes the answer is: not today. Honor that, rest fully, and come back when you have more to give.`,
+                    (ctx) => `The fact that you kept trying says something about your commitment. Rest up. Tomorrow is another window.`,
+                    (ctx) => `${ctx.refusalCount} honest attempts. Not every day cooperates. Close out without guilt and make tomorrow count instead.`,
+                    (ctx) => `Real self-awareness means knowing when to push and when to stop. Today is a stop day. Rest fully. Come back sharper.`,
+                    (ctx) => `You showed up ${ctx.refusalCount} times today. That matters — even if this session wasn't productive. Come back tomorrow with a plan already made.`
                 ],
                 balanced: [
-                    (ctx) => `Pattern suggests this isn't an effective work session. Consider whether to continue or reschedule.`,
-                    (ctx) => `${ctx.refusalCount} avoidance signals. Evaluate if now is the right time.`,
-                    (ctx) => `Work resistance detected. Sometimes stepping away is the better choice.`
+                    (ctx) => `${ctx.refusalCount} avoidance signals detected. Current session not effective. Consider whether to continue or reschedule.`,
+                    (ctx) => `Pattern suggests unproductive work window. Reassess timing. Return when conditions support focus.`,
+                    (ctx) => `Work resistance: ${ctx.refusalCount} occurrences. Sometimes stepping away is the better choice. Return when ready.`,
+                    (ctx) => `Multiple refusals. Session efficiency low. Consider closing and returning at a higher-capacity time.`,
+                    (ctx) => `${ctx.refusalCount} avoidance events. If focus isn't accessible, forcing it rarely works. Rest, then return.`,
+                    (ctx) => `Session pattern: repeated avoidance. Evaluate whether to push through or reschedule. Honest assessment preferred.`,
+                    (ctx) => `${ctx.refusalCount} signals. This session may be at its effective limit. Return when capacity is higher.`,
+                    (ctx) => `${ctx.refusalCount} resistance signals. Session not generating output. Evaluate and decide: push or reschedule.`,
+                    (ctx) => `Low-output session confirmed. ${ctx.refusalCount} avoidance events. Strategic rest may be more productive than continued forcing.`,
+                    (ctx) => `Session effectiveness: low. ${ctx.refusalCount} avoidance events. Recommend closing with a clear return plan for tomorrow.`
                 ],
                 tough: [
-                    (ctx) => `Multiple refusals detected. You're not engaging. Consider whether you should be here.`,
-                    (ctx) => `${ctx.refusalCount} avoidances. Session isn't productive. Reassess timing.`,
-                    (ctx) => `You're resisting consistently. This session isn't working.`
+                    (ctx) => `${ctx.refusalCount} refusals. You're not engaging and you know it. Either fix that right now, or close out and come back when you're actually ready to work.`,
+                    (ctx) => `You've avoided ${ctx.refusalCount} times. That's your call — but be honest about whether you're taking a real rest or just avoiding. They have different recovery times.`,
+                    (ctx) => `Multiple avoidances. You're either depleted or distracted. One leads to rest; the other leads to wasted time. Know which it is and act accordingly.`,
+                    (ctx) => `${ctx.refusalCount} avoidances. Real question: is anything getting done here, or is this session theater? Close out if the answer is no.`,
+                    (ctx) => `You've tried ${ctx.refusalCount} times without engaging. That's enough data. Rest properly and come back with a clear first task and a commitment to start it.`,
+                    (ctx) => `Session isn't productive. ${ctx.refusalCount} refusals. Closing out isn't failure — but make sure tomorrow you have a plan before you open this app.`,
+                    (ctx) => `${ctx.refusalCount} times. This session is done. Real rest, real return. No half-measures.`,
+                    (ctx) => `Closing out after ${ctx.refusalCount} failed attempts is the honest move. Do it. Then come back tomorrow with one task already named and ready to go.`,
+                    (ctx) => `Session over. ${ctx.refusalCount} avoidances. The reason this happened doesn't matter as much as what you do tomorrow. Make tomorrow better.`,
+                    (ctx) => `${ctx.refusalCount} attempts. No output. Close this. Rest. Come back with a written plan, not just intentions.`
                 ]
             },
-            
-            // ============================================
-            // STUDENT-SPECIFIC COACHING (SESSION-BASED)
-            // ============================================
-            
-            // STUDY SESSION START - Context: sessionNumber, timeOfDay, hoursSinceLastSession
+
+            // STUDENT SESSION START - Context: sessionNumber, hoursSinceLastSession, timeOfDay
             studySessionStart: {
                 supportive: [
                     (ctx) => {
-                        if (ctx.sessionNumber === 1) {
-                            return `First study session of the day. Starting is the hardest part, and you just did it. Now let's make it productive.`;
-                        } else if (ctx.sessionNumber >= 3) {
-                            return `Session ${ctx.sessionNumber} today—you're building a solid study day. Remember: progress over perfection.`;
-                        } else {
-                            return `Another study session. You're showing up. That matters. Let's make this one count.`;
-                        }
+                        if (ctx.sessionNumber === 1) return `First study session of the day. Starting is the hardest part, and you just did it. Now let's make it count.`;
+                        if (ctx.sessionNumber >= 3) return `Session ${ctx.sessionNumber} today — you're building real study momentum. Shorter sprints are fine. Progress beats perfection.`;
+                        return `Another study session. You're showing up — that's the whole foundation. Let's make this one matter.`;
+                    },
+                    (ctx) => {
+                        if (ctx.hoursSinceLastSession > 8) return `Coming back after ${Math.round(ctx.hoursSinceLastSession)} hours away. Your brain had time to consolidate. Trust that — now build on it.`;
+                        return `Session ${ctx.sessionNumber || 1}. The studying that happens consistently is worth more than the cram sessions that happen occasionally. You're building the right habit.`;
+                    },
+                    (ctx) => {
+                        const h = ctx.timeOfDay || 12;
+                        if (h < 10) return `Early study session. This takes real discipline. Your focus is usually sharpest now — use it on the hardest material.`;
+                        if (h >= 20) return `Evening studying. Your retention for new material is lower now — use this time for review and practice problems, not first exposure.`;
+                        return `Study session started. The fact that you're here means you're taking this seriously. Bring that same seriousness to the next sprint.`;
+                    },
+                    (ctx) => `Session ${ctx.sessionNumber || 1} active. Every study session compounds. Today's understanding is tomorrow's head start.`,
+                    (ctx) => {
+                        if (ctx.sessionNumber === 1) return `Day's first study session. You don't have to feel ready. Just start — the focus usually comes once the timer is running.`;
+                        return `Back for session ${ctx.sessionNumber}. Multiple study sessions in a day is how hard material actually sticks. Well done for returning.`;
+                    },
+                    (ctx) => `Study session active. ADHD and studying are a hard combination — the fact that you're using structure at all puts you ahead of most. Use it well.`,
+                    (ctx) => {
+                        const gap = ctx.hoursSinceLastSession || 0;
+                        if (gap > 24) return `It's been over a day since your last session. Long gaps are normal — the important thing is that you're back. Start with a review of where you left off.`;
+                        return `Session ${ctx.sessionNumber || 1} underway. Short gaps between sessions help retention. Good timing.`;
                     }
                 ],
                 balanced: [
                     (ctx) => {
                         const hoursSince = ctx.hoursSinceLastSession || 0;
-                        if (hoursSince > 24) {
-                            return `First session in ${Math.floor(hoursSince)}+ hours. Long gap. Let's rebuild momentum—start with something manageable.`;
-                        } else if (ctx.timeOfDay >= 22) {
-                            return `Late-night session (${ctx.timeOfDay}:00). Your focus will fade faster. Plan for shorter sprints with more breaks.`;
-                        } else {
-                            return `Study session ${ctx.sessionNumber} starting. Set an intention: what's the one thing you need to accomplish?`;
-                        }
-                    }
+                        if (hoursSince > 24) return `First session in ${Math.floor(hoursSince)}+ hours. Long gap. Start with something manageable — don't try to make up for lost time in one sprint.`;
+                        if (ctx.timeOfDay >= 22) return `Late-night session (${ctx.timeOfDay}:00). Retention is lower now. Prioritize review over new learning.`;
+                        if (ctx.sessionNumber >= 2) return `Session ${ctx.sessionNumber}. Multiple study blocks in a day improves retention. Maintain consistent focus intervals.`;
+                        return `Study session active. Identify highest-priority subject and begin there.`;
+                    },
+                    (ctx) => `Session ${ctx.sessionNumber || 1} initiated. Time-boxed study sessions outperform unstructured blocks. Use the sprint timer.`,
+                    (ctx) => {
+                        if (ctx.timeOfDay >= 14 && ctx.timeOfDay <= 16) return `Afternoon session. Slight cognitive dip in this window for most people. Use active recall techniques — they help override the dip.`;
+                        return `Study session started. Single-subject focus per sprint produces better retention than switching between topics. Pick one.`;
+                    },
+                    (ctx) => `Session ${ctx.sessionNumber || 1}. ${ctx.hoursSinceLastSession > 0 ? Math.round(ctx.hoursSinceLastSession) + ' hours since last session. ' : ''}Start with your hardest subject while focus is fresh.`,
+                    (ctx) => `Study session active. Minimize notifications, maximize attention. One topic, one sprint, full focus.`,
+                    (ctx) => {
+                        const n = ctx.sessionNumber || 1;
+                        return `Session ${n}. ${n > 2 ? 'High session count — ensure quality over quantity. Better to do fewer focused sprints than more scattered ones.' : 'Focus on active recall, not passive review.'}`;
+                    },
+                    (ctx) => `Study session started. The research is clear: spaced, focused study beats marathon sessions. You're doing it right. Now do it well.`
                 ],
                 tough: [
                     (ctx) => {
-                        if (ctx.sessionNumber === 1 && ctx.timeOfDay > 15) {
-                            return `First session and it's after 3pm. Late start, but you're here. No excuses now—make this count.`;
-                        } else if (ctx.sessionNumber >= 3) {
-                            return `Third study session today. Your classmates are on Netflix. You're choosing different. Don't waste this momentum.`;
-                        } else if (ctx.lastSessionAborted) {
-                            return `Last session: started strong, quit early. This time: finish what you start.`;
-                        } else {
-                            return `Let's go. Phone face-down, distractions off. You know what needs to happen.`;
-                        }
-                    }
+                        if (ctx.timeOfDay >= 23) return `After 11 PM. Your retention is degraded and your judgment about what you understand is less accurate now. Make this session count and close on time.`;
+                        if (ctx.sessionNumber === 1) return `First session. Don't ease in — start with the hardest subject. That's when your focus is freshest.`;
+                        return `Session ${ctx.sessionNumber}. Good. Multiple sessions compound — as long as each one is focused, not just clocked.`;
+                    },
+                    (ctx) => {
+                        if (ctx.hoursSinceLastSession > 48) return `${Math.floor(ctx.hoursSinceLastSession)} hours since you last studied. That gap has a cost. Don't try to erase it in one session — start steady and build.`;
+                        return `Session ${ctx.sessionNumber || 1}. Clock started. You're here to understand the material, not to have studied. There's a difference. Make this session prove the difference.`;
+                    },
+                    (ctx) => `Study session active. The material doesn't care about your schedule. It cares whether you actually learn it. Every sprint should end with something you know that you didn't before.`,
+                    (ctx) => {
+                        const h = ctx.timeOfDay || 12;
+                        if (h >= 22) return `Late session. Low retention, low judgment. Keep sprints short and focused on review. New material at this hour rarely sticks.`;
+                        return `Session ${ctx.sessionNumber || 1}. Studying with ADHD means fighting your brain at every step. Use the sprint structure — it's designed for this. Use it seriously.`;
+                    },
+                    (ctx) => `Session started. The only metric that matters: do you understand it better when the session ends than when it began? Make sure you do.`,
+                    (ctx) => `Session ${ctx.sessionNumber || 1}. You're here. That's step one. Step two is actually working — not just having the browser open. Start the first sprint on something hard.`,
+                    (ctx) => `${ctx.sessionNumber === 1 ? 'First session.' : 'Session ' + ctx.sessionNumber + '.'} Studying is supposed to be uncomfortable. That feeling of not-understanding-yet is the work. Don't avoid it — that's where learning happens.`
                 ]
             },
-            
-            // LATE NIGHT CHECK - Context: timeOfDay, sessionMinutes, todaySessionCount
+
+            // LATE NIGHT STUDY - Context: timeOfDay
             lateNightStudy: {
                 supportive: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 23) {
-                            return `It's late (${ctx.timeOfDay}:00). Your focus won't be as sharp as daytime. Be kind to yourself—shorter sprints are fine. Or consider if sleep would serve you better.`;
-                        } else {
-                            return `Late evening session. Your brain is tired. Quality over quantity tonight.`;
-                        }
-                    }
+                    (ctx) => `Late-night studying at ${ctx.timeOfDay}:00 — your brain is working hard today. Keep sprints shorter and take real breaks. Quality beats quantity this late.`,
+                    (ctx) => `${ctx.timeOfDay}:00. Late, but here. Your focus window is narrower now — use it on review and practice rather than new material.`,
+                    (ctx) => `It's late (${ctx.timeOfDay}:00). If you're here because you care about doing well, that's the right spirit. Pair it with the right strategy: shorter sprints, active recall, no new topics.`,
+                    (ctx) => `${ctx.timeOfDay}:00 study session. Your brain needs sleep to consolidate what you've learned. Don't sacrifice too much of that tonight — but make the time you do spend count.`,
+                    (ctx) => `Late-night session (${ctx.timeOfDay}:00). You're showing commitment. Show it intelligently too: short sprints, familiar material, stop before you're running on empty.`
                 ],
                 balanced: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 22 && ctx.todaySessionCount === 1) {
-                            return `Late-night session and it's your only one today. If this is crisis mode, make every minute count. If you're just procrastinating sleep, consider starting fresh tomorrow.`;
-                        } else {
-                            return `Late session (${ctx.timeOfDay}:00). If you're genuinely productive, great. If this is guilt-studying, sleep might be smarter.`;
-                        }
-                    }
+                    (ctx) => `Late session: ${ctx.timeOfDay}:00. Cognitive performance declines past 11 PM. Prioritize review over new learning. Sleep affects retention.`,
+                    (ctx) => `${ctx.timeOfDay}:00. Late-night studying has diminishing returns after a certain point. Prioritize consolidation over new content.`,
+                    (ctx) => `Study session: ${ctx.timeOfDay}:00. Retention for new material is significantly reduced now. Use this time for active recall of previously studied content.`,
+                    (ctx) => `Late-night flag: ${ctx.timeOfDay}:00. Keep sprints to 15 min. Focus on retrieval practice, not intake. Stop by midnight if possible.`,
+                    (ctx) => `${ctx.timeOfDay}:00 session. Late-night studying is better than no studying — but only if approached strategically. Short sprints, high-retrieval activities.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.timeOfDay >= 23 && ctx.sessionMinutes < 30) {
-                            return `It's past 11pm and you've studied ${ctx.sessionMinutes} minutes. If you're pulling an all-nighter, commit. If not, go to sleep and study effectively tomorrow.`;
-                        } else if (ctx.timeOfDay >= 1 && ctx.timeOfDay < 5) {
-                            return `It's ${ctx.timeOfDay}am. Real question: is this productive studying or guilt-driven busywork? Sometimes sleep is the better choice.`;
-                        } else {
-                            return `Late night studying. Your retention is lower than daytime. This better be exam prep, not procrastination.`;
-                        }
-                    }
+                    (ctx) => `${ctx.timeOfDay}:00. Late. If you haven't done the work during the day, cramming it now has a real cost: performance tomorrow. Work efficiently and close on time.`,
+                    (ctx) => `It's ${ctx.timeOfDay}:00. Your memory consolidation happens during sleep — the sleep you're currently cutting into. Make this session worth that trade-off.`,
+                    (ctx) => `${ctx.timeOfDay}:00 study session. Late nights feel productive but often aren't. Be honest about your retention right now. If it's low, short review sprints and stop.`,
+                    (ctx) => `Late session: ${ctx.timeOfDay}:00. The research on sleep and retention is unambiguous. Whatever you're giving up in sleep had better be worth it. Make it worth it.`,
+                    (ctx) => `${ctx.timeOfDay}:00. You're here. Commit fully to the next sprint, then reassess whether to continue or sleep. Half-effort late-night studying is the worst of both worlds.`
                 ]
             },
-            
-            // LONG GAP BETWEEN SESSIONS - Context: hoursSinceLastSession
+
+            // SESSION GAP - Context: hoursSinceLastSession
             sessionGap: {
                 supportive: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 48) {
-                            return `It's been ${Math.floor(ctx.hoursSinceLastSession / 24)} days. Long break. No judgment—just notice that consistency helps momentum. Welcome back.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)} hours since last session. That's okay. You're here now. Let's use this time well.`;
-                        }
-                    }
+                    (ctx) => `${ctx.hoursSinceLastSession > 24 ? 'It\'s been a while' : 'A ' + Math.round(ctx.hoursSinceLastSession) + '-hour gap'}. No need to make up for lost time — just pick up where you left off with one sprint.`,
+                    (ctx) => `Welcome back. ${Math.round(ctx.hoursSinceLastSession)} hours since your last session. Whatever happened in between doesn't define today — this sprint does.`,
+                    (ctx) => `${ctx.hoursSinceLastSession > 48 ? 'Been a few days. No judgment — just glad you\'re back.' : Math.round(ctx.hoursSinceLastSession) + ' hours between sessions — that\'s a normal gap.'} Start with something you know you can finish.`,
+                    (ctx) => `Gap since last session: ${Math.round(ctx.hoursSinceLastSession)} hours. You came back. That's the move that compounds over time.`,
+                    (ctx) => `Back after ${Math.round(ctx.hoursSinceLastSession)} hours. Gaps happen. What matters is that you returned and started again. First sprint — go.`
                 ],
                 balanced: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 36) {
-                            return `${Math.floor(ctx.hoursSinceLastSession)} hours since last session. Extended gaps make restarting harder. Try to maintain rhythm.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)}h gap since last session. Consistency builds momentum. Keep that in mind.`;
-                        }
-                    }
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)}-hour gap since last session. Resume with highest-priority task. Avoid over-planning the restart — just begin.`,
+                    (ctx) => `Session gap: ${Math.round(ctx.hoursSinceLastSession)} hours. Return to work. Start with the most important item in your queue.`,
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)} hours since last activity. Restart protocol: identify first task, start sprint, don't spend time catching up on planning.`,
+                    (ctx) => `Gap: ${Math.round(ctx.hoursSinceLastSession)} hours. Noted. Resume normal sprint cadence immediately.`,
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)}-hour break between sessions. Acceptable. Return to work now — no extended warm-up required.`
                 ],
                 tough: [
-                    (ctx) => {
-                        if (ctx.hoursSinceLastSession > 48) {
-                            return `First session in ${Math.floor(ctx.hoursSinceLastSession / 24)} days. That gap is a problem. Consistency beats intensity.`;
-                        } else if (ctx.hoursSinceLastSession > 24) {
-                            return `24+ hour gap since last session. Long breaks kill momentum. You know this. Fix the pattern.`;
-                        } else {
-                            return `${Math.floor(ctx.hoursSinceLastSession)}h gap. Every long gap makes the next start harder.`;
-                        }
-                    }
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)} hours since you last worked. Gaps compound. Don't spend this session on setup — start producing immediately.`,
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)}-hour gap. That time is gone. The question is what you do now. Answer: start a sprint. No wind-up, no review of what you missed. Begin.`,
+                    (ctx) => `Back after ${Math.round(ctx.hoursSinceLastSession)} hours. Whatever caused the gap, it's in the past. The sprint you're about to start is in the present. Use it.`,
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)} hours offline. Noted. The gap doesn't excuse underperformance today — it makes today more important. Execute.`,
+                    (ctx) => `${Math.round(ctx.hoursSinceLastSession)}-hour break. Fine. Now don't spend the first sprint thinking about the break — spend it on the work. Start.`
                 ]
             }
-        };
+        };;;
         
         // Get AI message based on intensity mode and context
         function getAICoachMessage(category, context = {}) {
