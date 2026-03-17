@@ -371,7 +371,10 @@
             breaksCount: 0,
             distractionCount: 0,
             sessionState: 'idle',
-            inMeeting: false,  // MEETING MODE: Track if user is in a meeting
+            inMeeting: false,      // MEETING MODE: Track if user is in a meeting
+            meetingStartTime: null,  // When current meeting started (Date.now())
+            totalMeetingTime: 0,     // Total minutes in meetings today
+            meetingCount: 0,         // Number of meetings today
             // VERSION & STUDENT MODE (Part 2)
             version: 'lite',  // 'lite', 'student', 'regular', 'premium'
             sessionMode: false,  // true for students (session-based vs clock-based)
@@ -589,6 +592,7 @@
                 if (meetingToggle) meetingToggle.checked = true;
                 if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
+                showMeetingBanner();
                 console.log('📅 Meeting mode restored from previous session');
             }
             
@@ -1740,6 +1744,10 @@
             state.inMeeting = enabled;
             
             if (enabled) {
+                // Track meeting start
+                state.meetingStartTime = Date.now();
+                state.meetingCount = (state.meetingCount || 0) + 1;
+
                 // PAUSE/STOP active sprint
                 if (state.timer.active) {
                     clearInterval(state.timer.interval);
@@ -1754,22 +1762,37 @@
                 if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
                 
-                // UPDATE AI message
-                updateAIMessage('🤝 In meeting mode. Timer paused, no performance tracking. Resume when ready.');
+                // Show meeting banner and update AI
+                showMeetingBanner();
+                updateAIMessage('🎤 Meeting logged. Timer paused. Resume when meeting ends.');
                 updateSystemState('[ MEETING_MODE_ACTIVE ]');
                 
                 console.log('📅 Meeting mode: ENABLED');
             } else {
+                // Calculate meeting duration
+                let meetingDurationMin = 0;
+                if (state.meetingStartTime) {
+                    meetingDurationMin = Math.round((Date.now() - state.meetingStartTime) / 60000);
+                    state.totalMeetingTime = (state.totalMeetingTime || 0) + meetingDurationMin;
+                    state.meetingStartTime = null;
+                }
+
                 // RE-ENABLE sprint controls - with safety checks
                 const startBtn = document.getElementById('startSprintBtn');
                 if (startBtn) startBtn.disabled = false;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = false);
                 state.sessionState = 'idle';
                 
+                // Hide banner
+                hideMeetingBanner();
+
                 // UPDATE AI message
                 const totalRequired = calculateTotalRequiredSprints();
-                const message = getAICoachMessage('resumeFromMeeting', { required: totalRequired });
-                updateAIMessage(message);
+                const durationStr = meetingDurationMin > 0 ? `${meetingDurationMin} min` : '';
+                const msg = durationStr
+                    ? `Meeting complete (${durationStr}). Ready to refocus? ${totalRequired} sprint${totalRequired !== 1 ? 's' : ''} on the board.`
+                    : getAICoachMessage('resumeFromMeeting', { required: totalRequired });
+                updateAIMessage(msg);
                 updateSystemState('[ READY ]');
                 
                 console.log('📅 Meeting mode: DISABLED');
@@ -1777,6 +1800,81 @@
             
             saveState();
             renderAll();
+        }
+
+        // ─── Meeting Banner ────────────────────────────────────────
+        let meetingBannerInterval = null;
+
+        function showMeetingBanner() {
+            hideMeetingBanner(); // remove any existing
+            const banner = document.createElement('div');
+            banner.id = 'meetingModeBanner';
+            banner.innerHTML = `
+                <span style="font-size:1.3rem;">🎤</span>
+                <span style="font-weight:700; letter-spacing:0.05em;">MEETING MODE ACTIVE</span>
+                <span id="meetingBannerTimer" style="font-family: 'JetBrains Mono', monospace; font-size:0.95rem; opacity:0.85;">00:00</span>
+                <button onclick="document.getElementById('meetingToggle').click()" style="
+                    background: rgba(255,102,0,0.15);
+                    border: 1px solid var(--industrial-orange);
+                    color: var(--industrial-orange);
+                    padding: 0.25rem 0.8rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    white-space: nowrap;
+                ">End Meeting →</button>
+            `;
+            banner.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0;
+                z-index: 9000;
+                background: rgba(255,102,0,0.12);
+                border-bottom: 3px solid var(--industrial-orange);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                padding: 0.6rem 1.5rem;
+                color: var(--industrial-orange);
+                font-size: 1rem;
+                animation: meetingBannerIn 0.3s ease;
+                backdrop-filter: blur(4px);
+            `;
+            document.body.appendChild(banner);
+
+            // Push page content down so banner doesn't overlap header
+            document.body.style.paddingTop = '52px';
+
+            // Live duration counter
+            const start = Date.now();
+            meetingBannerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - start) / 1000);
+                const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const ss = String(elapsed % 60).padStart(2, '0');
+                const el = document.getElementById('meetingBannerTimer');
+                if (el) el.textContent = `${mm}:${ss}`;
+            }, 1000);
+
+            // Add animation keyframe if not present
+            if (!document.getElementById('meetingBannerStyle')) {
+                const s = document.createElement('style');
+                s.id = 'meetingBannerStyle';
+                s.textContent = `
+                    @keyframes meetingBannerIn {
+                        from { transform: translateY(-100%); opacity: 0; }
+                        to   { transform: translateY(0);    opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(s);
+            }
+        }
+
+        function hideMeetingBanner() {
+            if (meetingBannerInterval) { clearInterval(meetingBannerInterval); meetingBannerInterval = null; }
+            const banner = document.getElementById('meetingModeBanner');
+            if (banner) banner.remove();
+            document.body.style.paddingTop = '';
         }
 
         // ============================================
@@ -1808,6 +1906,13 @@
                 clearInterval(state.timer.interval);
                 state.timer.interval = null;
             }
+
+            // FIX: Always restore sprint duration from energy level before starting.
+            // startBreak() sets timer.duration = 5, so launching a sprint from the
+            // break-complete modal would use 5 min instead of the user's chosen duration.
+            const energyTimers = { low: 15, medium: 20, high: 30 };
+            state.timer.duration = energyTimers[state.energyLevel] || 20;
+            state.timer.remaining = state.timer.duration * 60;
 
             // TIMESTAMP-BASED TIMER: Record start and end times
             const now = Date.now();
@@ -2250,7 +2355,10 @@
                 const message = getAICoachMessage('sprintComplete', {
                     sprintsDone: state.sprintCount,
                     required: totalRequired,
-                    tasksLeft: tasksLeft
+                    tasksLeft: tasksLeft,
+                    tasksCompleted: ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) =>
+                        sum + state.tasks[bucket].filter(t => t.completed).length, 0),
+                    meetingMinutes: state.totalMeetingTime || 0
                 });
                 
                 updateAIMessage(message);
@@ -2592,43 +2700,53 @@
             // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft
             sprintComplete: {
                 supportive: [
-                    (ctx) => `Great work completing sprint ${ctx.sprintsDone}! ${ctx.required - ctx.sprintsDone} more to go. You've got this!`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} done! Taking it one step at a time. ${ctx.tasksLeft} tasks remaining.`,
-                    (ctx) => `Nice! Sprint ${ctx.sprintsDone} complete. Keep that momentum going!`,
-                    (ctx) => `Excellent focus! Sprint ${ctx.sprintsDone} finished. You're building real progress.`,
-                    (ctx) => `Sprint complete! That's ${ctx.sprintsDone} down. You're doing great work here.`,
-                    (ctx) => `Another sprint in the books! ${ctx.required - ctx.sprintsDone} to go. Stay strong!`,
-                    (ctx) => `Wonderful! Sprint ${ctx.sprintsDone} complete. ${ctx.tasksLeft} tasks still on the board.`
+                    (ctx) => `Sprint ${ctx.sprintsDone} done! ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' closed so far — real progress. ' : ''}${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go. You\'ve got this!' : 'You\'re on track!'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} complete! ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remaining — keep moving forward.' : 'Excellent — board is clear!'}`,
+                    (ctx) => `Nice work! ${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins today. ' : ''}Keep that momentum going!`,
+                    (ctx) => `Sprint complete! ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' finished. ' : ''}${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left today.`,
+                    (ctx) => `Another sprint in the books! ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} on the board. You're building real progress.`,
+                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} to go. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completed today — solid.' : 'Stay focused.'}`,
+                    (ctx) => `${ctx.sprintsDone} sprint${ctx.sprintsDone !== 1 ? 's' : ''} logged. ${ctx.tasksLeft} tasks remaining. Keep going!`
                 ],
                 balanced: [
-                    (ctx) => `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${ctx.required - ctx.sprintsDone > 0 ? 'Continue execution.' : 'On track.'}`,
-                    (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. Maintain pace.`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left in requirements.`,
-                    (ctx) => `Work session complete. ${ctx.sprintsDone} of ${ctx.required} finished. Progress acceptable.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        const progressNote = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} complete. ` : '';
+                        return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${progressNote}${gap > 0 ? gap + ' remaining.' : 'On target.'}`;
+                    },
+                    (ctx) => `Sprint logged. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' closed — maintain pace.' : 'Maintain pace.'}`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone} sprint${ctx.required - ctx.sprintsDone !== 1 ? 's' : ''} left to target.`,
+                    (ctx) => `Work session complete. ${ctx.sprintsDone}/${ctx.required} done. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks resolved. ' : ''}Progress acceptable.`,
                     (ctx) => `Sprint logged. ${ctx.required - ctx.sprintsDone} remaining. ${ctx.tasksLeft} tasks active.`,
                     (ctx) => `Session ${ctx.sprintsDone} complete. Continue at current pace.`,
-                    (ctx) => `Sprint finished. ${ctx.required - ctx.sprintsDone} more needed to meet daily target.`
+                    (ctx) => `Sprint finished. ${ctx.required - ctx.sprintsDone} more to meet daily target.`
                 ],
                 tough: [
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 5) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. You're ${gap} sprints behind. Deficit severe. Start now.`;
-                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${gap} sprints behind. This gap won't close itself. Move.`;
-                        if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. Still ${gap} behind target. Pick up the pace.`;
-                        return `Sprint complete. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} remaining. No time to celebrate.`;
+                        const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} closed — that's the work. ` : '';
+                        if (gap > 5) return `Sprint ${ctx.sprintsDone}/${ctx.required} done. ${wins}Still ${gap} behind. Close the gap now.`;
+                        if (gap > 3) return `Sprint ${ctx.sprintsDone}/${ctx.required}. ${wins}${gap} sprints behind. Move.`;
+                        if (gap > 0) return `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${wins}${gap} left. Pick up the pace.`;
+                        return `Sprint complete. ${wins}${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' task' + (ctx.tasksLeft !== 1 ? 's' : '') + ' remaining. Don\'t stop.' : 'On target. Maintain.'}`;
                     },
-                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone} more required. Clock's ticking. Execute.`,
-                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items still need execution. Results matter, not effort.`,
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        return gap > 4 ? `${ctx.sprintsDone} done. ${gap} behind. Performance unacceptable. Immediate action required.` : `Sprint logged. ${gap} remain. Move faster.`;
+                        return `Sprint done. ${gap > 0 ? gap + ' more required.' : 'Target hit.'} ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' tasks complete — results, not effort.' : 'Results, not effort.'}`;
                     },
-                    (ctx) => `Sprint complete. ${ctx.required - ctx.sprintsDone} still needed. Every delay compounds. Next.`,
-                    (ctx) => `One sprint finished. ${ctx.required - ctx.sprintsDone} pending. Speed insufficient. Accelerate now.`,
+                    (ctx) => `Sprint ${ctx.sprintsDone} logged. ${ctx.tasksLeft} items need execution. Keep going.`,
                     (ctx) => {
                         const gap = ctx.required - ctx.sprintsDone;
-                        if (gap > 6) return `Sprint ${ctx.sprintsDone}. You're ${gap} behind schedule. Catastrophic deficit. Start immediately.`;
-                        return `Sprint done. ${gap} more. Time is not your friend here.`;
+                        const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} down. ` : '';
+                        return gap > 4 ? `${wins}${gap} sprints behind. Gap unacceptable. Immediate action.` : `Sprint logged. ${wins}${gap} remain. Move.`;
+                    },
+                    (ctx) => `Sprint complete. ${ctx.required - ctx.sprintsDone} still needed. ${ctx.meetingMinutes > 0 ? ctx.meetingMinutes + ' min in meetings excluded. ' : ''}Next.`,
+                    (ctx) => `One sprint done. ${ctx.required - ctx.sprintsDone} pending. Accelerate.`,
+                    (ctx) => {
+                        const gap = ctx.required - ctx.sprintsDone;
+                        const wins = ctx.tasksCompleted > 0 ? `${ctx.tasksCompleted} wins today. ` : '';
+                        if (gap > 6) return `Sprint ${ctx.sprintsDone}. ${wins}${gap} behind — close it. Now.`;
+                        return `Sprint done. ${wins}${gap} more. Execute.`;
                     }
                 ]
             },
@@ -2913,28 +3031,28 @@
                 ]
             },
             
-            // RESUME FROM MEETING - Context: required
+            // RESUME FROM MEETING - Context: required, duration (minutes)
             resumeFromMeeting: {
                 supportive: [
-                    (ctx) => `Welcome back! Meeting done. ${ctx.required} sprints needed today. You've got this!`,
-                    (ctx) => `Meeting complete! Ready to refocus? ${ctx.required} sprints on your schedule.`,
-                    (ctx) => `Back from the meeting! Let's get some work done. ${ctx.required} sprints await.`,
-                    (ctx) => `Meeting wrapped! Time to shift back into execution mode. ${ctx.required} sprints needed.`,
-                    (ctx) => `Welcome back! Meeting over. ${ctx.required} sprints remaining. Let's make progress!`
+                    (ctx) => `Meeting done${ctx.duration ? ` (${ctx.duration} min)` : ''}. That time wasn't yours to control. Now it is — ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the board. You've got this.`,
+                    (ctx) => `Back in the chair. ${ctx.duration ? ctx.duration + ' min in meetings — noted. ' : ''}${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remaining. Ready when you are.`,
+                    (ctx) => `Meeting wrapped! Meetings happen. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} left today — let's make them count.`,
+                    (ctx) => `Welcome back. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on your schedule. Pick up where you left off.`,
+                    (ctx) => `Refocus time. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Start whenever you're ready.`
                 ],
                 balanced: [
-                    (ctx) => `Meeting complete. Resume work. ${ctx.required} sprints required.`,
-                    (ctx) => `Meeting mode disabled. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} pending.`,
-                    (ctx) => `Back to execution. ${ctx.required} sprints on schedule.`,
-                    (ctx) => `Meeting concluded. Sprint timer reactivated. ${ctx.required} required.`,
-                    (ctx) => `Resume work mode. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain.`
+                    (ctx) => `Meeting complete${ctx.duration ? ` (${ctx.duration} min)` : ''}. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} required — meetings excluded from your score.`,
+                    (ctx) => `Back to work. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} pending. That meeting time doesn't count against you.`,
+                    (ctx) => `Meeting logged. Resume execution. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} on the schedule.`,
+                    (ctx) => `Refocus. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} remain. Meeting time tracked separately.`,
+                    (ctx) => `Done with meetings. ${ctx.required} sprint${ctx.required !== 1 ? 's' : ''} left. Start your next sprint.`
                 ],
                 tough: [
-                    (ctx) => ctx.required > 8 ? `Meeting done. ${ctx.required} sprints still required. Time wasted in meeting room. Execute NOW.` : `Meeting complete. ${ctx.required} sprints. Make up lost time. START.`,
-                    (ctx) => `Back from meeting. ${ctx.required} sprints outstanding. Clock didn't stop. Execute immediately.`,
-                    (ctx) => ctx.required > 10 ? `Meeting over. ${ctx.required} sprints required. Time deficit severe. Immediate execution mandatory.` : `Meeting done. ${ctx.required} sprints. Lost time can't be recovered. Move.`,
-                    (ctx) => `Meeting finished. ${ctx.required} sprints remain. Meeting time is gone. Sprint time is now. Execute.`,
-                    (ctx) => ctx.required > 6 ? `Back to work. ${ctx.required} sprints outstanding. Every meeting minute compounded your gap. START NOW.` : `Meeting complete. ${ctx.required} sprints. Execute.`
+                    (ctx) => ctx.required > 8 ? `Meeting done. ${ctx.required} sprints still required — and yes, the clock kept running. That's the job. Execute.` : `Meeting complete. ${ctx.required} sprints. Meetings are overhead. Execution is the job. START.`,
+                    (ctx) => `Back from meeting. ${ctx.required} sprints outstanding. Meeting time doesn't count against your grade — slacking after does. Move.`,
+                    (ctx) => `Meeting over${ctx.duration ? ` — ${ctx.duration} min logged` : ''}. ${ctx.required} sprints needed. Refocus immediately.`,
+                    (ctx) => `Meeting finished. ${ctx.required} sprints remain. You don't control meetings. You do control what happens next. Execute.`,
+                    (ctx) => ctx.required > 6 ? `Back to work. ${ctx.required} sprints outstanding. Meeting time is excluded — no excuses from here. START.` : `Meeting done. ${ctx.required} sprints. Execute.`
                 ]
             },
             
@@ -3631,21 +3749,45 @@
         function checkPerformanceStatus(gap, totalRequired) {
             const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
                 sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
-            
+            const tasksCompleted = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) =>
+                sum + state.tasks[bucket].filter(t => t.completed).length, 0);
+            const sprintsDone = state.sprintCount || 0;
+            const meetingMinutes = state.totalMeetingTime || 0;
+
+            // Context: user is actively working if they have sprints done
+            const activelyWorking = sprintsDone > 0;
+            const recentProgress = tasksCompleted > 0;
+
             // Critical: Way behind schedule
             if (gap > 5 && tasksLeft > 3) {
-                updateAIMessage(`⚠️ CRITICAL: ${gap} sprints behind with ${tasksLeft} tasks remaining. Performance deficit severe. Start sprint immediately.`);
+                if (activelyWorking && recentProgress) {
+                    // They're working — acknowledge before pushing
+                    updateAIMessage(`${tasksCompleted} task${tasksCompleted !== 1 ? 's' : ''} done across ${sprintsDone} sprint${sprintsDone !== 1 ? 's' : ''} — you're moving. Still ${gap} sprints behind with ${tasksLeft} remaining. Keep the momentum.`);
+                } else if (meetingMinutes > 30) {
+                    updateAIMessage(`${gap} sprints behind, but ${meetingMinutes} min went to meetings — that's not on you. ${tasksLeft} tasks left. Start a sprint and take back the day.`);
+                } else {
+                    updateAIMessage(`${gap} sprints behind with ${tasksLeft} tasks remaining. Gap is real — close it now.`);
+                }
                 return;
             }
             
             // Behind schedule  
             if (gap > 2 && tasksLeft > 0) {
-                const messages = [
-                    `${gap} sprint${gap > 1 ? 's' : ''} behind schedule. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} pending. Execute now.`,
-                    `Performance gap: ${gap} sprints. Current pace insufficient to meet requirements. Accelerate.`,
-                    `Behind by ${gap}. Each delay compounds. Start next sprint.`
-                ];
-                updateAIMessage(messages[Math.floor(Math.random() * messages.length)]);
+                if (activelyWorking) {
+                    const messages = [
+                        `${sprintsDone} sprint${sprintsDone !== 1 ? 's' : ''} in, ${gap} still needed. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} pending. Keep moving.`,
+                        `${gap} sprints behind — but you're executing. ${tasksLeft} remaining. Next sprint closes the gap.`,
+                        `Behind by ${gap}. ${tasksCompleted > 0 ? tasksCompleted + ' completed so far. ' : ''}Pace up.`
+                    ];
+                    updateAIMessage(messages[Math.floor(Math.random() * messages.length)]);
+                } else {
+                    const messages = [
+                        `${gap} sprint${gap > 1 ? 's' : ''} behind schedule. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} pending. Start now.`,
+                        `${gap} sprints behind. Pace insufficient. Accelerate.`,
+                        `Behind by ${gap}. Each delay compounds. Start next sprint.`
+                    ];
+                    updateAIMessage(messages[Math.floor(Math.random() * messages.length)]);
+                }
                 return;
             }
             

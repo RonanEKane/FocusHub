@@ -385,6 +385,14 @@
                         <td class="stat-label">Sprint Completion Rate</td>
                         <td class="stat-value" id="sprintRate">0%</td>
                     </tr>
+                    <tr>
+                        <td class="stat-label">Meetings (Today)</td>
+                        <td class="stat-value" id="meetingCount">0</td>
+                    </tr>
+                    <tr>
+                        <td class="stat-label">Meeting Time (Today)</td>
+                        <td class="stat-value" id="meetingTime">—</td>
+                    </tr>
                 </table>
             </div>
             
@@ -730,6 +738,21 @@
             console.log('Sprint completion rate:', sprintRate);
             document.getElementById('sprintRate').textContent = sprintRate.toFixed(0) + '%';
 
+            // Meeting stats (from today's live state)
+            try {
+                const liveState = JSON.parse(localStorage.getItem('focushub_state') || '{}');
+                const mCount = liveState.meetingCount || 0;
+                const mMins = liveState.totalMeetingTime || 0;
+                document.getElementById('meetingCount').textContent = mCount || '—';
+                if (mMins > 0) {
+                    const hrs = Math.floor(mMins / 60);
+                    const mins = mMins % 60;
+                    document.getElementById('meetingTime').textContent = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+                } else {
+                    document.getElementById('meetingTime').textContent = '—';
+                }
+            } catch(e) { /* silently ignore */ }
+
             // Weekly chart (last 7 days)
             const last7 = history.slice(-7);
             const chartHTML = last7.map(day => {
@@ -844,23 +867,30 @@
         // Theme detection and logo swap
         // Check session state and update button
         function checkSessionState() {
-            const sessionState = getUserItem('focushub_session_state');
-            const dailyStats = getUserItem('focushub_daily_stats');
             const button = document.querySelector('.primary-action');
             
-            // If session is active (not ended and has data)
-            if (sessionState !== 'ended' && dailyStats) {
-                const stats = JSON.parse(dailyStats);
-                const today = new Date().toDateString();
-                
-                // Check if stats are from today
-                if (stats.date === today) {
-                    button.innerHTML = `
-                        <span class="action-icon">[ &gt; ]</span>
-                        <span class="action-text">RETURN TO WORKSPACE</span>
-                    `;
+            // Check the actual state from app.html
+            const savedState = getUserItem('focushub_state');
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    
+                    // If day is active, show return button
+                    if (state.dayActive) {
+                        button.innerHTML = `
+                            <span class="action-icon">[ &gt; ]</span>
+                            <span class="action-text">RETURN TO WORKSPACE</span>
+                        `;
+                        console.log('✅ Active session detected - showing RETURN button');
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing state:', e);
                 }
             }
+            
+            // Default: show initialize button
+            console.log('📅 No active session - showing INITIALIZE button');
         }
 
         // Update dashboard timer display
