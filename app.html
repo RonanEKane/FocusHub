@@ -976,6 +976,15 @@
                         state.timer.type = 'break';
                     } else {
                         state.timer.type = 'focus';
+                        // Keep energy dropdown in sync with the button selection
+                        // so coaching context reflects the actual chosen duration.
+                        const durationToEnergy = { 15: 'low', 20: 'medium', 30: 'high' };
+                        if (durationToEnergy[duration]) {
+                            state.energyLevel = durationToEnergy[duration];
+                            localStorage.setItem('focushub_energy', state.energyLevel);
+                            const sel = document.getElementById('energyLevel');
+                            if (sel) sel.value = state.energyLevel;
+                        }
                     }
                     
                     updateTimerDisplay();
@@ -1907,12 +1916,19 @@
                 state.timer.interval = null;
             }
 
-            // FIX: Always restore sprint duration from energy level before starting.
-            // startBreak() sets timer.duration = 5, so launching a sprint from the
-            // break-complete modal would use 5 min instead of the user's chosen duration.
-            const energyTimers = { low: 15, medium: 20, high: 30 };
-            state.timer.duration = energyTimers[state.energyLevel] || 20;
-            state.timer.remaining = state.timer.duration * 60;
+            // FIX: Only restore duration when the break poisoned it (duration === 5).
+            // If the user manually clicked a 15/20/30 button AFTER the modal,
+            // timer.duration is already correct — do not overwrite it.
+            // Use saved sprintDuration (set by startBreak) as first choice,
+            // energy-level default as fallback.
+            if (state.timer.duration === 5) {
+                const energyTimers = { low: 15, medium: 20, high: 30 };
+                state.timer.duration = state.timer.sprintDuration
+                    || energyTimers[state.energyLevel]
+                    || 20;
+                state.timer.remaining = state.timer.duration * 60;
+                state.timer.sprintDuration = null; // consumed
+            }
 
             // TIMESTAMP-BASED TIMER: Record start and end times
             const now = Date.now();
@@ -1956,6 +1972,12 @@
             if (state.timer.interval) {
                 clearInterval(state.timer.interval);
                 state.timer.interval = null;
+            }
+
+            // Save the user's chosen sprint duration so startSprint() can
+            // restore it after the break without clobbering manual button picks.
+            if (state.timer.duration !== 5) {
+                state.timer.sprintDuration = state.timer.duration;
             }
 
             const now = Date.now();

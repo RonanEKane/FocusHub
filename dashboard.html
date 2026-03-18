@@ -8,243 +8,424 @@
     <title>Insight Center - FocusHub</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     <style>
-        /* Dashboard Visual Improvements */
+        /* ═══════════════════════════════════════════════
+           INSIGHT CENTER — REDESIGNED
+           Tactical minimalism. Military-ops aesthetic.
+           Matches the main app's design language.
+        ═══════════════════════════════════════════════ */
+
+        /* ── Page scaffold ── */
+        .mission-control {
+            padding: 2rem 0 4rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .page-header-left {}
+
+        .mission-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem;
+        }
+
+        .page-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .page-header-right {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        /* ── Bento grid ── */
         .bento-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-        
-        .bento-card {
-            background: var(--bg-secondary);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border-light);
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            padding: 2rem;
-            transition: all 0.2s ease;
+            overflow: hidden;
+            margin-bottom: 1px;
         }
-        
+
+        @media (max-width: 900px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 540px) {
+            .bento-grid { grid-template-columns: 1fr; }
+        }
+
+        .bento-card {
+            background: var(--bg-secondary);
+            padding: 1.75rem 1.75rem 1.5rem;
+            position: relative;
+            transition: background 0.15s;
+        }
+
         .bento-card:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: var(--bg-tertiary);
         }
-        
+
+        /* accent left-border on hover */
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 2px;
+            background: var(--industrial-orange);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .bento-card:hover::before { opacity: 1; }
+
+        /* ── Card internals ── */
         .card-micro-label {
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            opacity: 0.6;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
         }
-        
+
         .card-title {
-            font-size: 1.125rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
         }
-        
+
+        /* Big hero number */
         .metric-large {
-            font-size: 3.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.25rem;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--text-primary);
             line-height: 1;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.02em;
         }
-        
+        .metric-large span.unit {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
         .metric-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
         }
-        
-        .activity-context,
-        .score-context {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            padding-top: 1rem;
+
+        .card-divider {
+            border: none;
             border-top: 1px solid var(--border-light);
+            margin: 1.25rem 0 1rem;
         }
-        
-        .trend-up {
-            color: #22C55E;
-            font-weight: 600;
-        }
-        
-        .streak-value {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-        
-        .gauge-value {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.75rem;
-        }
-        
-        .gauge-label {
-            font-size: 0.875rem;
+
+        .card-footer-stat {
+            font-size: 0.78rem;
             color: var(--text-secondary);
         }
-        
-        .bar-chart-mini {
-            display: flex;
-            gap: 0.5rem;
-            align-items: flex-end;
-            height: 80px;
-            margin-top: 1.5rem;
+
+        .card-footer-stat strong {
+            color: var(--industrial-orange);
+            font-weight: 700;
         }
-        
-        .bar-mini {
+
+        .trend-up   { color: var(--success); font-weight: 600; }
+        .trend-down { color: var(--danger);  font-weight: 600; }
+
+        /* ── Streak sparkline ── */
+        .sparkline-wrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 52px;
+            margin-top: auto;
+        }
+
+        .spark-col {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 4px;
+            height: 100%;
+            justify-content: flex-end;
         }
-        
-        .bar-fill {
+
+        .spark-bar {
             width: 100%;
-            background: var(--primary-color);
-            border-radius: 4px 4px 0 0;
-            min-height: 4px;
+            border-radius: 2px 2px 0 0;
+            min-height: 3px;
+            transition: height 0.3s ease;
         }
-        
-        .bar-day {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+
+        .spark-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
-        
-        .intention-visual {
-            margin: 1.5rem 0;
-        }
-        
-        .intention-bar,
-        .reality-bar {
-            margin-bottom: 1rem;
-        }
-        
-        .intention-fill,
-        .reality-fill {
-            height: 32px;
-            background: var(--primary-color);
-            border-radius: 4px;
-            transition: width 0.3s ease;
+
+        /* ── Perf score ring ── */
+        .score-ring-wrap {
             display: flex;
             align-items: center;
-            padding-left: 1rem;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
         }
-        
-        .intention-label,
-        .reality-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
+
+        .score-ring {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
         }
-        
-        .intention-stats {
+
+        .score-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-ring-num {
+            position: absolute;
+            inset: 0;
             display: flex;
-            gap: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-light);
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
-        
-        .stat-item {
+
+        .score-detail {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.35rem;
         }
-        
-        .stat-num {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .stat-desc {
-            font-size: 0.75rem;
+
+        .score-detail-row {
+            font-size: 0.78rem;
             color: var(--text-secondary);
         }
-        
+
+        .score-detail-row strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ── Intention vs Reality ── */
+        .ivr-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .ivr-row {}
+
+        .ivr-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.35rem;
+        }
+
+        .ivr-row-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .ivr-row-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .ivr-track {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .ivr-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .ivr-fill-said { background: var(--border-light); }
+        .ivr-fill-did  { background: var(--industrial-orange); }
+
+        .ivr-follow-rate {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .ivr-follow-rate strong {
+            font-size: 1rem;
+            color: var(--industrial-orange);
+        }
+
+        /* ── CTA button ── */
+        .primary-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: var(--industrial-orange);
+            color: #000;
+            border: none;
+            border-radius: 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            transition: background 0.15s, box-shadow 0.15s;
+            margin-bottom: 0;
+        }
+
+        .primary-action:hover {
+            background: #ff8800;
+            box-shadow: 0 0 24px rgba(251,146,60,0.35);
+        }
+
+        .action-icon {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        /* ── Metrics grid ── */
+        .metrics-section {
+            border: 1px solid var(--border-light);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .metrics-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.5rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .metrics-section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        @media (max-width: 800px) {
+            .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 500px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .metric-cell {
+            padding: 1.25rem 1.5rem;
+            border-right: 1px solid var(--border-light);
+            background: var(--bg-secondary);
+            transition: background 0.15s;
+        }
+
+        .metric-cell:last-child { border-right: none; }
+        .metric-cell:hover { background: var(--bg-tertiary); }
+
+        .metric-cell-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-cell-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--industrial-orange);
+            line-height: 1;
+        }
+
+        .metric-cell-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        /* ── Subject breakdown ── */
         .stats-table {
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            padding: 2rem;
+            padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .stats-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            font-family: 'Courier New', monospace;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
         }
-        
-        .stats-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .stats-table tr {
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .stats-table tr:last-child {
-            border-bottom: none;
-        }
-        
-        .stats-table td {
-            padding: 1rem 0;
-        }
-        
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        .stat-value {
-            text-align: right;
-            color: var(--primary-color);
-            font-weight: 700;
-            font-size: 1.125rem;
-        }
-        
-        .primary-action {
-            width: 100%;
-            padding: 1.5rem;
-            background: var(--industrial-orange);
-            color: #000000; /* Always black text on orange button */
-            border: none;
-            border-radius: 8px;
-            font-size: 1.125rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 3rem;
-            transition: all 0.2s ease;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .primary-action:hover {
-            background: #ff6600;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
-        }
-        
-        .action-icon {
-            margin-right: 1rem;
-        }
-        
-        /* Dark mode specific improvements */
-        [data-theme="dark"] .bento-card {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        [data-theme="dark"] .bento-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
+
+        /* keep old table styles for student breakdown */
+        .stats-table table { width: 100%; border-collapse: collapse; }
+        .stats-table tr { border-bottom: 1px solid var(--border-light); }
+        .stats-table tr:last-child { border-bottom: none; }
+        .stats-table td { padding: 0.75rem 0; }
+        .stat-label { color: var(--text-secondary); font-size: 0.875rem; }
+        .stat-value { text-align: right; color: var(--industrial-orange); font-weight: 700; font-size: 1.125rem; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
@@ -286,114 +467,138 @@
     <!-- Mission Control Dashboard -->
     <div class="mission-control">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1 class="mission-title" data-label="insightCenter">INSIGHT CENTER</h1>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <div class="mode-indicator" style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
-                        MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1 class="mission-title">INSIGHT CENTER</h1>
+                    <div class="page-subtitle">Performance telemetry &amp; behavioral analytics</div>
+                </div>
+                <div class="page-header-right">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: var(--text-muted); padding: 0.5rem 0.85rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
+                        MODE:<span id="currentMode" style="color: var(--industrial-orange); font-weight: 700; margin-left: 0.4rem;">—</span>
                     </div>
-                    <button onclick="window.WeeklyReports?.showReport()" class="btn btn-secondary" style="font-size: 0.875rem;">📊 Report</button>
+                    <button onclick="showWeeklyReport()" style="font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; padding: 0.5rem 0.85rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-secondary); cursor: pointer;">[ REPORT ]</button>
                     <a href="upgrade.html" id="upgradeBtn" class="btn btn-primary hidden" style="font-size: 0.875rem;">✨ Upgrade</a>
                 </div>
             </div>
             
             <!-- Bento Grid -->
             <div class="bento-grid">
-                <!-- Total Sprints -->
-                <div class="bento-card activity-flow">
+
+                <!-- CARD 1: Activity Flow -->
+                <div class="bento-card">
                     <div class="card-micro-label">LIVE_TICKER_01</div>
-                    <h3 class="card-title">Activity Flow</h3>
-                    <div class="activity-chart">
-                        <div class="metric-large" id="totalSprints">0</div>
-                        <div class="metric-label">Total Sprints</div>
-                    </div>
-                    <div class="activity-context">
-                        Total: <span id="totalSprintsContext">0</span> <span class="trend-up">(↑ Last 7 days)</span>
+                    <div class="card-title">Activity Flow</div>
+                    <div class="metric-large" id="totalSprints">—</div>
+                    <div class="metric-label">Total Sprints</div>
+                    <hr class="card-divider">
+                    <div class="card-footer-stat">
+                        Last 7 days: <strong><span id="totalSprintsContext">—</span></strong>
+                        <span class="trend-up"> ↑</span>
                     </div>
                 </div>
 
-                <!-- Day Streak -->
-                <div class="bento-card consistency-log">
+                <!-- CARD 2: Consistency Log -->
+                <div class="bento-card">
                     <div class="card-micro-label">STREAK_TRACKER</div>
-                    <h3 class="card-title">Consistency Log</h3>
-                    <div class="consistency-chart">
-                        <div class="metric-large" id="dayStreak">0</div>
-                        <div class="metric-label">Day Streak (B+ or Higher)</div>
-                    </div>
-                    <div class="bar-chart-mini" id="weeklyChart"></div>
+                    <div class="card-title">Consistency Log</div>
+                    <div class="metric-large" id="dayStreak">—</div>
+                    <div class="metric-label">Day Streak (B+ or Higher)</div>
+                    <div class="sparkline-wrap" id="weeklyChart"></div>
                 </div>
 
-                <!-- Focus Score -->
-                <div class="bento-card daily-score">
+                <!-- CARD 3: Performance Index -->
+                <div class="bento-card">
                     <div class="card-micro-label">PERF_INDEX</div>
-                    <h3 class="card-title">Performance Index</h3>
-                    <div class="score-gauge">
-                        <div class="gauge-value" id="focusScore">0%</div>
-                        <div class="gauge-label">Avg Grade: <span id="avgGrade">N/A</span></div>
-                    </div>
-                    <div class="score-context">
-                        Tasks Completed: <span class="streak-value" id="totalTasks">0</span>
+                    <div class="card-title">Performance Index</div>
+                    <div class="score-ring-wrap">
+                        <div class="score-ring">
+                            <svg width="72" height="72" viewBox="0 0 72 72">
+                                <circle cx="36" cy="36" r="30" fill="none"
+                                    stroke="var(--bg-tertiary)" stroke-width="6"/>
+                                <circle cx="36" cy="36" r="30" fill="none"
+                                    stroke="var(--industrial-orange)" stroke-width="6"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="188.5"
+                                    stroke-dashoffset="188.5"
+                                    id="scoreRingFill"/>
+                            </svg>
+                            <div class="score-ring-num" id="focusScore">—</div>
+                        </div>
+                        <div class="score-detail">
+                            <div class="score-detail-row">
+                                Avg grade: <strong><span id="avgGrade">—</span></strong>
+                            </div>
+                            <div class="score-detail-row">
+                                Tasks done: <strong><span id="totalTasks">—</span></strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- NEW: Intention vs. Reality -->
-                <div class="bento-card intention-reality">
+                <!-- CARD 4: Intention vs Reality -->
+                <div class="bento-card">
                     <div class="card-micro-label">BEHAVIOR_DELTA</div>
-                    <h3 class="card-title">Intention vs. Reality</h3>
-                    <div class="intention-visual">
-                        <div class="intention-bar">
-                            <div class="intention-fill" id="intentionFill" style="width: 0%"></div>
-                            <div class="intention-label">What You Said</div>
+                    <div class="card-title">Intention vs. Reality</div>
+                    <div class="ivr-rows">
+                        <div class="ivr-row">
+                            <div class="ivr-row-header">
+                                <span class="ivr-row-label">Declared</span>
+                                <span class="ivr-row-val" id="intentionCount">0</span>
+                            </div>
+                            <div class="ivr-track">
+                                <div class="ivr-fill ivr-fill-said" id="intentionFill" style="width:0%"></div>
+                            </div>
                         </div>
-                        <div class="reality-bar">
-                            <div class="reality-fill" id="realityFill" style="width: 0%"></div>
-                            <div class="reality-label">What You Did</div>
+                        <div class="ivr-row">
+                            <div class="ivr-row-header">
+                                <span class="ivr-row-label">Delivered</span>
+                                <span class="ivr-row-val" id="realityCount">0</span>
+                            </div>
+                            <div class="ivr-track">
+                                <div class="ivr-fill ivr-fill-did" id="realityFill" style="width:0%"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="intention-stats">
-                        <div class="stat-item">
-                            <span class="stat-num" id="intentionCount">0</span>
-                            <span class="stat-desc">Declared Intentions</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-num" id="realityCount">0</span>
-                            <span class="stat-desc">Followed Through</span>
-                        </div>
+                    <div class="ivr-follow-rate">
+                        Follow-through: <strong id="followThroughRate">—</strong>
                     </div>
                 </div>
-            </div>
 
-            <!-- Primary Action -->
+            </div><!-- /bento-grid -->
+
+            <!-- Primary Action CTA -->
             <button class="primary-action" onclick="window.location.href='app.html'">
                 <span class="action-icon">[ &gt; ]</span>
                 <span class="action-text">INITIALIZE NEW SESSION</span>
             </button>
 
-            <!-- Quick Stats Table -->
-            <div class="stats-table">
-                <h3 class="stats-title">SYSTEM METRICS</h3>
-                <table>
-                    <tr>
-                        <td class="stat-label">Days Logged</td>
-                        <td class="stat-value" id="daysLogged">0</td>
-                    </tr>
-                    <tr>
-                        <td class="stat-label">Average Distractions/Day</td>
-                        <td class="stat-value" id="avgDistractions">0</td>
-                    </tr>
-                    <tr>
-                        <td class="stat-label">Sprint Completion Rate</td>
-                        <td class="stat-value" id="sprintRate">0%</td>
-                    </tr>
-                    <tr>
-                        <td class="stat-label">Meetings (Today)</td>
-                        <td class="stat-value" id="meetingCount">0</td>
-                    </tr>
-                    <tr>
-                        <td class="stat-label">Meeting Time (Today)</td>
-                        <td class="stat-value" id="meetingTime">—</td>
-                    </tr>
-                </table>
+            <!-- System Metrics grid — sits flush under the CTA -->
+            <div class="metrics-section">
+                <div class="metrics-section-header">
+                    <span class="metrics-section-title">System Metrics</span>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-cell">
+                        <div class="metric-cell-label">Days Logged</div>
+                        <div class="metric-cell-value" id="daysLogged">—</div>
+                    </div>
+                    <div class="metric-cell">
+                        <div class="metric-cell-label">Sprint Rate</div>
+                        <div class="metric-cell-value" id="sprintRate">—</div>
+                    </div>
+                    <div class="metric-cell">
+                        <div class="metric-cell-label">Distractions/Day</div>
+                        <div class="metric-cell-value" id="avgDistractions">—</div>
+                    </div>
+                    <div class="metric-cell">
+                        <div class="metric-cell-label">Meetings Today</div>
+                        <div class="metric-cell-value" id="meetingCount">—</div>
+                    </div>
+                    <div class="metric-cell">
+                        <div class="metric-cell-label">Meeting Time</div>
+                        <div class="metric-cell-value" id="meetingTime">—</div>
+                    </div>
+                </div>
             </div>
             
             <!-- Subject Breakdown (Student Mode Only) -->
@@ -420,8 +625,6 @@
     <!-- Mode Configuration System -->
     <script src="config.js"></script>
     
-    <!-- Weekly Reports -->
-    <script src="weekly-reports.js"></script>
 
     <script>
         // ============================================
@@ -738,6 +941,18 @@
             console.log('Sprint completion rate:', sprintRate);
             document.getElementById('sprintRate').textContent = sprintRate.toFixed(0) + '%';
 
+            // Animate the score ring
+            try {
+                const scoreEl = document.getElementById('focusScore');
+                const ringEl  = document.getElementById('scoreRingFill');
+                const rawPct  = parseFloat(scoreEl.textContent) || 0;
+                if (ringEl && rawPct > 0) {
+                    const circ = 2 * Math.PI * 30; // r=30 → 188.5
+                    const offset = circ - (circ * Math.min(rawPct, 100) / 100);
+                    ringEl.style.strokeDashoffset = offset;
+                }
+            } catch(e) {}
+
             // Meeting stats (from today's live state)
             try {
                 const liveState = JSON.parse(localStorage.getItem('focushub_state') || '{}');
@@ -758,14 +973,16 @@
             const chartHTML = last7.map(day => {
                 const planned = day.plannedSprints || 5;
                 const completed = day.sprints || day.sprintCount || day.sprint_count || 0;
-                const percentage = Math.min((completed / planned) * 100, 100);
-                const color = percentage >= 100 ? '#22C55E' : '#ef4444';
+                const pct = Math.min((completed / planned) * 100, 100);
+                const color = pct >= 100 ? 'var(--success)' : pct >= 60 ? 'var(--industrial-orange)' : 'var(--danger)';
                 const date = new Date(day.date);
-                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                const barH = Math.max(4, Math.round(pct * 0.44)); // max 44px
                 return `
-                    <div class="bar-mini">
-                        <div class="bar-fill" style="height: ${percentage}%; background: ${color}"></div>
-                        <div class="bar-day">${dayName}</div>
+                    <div class="spark-col">
+                        <div class="spark-bar" style="height:${barH}px; background:${color};"
+                             title="${dayName}: ${completed}/${planned} sprints"></div>
+                        <div class="spark-label">${dayName.slice(0,1)}</div>
                     </div>
                 `;
             }).join('');
@@ -785,6 +1002,16 @@
             
             document.getElementById('intentionFill').style.width = intentionPercent + '%';
             document.getElementById('realityFill').style.width = realityPercent + '%';
+
+            // Follow-through rate label
+            const ftEl = document.getElementById('followThroughRate');
+            if (ftEl) {
+                if (intentionCount === 0) {
+                    ftEl.textContent = '—';
+                } else {
+                    ftEl.textContent = Math.round(realityPercent) + '%';
+                }
+            }
             
             console.log('✅ Dashboard stats loaded successfully');
         }
@@ -940,5 +1167,257 @@
         updateDashboardTimer();
         loadStats();
     </script>
+
+    <!-- ══════════════════════════════════════════
+         WEEKLY REPORT MODAL — self-contained
+    ══════════════════════════════════════════ -->
+    <div id="weeklyReportOverlay" style="
+        display:none; position:fixed; inset:0; z-index:99000;
+        background:rgba(0,0,0,0.85); backdrop-filter:blur(4px);
+        overflow-y:auto; padding:2rem 1rem;
+    " onclick="if(event.target===this)closeWeeklyReport()">
+        <div style="
+            max-width:640px; margin:0 auto;
+            background:var(--bg-secondary);
+            border:1px solid var(--border-light);
+            border-top:3px solid var(--industrial-orange);
+            border-radius:8px; overflow:hidden;
+        ">
+            <!-- Header -->
+            <div style="
+                display:flex; justify-content:space-between; align-items:center;
+                padding:1.25rem 1.5rem;
+                border-bottom:1px solid var(--border-light);
+                background:var(--bg-tertiary);
+            ">
+                <div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+                        letter-spacing:0.18em;color:var(--text-muted);text-transform:uppercase;
+                        margin-bottom:0.3rem;">WEEKLY_REPORT</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--text-primary);
+                        letter-spacing:0.05em;">7-Day Performance Summary</div>
+                </div>
+                <button onclick="closeWeeklyReport()" style="
+                    background:none;border:1px solid var(--border-light);
+                    color:var(--text-muted);cursor:pointer;font-size:0.75rem;
+                    font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;
+                    padding:0.4rem 0.75rem;border-radius:4px;
+                ">[ CLOSE ]</button>
+            </div>
+
+            <!-- Stat strip -->
+            <div id="reportStatStrip" style="
+                display:grid;grid-template-columns:repeat(4,1fr);
+                border-bottom:1px solid var(--border-light);
+            "></div>
+
+            <!-- Bar chart -->
+            <div style="padding:1.5rem 1.5rem 0.5rem;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+                    letter-spacing:0.14em;color:var(--text-muted);text-transform:uppercase;
+                    margin-bottom:1rem;">Daily Sprint Completion</div>
+                <div id="reportBarChart" style="
+                    display:flex;gap:6px;align-items:flex-end;
+                    height:100px;margin-bottom:0.5rem;
+                "></div>
+            </div>
+
+            <!-- Insights -->
+            <div style="padding:1rem 1.5rem 1.5rem;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+                    letter-spacing:0.14em;color:var(--text-muted);text-transform:uppercase;
+                    margin-bottom:0.85rem;">Insights</div>
+                <div id="reportInsights" style="
+                    display:flex;flex-direction:column;gap:0.6rem;
+                "></div>
+            </div>
+
+            <!-- Footer -->
+            <div style="
+                padding:1rem 1.5rem;border-top:1px solid var(--border-light);
+                display:flex;gap:0.75rem;background:var(--bg-tertiary);
+            ">
+                <button onclick="exportWeeklyReport()" style="
+                    font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                    letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                    background:var(--industrial-orange);color:#000;
+                    border:none;border-radius:4px;cursor:pointer;font-weight:700;
+                ">[ EXPORT ]</button>
+                <button onclick="closeWeeklyReport()" style="
+                    font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                    letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                    background:none;color:var(--text-secondary);
+                    border:1px solid var(--border-light);border-radius:4px;cursor:pointer;
+                ">[ CLOSE ]</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── Weekly Report ──────────────────────────────────────────
+    function getUserItemR(key) {
+        const email = localStorage.getItem('focushub_user_email');
+        if (email) {
+            const v = localStorage.getItem(email + '_' + key);
+            if (v) return v;
+        }
+        return localStorage.getItem(key);
+    }
+
+    function showWeeklyReport() {
+        const overlay = document.getElementById('weeklyReportOverlay');
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        buildReport();
+    }
+
+    function closeWeeklyReport() {
+        document.getElementById('weeklyReportOverlay').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function buildReport() {
+        const history = JSON.parse(getUserItemR('focushub_grade_history') || '[]');
+        const last7 = history.slice(-7);
+
+        // ── Aggregate stats ──
+        const totalSprints = last7.reduce((s,d) => s + (d.sprints || d.sprintCount || 0), 0);
+        const totalTasks   = last7.reduce((s,d) => s + (d.tasksCompleted || d.tasks_completed || 0), 0);
+        const activeDays   = last7.filter(d => (d.sprints || d.sprintCount || 0) > 0).length;
+        const grades       = last7.map(d => d.grade || d.score || 0).filter(g => g > 0);
+        const avgGrade     = grades.length ? (grades.reduce((a,b)=>a+b,0)/grades.length).toFixed(1) : '—';
+
+        // streak (B+ = grade ≥ 3)
+        let streak = 0;
+        for (let i = history.length - 1; i >= 0; i--) {
+            if ((history[i].grade || 0) >= 3) streak++;
+            else break;
+        }
+
+        // ── Stat strip ──
+        const stripData = [
+            { label: 'Sprints', value: totalSprints },
+            { label: 'Tasks',   value: totalTasks   },
+            { label: 'Streak',  value: streak        },
+            { label: 'Active Days', value: activeDays },
+        ];
+        document.getElementById('reportStatStrip').innerHTML = stripData.map(s => `
+            <div style="padding:1.25rem 1rem;border-right:1px solid var(--border-light);
+                text-align:center;background:var(--bg-secondary);">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;
+                    font-weight:700;color:var(--industrial-orange);line-height:1;
+                    margin-bottom:0.4rem;">${s.value}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+                    letter-spacing:0.12em;color:var(--text-muted);text-transform:uppercase;">${s.label}</div>
+            </div>
+        `).join('').replace(/border-right[^;]+;(?=[^<]*<\/div>[^<]*<\/div>[^<]*$)/, '');
+
+        // ── Bar chart ──
+        const maxSprints = Math.max(...last7.map(d => d.sprints || d.sprintCount || 0), 1);
+        document.getElementById('reportBarChart').innerHTML = last7.length ? last7.map(d => {
+            const done = d.sprints || d.sprintCount || 0;
+            const planned = d.plannedSprints || 5;
+            const pct = Math.min((done / planned) * 100, 100);
+            const barH = Math.max(4, Math.round((done / maxSprints) * 88));
+            const color = pct >= 100 ? 'var(--success)' : pct >= 60 ? 'var(--industrial-orange)' : 'var(--danger)';
+            const date = new Date(d.date);
+            const label = date.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase();
+            const gradeLabel = d.grade ? ['','D','C','B','A'][Math.min(Math.round(d.grade),4)] || '—' : '—';
+            return `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;
+                    gap:4px;height:100%;justify-content:flex-end;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+                        color:var(--text-muted);">${gradeLabel}</div>
+                    <div style="width:100%;border-radius:2px 2px 0 0;min-height:4px;
+                        height:${barH}px;background:${color};transition:height 0.4s ease;"
+                        title="${label}: ${done}/${planned} sprints"></div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+                        letter-spacing:0.05em;color:var(--text-muted);text-transform:uppercase;">${label.slice(0,1)}</div>
+                </div>
+            `;
+        }).join('') : '<div style="color:var(--text-muted);font-size:0.8rem;align-self:center;">No data yet</div>';
+
+        // ── Insights ──
+        const insights = [];
+
+        if (last7.length === 0) {
+            insights.push({ icon:'○', text:'No sessions logged in the past 7 days. Start your first session to see analytics.' });
+        } else {
+            const completion = last7.reduce((s,d) => {
+                const planned = d.plannedSprints || 5;
+                const done = d.sprints || d.sprintCount || 0;
+                return s + Math.min((done/planned)*100, 100);
+            }, 0) / last7.length;
+
+            if (completion >= 90) {
+                insights.push({ icon:'▲', text:`Sprint completion rate: ${completion.toFixed(0)}% — elite execution. Maintain the standard.`, color:'var(--success)' });
+            } else if (completion >= 70) {
+                insights.push({ icon:'◆', text:`Sprint completion rate: ${completion.toFixed(0)}%. Solid week. Push for 90%+.`, color:'var(--industrial-orange)' });
+            } else {
+                insights.push({ icon:'▼', text:`Sprint completion rate: ${completion.toFixed(0)}%. Below target. Identify the pattern and fix it.`, color:'var(--danger)' });
+            }
+
+            if (streak >= 5) {
+                insights.push({ icon:'▲', text:`${streak}-day B+ streak. That's consistency building into a real habit.`, color:'var(--success)' });
+            } else if (streak >= 2) {
+                insights.push({ icon:'◆', text:`${streak}-day streak. Keep it going — 5 days is where habits solidify.`, color:'var(--industrial-orange)' });
+            } else if (streak === 0) {
+                insights.push({ icon:'○', text:'Streak reset. Win today's session and start a new one.', color:'var(--text-muted)' });
+            }
+
+            if (activeDays >= 6) {
+                insights.push({ icon:'▲', text:'Showed up 6+ days this week. That's the habit. Protect it.', color:'var(--success)' });
+            } else if (activeDays <= 2) {
+                insights.push({ icon:'▼', text:`Only ${activeDays} active day${activeDays !== 1 ? 's' : ''} this week. Consistency gap. Aim for 5+ next week.`, color:'var(--danger)' });
+            }
+
+            if (avgGrade !== '—') {
+                const g = parseFloat(avgGrade);
+                if (g >= 3.5) insights.push({ icon:'▲', text:`Avg grade ${avgGrade}/4.0 — strong output week.`, color:'var(--success)' });
+                else if (g < 2.5) insights.push({ icon:'▼', text:`Avg grade ${avgGrade}/4.0 — below standard. Tasks per sprint needs to increase.`, color:'var(--danger)' });
+            }
+        }
+
+        document.getElementById('reportInsights').innerHTML = insights.map(ins => `
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;
+                padding:0.7rem 0.85rem;background:var(--bg-tertiary);
+                border-radius:4px;border-left:2px solid ${ins.color || 'var(--border-light)'};
+            ">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                    color:${ins.color || 'var(--text-muted)'};flex-shrink:0;margin-top:0.05rem;">${ins.icon}</span>
+                <span style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${ins.text}</span>
+            </div>
+        `).join('');
+    }
+
+    function exportWeeklyReport() {
+        const history = JSON.parse(getUserItemR('focushub_grade_history') || '[]');
+        const last7 = history.slice(-7);
+        const lines = [
+            'FocusHub — Weekly Report',
+            `Generated: ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`,
+            '',
+            'DATE         SPRINTS  TASKS  GRADE',
+            '──────────────────────────────────',
+            ...last7.map(d => {
+                const date = new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'2-digit'});
+                const sp = String(d.sprints || d.sprintCount || 0).padStart(7);
+                const tk = String(d.tasksCompleted || 0).padStart(6);
+                const gr = ['—','D','C','B','A'][Math.min(Math.round(d.grade||0),4)] || '—';
+                return `${date}   ${sp}  ${tk}      ${gr}`;
+            }),
+            '',
+            `Total sprints: ${last7.reduce((s,d)=>s+(d.sprints||d.sprintCount||0),0)}`,
+            `Total tasks:   ${last7.reduce((s,d)=>s+(d.tasksCompleted||0),0)}`,
+            `Active days:   ${last7.filter(d=>(d.sprints||d.sprintCount||0)>0).length}`,
+        ];
+        const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `focushub-report-${new Date().toISOString().slice(0,10)}.txt`;
+        a.click();
+    }
+    </script>
+
 </body>
 </html>
