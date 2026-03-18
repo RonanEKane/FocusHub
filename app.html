@@ -2292,11 +2292,15 @@
         
         function takeBreakFromModal() {
             closeTimerModalOnly();
+            // Guard: day may have rolled over while the modal sat open overnight.
+            if (!state.dayActive) return;
             startBreak();
         }
         
         function startAnotherSprintFromModal() {
             closeTimerModalOnly();
+            // Same guard: stale session after overnight modal.
+            if (!state.dayActive) return;
             startSprint();
         }
         
@@ -2308,6 +2312,17 @@
             if (titleFlashInterval) {
                 clearInterval(titleFlashInterval);
                 document.title = 'FocusHub';
+            }
+
+            // KEY FIX: modal may have been left open overnight. Check day
+            // rollover now so the user gets the correct new-day flow instead
+            // of silently continuing a stale session.
+            if (state.dayActive) {
+                const expired = checkDayExpiration();
+                if (expired) return; // already redirected to dashboard
+            } else {
+                // Day was already marked inactive — surface the start-day modal
+                showStartDayModal();
             }
         }
         
