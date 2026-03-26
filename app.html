@@ -412,7 +412,8 @@
             totalBreakTime: 0,               // Total minutes in breaks this session
             lowEnergyChoiceCount: 0,         // Count of low energy selections
             sprintAborts: 0,                 // Count of sprints stopped early
-            idleStartTime: null              // When user went idle
+            idleStartTime: null,             // When user went idle
+            activityLog: []                  // DAILY TIMELINE: [{type,start,end,duration,label}]
         };
 
         // ============================================
@@ -1771,6 +1772,15 @@
                 if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
                 
+                // ACTIVITY LOG: record meeting start
+                state.activityLog.push({
+                    type: 'meeting',
+                    start: state.meetingStartTime,
+                    end: null,
+                    duration: null,
+                    label: `Meeting #${state.meetingCount}`
+                });
+
                 // Show meeting banner and update AI
                 showMeetingBanner();
                 updateAIMessage('🎤 Meeting logged. Timer paused. Resume when meeting ends.');
@@ -1783,6 +1793,14 @@
                 if (state.meetingStartTime) {
                     meetingDurationMin = Math.round((Date.now() - state.meetingStartTime) / 60000);
                     state.totalMeetingTime = (state.totalMeetingTime || 0) + meetingDurationMin;
+                    // ACTIVITY LOG: close the meeting entry
+                    const _meetingEntry = [...state.activityLog].reverse().find(e => e.type === 'meeting' && e.end === null);
+                    if (_meetingEntry) {
+                        _meetingEntry.end = Date.now();
+                        _meetingEntry.duration = meetingDurationMin;
+                        _meetingEntry.actualDuration = meetingDurationMin;
+                        _meetingEntry.label = `Meeting #${state.meetingCount} (${meetingDurationMin} min)`;
+                    }
                     state.meetingStartTime = null;
                 }
 
@@ -1937,7 +1955,16 @@
             state.timer.active = true;
             state.timer.type = 'focus';
             state.sessionState = 'active';
-            
+
+            // ACTIVITY LOG: record sprint start
+            state.activityLog.push({
+                type: 'sprint',
+                start: now,
+                end: null,
+                duration: state.timer.duration,
+                label: `Sprint #${state.sprintCount + 1} (${state.timer.duration} min)`
+            });
+
             const totalRequired = calculateTotalRequiredSprints();
             const message = getAICoachMessage('sessionStart', { required: totalRequired });
             
@@ -1988,6 +2015,15 @@
             state.timer.duration = 5;
             state.timer.remaining = 300;
             state.sessionState = 'break';
+
+            // ACTIVITY LOG: record break start
+            state.activityLog.push({
+                type: 'break',
+                start: now,
+                end: null,
+                duration: 5,
+                label: `Break #${state.breaksCount + 1} (5 min)`
+            });
             
             // ENHANCED COACHING: Track break
             trackBreak();
@@ -2350,6 +2386,13 @@
         
         function completeSprint() {
             clearInterval(state.timer.interval);
+
+            // ACTIVITY LOG: close the most recent open entry
+            const _openEntry = [...state.activityLog].reverse().find(e => e.end === null);
+            if (_openEntry) {
+                _openEntry.end = Date.now();
+                _openEntry.actualDuration = Math.round((_openEntry.end - _openEntry.start) / 60000);
+            }
             
             // V20.6: Track focus vs break time
             if (state.timer.type === 'focus') {
@@ -4398,6 +4441,383 @@
             }
         }
     </script>
+
+        <!-- ══════════════════════════════════════════
+             DAILY TIMELINE REPORT — Admin Easter Egg
+             Trigger: type "report" anywhere, or
+             triple-click the session counter
+        ══════════════════════════════════════════ -->
+        <div id="dailyReportOverlay" style="
+            display:none; position:fixed; inset:0; z-index:99000;
+            background:rgba(0,0,0,0.92); backdrop-filter:blur(6px);
+            overflow-y:auto; padding:2rem 1rem;
+            font-family:'JetBrains Mono',monospace;
+        " onclick="if(event.target===this)closeDailyReport()">
+            <div style="
+                max-width:700px; margin:0 auto;
+                background:var(--bg-secondary);
+                border:1px solid var(--border-light);
+                border-top:3px solid var(--industrial-orange);
+                border-radius:8px; overflow:hidden;
+            ">
+                <!-- Header -->
+                <div style="
+                    display:flex; justify-content:space-between; align-items:center;
+                    padding:1.25rem 1.5rem;
+                    border-bottom:1px solid var(--border-light);
+                    background:var(--bg-tertiary);
+                ">
+                    <div>
+                        <div style="font-size:0.58rem;letter-spacing:0.2em;color:var(--text-muted);
+                            text-transform:uppercase;margin-bottom:0.3rem;">ADMIN // DAILY_TIMELINE_REPORT</div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--text-primary);"
+                            id="reportDateLabel">—</div>
+                    </div>
+                    <button onclick="closeDailyReport()" style="
+                        background:none;border:1px solid var(--border-light);
+                        color:var(--text-muted);cursor:pointer;font-size:0.7rem;
+                        font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;
+                        padding:0.4rem 0.75rem;border-radius:4px;
+                    ">[ ESC ]</button>
+                </div>
+
+                <!-- Summary strip -->
+                <div id="reportSummaryStrip" style="
+                    display:grid;grid-template-columns:repeat(5,1fr);
+                    border-bottom:1px solid var(--border-light);
+                "></div>
+
+                <!-- Timeline -->
+                <div style="padding:1.25rem 1.5rem;">
+                    <div style="font-size:0.58rem;letter-spacing:0.16em;color:var(--text-muted);
+                        text-transform:uppercase;margin-bottom:1rem;">Activity Timeline</div>
+                    <div id="reportTimeline"></div>
+                </div>
+
+                <!-- Downtime analysis -->
+                <div style="padding:0 1.5rem 1.25rem;">
+                    <div style="font-size:0.58rem;letter-spacing:0.16em;color:var(--text-muted);
+                        text-transform:uppercase;margin-bottom:0.75rem;">Downtime Gaps</div>
+                    <div id="reportDowntime"></div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div style="
+                    padding:1rem 1.5rem;border-top:1px solid var(--border-light);
+                    display:flex;gap:0.75rem;background:var(--bg-tertiary);
+                    flex-wrap:wrap;
+                ">
+                    <button onclick="downloadDailyCSV()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:var(--industrial-orange);color:#000;
+                        border:none;border-radius:4px;cursor:pointer;font-weight:700;
+                    ">[ DOWNLOAD CSV ]</button>
+                    <button onclick="copyDailyCSV()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:none;color:var(--text-secondary);
+                        border:1px solid var(--border-light);border-radius:4px;cursor:pointer;
+                    " id="copyBtn">[ COPY TO CLIPBOARD ]</button>
+                    <button onclick="closeDailyReport()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:none;color:var(--text-muted);
+                        border:1px solid var(--border-light);border-radius:4px;cursor:pointer;
+                        margin-left:auto;
+                    ">[ CLOSE ]</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // ── Daily Report Engine ────────────────────────────────
+        function fmtTime(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts);
+            return d.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:true});
+        }
+        function fmtDur(mins) {
+            if (!mins && mins !== 0) return '—';
+            if (mins < 60) return mins + 'm';
+            return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+        }
+        function fmtDate(ts) {
+            return new Date(ts).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+        }
+
+        function buildDailyReport() {
+            // Pull live state
+            let st;
+            try { st = JSON.parse(localStorage.getItem('focushub_state') || '{}'); } catch(e) { st = {}; }
+
+            const log = (st.activityLog || []).filter(e => e.start);
+            const dayStart = st.lastDayStarted || (log.length ? log[0].start : null);
+
+            // Date label
+            document.getElementById('reportDateLabel').textContent =
+                dayStart ? fmtDate(dayStart) : 'Current Session';
+
+            // ── Compute summary ──
+            const sprints  = log.filter(e => e.type === 'sprint');
+            const breaks   = log.filter(e => e.type === 'break');
+            const meetings = log.filter(e => e.type === 'meeting');
+
+            const focusMins   = sprints.reduce((s,e)  => s + (e.actualDuration || e.duration || 0), 0);
+            const breakMins   = breaks.reduce((s,e)   => s + (e.actualDuration || e.duration || 0), 0);
+            const meetingMins = meetings.reduce((s,e) => s + (e.actualDuration || e.duration || 0), 0);
+
+            // Downtime = gaps between log entries
+            const sorted = [...log].filter(e=>e.start && e.end).sort((a,b)=>a.start-b.start);
+            let downtimeMins = 0;
+            const gaps = [];
+            for (let i = 1; i < sorted.length; i++) {
+                const gapMs = sorted[i].start - sorted[i-1].end;
+                if (gapMs > 60000) { // ignore gaps < 1 min
+                    const gapMins = Math.round(gapMs / 60000);
+                    downtimeMins += gapMins;
+                    gaps.push({
+                        after: sorted[i-1].label,
+                        before: sorted[i].label,
+                        start: sorted[i-1].end,
+                        end: sorted[i].start,
+                        mins: gapMins
+                    });
+                }
+            }
+            // Also add any open-ended gap (currently idle)
+            if (sorted.length && !st.timer?.active) {
+                const lastEnd = sorted[sorted.length-1].end;
+                if (lastEnd) {
+                    const idleMs = Date.now() - lastEnd;
+                    const idleMins = Math.round(idleMs / 60000);
+                    if (idleMins > 1) {
+                        gaps.push({
+                            after: sorted[sorted.length-1].label,
+                            before: 'NOW',
+                            start: lastEnd,
+                            end: Date.now(),
+                            mins: idleMins,
+                            current: true
+                        });
+                        downtimeMins += idleMins;
+                    }
+                }
+            }
+
+            const totalTracked = focusMins + breakMins + meetingMins + downtimeMins;
+            const sessionMins = dayStart ? Math.round((Date.now() - dayStart) / 60000) : totalTracked;
+
+            // ── Summary strip ──
+            const strip = [
+                { label:'Focus Time',   value: fmtDur(focusMins),   color:'var(--industrial-orange)' },
+                { label:'Breaks',       value: fmtDur(breakMins),   color:'var(--text-primary)' },
+                { label:'Meetings',     value: fmtDur(meetingMins), color:'var(--text-primary)' },
+                { label:'Downtime',     value: fmtDur(downtimeMins),color: downtimeMins > focusMins ? 'var(--danger)' : 'var(--text-primary)' },
+                { label:'Clock-in',     value: fmtDur(sessionMins), color:'var(--text-primary)' },
+            ];
+            document.getElementById('reportSummaryStrip').innerHTML = strip.map((s,i) => `
+                <div style="padding:1rem 0.85rem;${i<4?'border-right:1px solid var(--border-light);':''}
+                    background:var(--bg-secondary);text-align:center;">
+                    <div style="font-size:1.15rem;font-weight:700;color:${s.color};
+                        line-height:1;margin-bottom:0.35rem;">${s.value}</div>
+                    <div style="font-size:0.55rem;letter-spacing:0.12em;color:var(--text-muted);
+                        text-transform:uppercase;">${s.label}</div>
+                </div>
+            `).join('');
+
+            // ── Timeline ──
+            const typeColor = { sprint:'var(--industrial-orange)', break:'var(--success)', meeting:'#60a5fa', downtime:'var(--text-muted)' };
+            const typeIcon  = { sprint:'▶', break:'◉', meeting:'🎤', downtime:'○' };
+
+            // Build full timeline including gaps
+            const timelineItems = [];
+            const allSorted = [...log].filter(e=>e.start).sort((a,b)=>a.start-b.start);
+
+            // Insert day start marker
+            if (dayStart) {
+                timelineItems.push({ type:'daystart', start: dayStart, label:'Session Started' });
+            }
+
+            let prevEnd = dayStart;
+            for (const entry of allSorted) {
+                // Gap before this entry
+                if (prevEnd && entry.start - prevEnd > 60000) {
+                    const gMins = Math.round((entry.start - prevEnd) / 60000);
+                    timelineItems.push({ type:'downtime', start: prevEnd, end: entry.start,
+                        duration: gMins, label: `Downtime (${fmtDur(gMins)})` });
+                }
+                timelineItems.push(entry);
+                prevEnd = entry.end || entry.start;
+            }
+
+            if (!timelineItems.length) {
+                document.getElementById('reportTimeline').innerHTML =
+                    '<div style="color:var(--text-muted);font-size:0.8rem;padding:1rem 0;">No activity logged yet today.</div>';
+            } else {
+                document.getElementById('reportTimeline').innerHTML = timelineItems.map(item => {
+                    if (item.type === 'daystart') return `
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;
+                            opacity:0.5;padding:0.35rem 0;">
+                            <span style="font-size:0.7rem;color:var(--text-muted);width:80px;text-align:right;flex-shrink:0;">${fmtTime(item.start)}</span>
+                            <span style="width:1px;height:16px;background:var(--border-light);"></span>
+                            <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.08em;">— SESSION START —</span>
+                        </div>`;
+                    const color = typeColor[item.type] || 'var(--text-muted)';
+                    const icon  = typeIcon[item.type]  || '·';
+                    const dur   = item.actualDuration || item.duration;
+                    return `
+                        <div style="display:flex;align-items:flex-start;gap:0.75rem;
+                            margin-bottom:0.4rem;padding:0.5rem 0.6rem;
+                            background:var(--bg-tertiary);border-radius:4px;
+                            border-left:2px solid ${color};">
+                            <span style="font-size:0.68rem;color:var(--text-muted);width:80px;
+                                text-align:right;flex-shrink:0;padding-top:0.05rem;">${fmtTime(item.start)}</span>
+                            <span style="color:${color};font-size:0.75rem;flex-shrink:0;">${icon}</span>
+                            <div style="flex:1;min-width:0;">
+                                <span style="font-size:0.78rem;color:var(--text-primary);font-weight:600;">${item.label || item.type}</span>
+                                ${item.end ? `<span style="font-size:0.68rem;color:var(--text-muted);margin-left:0.5rem;">→ ${fmtTime(item.end)}</span>` : '<span style="font-size:0.65rem;color:var(--industrial-orange);margin-left:0.5rem;">[IN PROGRESS]</span>'}
+                            </div>
+                            <span style="font-size:0.7rem;color:${color};font-weight:700;flex-shrink:0;">${dur ? fmtDur(dur) : ''}</span>
+                        </div>`;
+                }).join('');
+            }
+
+            // ── Downtime analysis ──
+            if (!gaps.length) {
+                document.getElementById('reportDowntime').innerHTML =
+                    '<div style="font-size:0.75rem;color:var(--success);">No significant downtime gaps detected.</div>';
+            } else {
+                document.getElementById('reportDowntime').innerHTML = gaps.map(g => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;
+                        padding:0.45rem 0.6rem;margin-bottom:0.35rem;
+                        background:var(--bg-tertiary);border-radius:4px;
+                        border-left:2px solid ${g.mins > 20 ? 'var(--danger)' : 'var(--text-muted)'};">
+                        <span style="font-size:0.72rem;color:var(--text-secondary);">
+                            ${fmtTime(g.start)} → ${fmtTime(g.end)}
+                            ${g.current ? '<span style="color:var(--industrial-orange);">[now]</span>' : ''}
+                        </span>
+                        <span style="font-size:0.78rem;font-weight:700;
+                            color:${g.mins > 20 ? 'var(--danger)' : 'var(--text-muted)'};">${fmtDur(g.mins)}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Store for export
+            window._reportData = { log, dayStart, focusMins, breakMins, meetingMins, downtimeMins, sessionMins, gaps, sprints, breaks, meetings };
+        }
+
+        function openDailyReport() {
+            document.getElementById('dailyReportOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            buildDailyReport();
+        }
+
+        function closeDailyReport() {
+            document.getElementById('dailyReportOverlay').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // ── CSV Export ──────────────────────────────────────
+        function buildCSV() {
+            const d = window._reportData;
+            if (!d) return '';
+            const lines = [];
+
+            // Header
+            lines.push('FOCUSHUB — DAILY TIMELINE REPORT');
+            lines.push('Date: ' + (d.dayStart ? fmtDate(d.dayStart) : 'Today'));
+            lines.push('Generated: ' + new Date().toLocaleString());
+            lines.push('');
+
+            // Summary
+            lines.push('SUMMARY');
+            lines.push('Metric,Value');
+            lines.push('Clock-in Duration,' + fmtDur(d.sessionMins));
+            lines.push('Focus Time,' + fmtDur(d.focusMins));
+            lines.push('Sprints Completed,' + d.sprints.length);
+            lines.push('Break Time,' + fmtDur(d.breakMins));
+            lines.push('Breaks Taken,' + d.breaks.length);
+            lines.push('Meeting Time,' + fmtDur(d.meetingMins));
+            lines.push('Meetings,' + d.meetings.length);
+            lines.push('Downtime,' + fmtDur(d.downtimeMins));
+            lines.push('');
+
+            // Timeline
+            lines.push('ACTIVITY TIMELINE');
+            lines.push('Type,Start,End,Duration (min),Label');
+            const sorted = [...d.log].filter(e=>e.start).sort((a,b)=>a.start-b.start);
+            for (const e of sorted) {
+                const dur = e.actualDuration || e.duration || '';
+                lines.push([
+                    e.type,
+                    fmtTime(e.start),
+                    e.end ? fmtTime(e.end) : 'In Progress',
+                    dur,
+                    '"' + (e.label || e.type) + '"'
+                ].join(','));
+            }
+            lines.push('');
+
+            // Downtime gaps
+            lines.push('DOWNTIME GAPS');
+            lines.push('Start,End,Duration (min)');
+            for (const g of d.gaps) {
+                lines.push([fmtTime(g.start), fmtTime(g.end), g.mins].join(','));
+            }
+
+            return lines.join('\n');
+        }
+
+        function downloadDailyCSV() {
+            const csv = buildCSV();
+            const blob = new Blob([csv], {type:'text/csv'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'focushub-daily-' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
+        }
+
+        function copyDailyCSV() {
+            const csv = buildCSV();
+            navigator.clipboard.writeText(csv).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const orig = btn.textContent;
+                btn.textContent = '[ COPIED ✓ ]';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+            });
+        }
+
+        // ── Easter Egg Triggers ──────────────────────────────
+        // 1. Type "report" anywhere (not in an input)
+        (function() {
+            let buf = '';
+            document.addEventListener('keydown', e => {
+                if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+                buf += e.key.toLowerCase();
+                if (buf.length > 8) buf = buf.slice(-8);
+                if (buf.includes('report')) {
+                    buf = '';
+                    openDailyReport();
+                }
+            });
+        })();
+
+        // 2. Triple-click the sprint counter display
+        (function() {
+            let clicks = 0, timer;
+            document.addEventListener('click', e => {
+                const el = e.target.closest('.sprint-count, .sprint-counter, #sprintDisplay, .timer-value, .system-state');
+                if (!el) return;
+                clicks++;
+                clearTimeout(timer);
+                timer = setTimeout(() => { clicks = 0; }, 600);
+                if (clicks >= 3) { clicks = 0; openDailyReport(); }
+            });
+        })();
+        </script>
+
 </body>
 </html>
 
@@ -4473,5 +4893,382 @@
             showToast('Welcome to FocusHub! Let\'s get to work.', 'success');
         }
     </script>
+
+        <!-- ══════════════════════════════════════════
+             DAILY TIMELINE REPORT — Admin Easter Egg
+             Trigger: type "report" anywhere, or
+             triple-click the session counter
+        ══════════════════════════════════════════ -->
+        <div id="dailyReportOverlay" style="
+            display:none; position:fixed; inset:0; z-index:99000;
+            background:rgba(0,0,0,0.92); backdrop-filter:blur(6px);
+            overflow-y:auto; padding:2rem 1rem;
+            font-family:'JetBrains Mono',monospace;
+        " onclick="if(event.target===this)closeDailyReport()">
+            <div style="
+                max-width:700px; margin:0 auto;
+                background:var(--bg-secondary);
+                border:1px solid var(--border-light);
+                border-top:3px solid var(--industrial-orange);
+                border-radius:8px; overflow:hidden;
+            ">
+                <!-- Header -->
+                <div style="
+                    display:flex; justify-content:space-between; align-items:center;
+                    padding:1.25rem 1.5rem;
+                    border-bottom:1px solid var(--border-light);
+                    background:var(--bg-tertiary);
+                ">
+                    <div>
+                        <div style="font-size:0.58rem;letter-spacing:0.2em;color:var(--text-muted);
+                            text-transform:uppercase;margin-bottom:0.3rem;">ADMIN // DAILY_TIMELINE_REPORT</div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--text-primary);"
+                            id="reportDateLabel">—</div>
+                    </div>
+                    <button onclick="closeDailyReport()" style="
+                        background:none;border:1px solid var(--border-light);
+                        color:var(--text-muted);cursor:pointer;font-size:0.7rem;
+                        font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;
+                        padding:0.4rem 0.75rem;border-radius:4px;
+                    ">[ ESC ]</button>
+                </div>
+
+                <!-- Summary strip -->
+                <div id="reportSummaryStrip" style="
+                    display:grid;grid-template-columns:repeat(5,1fr);
+                    border-bottom:1px solid var(--border-light);
+                "></div>
+
+                <!-- Timeline -->
+                <div style="padding:1.25rem 1.5rem;">
+                    <div style="font-size:0.58rem;letter-spacing:0.16em;color:var(--text-muted);
+                        text-transform:uppercase;margin-bottom:1rem;">Activity Timeline</div>
+                    <div id="reportTimeline"></div>
+                </div>
+
+                <!-- Downtime analysis -->
+                <div style="padding:0 1.5rem 1.25rem;">
+                    <div style="font-size:0.58rem;letter-spacing:0.16em;color:var(--text-muted);
+                        text-transform:uppercase;margin-bottom:0.75rem;">Downtime Gaps</div>
+                    <div id="reportDowntime"></div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div style="
+                    padding:1rem 1.5rem;border-top:1px solid var(--border-light);
+                    display:flex;gap:0.75rem;background:var(--bg-tertiary);
+                    flex-wrap:wrap;
+                ">
+                    <button onclick="downloadDailyCSV()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:var(--industrial-orange);color:#000;
+                        border:none;border-radius:4px;cursor:pointer;font-weight:700;
+                    ">[ DOWNLOAD CSV ]</button>
+                    <button onclick="copyDailyCSV()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:none;color:var(--text-secondary);
+                        border:1px solid var(--border-light);border-radius:4px;cursor:pointer;
+                    " id="copyBtn">[ COPY TO CLIPBOARD ]</button>
+                    <button onclick="closeDailyReport()" style="
+                        font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                        letter-spacing:0.08em;padding:0.6rem 1.2rem;
+                        background:none;color:var(--text-muted);
+                        border:1px solid var(--border-light);border-radius:4px;cursor:pointer;
+                        margin-left:auto;
+                    ">[ CLOSE ]</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // ── Daily Report Engine ────────────────────────────────
+        function fmtTime(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts);
+            return d.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:true});
+        }
+        function fmtDur(mins) {
+            if (!mins && mins !== 0) return '—';
+            if (mins < 60) return mins + 'm';
+            return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+        }
+        function fmtDate(ts) {
+            return new Date(ts).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+        }
+
+        function buildDailyReport() {
+            // Pull live state
+            let st;
+            try { st = JSON.parse(localStorage.getItem('focushub_state') || '{}'); } catch(e) { st = {}; }
+
+            const log = (st.activityLog || []).filter(e => e.start);
+            const dayStart = st.lastDayStarted || (log.length ? log[0].start : null);
+
+            // Date label
+            document.getElementById('reportDateLabel').textContent =
+                dayStart ? fmtDate(dayStart) : 'Current Session';
+
+            // ── Compute summary ──
+            const sprints  = log.filter(e => e.type === 'sprint');
+            const breaks   = log.filter(e => e.type === 'break');
+            const meetings = log.filter(e => e.type === 'meeting');
+
+            const focusMins   = sprints.reduce((s,e)  => s + (e.actualDuration || e.duration || 0), 0);
+            const breakMins   = breaks.reduce((s,e)   => s + (e.actualDuration || e.duration || 0), 0);
+            const meetingMins = meetings.reduce((s,e) => s + (e.actualDuration || e.duration || 0), 0);
+
+            // Downtime = gaps between log entries
+            const sorted = [...log].filter(e=>e.start && e.end).sort((a,b)=>a.start-b.start);
+            let downtimeMins = 0;
+            const gaps = [];
+            for (let i = 1; i < sorted.length; i++) {
+                const gapMs = sorted[i].start - sorted[i-1].end;
+                if (gapMs > 60000) { // ignore gaps < 1 min
+                    const gapMins = Math.round(gapMs / 60000);
+                    downtimeMins += gapMins;
+                    gaps.push({
+                        after: sorted[i-1].label,
+                        before: sorted[i].label,
+                        start: sorted[i-1].end,
+                        end: sorted[i].start,
+                        mins: gapMins
+                    });
+                }
+            }
+            // Also add any open-ended gap (currently idle)
+            if (sorted.length && !st.timer?.active) {
+                const lastEnd = sorted[sorted.length-1].end;
+                if (lastEnd) {
+                    const idleMs = Date.now() - lastEnd;
+                    const idleMins = Math.round(idleMs / 60000);
+                    if (idleMins > 1) {
+                        gaps.push({
+                            after: sorted[sorted.length-1].label,
+                            before: 'NOW',
+                            start: lastEnd,
+                            end: Date.now(),
+                            mins: idleMins,
+                            current: true
+                        });
+                        downtimeMins += idleMins;
+                    }
+                }
+            }
+
+            const totalTracked = focusMins + breakMins + meetingMins + downtimeMins;
+            const sessionMins = dayStart ? Math.round((Date.now() - dayStart) / 60000) : totalTracked;
+
+            // ── Summary strip ──
+            const strip = [
+                { label:'Focus Time',   value: fmtDur(focusMins),   color:'var(--industrial-orange)' },
+                { label:'Breaks',       value: fmtDur(breakMins),   color:'var(--text-primary)' },
+                { label:'Meetings',     value: fmtDur(meetingMins), color:'var(--text-primary)' },
+                { label:'Downtime',     value: fmtDur(downtimeMins),color: downtimeMins > focusMins ? 'var(--danger)' : 'var(--text-primary)' },
+                { label:'Clock-in',     value: fmtDur(sessionMins), color:'var(--text-primary)' },
+            ];
+            document.getElementById('reportSummaryStrip').innerHTML = strip.map((s,i) => `
+                <div style="padding:1rem 0.85rem;${i<4?'border-right:1px solid var(--border-light);':''}
+                    background:var(--bg-secondary);text-align:center;">
+                    <div style="font-size:1.15rem;font-weight:700;color:${s.color};
+                        line-height:1;margin-bottom:0.35rem;">${s.value}</div>
+                    <div style="font-size:0.55rem;letter-spacing:0.12em;color:var(--text-muted);
+                        text-transform:uppercase;">${s.label}</div>
+                </div>
+            `).join('');
+
+            // ── Timeline ──
+            const typeColor = { sprint:'var(--industrial-orange)', break:'var(--success)', meeting:'#60a5fa', downtime:'var(--text-muted)' };
+            const typeIcon  = { sprint:'▶', break:'◉', meeting:'🎤', downtime:'○' };
+
+            // Build full timeline including gaps
+            const timelineItems = [];
+            const allSorted = [...log].filter(e=>e.start).sort((a,b)=>a.start-b.start);
+
+            // Insert day start marker
+            if (dayStart) {
+                timelineItems.push({ type:'daystart', start: dayStart, label:'Session Started' });
+            }
+
+            let prevEnd = dayStart;
+            for (const entry of allSorted) {
+                // Gap before this entry
+                if (prevEnd && entry.start - prevEnd > 60000) {
+                    const gMins = Math.round((entry.start - prevEnd) / 60000);
+                    timelineItems.push({ type:'downtime', start: prevEnd, end: entry.start,
+                        duration: gMins, label: `Downtime (${fmtDur(gMins)})` });
+                }
+                timelineItems.push(entry);
+                prevEnd = entry.end || entry.start;
+            }
+
+            if (!timelineItems.length) {
+                document.getElementById('reportTimeline').innerHTML =
+                    '<div style="color:var(--text-muted);font-size:0.8rem;padding:1rem 0;">No activity logged yet today.</div>';
+            } else {
+                document.getElementById('reportTimeline').innerHTML = timelineItems.map(item => {
+                    if (item.type === 'daystart') return `
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;
+                            opacity:0.5;padding:0.35rem 0;">
+                            <span style="font-size:0.7rem;color:var(--text-muted);width:80px;text-align:right;flex-shrink:0;">${fmtTime(item.start)}</span>
+                            <span style="width:1px;height:16px;background:var(--border-light);"></span>
+                            <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.08em;">— SESSION START —</span>
+                        </div>`;
+                    const color = typeColor[item.type] || 'var(--text-muted)';
+                    const icon  = typeIcon[item.type]  || '·';
+                    const dur   = item.actualDuration || item.duration;
+                    return `
+                        <div style="display:flex;align-items:flex-start;gap:0.75rem;
+                            margin-bottom:0.4rem;padding:0.5rem 0.6rem;
+                            background:var(--bg-tertiary);border-radius:4px;
+                            border-left:2px solid ${color};">
+                            <span style="font-size:0.68rem;color:var(--text-muted);width:80px;
+                                text-align:right;flex-shrink:0;padding-top:0.05rem;">${fmtTime(item.start)}</span>
+                            <span style="color:${color};font-size:0.75rem;flex-shrink:0;">${icon}</span>
+                            <div style="flex:1;min-width:0;">
+                                <span style="font-size:0.78rem;color:var(--text-primary);font-weight:600;">${item.label || item.type}</span>
+                                ${item.end ? `<span style="font-size:0.68rem;color:var(--text-muted);margin-left:0.5rem;">→ ${fmtTime(item.end)}</span>` : '<span style="font-size:0.65rem;color:var(--industrial-orange);margin-left:0.5rem;">[IN PROGRESS]</span>'}
+                            </div>
+                            <span style="font-size:0.7rem;color:${color};font-weight:700;flex-shrink:0;">${dur ? fmtDur(dur) : ''}</span>
+                        </div>`;
+                }).join('');
+            }
+
+            // ── Downtime analysis ──
+            if (!gaps.length) {
+                document.getElementById('reportDowntime').innerHTML =
+                    '<div style="font-size:0.75rem;color:var(--success);">No significant downtime gaps detected.</div>';
+            } else {
+                document.getElementById('reportDowntime').innerHTML = gaps.map(g => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;
+                        padding:0.45rem 0.6rem;margin-bottom:0.35rem;
+                        background:var(--bg-tertiary);border-radius:4px;
+                        border-left:2px solid ${g.mins > 20 ? 'var(--danger)' : 'var(--text-muted)'};">
+                        <span style="font-size:0.72rem;color:var(--text-secondary);">
+                            ${fmtTime(g.start)} → ${fmtTime(g.end)}
+                            ${g.current ? '<span style="color:var(--industrial-orange);">[now]</span>' : ''}
+                        </span>
+                        <span style="font-size:0.78rem;font-weight:700;
+                            color:${g.mins > 20 ? 'var(--danger)' : 'var(--text-muted)'};">${fmtDur(g.mins)}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Store for export
+            window._reportData = { log, dayStart, focusMins, breakMins, meetingMins, downtimeMins, sessionMins, gaps, sprints, breaks, meetings };
+        }
+
+        function openDailyReport() {
+            document.getElementById('dailyReportOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            buildDailyReport();
+        }
+
+        function closeDailyReport() {
+            document.getElementById('dailyReportOverlay').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // ── CSV Export ──────────────────────────────────────
+        function buildCSV() {
+            const d = window._reportData;
+            if (!d) return '';
+            const lines = [];
+
+            // Header
+            lines.push('FOCUSHUB — DAILY TIMELINE REPORT');
+            lines.push('Date: ' + (d.dayStart ? fmtDate(d.dayStart) : 'Today'));
+            lines.push('Generated: ' + new Date().toLocaleString());
+            lines.push('');
+
+            // Summary
+            lines.push('SUMMARY');
+            lines.push('Metric,Value');
+            lines.push('Clock-in Duration,' + fmtDur(d.sessionMins));
+            lines.push('Focus Time,' + fmtDur(d.focusMins));
+            lines.push('Sprints Completed,' + d.sprints.length);
+            lines.push('Break Time,' + fmtDur(d.breakMins));
+            lines.push('Breaks Taken,' + d.breaks.length);
+            lines.push('Meeting Time,' + fmtDur(d.meetingMins));
+            lines.push('Meetings,' + d.meetings.length);
+            lines.push('Downtime,' + fmtDur(d.downtimeMins));
+            lines.push('');
+
+            // Timeline
+            lines.push('ACTIVITY TIMELINE');
+            lines.push('Type,Start,End,Duration (min),Label');
+            const sorted = [...d.log].filter(e=>e.start).sort((a,b)=>a.start-b.start);
+            for (const e of sorted) {
+                const dur = e.actualDuration || e.duration || '';
+                lines.push([
+                    e.type,
+                    fmtTime(e.start),
+                    e.end ? fmtTime(e.end) : 'In Progress',
+                    dur,
+                    '"' + (e.label || e.type) + '"'
+                ].join(','));
+            }
+            lines.push('');
+
+            // Downtime gaps
+            lines.push('DOWNTIME GAPS');
+            lines.push('Start,End,Duration (min)');
+            for (const g of d.gaps) {
+                lines.push([fmtTime(g.start), fmtTime(g.end), g.mins].join(','));
+            }
+
+            return lines.join('\n');
+        }
+
+        function downloadDailyCSV() {
+            const csv = buildCSV();
+            const blob = new Blob([csv], {type:'text/csv'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'focushub-daily-' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
+        }
+
+        function copyDailyCSV() {
+            const csv = buildCSV();
+            navigator.clipboard.writeText(csv).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const orig = btn.textContent;
+                btn.textContent = '[ COPIED ✓ ]';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+            });
+        }
+
+        // ── Easter Egg Triggers ──────────────────────────────
+        // 1. Type "report" anywhere (not in an input)
+        (function() {
+            let buf = '';
+            document.addEventListener('keydown', e => {
+                if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+                buf += e.key.toLowerCase();
+                if (buf.length > 8) buf = buf.slice(-8);
+                if (buf.includes('report')) {
+                    buf = '';
+                    openDailyReport();
+                }
+            });
+        })();
+
+        // 2. Triple-click the sprint counter display
+        (function() {
+            let clicks = 0, timer;
+            document.addEventListener('click', e => {
+                const el = e.target.closest('.sprint-count, .sprint-counter, #sprintDisplay, .timer-value, .system-state');
+                if (!el) return;
+                clicks++;
+                clearTimeout(timer);
+                timer = setTimeout(() => { clicks = 0; }, 600);
+                if (clicks >= 3) { clicks = 0; openDailyReport(); }
+            });
+        })();
+        </script>
+
 </body>
 </html>
