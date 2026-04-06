@@ -172,7 +172,7 @@
         <!-- Left Column: Main Content -->
         <main class="main-content">
             <!-- Sprint Timer Section - DOMINANT -->
-            <section class="sprint-timer-section dominant">
+            <section class="sprint-timer-section dominant" id="sprintTimerSection">
                 <div class="section-header">
                     <h2>⏱️ FOCUS SESSION</h2>
                 </div>
@@ -186,13 +186,10 @@
                             <option value="high">⚡⚡⚡ Locked In (30 min)</option>
                         </select>
                     </div>
-                    <div class="meeting-toggle-container">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="meetingToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="meeting-label">Meeting</span>
-                    </div>
+                    <button id="meetingToggle" class="meeting-mode-btn" aria-pressed="false" title="Toggle meeting mode — pauses sprint timer">
+                        <span class="meeting-mode-icon">🎤</span>
+                        <span class="meeting-mode-label">MEETING</span>
+                    </button>
                 </div>
 
                 <div class="timer-buttons">
@@ -413,7 +410,8 @@
             lowEnergyChoiceCount: 0,         // Count of low energy selections
             sprintAborts: 0,                 // Count of sprints stopped early
             idleStartTime: null,             // When user went idle
-            activityLog: []                  // DAILY TIMELINE: [{type,start,end,duration,label}]
+            activityLog: [],                  // DAILY TIMELINE: [{type,start,end,duration,label}]
+            sprintsSinceLastTask: 0           // EFFICIENCY TRACKING: consecutive sprints without task completion
         };
 
         // ============================================
@@ -590,7 +588,12 @@
                 const meetingToggle = document.getElementById('meetingToggle');
                 const startBtn = document.getElementById('startSprintBtn');
                 
-                if (meetingToggle) meetingToggle.checked = true;
+                if (meetingToggle) {
+                    meetingToggle.setAttribute('aria-pressed', 'true');
+                    meetingToggle.classList.add('active');
+                }
+                const section = document.getElementById('sprintTimerSection');
+                if (section) section.classList.add('meeting-active');
                 if (startBtn) startBtn.disabled = true;
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = true);
                 showMeetingBanner();
@@ -1016,8 +1019,9 @@
             });
 
             // Meeting toggle
-            document.getElementById('meetingToggle').addEventListener('change', function() {
-                toggleMeetingMode(this.checked);
+            document.getElementById('meetingToggle').addEventListener('click', function() {
+                const isNowActive = this.getAttribute('aria-pressed') !== 'true';
+                toggleMeetingMode(isNowActive);
             });
 
             // Note: Agent mode (intensity) is now handled by switch buttons in setupModeSelector()
@@ -1333,6 +1337,9 @@
                 // Remove from current bucket
                 state.tasks[bucket].splice(taskIndex, 1);
                 
+                // Reset efficiency counter — a task was closed
+                state.sprintsSinceLastTask = 0;
+                
                 // Update stats
                 state.sprintCount += task.sprints || 1;
                 
@@ -1390,27 +1397,37 @@
         
         function calculateDayGrade() {
             // Calculate based on: sprints completed, tasks finished, breaks taken
-            const totalRequired = calculateTotalRequiredSprints();
-            const sprintCompletion = totalRequired > 0 ? 
+            const rawRequired = calculateTotalRequiredSprints();
+            // Subtract sprints equivalent to meeting time so meetings don't penalise the score
+            const sprintMinutes = state.timer.duration || 20;
+            const meetingSprints = Math.round((state.totalMeetingTime || 0) / sprintMinutes);
+            const totalRequired = Math.max(1, rawRequired - meetingSprints);
+            const sprintCompletion = totalRequired > 0 ?
                 Math.min(100, (state.sprintCount / totalRequired) * 100) : 0;
-            
+
             const tasksCompleted = state.tasks.wins.length;
-            const totalTasks = tasksCompleted + 
+            const totalTasks = tasksCompleted +
                 ['admin', 'deepwork', 'strategic'].reduce((sum, b) => sum + state.tasks[b].length, 0);
             const taskCompletion = totalTasks > 0 ? (tasksCompleted / totalTasks) * 100 : 0;
-            
+
             // Balance: breaks vs work
-            const breakBalance = state.breaksCount > 0 ? 
+            const breakBalance = state.breaksCount > 0 ?
                 Math.min(100, (state.sprintCount / state.breaksCount) * 50) : 100;
-            
-            // Weighted average: 40% sprints, 40% tasks, 20% balance
-            const score = (sprintCompletion * 0.4) + (taskCompletion * 0.4) + (breakBalance * 0.2);
-            
-            // Convert to letter grade
-            if (score >= 90) return 'A';
+
+            // Weighted average: 25% sprints, 60% tasks, 15% balance
+            const score = (sprintCompletion * 0.25) + (taskCompletion * 0.60) + (breakBalance * 0.15);
+
+            // Convert to plus/minus letter grade
+            if (score >= 95) return 'A';
+            if (score >= 90) return 'A-';
+            if (score >= 85) return 'B+';
             if (score >= 80) return 'B';
-            if (score >= 70) return 'C';
-            if (score >= 60) return 'D';
+            if (score >= 75) return 'B-';
+            if (score >= 70) return 'C+';
+            if (score >= 65) return 'C';
+            if (score >= 60) return 'C-';
+            if (score >= 55) return 'D+';
+            if (score >= 50) return 'D';
             return 'F';
         }
         
@@ -1431,35 +1448,148 @@
                 z-index: 10000;
             `;
             
-            const totalRequired = calculateTotalRequiredSprints();
+            const rawRequired = calculateTotalRequiredSprints();
+            // Exclude meeting time from the sprint target (same logic as calculateDayGrade)
+            const _sprintMinutes = state.timer.duration || 20;
+            const _meetingSprints = Math.round((state.totalMeetingTime || 0) / _sprintMinutes);
+            const totalRequired = Math.max(1, rawRequired - _meetingSprints);
+            const meetingMinutesModal = state.totalMeetingTime || 0;
             const tasksCompleted = state.tasks.wins.length;
             const totalTasks = tasksCompleted + 
                 ['admin', 'deepwork', 'strategic'].reduce((sum, b) => sum + state.tasks[b].length, 0);
-            
+
+            // DIAGNOSTIC CALCULATIONS
+            const sprintEfficiencyRatio = tasksCompleted > 0
+                ? (state.sprintCount / tasksCompleted).toFixed(1)
+                : null;
+            const estimateAccuracy = totalRequired > 0
+                ? Math.min(100, Math.round((state.sprintCount / totalRequired) * 100))
+                : null;
+            const taskCompletionRate = totalTasks > 0
+                ? Math.round((tasksCompleted / totalTasks) * 100)
+                : null;
+
+            // Diagnose the failure mode (if any)
+            let diagnosisLabel = '';
+            let diagnosisColor = 'var(--text-muted)';
+            if (state.sprintCount >= totalRequired && tasksCompleted < totalTasks) {
+                // Hit or exceeded sprint target but tasks didn't close
+                diagnosisLabel = '⚠ Target may be under-set — sprints completed but tasks remain. Consider assigning more sprints per task.';
+                diagnosisColor = 'var(--industrial-orange)';
+            } else if (state.sprintCount < totalRequired * 0.75 && tasksCompleted < totalTasks * 0.5) {
+                // Missed sprint target badly AND tasks didn't close
+                diagnosisLabel = '✗ Execution gap — both sprint target and task delivery missed. Review what interrupted the work.';
+                diagnosisColor = 'var(--danger)';
+            } else if (state.sprintCount < totalRequired && tasksCompleted >= totalTasks * 0.75) {
+                // Fewer sprints than planned but tasks mostly done — efficient
+                diagnosisLabel = '✓ Efficient execution — tasks closed with fewer sprints than estimated.';
+                diagnosisColor = 'var(--success)';
+            } else if (tasksCompleted === totalTasks && totalTasks > 0) {
+                diagnosisLabel = '✓ Full task delivery.';
+                diagnosisColor = 'var(--success)';
+            }
+
             modal.innerHTML = `
-                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; border: 2px solid var(--border-light);">
+                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; border: 2px solid var(--border-light); max-height: 90vh; overflow-y: auto;">
                     <h2 style="color: var(--industrial-orange); margin-bottom: 1.5rem; text-align: center;">📊 END OF DAY GRADING</h2>
-                    
-                    <div style="background: var(--bg-primary); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem;">
-                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Today's Performance:</h3>
-                        <p style="color: var(--text-secondary); margin: 0.5rem 0;">✓ Sprints: ${state.sprintCount}/${totalRequired}</p>
-                        <p style="color: var(--text-secondary); margin: 0.5rem 0;">✓ Tasks: ${tasksCompleted}/${totalTasks} completed</p>
-                        <p style="color: var(--text-secondary); margin: 0.5rem 0;">✓ Breaks: ${state.breaksCount}</p>
+
+                    <!-- ── DIAGNOSTIC DATA — read these before picking your grade ── -->
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.14em;
+                            color:var(--text-muted);text-transform:uppercase;margin-bottom:0.6rem;">Today's Numbers</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+                            background:var(--border-light);border:1px solid var(--border-light);border-radius:4px;overflow:hidden;">
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:var(--text-primary);line-height:1;margin-bottom:0.25rem;">${state.sprintCount}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Sprints Done</div>
+                            </div>
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:var(--text-muted);line-height:1;margin-bottom:0.25rem;">${totalRequired || '—'}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Target Sprints${meetingMinutesModal > 0 ? '*' : ''}</div>
+                            </div>
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:${estimateAccuracy !== null ? (estimateAccuracy >= 85 ? 'var(--success)' : estimateAccuracy >= 60 ? 'var(--industrial-orange)' : 'var(--danger)') : 'var(--text-muted)'};
+                                    line-height:1;margin-bottom:0.25rem;">${estimateAccuracy !== null ? estimateAccuracy + '%' : '—'}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Estimate Accuracy</div>
+                            </div>
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:${tasksCompleted > 0 ? 'var(--success)' : 'var(--text-muted)'};
+                                    line-height:1;margin-bottom:0.25rem;">${tasksCompleted}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Tasks Done</div>
+                            </div>
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:var(--text-muted);line-height:1;margin-bottom:0.25rem;">${totalTasks}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Tasks Planned</div>
+                            </div>
+                            <div style="background:var(--bg-primary);padding:0.75rem 0.85rem;text-align:center;">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;
+                                    color:${sprintEfficiencyRatio !== null ? (parseFloat(sprintEfficiencyRatio) <= 2 ? 'var(--success)' : parseFloat(sprintEfficiencyRatio) <= 3 ? 'var(--industrial-orange)' : 'var(--danger)') : 'var(--text-muted)'};
+                                    line-height:1;margin-bottom:0.25rem;">${sprintEfficiencyRatio !== null ? sprintEfficiencyRatio : '—'}</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text-muted);
+                                    letter-spacing:0.1em;text-transform:uppercase;">Spr / Task</div>
+                            </div>
+                            ${meetingMinutesModal > 0 ? `
+                            <div style="background:rgba(96,165,250,0.08);padding:0.75rem 0.85rem;text-align:center;grid-column:1/-1;border-top:1px solid var(--border-light);">
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;
+                                    color:#60a5fa;line-height:1;margin-bottom:0.25rem;">${meetingMinutesModal} min excluded from score</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:#60a5fa;opacity:0.7;
+                                    letter-spacing:0.1em;text-transform:uppercase;">* Meeting Time — not counted against you</div>
+                            </div>` : ''}
+                        </div>
                     </div>
-                    
-                    <div style="background: var(--bg-elevated); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; border: 2px solid var(--industrial-orange);">
-                        <h3 style="color: var(--industrial-orange); margin-bottom: 1rem;">System Grade: ${systemGrade}</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Based on sprint completion, task completion, and work-break balance.</p>
+
+                    <!-- ── SYSTEM GRADE ── -->
+                    <div style="background: var(--bg-primary); padding: 1.25rem 1.5rem; border-radius: 4px; margin-bottom: ${diagnosisLabel ? '0.5rem' : '1.5rem'}; border: 2px solid var(--industrial-orange); display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.14em;
+                                color:var(--text-muted);text-transform:uppercase;margin-bottom:0.3rem;">System Grade</div>
+                            <div style="font-size:0.82rem;color:var(--text-secondary);">Sprints · Tasks · Break balance</div>
+                        </div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:2.5rem;font-weight:700;
+                            color:var(--industrial-orange);line-height:1;">${systemGrade}</div>
                     </div>
+
+                    <!-- ── GAP ANALYSIS ── -->
+                    ${diagnosisLabel ? `
+                    <div style="background: var(--bg-primary); padding: 0.85rem 1.25rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 3px solid ${diagnosisColor};">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;
+                            color:var(--text-muted);text-transform:uppercase;margin-bottom:0.35rem;">Gap Analysis</div>
+                        <p style="color: ${diagnosisColor}; font-size: 0.85rem; margin: 0; font-family: 'JetBrains Mono', monospace; line-height:1.5;">${diagnosisLabel}</p>
+                    </div>` : '<div style="margin-bottom:1.5rem;"></div>'}
                     
                     <div style="margin-bottom: 1.5rem;">
-                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">How would YOU grade today?</h3>
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;">
-                            <button class="grade-btn" data-grade="A" style="padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; font-weight: 700;">A</button>
-                            <button class="grade-btn" data-grade="B" style="padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; font-weight: 700;">B</button>
-                            <button class="grade-btn" data-grade="C" style="padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; font-weight: 700;">C</button>
-                            <button class="grade-btn" data-grade="D" style="padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; font-weight: 700;">D</button>
-                            <button class="grade-btn" data-grade="F" style="padding: 1rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; font-weight: 700;">F</button>
+                        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">How would YOU grade today?</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Your self-grade drives your streak and dashboard. System grade reflects tracked activity only.</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem;">
+                                <button class="grade-btn" data-grade="A"  style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">A</button>
+                                <button class="grade-btn" data-grade="A-" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">A−</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                                <button class="grade-btn" data-grade="B+" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">B+</button>
+                                <button class="grade-btn" data-grade="B"  style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">B</button>
+                                <button class="grade-btn" data-grade="B-" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">B−</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                                <button class="grade-btn" data-grade="C+" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">C+</button>
+                                <button class="grade-btn" data-grade="C"  style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">C</button>
+                                <button class="grade-btn" data-grade="C-" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">C−</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                                <button class="grade-btn" data-grade="D+" style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">D+</button>
+                                <button class="grade-btn" data-grade="D"  style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">D</button>
+                                <button class="grade-btn" data-grade="F"  style="padding: 0.65rem; background: var(--bg-primary); border: 2px solid var(--border-light); border-radius: 4px; color: var(--danger); cursor: pointer; font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">F</button>
+                            </div>
                         </div>
                     </div>
                     
@@ -1510,20 +1640,25 @@
             
             analysis.style.display = 'block';
             
+            const gradeValue = {
+                'A': 11, 'A-': 10,
+                'B+': 9, 'B': 8, 'B-': 7,
+                'C+': 6, 'C': 5, 'C-': 4,
+                'D+': 3, 'D': 2,
+                'F': 0
+            };
+
             if (systemGrade === userGrade) {
                 title.textContent = '✅ Aligned Assessment';
                 text.textContent = `You and the system both graded today as a ${systemGrade}. Your self-awareness is strong - you accurately assessed your performance. This alignment shows you understand what productivity looks like.`;
             } else {
-                const gradeValue = { A: 5, B: 4, C: 3, D: 2, F: 1 };
-                const systemVal = gradeValue[systemGrade];
-                const userVal = gradeValue[userGrade];
+                const systemVal = gradeValue[systemGrade] ?? 5;
+                const userVal = gradeValue[userGrade] ?? 5;
                 
                 if (userVal > systemVal) {
-                    // User graded higher
                     title.textContent = '⚠️ Inflated Self-Assessment';
                     text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You might be overestimating your output. Check the metrics: did you complete what you planned? This gap suggests you're being too forgiving. Hold yourself to objective standards.`;
                 } else {
-                    // User graded lower
                     title.textContent = '💪 Harsh Self-Judgment';
                     text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You're being too hard on yourself. The numbers show you did better than you feel. This is common with ADHD - acknowledging wins is difficult. Give yourself credit for what you actually accomplished.`;
                 }
@@ -1611,17 +1746,21 @@
         async function completeDay(systemGrade, userGrade) {
             // Save grades
             state.currentGrade = systemGrade;
+            state.lastUserGrade = userGrade;  // For CSV diagnostic report
             
             // Check if student tier
             const membership = JSON.parse(localStorage.getItem('focushub_membership') || '{}');
             const isStudent = membership.plan === 'student';
             
+            const totalPlanned = state.tasks.wins.length +
+                ['admin', 'deepwork', 'strategic'].reduce((s, b) => s + state.tasks[b].length, 0);
             const gradingData = {
                 date: new Date().toISOString(),
                 systemGrade,
                 userGrade,
                 sprints: state.sprintCount,
                 tasks: state.tasks.wins.length,
+                plannedTasks: totalPlanned,
                 breaks: state.breaksCount,
                 // STUDENT: Add session tracking
                 session_number: isStudent ? state.sessionNumber : 1,
@@ -1636,6 +1775,40 @@
             history.push(gradingData);
             if (history.length > 90) history.shift(); // Keep 90 days
             localStorage.setItem('focushub_grade_history', JSON.stringify(history));
+
+            // TARGET MISMATCH COACH: fire before state resets so we have the data
+            const _rawRequired = calculateTotalRequiredSprints();
+            const _sprintMin = state.timer.duration || 20;
+            const _meetingSpr = Math.round((state.totalMeetingTime || 0) / _sprintMin);
+            const _totalRequired = Math.max(1, _rawRequired - _meetingSpr);
+            const _tasksCompleted = state.tasks.wins.length;
+            const _totalTasks = _tasksCompleted +
+                ['admin', 'deepwork', 'strategic'].reduce((s, b) => s + state.tasks[b].length, 0);
+            const _efficiency = _tasksCompleted > 0
+                ? (state.sprintCount / _tasksCompleted).toFixed(1) : '—';
+            const _accuracy = _totalRequired > 0
+                ? Math.min(100, Math.round((state.sprintCount / _totalRequired) * 100)) : 0;
+            let _mismatchMode = 'normal';
+            if (state.sprintCount >= _totalRequired && _tasksCompleted < _totalTasks) {
+                _mismatchMode = 'underSet';
+            } else if (state.sprintCount < _totalRequired * 0.75 && _tasksCompleted < _totalTasks * 0.5) {
+                _mismatchMode = 'underDelivered';
+            } else if (_tasksCompleted >= _totalTasks && state.sprintCount < _totalRequired) {
+                _mismatchMode = 'efficient';
+            }
+            if (_mismatchMode !== 'normal') {
+                const mismatchMsg = getAICoachMessage('targetMismatch', {
+                    mode: _mismatchMode,
+                    planned: _totalRequired,
+                    actual: state.sprintCount,
+                    tasksCompleted: _tasksCompleted,
+                    totalTasks: _totalTasks,
+                    tasksLeft: _totalTasks - _tasksCompleted,
+                    efficiency: _efficiency,
+                    accuracy: _accuracy
+                });
+                updateAIMessage(mismatchMsg);
+            }
             
             // PREMIUM: Also sync to Supabase for cross-device access
             if (isPremiumTier()) {
@@ -1752,9 +1925,17 @@
         // ============================================
         function toggleMeetingMode(enabled) {
             state.inMeeting = enabled;
-            
+
+            // ── Update button visual state ──
+            const btn = document.getElementById('meetingToggle');
+            const section = document.getElementById('sprintTimerSection');
+            if (btn) {
+                btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+                btn.classList.toggle('active', enabled);
+            }
+            if (section) section.classList.toggle('meeting-active', enabled);
+
             if (enabled) {
-                // Track meeting start
                 state.meetingStartTime = Date.now();
                 state.meetingCount = (state.meetingCount || 0) + 1;
 
@@ -1840,7 +2021,7 @@
                 <span style="font-size:1.3rem;">🎤</span>
                 <span style="font-weight:700; letter-spacing:0.05em;">MEETING MODE ACTIVE</span>
                 <span id="meetingBannerTimer" style="font-family: 'JetBrains Mono', monospace; font-size:0.95rem; opacity:0.85;">00:00</span>
-                <button onclick="document.getElementById('meetingToggle').click()" style="
+                <button onclick="toggleMeetingMode(false)" style="
                     background: rgba(255,102,0,0.15);
                     border: 1px solid var(--industrial-orange);
                     color: var(--industrial-orange);
@@ -2413,6 +2594,7 @@
             if (state.timer.type === 'focus') {
                 state.sprintCount++;
                 state.lastSprintCompleteTime = Date.now();
+                state.sprintsSinceLastTask++;  // EFFICIENCY: count sprints since last task closed
             }
             
             state.sessionState = 'idle';
@@ -2431,14 +2613,47 @@
                 const totalRequired = calculateTotalRequiredSprints();
                 const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) => 
                     sum + state.tasks[bucket].filter(t => !t.completed).length, 0);
-                
-                const message = getAICoachMessage('sprintComplete', {
+                const tasksCompleted = state.tasks.wins.length;
+
+                // DYNAMIC SPRINT ADJUSTMENT: if sprints consumed but tasks not closing,
+                // add buffer sprints (capped at 50% over original estimate)
+                if (state.sprintsSinceLastTask >= 3 && tasksLeft > 0) {
+                    const originalEstimate = totalRequired;
+                    const sprintEfficiencyRatio = tasksCompleted > 0
+                        ? state.sprintCount / tasksCompleted
+                        : state.sprintCount;
+                    // If burning >3 sprints per task, signal inefficiency via daily target
+                    if (sprintEfficiencyRatio > 3) {
+                        const buffer = Math.min(
+                            Math.round(originalEstimate * 0.5),
+                            Math.round(sprintEfficiencyRatio - 2)
+                        );
+                        if (!state.efficiencyBuffer) state.efficiencyBuffer = 0;
+                        const newBuffer = Math.min(Math.round(originalEstimate * 0.5), state.efficiencyBuffer + 1);
+                        if (newBuffer > state.efficiencyBuffer) {
+                            state.efficiencyBuffer = newBuffer;
+                            console.log(`⚠️ Sprint efficiency low — adding ${newBuffer} buffer sprints to target`);
+                        }
+                    }
+                }
+
+                const sprintEfficiency = tasksCompleted > 0
+                    ? (state.sprintCount / tasksCompleted).toFixed(1)
+                    : null;
+
+                // Choose message category — efficiency pattern takes priority when triggered
+                const msgCategory = (state.sprintsSinceLastTask >= 3 && tasksLeft > 0)
+                    ? 'sprintEfficiencyWarning'
+                    : 'sprintComplete';
+
+                const message = getAICoachMessage(msgCategory, {
                     sprintsDone: state.sprintCount,
                     required: totalRequired,
                     tasksLeft: tasksLeft,
-                    tasksCompleted: ['admin', 'deepwork', 'strategic'].reduce((sum, bucket) =>
-                        sum + state.tasks[bucket].filter(t => t.completed).length, 0),
-                    meetingMinutes: state.totalMeetingTime || 0
+                    tasksCompleted: tasksCompleted,
+                    meetingMinutes: state.totalMeetingTime || 0,
+                    sprintsSinceLastTask: state.sprintsSinceLastTask,
+                    sprintEfficiency: sprintEfficiency
                 });
                 
                 updateAIMessage(message);
@@ -3730,6 +3945,129 @@
                     (ctx) => `${Math.round(ctx.hoursSinceLastSession)} hours offline. Noted. The gap doesn't excuse underperformance today — it makes today more important. Execute.`,
                     (ctx) => `${Math.round(ctx.hoursSinceLastSession)}-hour break. Fine. Now don't spend the first sprint thinking about the break — spend it on the work. Start.`
                 ]
+            },
+            sprintEfficiencyWarning: {
+                supportive: [
+                    (ctx) => `You're putting in the time — ${ctx.sprintsSinceLastTask} sprints since your last completed task. Before the next one, write down one specific thing you're going to finish. Not work on. Finish.`,
+                    (ctx) => `${ctx.sprintsDone} sprints in, ${ctx.tasksCompleted} tasks closed. That's okay — ADHD makes it easy to stay busy without closing things. Pick the smallest finishable task right now.`,
+                    (ctx) => `The sprints are happening. The task completions aren't keeping pace. That's a common pattern — energy going in, output not coming out. Name one thing you can close in the next sprint.`,
+                    (ctx) => `${ctx.sprintsSinceLastTask} sprints without a task completion. Not a failure — a signal. Something is blocking output. What is it? Name it, then work around it.`,
+                    (ctx) => `You're showing up. ${ctx.sprintsDone} sprints logged. But the task list isn't moving. The next sprint needs one concrete target — not a category, a specific task you will finish.`
+                ],
+                balanced: [
+                    (ctx) => `${ctx.sprintsSinceLastTask} sprints, 0 tasks closed. The time is going somewhere — make sure the next sprint has one specific output target before you start.`,
+                    (ctx) => `Sprint efficiency: ${ctx.sprintEfficiency ? ctx.sprintEfficiency + ' sprints per task' : 'no tasks closed yet'}. ${ctx.sprintsSinceLastTask >= 3 ? 'That ratio needs to improve. Identify the next finishable task now.' : 'Watch this number.'}`,
+                    (ctx) => `${ctx.sprintsDone} sprints, ${ctx.tasksCompleted} tasks completed. The gap between those numbers is the problem to solve. What gets closed next sprint?`,
+                    (ctx) => `Running sprints without closing tasks is activity without output. ${ctx.sprintsSinceLastTask} consecutive sprints without a completion. Name your target before you start the next one.`,
+                    (ctx) => `Sprints are a vehicle, not a destination. ${ctx.tasksCompleted} tasks done from ${ctx.sprintsDone} sprints. Pick one task, commit to finishing it, then start the sprint.`
+                ],
+                tough: [
+                    (ctx) => `${ctx.sprintsDone} sprints. Tasks completed: ${ctx.tasksCompleted}. That pace doesn't add up. What's actually happening inside the sprints?`,
+                    (ctx) => `${ctx.sprintsSinceLastTask} consecutive sprints without closing anything. That's not a productivity problem — that's an execution problem. Pick one task and finish it. Not start it. Finish it.`,
+                    (ctx) => `Sprint efficiency: ${ctx.sprintEfficiency ? ctx.sprintEfficiency + ' sprints per task' : 'undefined — no tasks closed'}. Unacceptable if tasks exist. The sprint isn't the goal. The closed task is.`,
+                    (ctx) => `${ctx.sprintsDone} sprints run. ${ctx.tasksCompleted} tasks done. You're spending time, not producing output. Those are different things. Fix the ratio.`,
+                    (ctx) => `${ctx.sprintsSinceLastTask} sprints and nothing closed. You know what's going wrong. Stop deferring that knowledge. Address it before the next sprint starts.`
+                ]
+            },
+            targetMismatch: {
+                // ctx fields: mode ('underSet'|'underDelivered'|'efficient'), planned, actual,
+                //             tasksCompleted, totalTasks, tasksLeft, efficiency, accuracy
+                supportive: [
+                    // 1 — The planning lesson
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `You hit your sprint target and still had ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} left open. That's not a bad day — it's a planning signal. Your estimates were too conservative. Tomorrow, push the target up and see what happens.`
+                        : ctx.mode === 'underDelivered'
+                            ? `You planned ${ctx.planned} sprints and completed ${ctx.actual}. The gap between plan and reality is information, not a verdict. What specifically got in the way today? Name it before tomorrow starts.`
+                            : `You closed ${ctx.tasksCompleted} task${ctx.tasksCompleted !== 1 ? 's' : ''} in just ${ctx.actual} sprints — fewer than you planned for. That's your brain working efficiently. Trust that instinct when you set tomorrow's target.`,
+                    // 2 — The pattern recognition
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Sprint target reached, tasks still open. The day was larger than the plan. That happens — the fix is simple: next time, assign one extra sprint to anything that feels like it might run long.`
+                        : ctx.mode === 'underDelivered'
+                            ? `${ctx.actual} of ${ctx.planned} sprints done, ${ctx.tasksCompleted} of ${ctx.totalTasks} tasks completed. Both numbers came in below target. That's a pattern worth understanding, not ignoring. What made today hard?`
+                            : `Finished everything in ${ctx.actual} sprints against a plan of ${ctx.planned}. Efficiency like that is worth noting — your sense of how long tasks take is getting more accurate.`,
+                    // 3 — The encouragement + redirect
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `The work you did today was real — the issue is the target didn't match the workload. Recalibrating estimates takes practice. You now have one more data point to work with.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Falling short of both sprint and task targets is discouraging, but it doesn't define the day. Something interfered with execution. Figure out what it was and decide whether it's fixable — that's the whole game.`
+                            : `All tasks done in fewer sprints than budgeted. You didn't need the full runway. That's a skill, not luck — keep building on it.`,
+                    // 4 — The numbers frame
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Numbers: ${ctx.actual}/${ctx.planned} sprints completed, ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} still open. The sprint estimate was too low for the actual workload. Adjust upward next session.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Today's numbers: ${ctx.actual}/${ctx.planned} sprints, ${ctx.tasksCompleted}/${ctx.totalTasks} tasks, ${ctx.accuracy}% sprint accuracy. The gap is real. Acknowledging it honestly is the first step to closing it.`
+                            : `${ctx.tasksCompleted} tasks, ${ctx.actual} sprints, ${ctx.efficiency} spr/task. You estimated ${ctx.planned} sprints and needed fewer. Solid day — your planning is tightening up.`,
+                    // 5 — The forward look
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `You had enough sprint capacity — the task list just outgrew the plan. For tomorrow: look at what's still open and build the sprint target around that workload, not around what feels comfortable.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Missing targets by this margin is a signal to investigate, not punish yourself over. Before you close out today: write down one thing that derailed execution. That note is tomorrow's starting point.`
+                            : `Tasks wrapped up with sprint capacity to spare. If that happens consistently, it means your estimating is ahead of where it needs to be — consider adding a stretch task next time.`
+                ],
+                balanced: [
+                    // 1 — Direct diagnosis
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Sprint target met. ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} still open. Diagnosis: target was under-set for the actual workload. Recalibrate sprint estimates upward for tasks in the same category tomorrow.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Sprints: ${ctx.actual}/${ctx.planned}. Tasks: ${ctx.tasksCompleted}/${ctx.totalTasks}. Both metrics missed target. That's an execution gap, not just a planning problem. What disrupted the work?`
+                            : `All ${ctx.tasksCompleted} tasks closed in ${ctx.actual} sprints against a ${ctx.planned}-sprint plan. Efficiency: ${ctx.efficiency} spr/task. Execution was ahead of estimate — that's a good sign.`,
+                    // 2 — The two distinct failure modes named explicitly
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `This is the under-estimation failure mode: the plan was too easy for the actual day. You hit the target and still had work left. The fix isn't to work harder — it's to set a more accurate target.`
+                        : ctx.mode === 'underDelivered'
+                            ? `This is the execution gap failure mode: the plan was reasonable but delivery fell short. ${ctx.actual} of ${ctx.planned} sprints completed, ${ctx.tasksCompleted} of ${ctx.totalTasks} tasks done. Something collapsed between intention and output. Identify it.`
+                            : `Target: ${ctx.planned} sprints. Actual needed: ${ctx.actual}. Tasks: ${ctx.tasksCompleted}/${ctx.totalTasks} done. You over-estimated the time required — a good problem to have. Tighten the next estimate.`,
+                    // 3 — The accuracy read
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Sprint accuracy: ${ctx.accuracy}% of target used. Tasks remaining: ${ctx.tasksLeft}. The sprint number and the task list didn't match. One of them was wrong — and it was the sprint estimate.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Sprint accuracy: ${ctx.accuracy}%. Task completion: ${ctx.tasksCompleted}/${ctx.totalTasks}. When both numbers miss together, the cause is usually the same: something broke the work rhythm and didn't get addressed. What was it today?`
+                            : `Sprint accuracy: completed in ${ctx.accuracy}% of budgeted time. ${ctx.tasksCompleted} tasks closed. The work took less time than planned — either the tasks were scoped accurately and you executed cleanly, or scope was lighter than expected.`,
+                    // 4 — The calibration angle
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Target: ${ctx.planned} sprints. Used: ${ctx.actual}. Tasks left: ${ctx.tasksLeft}. The numbers say the workload was underestimated. Add one sprint per open task to tomorrow's plan and reassess from there.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Planned ${ctx.planned} sprints, completed ${ctx.actual}. Closed ${ctx.tasksCompleted} of ${ctx.totalTasks} tasks. Accuracy: ${ctx.accuracy}%. Track whether this is a one-off or a recurring pattern — the answer changes what to do about it.`
+                            : `Closed all tasks in ${ctx.actual} of ${ctx.planned} planned sprints. Efficiency ratio: ${ctx.efficiency} spr/task. If this keeps happening, your target may be too conservative — try pushing the sprint count up next time.`,
+                    // 5 — The forward action
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Tomorrow: look at what's still open, assign realistic sprint counts to each item, then set the daily target based on that math — not on what felt manageable last time.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Before tomorrow: write down the one thing that most disrupted execution today. Not a list — one thing. That's the variable to address. Everything else is noise.`
+                            : `Wrapped up ahead of schedule. For next session: consider whether the time saved can be redirected to a stretch task, or whether the estimate should simply be tighter.`
+                ],
+                tough: [
+                    // 1 — No softening
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `You hit your sprint target and still have ${ctx.tasksLeft} task${ctx.tasksLeft !== 1 ? 's' : ''} open. That means you sandbagged the target. It wasn't ambitious enough for the actual workload. Set a harder target tomorrow — one that would have covered the full task list.`
+                        : ctx.mode === 'underDelivered'
+                            ? `${ctx.actual} of ${ctx.planned} sprints. ${ctx.tasksCompleted} of ${ctx.totalTasks} tasks. You missed both. This is not a planning failure — the plan was fine. Something in execution broke down. Name it specifically.`
+                            : `Done in ${ctx.actual} sprints. Planned ${ctx.planned}. ${ctx.tasksCompleted} tasks closed. You over-budgeted. Either the tasks were lighter than you thought or you executed faster than expected. Figure out which — and adjust.`,
+                    // 2 — The two failure modes, named and separated
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Under-estimation means the bar was too low. You cleared it without finishing the work. That's on the planning, not the execution. Tomorrow's target should be set at a level where missing it is a real possibility.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Under-delivery means the bar was correct and you didn't clear it. ${ctx.actual}/${ctx.planned} sprints, ${ctx.tasksCompleted}/${ctx.totalTasks} tasks. The plan wasn't the problem. Execution was. What broke?`
+                            : `All tasks closed, sprint budget unused. Sprint efficiency: ${ctx.efficiency} spr/task. Good output. The only question is whether the target was too conservative — if this happens again, it was.`,
+                    // 3 — Accountability
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Sprint target hit. Tasks still open. The comfortable target wasn't the right target. You already know what a harder target would have looked like — set that one next time.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Accuracy: ${ctx.accuracy}%. Task delivery: ${ctx.tasksCompleted}/${ctx.totalTasks}. Every sprint that ran without a task closing is a sprint that didn't produce output. What was actually happening during those sprints?`
+                            : `Closed everything ahead of schedule. The question isn't whether you're efficient — clearly you are. The question is whether you left value on the table by not having a harder task queued up.`,
+                    // 4 — The numbers, no framing
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `Numbers: ${ctx.actual} sprints vs ${ctx.planned} target — met. Tasks: ${ctx.tasksCompleted}/${ctx.totalTasks} — not met. The sprint count was wrong. A target you can hit and still have open tasks isn't a real target.`
+                        : ctx.mode === 'underDelivered'
+                            ? `Numbers: ${ctx.actual}/${ctx.planned} sprints, ${ctx.tasksCompleted}/${ctx.totalTasks} tasks, ${ctx.accuracy}% accuracy. Both metrics missed. This is a pattern if it happens twice. Is it?`
+                            : `${ctx.tasksCompleted} tasks. ${ctx.actual}/${ctx.planned} sprints used. ${ctx.efficiency} spr/task. Output was there. The plan was over-padded. Tighten it.`,
+                    // 5 — The direct instruction
+                    (ctx) => ctx.mode === 'underSet'
+                        ? `For tomorrow: count the open tasks, assign honest sprint estimates to each, add them up, and set that as the target. Not what feels achievable — what the work actually requires.`
+                        : ctx.mode === 'underDelivered'
+                            ? `One action before tomorrow: identify the single biggest reason execution fell short today. Write it down. If you can't name it, you can't fix it — and it will happen again.`
+                            : `Finished ahead of plan. If there was time left, it should have gone to the next task — not wind-down. Build that reflex: sprint surplus goes to output, not to early stopping.`
+                ]
             }
         };;;
         
@@ -4017,8 +4355,22 @@
             const activelyWorking = sprintsDone > 0;
             const recentProgress = tasksCompleted > 0;
 
+            // SITUATIONAL GUARDS: Don't fire performance pressure before meaningful work has occurred.
+            // A gap exists structurally from the moment tasks are added — it's not a failure signal yet.
+            // Session time check: how many minutes since session started
+            const sessionMinutes = state.sessionStartTime
+                ? Math.floor((Date.now() - state.sessionStartTime) / 60000)
+                : 0;
+
             // Critical: Way behind schedule
+            // Guard: require >= 3 sprints done AND >= 30 min into session before "critical" fires.
+            // Without this, a user with a heavy task list gets a critical alert after sprint 1.
             if (gap > 5 && tasksLeft > 3) {
+                if (sprintsDone < 3 || sessionMinutes < 30) {
+                    // Too early to call it critical — pivot to an encouraging nudge instead
+                    checkPriorityAlignment();
+                    return;
+                }
                 if (activelyWorking && recentProgress) {
                     // They're working — acknowledge before pushing
                     updateAIMessage(`${tasksCompleted} task${tasksCompleted !== 1 ? 's' : ''} done across ${sprintsDone} sprint${sprintsDone !== 1 ? 's' : ''} — you're moving. Still ${gap} sprints behind with ${tasksLeft} remaining. Keep the momentum.`);
@@ -4030,8 +4382,21 @@
                 return;
             }
             
-            // Behind schedule  
+            // Behind schedule
+            // Guard: require >= 2 sprints done before "behind" language fires.
+            // Gap ratio check: only flag if gap is >50% of totalRequired (structural gap vs real slippage).
+            // This prevents "3 behind" messages when the user just started a 10-sprint day.
             if (gap > 2 && tasksLeft > 0) {
+                const gapRatio = totalRequired > 0 ? gap / totalRequired : 0;
+                const minSprintsMet = sprintsDone >= 2;
+                const realSlippage = gapRatio < 0.8; // gap is not just "haven't started yet"
+
+                if (!minSprintsMet || !realSlippage) {
+                    // Not enough signal to call this slippage — check priority instead
+                    checkPriorityAlignment();
+                    return;
+                }
+
                 if (activelyWorking) {
                     const messages = [
                         `${sprintsDone} sprint${sprintsDone !== 1 ? 's' : ''} in, ${gap} still needed. ${tasksLeft} task${tasksLeft > 1 ? 's' : ''} pending. Keep moving.`,
@@ -4730,8 +5095,46 @@
             lines.push('Generated: ' + new Date().toLocaleString());
             lines.push('');
 
-            // Summary
-            lines.push('SUMMARY');
+            // ── Sprint Efficiency Diagnostic ──
+            const _totalRequired = calculateTotalRequiredSprints();
+            const _sprintsDone   = d.sprints.length;
+            const _tasksDone     = state.tasks.wins.length;
+            const _totalTasks    = _tasksDone +
+                ['admin','deepwork','strategic'].reduce((s,b) => s + state.tasks[b].length, 0);
+            const _efficiency    = _tasksDone > 0
+                ? (_sprintsDone / _tasksDone).toFixed(1) : '—';
+            const _accuracy      = _totalRequired > 0
+                ? Math.min(100, Math.round((_sprintsDone / _totalRequired) * 100)) : 0;
+            const _sysgr         = state.currentGrade || '—';
+            const _usergr        = state.lastUserGrade || '—';
+
+            // Gap analysis verdict
+            let _verdict = 'On Target';
+            if (_sprintsDone >= _totalRequired && _totalRequired > 0 && _tasksDone < _totalTasks) {
+                _verdict = 'Under-Estimated — hit sprint target but tasks remain; scope was set too low';
+            } else if (_sprintsDone < _totalRequired * 0.75 && _tasksDone < _totalTasks * 0.5) {
+                _verdict = 'Under-Delivered — both sprint target and task delivery missed; execution gap';
+            } else if (_tasksDone >= _totalTasks && _totalTasks > 0 && _sprintsDone < _totalRequired) {
+                _verdict = 'Efficient — all tasks closed in fewer sprints than estimated';
+            } else if (_tasksDone === _totalTasks && _totalTasks > 0) {
+                _verdict = 'On Target — full task delivery';
+            }
+
+            lines.push('SPRINT EFFICIENCY DIAGNOSTIC');
+            lines.push('Metric,Value');
+            lines.push('Planned Sprints,' + (_totalRequired || '—'));
+            lines.push('Actual Sprints,' + _sprintsDone);
+            lines.push('Estimate Accuracy,' + (_totalRequired > 0 ? _accuracy + '%' : '—'));
+            lines.push('Tasks Planned,' + _totalTasks);
+            lines.push('Tasks Completed,' + _tasksDone);
+            lines.push('Sprint Efficiency,' + (_efficiency !== '—' ? _efficiency + ' spr/task' : '—'));
+            lines.push('System Grade,' + _sysgr);
+            lines.push('Self Grade,' + _usergr);
+            lines.push('Gap Analysis,"' + _verdict + '"');
+            lines.push('');
+
+            // Time Summary
+            lines.push('TIME SUMMARY');
             lines.push('Metric,Value');
             lines.push('Clock-in Duration,' + fmtDur(d.sessionMins));
             lines.push('Focus Time,' + fmtDur(d.focusMins));
@@ -4741,6 +5144,8 @@
             lines.push('Meeting Time,' + fmtDur(d.meetingMins));
             lines.push('Meetings,' + d.meetings.length);
             lines.push('Downtime,' + fmtDur(d.downtimeMins));
+            const _unaccounted = d.sessionMins - d.focusMins - d.breakMins - d.meetingMins - d.downtimeMins;
+            if (_unaccounted > 1) lines.push('Unaccounted Time,' + fmtDur(Math.max(0, _unaccounted)));
             lines.push('');
 
             // Timeline
@@ -4768,6 +5173,7 @@
 
             return lines.join('\n');
         }
+
 
         function downloadDailyCSV() {
             const csv = buildCSV();
@@ -5170,56 +5576,7 @@
             document.body.style.overflow = '';
         }
 
-        // ── CSV Export ──────────────────────────────────────
-        function buildCSV() {
-            const d = window._reportData;
-            if (!d) return '';
-            const lines = [];
-
-            // Header
-            lines.push('FOCUSHUB — DAILY TIMELINE REPORT');
-            lines.push('Date: ' + (d.dayStart ? fmtDate(d.dayStart) : 'Today'));
-            lines.push('Generated: ' + new Date().toLocaleString());
-            lines.push('');
-
-            // Summary
-            lines.push('SUMMARY');
-            lines.push('Metric,Value');
-            lines.push('Clock-in Duration,' + fmtDur(d.sessionMins));
-            lines.push('Focus Time,' + fmtDur(d.focusMins));
-            lines.push('Sprints Completed,' + d.sprints.length);
-            lines.push('Break Time,' + fmtDur(d.breakMins));
-            lines.push('Breaks Taken,' + d.breaks.length);
-            lines.push('Meeting Time,' + fmtDur(d.meetingMins));
-            lines.push('Meetings,' + d.meetings.length);
-            lines.push('Downtime,' + fmtDur(d.downtimeMins));
-            lines.push('');
-
-            // Timeline
-            lines.push('ACTIVITY TIMELINE');
-            lines.push('Type,Start,End,Duration (min),Label');
-            const sorted = [...d.log].filter(e=>e.start).sort((a,b)=>a.start-b.start);
-            for (const e of sorted) {
-                const dur = e.actualDuration || e.duration || '';
-                lines.push([
-                    e.type,
-                    fmtTime(e.start),
-                    e.end ? fmtTime(e.end) : 'In Progress',
-                    dur,
-                    '"' + (e.label || e.type) + '"'
-                ].join(','));
-            }
-            lines.push('');
-
-            // Downtime gaps
-            lines.push('DOWNTIME GAPS');
-            lines.push('Start,End,Duration (min)');
-            for (const g of d.gaps) {
-                lines.push([fmtTime(g.start), fmtTime(g.end), g.mins].join(','));
-            }
-
-            return lines.join('\n');
-        }
+        // ── CSV Export (duplicate removed — see first definition above) ──
 
         function downloadDailyCSV() {
             const csv = buildCSV();

@@ -86,7 +86,7 @@
                     <h3 class="card-title">Consistency Log</h3>
                     <div class="consistency-chart">
                         <div class="metric-large" id="dayStreak">0</div>
-                        <div class="metric-label">Day Streak (B+ or Higher)</div>
+                        <div class="metric-label">Day Streak (B- or Higher)</div>
                     </div>
                     <div class="bar-chart-mini" id="weeklyChart"></div>
                 </div>
@@ -97,7 +97,8 @@
                     <h3 class="card-title">Performance Index</h3>
                     <div class="score-gauge">
                         <div class="gauge-value" id="focusScore">0%</div>
-                        <div class="gauge-label">Avg Grade: <span id="avgGrade">N/A</span></div>
+                        <div class="gauge-label">Self Grade: <span id="avgGrade">N/A</span></div>
+                        <div class="gauge-label" style="font-size:0.8em; color: var(--text-muted);">Sys Grade: <span id="avgSystemGrade">—</span></div>
                     </div>
                     <div class="score-context">
                         Tasks Completed: <span class="streak-value" id="totalTasks">0</span>
@@ -331,7 +332,7 @@
     <script src="supabase-config.js"></script>
     
     <!-- Weekly Reports -->
-    <script src="weekly-reports.js"></script>
+    <!-- weekly-reports.js removed: functionality is self-contained in modal -->
 
     <script>
         // ============================================
@@ -521,8 +522,8 @@
             const totalTasks = history.reduce((sum, day) => sum + day.tasksCompleted, 0);
             document.getElementById('totalTasks').textContent = totalTasks;
 
-            // Calculate streak (consecutive days with B+ or higher)
-            const gradeThreshold = ['A+', 'A', 'A-', 'B+', 'B'];
+            // Calculate streak (consecutive days with B- or higher — self-grade preferred)
+            const gradeThreshold = ['A+', 'A', 'A-', 'B+', 'B', 'B-'];
             let streak = 0;
             for (let i = history.length - 1; i >= 0; i--) {
                 const grade = history[i].userGrade || history[i].autoGrade;
@@ -548,6 +549,13 @@
             
             document.getElementById('avgGrade').textContent = avgGradeValue.toFixed(1);
             document.getElementById('focusScore').textContent = ((avgGradeValue / 4.3) * 100).toFixed(0) + '%';
+
+            // Avg system grade (secondary)
+            const avgSysGradeValue = history.reduce((sum, day) => {
+                return sum + (gradeValues[day.systemGrade || day.autoGrade] || 0);
+            }, 0) / history.length;
+            const sysGradeEl = document.getElementById('avgSystemGrade');
+            if (sysGradeEl) sysGradeEl.textContent = avgSysGradeValue.toFixed(1);
 
             // Days logged
             document.getElementById('daysLogged').textContent = history.length;
@@ -592,18 +600,23 @@
             }).join('');
             document.getElementById('weeklyChart').innerHTML = chartHTML;
 
-            // Intention vs Reality
-            const intentions = JSON.parse(getUserItem('focushub_intentions') || '[]');
-            const intentionCount = intentions.length;
-            const followedThrough = intentions.filter(i => i.completed).length;
-            
+            // Intention vs Reality — aggregate from grade_history (same fix as dashboard.html)
+            let intentionCount = 0;
+            let followedThrough = 0;
+            history.forEach(day => {
+                const planned = day.plannedTasks || day.totalTasks ||
+                    Math.max(day.tasks || 0, 1);
+                const completed = day.tasks || 0;
+                intentionCount += planned;
+                followedThrough += Math.min(completed, planned);
+            });
+
             document.getElementById('intentionCount').textContent = intentionCount;
             document.getElementById('realityCount').textContent = followedThrough;
-            
+
             if (intentionCount > 0) {
-                const intentionPercent = 100;
                 const realityPercent = (followedThrough / intentionCount) * 100;
-                document.getElementById('intentionFill').style.width = intentionPercent + '%';
+                document.getElementById('intentionFill').style.width = '100%';
                 document.getElementById('realityFill').style.width = realityPercent + '%';
             }
             

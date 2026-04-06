@@ -385,68 +385,66 @@ body {
     height: 36px; /* COMPACT: Reduced from 40px */
 }
 
-/* Meeting Toggle - Modern Slider */
-.meeting-toggle-container {
-    display: flex;
+/* Meeting Mode Button — Control Panel Style */
+.meeting-mode-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.4rem;
     height: 36px;
-}
-
-.meeting-label {
-    font-size: 0.875rem;
-    color: var(--text-primary);
+    padding: 0 0.875rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
     font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
 }
 
-.toggle-switch {
-    position: relative;
+.meeting-mode-btn::before {
+    content: '';
     display: inline-block;
-    width: 44px;
-    height: 24px;
-    cursor: pointer;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--border-color);
-    transition: 0.3s;
-    border-radius: 24px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
-.toggle-switch input:checked + .toggle-slider {
-    background-color: var(--accent);
+.meeting-mode-btn:hover {
+    border-color: #60a5fa;
+    color: #60a5fa;
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(20px);
+.meeting-mode-btn:hover::before {
+    background: #60a5fa;
 }
 
-.toggle-switch input:focus + .toggle-slider {
-    box-shadow: 0 0 1px var(--accent);
+/* Active state — unmistakable */
+.meeting-mode-btn.active {
+    background: #1e3a5f;
+    border-color: #60a5fa;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px #60a5fa, inset 0 0 12px rgba(96, 165, 250, 0.12);
+}
+
+.meeting-mode-btn.active::before {
+    background: #60a5fa;
+    box-shadow: 0 0 6px 2px rgba(96, 165, 250, 0.7);
+}
+
+/* Sprint timer section — meeting active state */
+.sprint-timer-section.dominant.meeting-active {
+    border-color: #60a5fa;
+    background: linear-gradient(135deg, #18181b 0%, #1a2840 100%);
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.3), inset 0 0 40px rgba(96, 165, 250, 0.05);
 }
 
 .timer-buttons {
@@ -2574,3 +2572,85 @@ input:focus, select:focus, textarea:focus {
     margin-right: 1rem;
 }
 
+/* ── Status Bar (shared: dashboard.html, overview.html) ── */
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1.5rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 60px;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 0 0 auto;
+}
+
+.status-logo {
+    display: block;
+    height: 40px;
+    width: auto;
+}
+
+.status-middle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.status-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 4px var(--success);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.status-text {
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+}
+
+.status-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+}

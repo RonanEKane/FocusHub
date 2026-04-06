@@ -196,13 +196,19 @@ const DashboardSync = {
         const today = new Date().toISOString().split('T')[0];
         let checkDate = new Date(today);
         
-        const gradeValues = { 'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'D': 4, 'F': 3 };
+        const gradeValues = {
+            'A': 11, 'A-': 10,
+            'B+': 9, 'B': 8, 'B-': 7,
+            'C+': 6, 'C': 5, 'C-': 4,
+            'D+': 3, 'D': 2,
+            'F': 0
+        };
         
         for (let i = 0; i < 90; i++) {
             const dateStr = checkDate.toISOString().split('T')[0];
             const dayData = history.find(h => h.date === dateStr);
             
-            if (dayData && gradeValues[dayData.grade] >= 8) {
+            if (dayData && gradeValues[dayData.userGrade || dayData.grade] >= 7) {
                 streak++;
             } else if (i > 0) {
                 break; // Streak broken
