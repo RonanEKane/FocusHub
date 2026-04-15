@@ -411,7 +411,9 @@
             sprintAborts: 0,                 // Count of sprints stopped early
             idleStartTime: null,             // When user went idle
             activityLog: [],                  // DAILY TIMELINE: [{type,start,end,duration,label}]
-            sprintsSinceLastTask: 0           // EFFICIENCY TRACKING: consecutive sprints without task completion
+            sprintsSinceLastTask: 0,          // EFFICIENCY TRACKING: consecutive sprints without task completion
+            totalFocusedMinutes: 0,           // SPRINT WEIGHTING: cumulative focus minutes this day
+            currentSprintTask: null           // SPRINT FOCUS: taskId of selected task, or null if skipped
         };
 
         // ============================================
@@ -1053,14 +1055,18 @@
             
             let addedCount = 0;
             let duplicateCount = 0;
+
+            // Build a Set of all existing task text across all five buckets (case-insensitive)
+            const existingTaskTexts = new Set(
+                ['holding', 'admin', 'deepwork', 'strategic', 'wins']
+                    .flatMap(b => (state.tasks[b] || []).map(t => t.text.toLowerCase()))
+            );
             
             tasks.forEach(taskText => {
                 const cleanText = taskText.trim().toLowerCase();
                 
-                // Check for duplicates in holding area (case-insensitive)
-                const isDuplicate = state.tasks.holding.some(existingTask => 
-                    existingTask.text.toLowerCase() === cleanText
-                );
+                // Check for duplicates across all buckets (case-insensitive)
+                const isDuplicate = existingTaskTexts.has(cleanText);
                 
                 if (isDuplicate) {
                     console.log('⚠️ Duplicate detected, skipping:', taskText);
@@ -1078,6 +1084,7 @@
                     bucket: 'holding'
                 };
                 state.tasks.holding.push(task);
+                existingTaskTexts.add(cleanText); // catch within-batch duplicates
                 addedCount++;
             });
             
@@ -1395,6 +1402,15 @@
             showGradingModal(systemGrade);
         }
         
+        // TASK WEIGHTING: returns a combined weight for a task based on bucket and priority
+        function getTaskWeight(task) {
+            const bucketWeights = { deepwork: 1.5, strategic: 1.4, admin: 0.7, holding: 1.0, wins: 1.0 };
+            const priorityMultipliers = { high: 1.3, medium: 1.0, low: 0.8 };
+            const bw = bucketWeights[task.bucket] ?? 1.0;
+            const pm = priorityMultipliers[task.priority] ?? 1.0;
+            return bw * pm;
+        }
+
         function calculateDayGrade() {
             // Calculate based on: sprints completed, tasks finished, breaks taken
             const rawRequired = calculateTotalRequiredSprints();
@@ -1402,13 +1418,17 @@
             const sprintMinutes = state.timer.duration || 20;
             const meetingSprints = Math.round((state.totalMeetingTime || 0) / sprintMinutes);
             const totalRequired = Math.max(1, rawRequired - meetingSprints);
-            const sprintCompletion = totalRequired > 0 ?
-                Math.min(100, (state.sprintCount / totalRequired) * 100) : 0;
+            // Use focused minutes vs planned minutes for sprint ratio (accounts for variable sprint duration)
+            const plannedMinutes = totalRequired * sprintMinutes;
+            const sprintCompletion = plannedMinutes > 0 ?
+                Math.min(100, (state.totalFocusedMinutes / plannedMinutes) * 100) : 0;
 
-            const tasksCompleted = state.tasks.wins.length;
-            const totalTasks = tasksCompleted +
-                ['admin', 'deepwork', 'strategic'].reduce((sum, b) => sum + state.tasks[b].length, 0);
-            const taskCompletion = totalTasks > 0 ? (tasksCompleted / totalTasks) * 100 : 0;
+            // TASK WEIGHTING: use weighted sums instead of raw counts
+            const weightedCompleted = state.tasks.wins.reduce((sum, t) => sum + getTaskWeight(t), 0);
+            const weightedRemaining = ['admin', 'deepwork', 'strategic'].reduce((sum, b) =>
+                sum + state.tasks[b].reduce((s, t) => s + getTaskWeight(t), 0), 0);
+            const totalWeighted = weightedCompleted + weightedRemaining;
+            const taskCompletion = totalWeighted > 0 ? (weightedCompleted / totalWeighted) * 100 : 0;
 
             // Balance: breaks vs work
             const breakBalance = state.breaksCount > 0 ?
@@ -1648,19 +1668,30 @@
                 'F': 0
             };
 
+            // Build task type breakdown from wins
+            const typeBreakdown = state.tasks.wins.reduce((acc, t) => {
+                const label = t.bucket === 'deepwork' ? 'Deep Work' : t.bucket === 'strategic' ? 'Strategic' : t.bucket === 'admin' ? 'Admin' : null;
+                if (label) acc[label] = (acc[label] || 0) + 1;
+                return acc;
+            }, {});
+            const breakdownParts = Object.entries(typeBreakdown).map(([k, v]) => `${v} ${k}`);
+            const breakdownNote = breakdownParts.length > 0
+                ? ` (${breakdownParts.join(', ')})`
+                : '';
+
             if (systemGrade === userGrade) {
                 title.textContent = '✅ Aligned Assessment';
-                text.textContent = `You and the system both graded today as a ${systemGrade}. Your self-awareness is strong - you accurately assessed your performance. This alignment shows you understand what productivity looks like.`;
+                text.textContent = `You and the system both graded today as a ${systemGrade}. Your self-awareness is strong — you accurately assessed your performance. This alignment shows you understand what productivity looks like.${breakdownNote ? ' Tasks completed' + breakdownNote + '.' : ''}`;
             } else {
                 const systemVal = gradeValue[systemGrade] ?? 5;
                 const userVal = gradeValue[userGrade] ?? 5;
                 
                 if (userVal > systemVal) {
                     title.textContent = '⚠️ Inflated Self-Assessment';
-                    text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You might be overestimating your output. Check the metrics: did you complete what you planned? This gap suggests you're being too forgiving. Hold yourself to objective standards.`;
+                    text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You might be overestimating your output. Check the metrics: did you complete what you planned?${breakdownNote ? ' Tasks closed' + breakdownNote + '.' : ''} This gap suggests you're being too forgiving. Hold yourself to objective standards.`;
                 } else {
                     title.textContent = '💪 Harsh Self-Judgment';
-                    text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You're being too hard on yourself. The numbers show you did better than you feel. This is common with ADHD - acknowledging wins is difficult. Give yourself credit for what you actually accomplished.`;
+                    text.textContent = `You gave yourself a ${userGrade}, but the system calculated a ${systemGrade}. You're being too hard on yourself. The numbers show you did better than you feel.${breakdownNote ? ' You completed' + breakdownNote + ' — that\'s real output.' : ''} This is common with ADHD — acknowledging wins is difficult. Give yourself credit for what you actually accomplished.`;
                 }
             }
         }
@@ -1759,6 +1790,7 @@
                 systemGrade,
                 userGrade,
                 sprints: state.sprintCount,
+                totalFocusedMinutes: state.totalFocusedMinutes,
                 tasks: state.tasks.wins.length,
                 plannedTasks: totalPlanned,
                 breaks: state.breaksCount,
@@ -1837,6 +1869,7 @@
             state.breaksCount = 0;
             state.distractionCount = 0;
             state.dailySprintTarget = 0;
+            state.totalFocusedMinutes = 0;  // SPRINT WEIGHTING: reset for new day
             
             // STUDENT: Don't mark day as ended - allow new session
             // STANDARD/PREMIUM: Mark day as ended
@@ -1857,8 +1890,179 @@
             // Remove modal
             cancelGrading();
             
-            // Redirect to appropriate dashboard based on tier
-            redirectToDashboard();
+            // Beta feedback modal — once per day, always skippable
+            const _today = new Date().toISOString().split('T')[0];
+            const _lastBeta = localStorage.getItem('focushub_beta_modal_last');
+            if (_lastBeta !== _today) {
+                showBetaFeedbackModal();
+            } else {
+                redirectToDashboard();
+            }
+        }
+
+        // BETA FEEDBACK MODAL
+        function showBetaFeedbackModal() {
+            const today = new Date().toISOString().split('T')[0];
+            const overlay = document.createElement('div');
+            overlay.id = 'betaFeedbackOverlay';
+            overlay.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+                display: flex; align-items: center; justify-content: center;
+                z-index: 9999; padding: 1rem;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: var(--bg-secondary, #1a1a1f);
+                    border: 1px solid var(--border-light, #2a2a2f);
+                    border-radius: 2px;
+                    padding: 1.75rem;
+                    max-width: 420px;
+                    width: 100%;
+                    font-family: Inter, sans-serif;
+                ">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem;">
+                        <div>
+                            <div style="color: var(--industrial-orange, #fb923c); font-size:0.7rem; font-family: 'JetBrains Mono', monospace; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.3rem;">BETA FEEDBACK</div>
+                            <div style="color: var(--text-primary, #f0f0f0); font-size:1rem; font-weight:600;">Quick check-in</div>
+                        </div>
+                        <button id="betaSkipBtn" style="
+                            background: none; border: none; color: var(--text-muted, #666);
+                            font-size: 1.25rem; cursor: pointer; padding: 0; line-height:1;
+                        ">×</button>
+                    </div>
+
+                    <div style="margin-bottom:1.25rem;">
+                        <div style="color: var(--text-secondary, #aaa); font-size:0.85rem; margin-bottom:0.6rem;">How did the session feel?</div>
+                        <div id="betaRatingGroup" style="display:flex; gap:0.5rem;">
+                            ${['😞','😐','🙂','😄'].map(e => `
+                                <button class="beta-emoji-btn" data-value="${e}" style="
+                                    font-size:1.5rem; background: var(--bg-primary, #0d0d0f);
+                                    border: 2px solid var(--border-light, #2a2a2f);
+                                    border-radius: 2px; padding: 0.4rem 0.6rem;
+                                    cursor: pointer; transition: border-color 0.15s;
+                                ">${e}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:1.25rem;">
+                        <div style="color: var(--text-secondary, #aaa); font-size:0.85rem; margin-bottom:0.6rem;">Was the AI coach helpful?</div>
+                        <div id="betaCoachGroup" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                            ${[['yes','Yes'],['sometimes','Sometimes'],['no','Not really']].map(([v,l]) => `
+                                <button class="beta-coach-btn" data-value="${v}" style="
+                                    font-size:0.8rem; background: var(--bg-primary, #0d0d0f);
+                                    border: 2px solid var(--border-light, #2a2a2f);
+                                    border-radius: 2px; padding: 0.4rem 0.75rem;
+                                    cursor: pointer; color: var(--text-primary, #f0f0f0);
+                                    transition: border-color 0.15s;
+                                ">${l}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:1.25rem;">
+                        <button id="betaNotesToggle" style="
+                            background: none; border: none;
+                            color: var(--text-muted, #666); font-size:0.8rem;
+                            cursor: pointer; padding: 0; text-decoration: underline;
+                        ">+ Add a note (optional)</button>
+                        <textarea id="betaNotesText" placeholder="Anything else on your mind..." style="
+                            display: none; width: 100%; margin-top: 0.5rem;
+                            background: var(--bg-primary, #0d0d0f);
+                            border: 1px solid var(--border-light, #2a2a2f);
+                            border-radius: 2px; color: var(--text-primary, #f0f0f0);
+                            font-size: 0.85rem; padding: 0.6rem; resize: vertical;
+                            min-height: 70px; box-sizing: border-box;
+                            font-family: Inter, sans-serif;
+                        "></textarea>
+                    </div>
+
+                    <div style="display:flex; gap:0.75rem; align-items:center; justify-content:space-between;">
+                        <a href="beta-feedback.html" style="
+                            color: var(--text-muted, #666); font-size:0.75rem;
+                            text-decoration: underline;
+                        ">Give fuller feedback</a>
+                        <button id="betaSubmitBtn" style="
+                            background: var(--industrial-orange, #fb923c);
+                            border: none; border-radius: 2px;
+                            color: #000; font-weight: 700; font-size: 0.85rem;
+                            padding: 0.6rem 1.25rem; cursor: pointer;
+                        ">Submit</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // State
+            let selectedRating = null;
+            let selectedCoach = null;
+
+            // Emoji selection
+            overlay.querySelectorAll('.beta-emoji-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    overlay.querySelectorAll('.beta-emoji-btn').forEach(b => 
+                        b.style.borderColor = 'var(--border-light, #2a2a2f)');
+                    btn.style.borderColor = 'var(--industrial-orange, #fb923c)';
+                    selectedRating = btn.dataset.value;
+                });
+            });
+
+            // Coach helpful selection
+            overlay.querySelectorAll('.beta-coach-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    overlay.querySelectorAll('.beta-coach-btn').forEach(b =>
+                        b.style.borderColor = 'var(--border-light, #2a2a2f)');
+                    btn.style.borderColor = 'var(--industrial-orange, #fb923c)';
+                    selectedCoach = btn.dataset.value;
+                });
+            });
+
+            // Notes toggle
+            document.getElementById('betaNotesToggle').addEventListener('click', () => {
+                const ta = document.getElementById('betaNotesText');
+                const isHidden = ta.style.display === 'none';
+                ta.style.display = isHidden ? 'block' : 'none';
+                document.getElementById('betaNotesToggle').textContent = isHidden ? '- Hide note' : '+ Add a note (optional)';
+            });
+
+            // Dismiss helper
+            const dismiss = () => {
+                localStorage.setItem('focushub_beta_modal_last', today);
+                overlay.remove();
+                redirectToDashboard();
+            };
+
+            // Skip
+            document.getElementById('betaSkipBtn').addEventListener('click', dismiss);
+
+            // Submit
+            document.getElementById('betaSubmitBtn').addEventListener('click', async () => {
+                const notes = document.getElementById('betaNotesText').value.trim();
+                await submitBetaRating({
+                    sessionRating: selectedRating,
+                    coachHelpful: selectedCoach,
+                    notes: notes || null
+                });
+                dismiss();
+            });
+        }
+
+        async function submitBetaRating({ sessionRating, coachHelpful, notes }) {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                await supabase.from('beta_ratings').insert({
+                    user_id: user?.id || null,
+                    session_rating: sessionRating,
+                    coach_helpful: coachHelpful,
+                    notes: notes || null,
+                    app_version: (typeof APP_VERSION !== 'undefined' ? APP_VERSION : null)
+                });
+                console.log('✅ Beta rating submitted');
+            } catch (e) {
+                console.warn('Beta rating submit failed silently', e);
+            }
         }
 
         // DAY TRACKING: Check if day should auto-end (new calendar day)
@@ -1901,6 +2105,7 @@
                 state.breaksCount = 0;
                 state.distractionCount = 0;
                 state.dailySprintTarget = 0;
+                state.totalFocusedMinutes = 0;  // SPRINT WEIGHTING: reset for new day
                 
                 saveState();
                 alert('Previous session auto-ended (new day). Incomplete tasks moved to holding area.');
@@ -2088,13 +2293,77 @@
         // ============================================
         // SPRINT TIMER FUNCTIONS
         // ============================================
+
+        // SPRINT FOCUS: Show task selection overlay before sprint starts.
+        // Sprint begins immediately on pick or skip — selection is metadata only.
+        function showSprintFocusOverlay(onReady) {
+            const activeTasks = ['admin', 'deepwork', 'strategic'].flatMap(b =>
+                state.tasks[b].map(t => ({ ...t, bucket: b }))
+            );
+
+            if (activeTasks.length === 0) {
+                state.currentSprintTask = null;
+                onReady();
+                return;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.id = 'sprintFocusOverlay';
+            overlay.style.cssText = [
+                'position:fixed', 'top:0', 'left:0', 'width:100%', 'height:100%',
+                'background:rgba(0,0,0,0.75)', 'display:flex', 'align-items:center',
+                'justify-content:center', 'z-index:9999', "font-family:'Inter',sans-serif"
+            ].join(';');
+
+            const bucketLabels = { admin: 'ADMIN', deepwork: 'DEEP WORK', strategic: 'STRATEGIC' };
+            const bucketColors = { admin: 'var(--text-muted,#555)', deepwork: 'var(--industrial-orange,#fb923c)', strategic: 'var(--success,#22c55e)' };
+
+            const taskListHTML = activeTasks.map(t => `
+                <button class="sfo-task-btn" data-id="${t.id}" style="display:block;width:100%;text-align:left;background:var(--bg-secondary,#1a1a1f);border:1px solid var(--border-color,#2a2a2f);color:var(--text-primary,#f0f0f0);padding:0.6rem 0.75rem;margin-bottom:0.4rem;cursor:pointer;border-radius:2px;font-size:0.85rem;line-height:1.3;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:${bucketColors[t.bucket]};margin-right:0.5rem;">${bucketLabels[t.bucket]}</span>${t.text}
+                </button>
+            `).join('');
+
+            overlay.innerHTML = `
+                <div style="background:var(--bg-primary,#0d0d0f);border:1px solid var(--border-color,#2a2a2f);border-radius:2px;padding:1.5rem;width:min(420px,90vw);max-height:70vh;display:flex;flex-direction:column;">
+                    <div style="margin-bottom:1rem;">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--industrial-orange,#fb923c);letter-spacing:0.08em;margin-bottom:0.35rem;">SPRINT FOCUS</div>
+                        <div style="font-size:0.9rem;color:var(--text-secondary,#a0a0a0);">What are you working on? <span style="color:var(--text-muted,#555)">(optional)</span></div>
+                    </div>
+                    <div style="overflow-y:auto;flex:1;margin-bottom:1rem;">${taskListHTML}</div>
+                    <button id="sfoSkipBtn" style="width:100%;background:transparent;border:1px solid var(--border-color,#2a2a2f);color:var(--text-muted,#555);padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;">SKIP</button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            function dismiss(taskId) {
+                state.currentSprintTask = taskId || null;
+                document.body.removeChild(overlay);
+                onReady();
+            }
+
+            overlay.querySelectorAll('.sfo-task-btn').forEach(btn => {
+                btn.addEventListener('click', () => dismiss(btn.dataset.id));
+                btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--industrial-orange,#fb923c)'; });
+                btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--border-color,#2a2a2f)'; });
+            });
+
+            document.getElementById('sfoSkipBtn').addEventListener('click', () => dismiss(null));
+            overlay.addEventListener('click', e => { if (e.target === overlay) dismiss(null); });
+        }
+
         function startSprint() {
             if (state.timer.active) return;
             if (state.inMeeting) {
                 showMicroConfirm('Cannot start sprint while in meeting mode');
                 return;
             }
-            
+            // SPRINT FOCUS: show task selection overlay, then run _doStartSprint
+            showSprintFocusOverlay(_doStartSprint);
+        }
+
+        function _doStartSprint() {
             // Request notification permission on first sprint ever
             const hasRequestedPermission = localStorage.getItem('notificationPermissionRequested');
             if (!hasRequestedPermission && 'Notification' in window && Notification.permission === 'default') {
@@ -2593,8 +2862,10 @@
             // Only increment sprint count for actual focus sessions
             if (state.timer.type === 'focus') {
                 state.sprintCount++;
+                state.totalFocusedMinutes += state.timer.duration;  // SPRINT WEIGHTING
                 state.lastSprintCompleteTime = Date.now();
                 state.sprintsSinceLastTask++;  // EFFICIENCY: count sprints since last task closed
+                state.currentSprintTask = null;  // SPRINT FOCUS: clear selection at sprint end
             }
             
             state.sessionState = 'idle';
@@ -2617,7 +2888,7 @@
 
                 // DYNAMIC SPRINT ADJUSTMENT: if sprints consumed but tasks not closing,
                 // add buffer sprints (capped at 50% over original estimate)
-                if (state.sprintsSinceLastTask >= 3 && tasksLeft > 0) {
+                if (state.sprintsSinceLastTask >= 3 && tasksLeft > 1 && state.sprintCount >= 5) {
                     const originalEstimate = totalRequired;
                     const sprintEfficiencyRatio = tasksCompleted > 0
                         ? state.sprintCount / tasksCompleted
@@ -2641,8 +2912,17 @@
                     ? (state.sprintCount / tasksCompleted).toFixed(1)
                     : null;
 
+                // Resolve currentSprintTask to name and type for coach context
+                const _allTasks = [...state.tasks.admin, ...state.tasks.deepwork, ...state.tasks.strategic, ...state.tasks.wins];
+                const _focusedTask = state.currentSprintTask
+                    ? _allTasks.find(t => t.id === state.currentSprintTask)
+                    : null;
+                const _bucketLabels = { admin: 'Admin', deepwork: 'Deep Work', strategic: 'Strategic' };
+                const focusedTaskName = _focusedTask ? _focusedTask.text : null;
+                const focusedTaskType = _focusedTask ? (_bucketLabels[_focusedTask.bucket] || null) : null;
+
                 // Choose message category — efficiency pattern takes priority when triggered
-                const msgCategory = (state.sprintsSinceLastTask >= 3 && tasksLeft > 0)
+                const msgCategory = (state.sprintsSinceLastTask >= 3 && tasksLeft > 1 && state.sprintCount >= 5)
                     ? 'sprintEfficiencyWarning'
                     : 'sprintComplete';
 
@@ -2653,7 +2933,9 @@
                     tasksCompleted: tasksCompleted,
                     meetingMinutes: state.totalMeetingTime || 0,
                     sprintsSinceLastTask: state.sprintsSinceLastTask,
-                    sprintEfficiency: sprintEfficiency
+                    sprintEfficiency: sprintEfficiency,
+                    focusedTaskName: focusedTaskName,
+                    focusedTaskType: focusedTaskType
                 });
                 
                 updateAIMessage(message);
@@ -2992,7 +3274,7 @@
         // ============================================
         
         const aiCoachLibrary = {
-            // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft, tasksCompleted, meetingMinutes
+            // SPRINT COMPLETION - Context: sprintsDone, required, tasksLeft, tasksCompleted, meetingMinutes, focusedTaskName, focusedTaskType
             sprintComplete: {
                 supportive: [
                     (ctx) => `Sprint ${ctx.sprintsDone} in the books. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' done — that\'s real progress. ' : ''}${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go. You\'ve got the rhythm now.' : 'You hit the target. That\'s worth acknowledging.'}`,
@@ -3009,7 +3291,8 @@
                     (ctx) => `Sprint ${ctx.sprintsDone} complete. The ADHD brain works best with exactly this: time-boxed, focused, done. You just used your brain the right way.`,
                     (ctx) => `Focus time logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' crossed off. ' : ''}That feels different from a day where nothing got done, doesn\'t it?`,
                     (ctx) => `Sprint done! ${ctx.required - ctx.sprintsDone > 0 ? 'Keep the streak going — ' + (ctx.required - ctx.sprintsDone) + ' more.' : 'Full day of sprints complete. You earned this.'}`,
-                    (ctx) => `${ctx.sprintsDone === 1 ? 'First sprint in the bag. The day has officially started.' : ctx.sprintsDone === ctx.required ? 'Last required sprint done. Full commitment.' : 'Sprint ' + ctx.sprintsDone + ' complete. Steady and consistent — that\'s the whole game.'}`
+                    (ctx) => `${ctx.sprintsDone === 1 ? 'First sprint in the bag. The day has officially started.' : ctx.sprintsDone === ctx.required ? 'Last required sprint done. Full commitment.' : 'Sprint ' + ctx.sprintsDone + ' complete. Steady and consistent — that\'s the whole game.'}`,
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. You were locked in on ${ctx.focusedTaskType ? ctx.focusedTaskType + ' work' : 'that task'} — "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go.' : 'Target hit.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still ahead — pick your next target.' : 'Board is clear. Nice work.'}`
                 ],
                 balanced: [
                     (ctx) => {
@@ -3030,7 +3313,8 @@
                     (ctx) => `${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' to go. Each sprint either closes a gap or opens one — keep closing.' : 'Schedule met. Evaluate remaining tasks.'}`,
                     (ctx) => `Sprint recorded. ${ctx.tasksLeft > 0 ? 'Active tasks: ' + ctx.tasksLeft + '. Sprint without task completion is partial productivity — close something.' : 'Full task resolution. High-output session.'}`,
                     (ctx) => `${ctx.sprintsDone}/${ctx.required} sprints. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completions — output is real.' : 'Task list unchanged. Identify what you can finish next sprint.'}`,
-                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone === 0 ? 'Daily target achieved.' : ctx.required - ctx.sprintsDone + ' remaining.'} Consistency produces results. Maintain it.`
+                    (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone === 0 ? 'Daily target achieved.' : ctx.required - ctx.sprintsDone + ' remaining.'} Consistency produces results. Maintain it.`,
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} logged. Focused on ${ctx.focusedTaskType || 'task'}: "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' sprints remaining.' : 'Target met.'}` : `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks active.' : 'Board clear.'}`
                 ],
                 tough: [
                     (ctx) => {
@@ -3071,7 +3355,8 @@
                         const gap = ctx.required - ctx.sprintsDone;
                         return `Sprint logged. ${gap > 5 ? 'You\'re significantly behind. ' + gap + ' sprints still required. This is recoverable only if you start immediately.' : gap > 2 ? gap + ' behind. Pace is behind target. Accelerate.' : gap > 0 ? gap + ' left. Close it.' : 'Done. Now finish the tasks.'}`;
                     },
-                    (ctx) => `${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' sprints left. ' + (ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins so far — now go get more.' : 'Tasks aren\'t closing themselves. Work them.') : 'All sprints complete. ' + (ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still open. Finish them.' : 'Full board cleared. Excellent.')}`
+                    (ctx) => `${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' sprints left. ' + (ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins so far — now go get more.' : 'Tasks aren\'t closing themselves. Work them.') : 'All sprints complete. ' + (ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still open. Finish them.' : 'Full board cleared. Excellent.')}`,
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. ${ctx.focusedTaskType ? ctx.focusedTaskType + ' sprint' : 'Sprint'} on "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' remaining. No coasting.' : 'Target met. Close the open tasks.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' left.' : 'Target met.'} ${ctx.tasksLeft > 0 ? 'Finish the tasks.' : 'Board clear.'}`
                 ]
             },
 
@@ -4182,6 +4467,7 @@
         
         // Detect extended idle without decision (V20.6)
         function checkIdleState() {
+            if (state.sprintCount < 1) return;
             if (!state.idleStartTime) {
                 state.idleStartTime = Date.now();
                 return;
@@ -4425,6 +4711,7 @@
             let highPriorityCount = 0;
             let lowPriorityTasks = [];
             let highPriorityTasks = [];
+            const bucketLabels = { admin: 'Admin', deepwork: 'Deep Work', strategic: 'Strategic' };
             
             ['admin', 'deepwork', 'strategic'].forEach(bucket => {
                 state.tasks[bucket].forEach(task => {
@@ -4435,7 +4722,8 @@
                         }
                         if (task.priority === 'high') {
                             highPriorityCount++;
-                            highPriorityTasks.push(task.title);
+                            // Include bucket type so the message is specific
+                            highPriorityTasks.push({ text: task.text, bucket: bucketLabels[bucket] || bucket });
                         }
                     }
                 });
@@ -4443,7 +4731,11 @@
             
             // Alert if focusing on low priority when high priority exists
             if (lowPriorityCount > highPriorityCount && highPriorityCount > 0) {
-                updateAIMessage(`⚠️ Priority misalignment: ${lowPriorityCount} low-priority vs ${highPriorityCount} high-priority items. Focus on high-value work: ${highPriorityTasks[0]}.`);
+                const topTask = highPriorityTasks[0];
+                const taskRef = topTask
+                    ? `${topTask.bucket}: "${topTask.text}"`
+                    : 'your high-priority items';
+                updateAIMessage(`⚠️ Priority misalignment: ${lowPriorityCount} low-priority vs ${highPriorityCount} high-priority items. Focus on high-value work — ${taskRef}.`);
             }
         }
 
