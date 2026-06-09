@@ -413,7 +413,8 @@
             activityLog: [],                  // DAILY TIMELINE: [{type,start,end,duration,label}]
             sprintsSinceLastTask: 0,          // EFFICIENCY TRACKING: consecutive sprints without task completion
             totalFocusedMinutes: 0,           // SPRINT WEIGHTING: cumulative focus minutes this day
-            currentSprintTask: null           // SPRINT FOCUS: taskId of selected task, or null if skipped
+            currentSprintTask: null,          // SPRINT FOCUS: taskId of selected task, or null if skipped
+            lastSprintTask: null              // SPRINT FOCUS: taskId from previous sprint for pre-highlight
         };
 
         // ============================================
@@ -967,7 +968,7 @@
                     
                     if (isBreakBtn && duration === 5) {
                         // Check if break is earned
-                        if (!checkBreakEligibility()) {
+                        if (!checkBreakEligibility().eligible) {
                             return; // Block break selection
                         }
                     }
@@ -996,6 +997,45 @@
                     updateTimerDisplay();
                     saveState();
                 });
+            });
+
+            // Start Break button — actually starts the break timer
+            document.querySelector('.timer-btn-break').addEventListener('click', function() {
+                if (state.timer.active) return;
+                if (state.inMeeting) return;
+
+                const eligibility = checkBreakEligibility();
+
+                if (!eligibility.eligible) {
+                    // Show confirm overlay for any ineligibility reason
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = [
+                        'position:fixed','top:0','left:0','width:100%','height:100%',
+                        'background:rgba(0,0,0,0.75)','display:flex','align-items:center',
+                        'justify-content:center','z-index:9999',"font-family:'Inter',sans-serif"
+                    ].join(';');
+                    overlay.innerHTML = `
+                        <div style="background:var(--bg-primary,#0d0d0f);border:1px solid var(--border-color,#2a2a2f);border-radius:2px;padding:1.5rem;width:min(360px,90vw);">
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--industrial-orange,#fb923c);letter-spacing:0.08em;margin-bottom:0.75rem;">START BREAK</div>
+                            <div style="font-size:0.9rem;color:var(--text-secondary,#a0a0a0);margin-bottom:1.25rem;">${eligibility.reason}</div>
+                            <div style="display:flex;gap:0.5rem;">
+                                <button id="breakConfirmYes" style="flex:1;background:var(--industrial-orange,#fb923c);border:none;color:#000;padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;font-weight:600;">START BREAK</button>
+                                <button id="breakConfirmNo" style="flex:1;background:transparent;border:1px solid var(--border-color,#2a2a2f);color:var(--text-muted,#555);padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;">CANCEL</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                    document.getElementById('breakConfirmYes').addEventListener('click', () => {
+                        document.body.removeChild(overlay);
+                        _doStartBreak();
+                    });
+                    document.getElementById('breakConfirmNo').addEventListener('click', () => {
+                        document.body.removeChild(overlay);
+                    });
+                    overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
+                } else {
+                    _doStartBreak();
+                }
             });
 
             // Energy selector
@@ -1511,7 +1551,8 @@
 
             modal.innerHTML = `
                 <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; border: 2px solid var(--border-light); max-height: 90vh; overflow-y: auto;">
-                    <h2 style="color: var(--industrial-orange); margin-bottom: 1.5rem; text-align: center;">📊 END OF DAY GRADING</h2>
+                    <h2 style="color: var(--industrial-orange); margin-bottom: ${state.autoEndPending ? '0.75rem' : '1.5rem'}; text-align: center;">📊 END OF DAY GRADING</h2>
+                    ${state.autoEndPending ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.08em;color:var(--text-muted);text-align:center;margin-bottom:1.25rem;padding:0.5rem 0.75rem;background:var(--bg-tertiary);border-radius:4px;border:1px solid var(--border-light);">Session auto-ended — new day detected. Grade yesterday before continuing.</div>` : ''}
 
                     <!-- ── DIAGNOSTIC DATA — read these before picking your grade ── -->
                     <div style="margin-bottom: 1rem;">
@@ -1870,6 +1911,7 @@
             state.distractionCount = 0;
             state.dailySprintTarget = 0;
             state.totalFocusedMinutes = 0;  // SPRINT WEIGHTING: reset for new day
+            state.lastSprintTask = null;    // SPRINT FOCUS: reset for new day
             
             // STUDENT: Don't mark day as ended - allow new session
             // STANDARD/PREMIUM: Mark day as ended
@@ -1884,6 +1926,9 @@
                 state.sessionStartTime = null; // Reset session start
                 console.log(`📚 Session #${state.sessionNumber} complete - can start another today`);
             }
+            
+            // Clear auto-end flag if set
+            state.autoEndPending = false;
             
             saveState();
             
@@ -2079,37 +2124,15 @@
             
             // Auto-end if it's a different day (period)
             if (isDifferentDay) {
-                console.log('🌙 Auto-ending day: new calendar day detected');
+                console.log('🌙 Auto-ending day: new calendar day detected — showing grading first');
                 
-                // Move incomplete tasks to holding before ending
-                ['admin', 'deepwork', 'strategic'].forEach(bucket => {
-                    state.tasks[bucket].forEach(task => {
-                        if (!task.completed) {
-                            task.bucket = 'holding';
-                            state.tasks.holding.push(task);
-                        }
-                    });
-                    state.tasks[bucket] = [];
-                });
-                
-                // Clear wins for new day
-                state.tasks.wins = [];
-                
-                // Mark day as ended
-                state.dayActive = false;
-                state.lastDayStarted = null;
-                state.lastActivityTime = null;
-                
-                // Reset counts for new day
-                state.sprintCount = 0;
-                state.breaksCount = 0;
-                state.distractionCount = 0;
-                state.dailySprintTarget = 0;
-                state.totalFocusedMinutes = 0;  // SPRINT WEIGHTING: reset for new day
-                
+                // Flag so completeDay knows this was an auto-end
+                state.autoEndPending = true;
                 saveState();
-                alert('Previous session auto-ended (new day). Incomplete tasks moved to holding area.');
-                redirectToDashboard();
+                
+                // Route through normal grading flow — completeDay handles reset + redirect
+                const systemGrade = calculateDayGrade();
+                showGradingModal(systemGrade);
                 return true;
             }
             
@@ -2346,8 +2369,23 @@
             overlay.querySelectorAll('.sfo-task-btn').forEach(btn => {
                 btn.addEventListener('click', () => dismiss(btn.dataset.id));
                 btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--industrial-orange,#fb923c)'; });
-                btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--border-color,#2a2a2f)'; });
+                btn.addEventListener('mouseleave', () => {
+                    // Keep highlight if this is the pre-selected task
+                    btn.style.borderColor = btn.dataset.id === (state.lastSprintTask || '') 
+                        ? 'var(--industrial-orange,#fb923c)' 
+                        : 'var(--border-color,#2a2a2f)';
+                });
             });
+
+            // Pre-highlight previous sprint's task if it's still open
+            if (state.lastSprintTask) {
+                const prevBtn = overlay.querySelector(`.sfo-task-btn[data-id="${state.lastSprintTask}"]`);
+                if (prevBtn) {
+                    prevBtn.style.borderColor = 'var(--industrial-orange,#fb923c)';
+                    prevBtn.style.background = 'var(--bg-tertiary,#222228)';
+                    prevBtn.scrollIntoView({ block: 'nearest' });
+                }
+            }
 
             document.getElementById('sfoSkipBtn').addEventListener('click', () => dismiss(null));
             overlay.addEventListener('click', e => { if (e.target === overlay) dismiss(null); });
@@ -2442,9 +2480,12 @@
         // V20.6: Separate break start function
         function startBreak() {
             if (state.timer.active) return;
-            if (!checkBreakEligibility()) return;
-            
-            state.idleStartTime = null;
+            const eligibility = checkBreakEligibility();
+            if (!eligibility.eligible) return;
+            _doStartBreak();
+        }
+
+        function _doStartBreak() {
             
             if (state.timer.interval) {
                 clearInterval(state.timer.interval);
@@ -2865,7 +2906,9 @@
                 state.totalFocusedMinutes += state.timer.duration;  // SPRINT WEIGHTING
                 state.lastSprintCompleteTime = Date.now();
                 state.sprintsSinceLastTask++;  // EFFICIENCY: count sprints since last task closed
-                state.currentSprintTask = null;  // SPRINT FOCUS: clear selection at sprint end
+                // SPRINT FOCUS: stash task before clearing so coach messages can reference it
+                state.lastSprintTask = state.currentSprintTask || null;
+                state.currentSprintTask = null;
             }
             
             state.sessionState = 'idle';
@@ -2912,14 +2955,18 @@
                     ? (state.sprintCount / tasksCompleted).toFixed(1)
                     : null;
 
-                // Resolve currentSprintTask to name and type for coach context
+                // Resolve lastSprintTask to name and type for coach context
                 const _allTasks = [...state.tasks.admin, ...state.tasks.deepwork, ...state.tasks.strategic, ...state.tasks.wins];
-                const _focusedTask = state.currentSprintTask
-                    ? _allTasks.find(t => t.id === state.currentSprintTask)
+                const _focusedTask = state.lastSprintTask
+                    ? _allTasks.find(t => t.id === state.lastSprintTask)
                     : null;
                 const _bucketLabels = { admin: 'Admin', deepwork: 'Deep Work', strategic: 'Strategic' };
                 const focusedTaskName = _focusedTask ? _focusedTask.text : null;
                 const focusedTaskType = _focusedTask ? (_bucketLabels[_focusedTask.bucket] || null) : null;
+                // Is the focused task still open (not in wins)?
+                const focusedTaskStillOpen = _focusedTask
+                    ? ['admin', 'deepwork', 'strategic'].some(b => state.tasks[b].find(t => t.id === state.lastSprintTask))
+                    : false;
 
                 // Choose message category — efficiency pattern takes priority when triggered
                 const msgCategory = (state.sprintsSinceLastTask >= 3 && tasksLeft > 1 && state.sprintCount >= 5)
@@ -2935,7 +2982,8 @@
                     sprintsSinceLastTask: state.sprintsSinceLastTask,
                     sprintEfficiency: sprintEfficiency,
                     focusedTaskName: focusedTaskName,
-                    focusedTaskType: focusedTaskType
+                    focusedTaskType: focusedTaskType,
+                    focusedTaskStillOpen: focusedTaskStillOpen
                 });
                 
                 updateAIMessage(message);
@@ -3292,7 +3340,8 @@
                     (ctx) => `Focus time logged. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' task' + (ctx.tasksCompleted !== 1 ? 's' : '') + ' crossed off. ' : ''}That feels different from a day where nothing got done, doesn\'t it?`,
                     (ctx) => `Sprint done! ${ctx.required - ctx.sprintsDone > 0 ? 'Keep the streak going — ' + (ctx.required - ctx.sprintsDone) + ' more.' : 'Full day of sprints complete. You earned this.'}`,
                     (ctx) => `${ctx.sprintsDone === 1 ? 'First sprint in the bag. The day has officially started.' : ctx.sprintsDone === ctx.required ? 'Last required sprint done. Full commitment.' : 'Sprint ' + ctx.sprintsDone + ' complete. Steady and consistent — that\'s the whole game.'}`,
-                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. You were locked in on ${ctx.focusedTaskType ? ctx.focusedTaskType + ' work' : 'that task'} — "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go.' : 'Target hit.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still ahead — pick your next target.' : 'Board is clear. Nice work.'}`
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. You were locked in on ${ctx.focusedTaskType ? ctx.focusedTaskType + ' work' : 'that task'} — "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' more to go.' : 'Target hit.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still ahead — pick your next target.' : 'Board is clear. Nice work.'}`,
+                    (ctx) => ctx.focusedTaskStillOpen && ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. "${ctx.focusedTaskName}" is still open — if you need another sprint on it, it'll be waiting at the top of your list. Multi-sprint tasks are normal.` : `Sprint ${ctx.sprintsDone} complete. ${ctx.tasksLeft > 0 ? 'Pick your next target and go again.' : 'Board is clear. Great work.'}`,
                 ],
                 balanced: [
                     (ctx) => {
@@ -3314,7 +3363,8 @@
                     (ctx) => `Sprint recorded. ${ctx.tasksLeft > 0 ? 'Active tasks: ' + ctx.tasksLeft + '. Sprint without task completion is partial productivity — close something.' : 'Full task resolution. High-output session.'}`,
                     (ctx) => `${ctx.sprintsDone}/${ctx.required} sprints. ${ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' completions — output is real.' : 'Task list unchanged. Identify what you can finish next sprint.'}`,
                     (ctx) => `Sprint done. ${ctx.required - ctx.sprintsDone === 0 ? 'Daily target achieved.' : ctx.required - ctx.sprintsDone + ' remaining.'} Consistency produces results. Maintain it.`,
-                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} logged. Focused on ${ctx.focusedTaskType || 'task'}: "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' sprints remaining.' : 'Target met.'}` : `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks active.' : 'Board clear.'}`
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} logged. Focused on ${ctx.focusedTaskType || 'task'}: "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' sprints remaining.' : 'Target met.'}` : `Sprint ${ctx.sprintsDone}/${ctx.required} logged. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks active.' : 'Board clear.'}`,
+                    (ctx) => ctx.focusedTaskStillOpen && ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} logged. "${ctx.focusedTaskName}" is still open. If it needs more time, select it again next sprint — it'll be pre-highlighted for you.` : `Sprint ${ctx.sprintsDone}/${ctx.required} complete. ${ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks remaining.' : 'Board clear.'}`,
                 ],
                 tough: [
                     (ctx) => {
@@ -3356,7 +3406,8 @@
                         return `Sprint logged. ${gap > 5 ? 'You\'re significantly behind. ' + gap + ' sprints still required. This is recoverable only if you start immediately.' : gap > 2 ? gap + ' behind. Pace is behind target. Accelerate.' : gap > 0 ? gap + ' left. Close it.' : 'Done. Now finish the tasks.'}`;
                     },
                     (ctx) => `${ctx.required - ctx.sprintsDone > 0 ? (ctx.required - ctx.sprintsDone) + ' sprints left. ' + (ctx.tasksCompleted > 0 ? ctx.tasksCompleted + ' wins so far — now go get more.' : 'Tasks aren\'t closing themselves. Work them.') : 'All sprints complete. ' + (ctx.tasksLeft > 0 ? ctx.tasksLeft + ' tasks still open. Finish them.' : 'Full board cleared. Excellent.')}`,
-                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. ${ctx.focusedTaskType ? ctx.focusedTaskType + ' sprint' : 'Sprint'} on "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' remaining. No coasting.' : 'Target met. Close the open tasks.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' left.' : 'Target met.'} ${ctx.tasksLeft > 0 ? 'Finish the tasks.' : 'Board clear.'}`
+                    (ctx) => ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. ${ctx.focusedTaskType ? ctx.focusedTaskType + ' sprint' : 'Sprint'} on "${ctx.focusedTaskName}". ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' remaining. No coasting.' : 'Target met. Close the open tasks.'}` : `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' left.' : 'Target met.'} ${ctx.tasksLeft > 0 ? 'Finish the tasks.' : 'Board clear.'}`,
+                    (ctx) => ctx.focusedTaskStillOpen && ctx.focusedTaskName ? `Sprint ${ctx.sprintsDone} done. "${ctx.focusedTaskName}" is still open. Either you're not done with it or you're avoiding it. Either way — decide next sprint and act on it.` : `Sprint ${ctx.sprintsDone} done. ${ctx.required - ctx.sprintsDone > 0 ? ctx.required - ctx.sprintsDone + ' left.' : 'Target met.'} ${ctx.tasksLeft > 0 ? 'Finish the tasks.' : 'Board clear.'}`
                 ]
             },
 
@@ -4433,36 +4484,29 @@
         // Check if break is earned (V20.6)
         function checkBreakEligibility() {
             const MIN_FOCUS_FOR_BREAK = 15; // Minutes
-            
-            // If trying to take a break without sufficient focus
+
+            // Not enough focus time — hard block with override option
             if (state.totalFocusTime < MIN_FOCUS_FOR_BREAK) {
-                const message = getAICoachMessage('breakDenied', {
-                    focusTime: state.totalFocusTime,
-                    breakAttempts: state.consecutiveBreaks + 1
-                });
-                
-                updateAIMessage(message);
-                showToast('Consider doing some focus work before taking a break.', 'warning', 4000);
-                return false; // Block break if zero focus
+                return {
+                    eligible: false,
+                    reason: "You haven't done any focus work yet. Start a break anyway?",
+                    softBlock: false
+                };
             }
-            
-            // Check if too many consecutive breaks - prompt but allow
+
+            // Too many consecutive breaks — soft block with override option
             if (state.consecutiveBreaks >= 2) {
                 const focusBreakRatio = state.totalFocusTime / Math.max(1, state.totalBreakTime);
-                
-                if (focusBreakRatio < 2) { // Less than 2:1 focus:break ratio
-                    const message = getAICoachMessage('excessiveBreaks', {
-                        consecutiveBreaks: state.consecutiveBreaks,
-                        focusBreakRatio: focusBreakRatio.toFixed(1)
-                    });
-                    
-                    updateAIMessage(message);
-                    showToast('Break frequency is high. Consider balancing with focus time.', 'warning', 5000);
-                    // Allow break but with warning
+                if (focusBreakRatio < 2) {
+                    return {
+                        eligible: false,
+                        reason: `Focus:break ratio is ${focusBreakRatio.toFixed(1)}:1 — Pomodoro recommends at least 2:1. Take a break anyway?`,
+                        softBlock: true
+                    };
                 }
             }
-            
-            return true;
+
+            return { eligible: true };
         }
         
         // Detect extended idle without decision (V20.6)
