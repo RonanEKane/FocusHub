@@ -186,13 +186,18 @@
                             <option value="high">⚡⚡⚡ Locked In (30 min)</option>
                         </select>
                     </div>
+                    <label class="pomodoro-toggle-label" title="3 sprints with short breaks between them, then one longer break. Sizes follow your energy level.">
+                        <input type="checkbox" id="pomodoroToggle"> 🍅 Cycle Mode
+                    </label>
                     <button id="meetingToggle" class="meeting-mode-btn" aria-pressed="false" title="Toggle meeting mode — pauses sprint timer">
                         <span class="meeting-mode-icon">🎤</span>
                         <span class="meeting-mode-label">MEETING</span>
                     </button>
                 </div>
 
-                <div class="timer-buttons">
+                <div class="pomodoro-indicator hidden" id="pomodoroIndicator"></div>
+
+                <div class="timer-buttons" id="timerButtonsRow">
                     <button class="timer-btn" data-duration="15">15 min</button>
                     <button class="timer-btn active" data-duration="20">20 min</button>
                     <button class="timer-btn" data-duration="30">30 min</button>
@@ -326,6 +331,29 @@
                 </div>
             </div>
 
+            <!-- Must-Do List -->
+            <div class="sidebar-card must-do-card">
+                <div class="must-do-header">
+                    <h3>🎯 MUST-DO TODAY</h3>
+                    <span class="task-count" id="mustDoCount">0/3</span>
+                </div>
+                <p class="must-do-subtitle">The 2-3 things that have to get done today.</p>
+
+                <div id="mustDoList" class="must-do-list">
+                    <p class="empty-state-small">Nothing flagged yet.</p>
+                </div>
+
+                <div class="must-do-add-row">
+                    <select id="mustDoTaskPicker" class="must-do-picker">
+                        <option value="">Flag an existing task…</option>
+                    </select>
+                </div>
+                <div class="must-do-add-row must-do-type-row">
+                    <input type="text" id="mustDoInput" class="must-do-input" placeholder="Or type a new must-do…">
+                    <button id="mustDoAddBtn" class="must-do-add-btn" title="Add as a must-do">ADD</button>
+                </div>
+            </div>
+
             <!-- Distraction Parking - COLLAPSED BY DEFAULT -->
             <div class="sidebar-card collapsible">
                 <div class="collapsible-header" id="distractionHeader">
@@ -384,9 +412,12 @@
                 strategic: [],
                 wins: []
             },
+            mustDo: [],  // MUST-DO LIST: array of task ids (references, not copies) flagged as today's non-negotiables
             distractions: [],  // DISTRACTION TRACKING: Store parked distractions
             currentMode: 'balanced',
             energyLevel: 'medium',
+            pomodoroMode: false,      // POMODORO: structured cycle on/off, a preference like energyLevel
+            pomodoroCycleStep: 0,     // POMODORO: sprints completed in the current 3-sprint block (0-3)
             timer: {
                 active: false,
                 duration: 20,
@@ -951,6 +982,20 @@
         // EVENT LISTENERS - APP CONTENT
         // ============================================
         function setupEventListeners() {
+            // MUST-DO LIST
+            const mustDoPicker = document.getElementById('mustDoTaskPicker');
+            if (mustDoPicker) mustDoPicker.addEventListener('change', addMustDoFromPicker);
+
+            const mustDoAddBtn = document.getElementById('mustDoAddBtn');
+            if (mustDoAddBtn) mustDoAddBtn.addEventListener('click', addMustDoTyped);
+
+            const mustDoInput = document.getElementById('mustDoInput');
+            if (mustDoInput) {
+                mustDoInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') addMustDoTyped();
+                });
+            }
+
             // Collapsible
             document.getElementById('distractionHeader').addEventListener('click', function() {
                 const content = document.getElementById('distractionContent');
@@ -1057,6 +1102,17 @@
                 state.timer.remaining = state.timer.duration * 60;
                 updateTimerButtons();
                 updateTimerDisplay();
+                renderPomodoroUI();
+                saveState();
+            });
+
+            // Pomodoro cycle toggle
+            document.getElementById('pomodoroToggle').addEventListener('change', function() {
+                state.pomodoroMode = this.checked;
+                if (this.checked) {
+                    state.pomodoroCycleStep = 0; // always start a fresh block when turned on
+                }
+                renderPomodoroUI();
                 saveState();
             });
 
@@ -1119,6 +1175,7 @@
                     id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     text: taskText.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;'),
                     sprints: 1,
+                    sprintsWorked: 0, // ATTRIBUTION: real timed sprints run on this task
                     priority: 'medium', // Default priority
                     completed: false,
                     bucket: 'holding'
@@ -1177,6 +1234,9 @@
                         const priorityClass = `priority-${priority}`;
                         const priorityTitle = priority === 'high' ? 'High Priority' : priority === 'medium' ? 'Medium Priority' : 'Low Priority';
                         
+                        // Over-estimate flag: only once real sprints exceed the estimate
+                        const sprintsOver = bucket !== 'holding' ? (task.sprintsWorked || 0) - (task.sprints || 1) : 0;
+
                         return `
                         <div class="task-item" draggable="true" data-task-id="${sanitizeAttribute(task.id)}" data-bucket="${sanitizeAttribute(bucket)}">
                             <button class="priority-indicator ${priorityClass}" 
@@ -1184,7 +1244,7 @@
                                     title="${sanitizeAttribute(priorityTitle)} - Click to change"
                                     draggable="false"></button>
                             ${bucket !== 'holding' ? `<input type="checkbox" class="task-checkbox" draggable="false" data-task-id="${sanitizeAttribute(task.id)}" data-bucket="${sanitizeAttribute(bucket)}">` : ''}
-                            <div class="task-text">${sanitizeHTML(task.text)}</div>
+                            <div class="task-text">${sanitizeHTML(task.text)}${sprintsOver > 0 ? ` <span class="task-over-flag" title="${sprintsOver} sprint${sprintsOver === 1 ? '' : 's'} past your estimate" style="color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;white-space:nowrap;">+${sprintsOver} over</span>` : ''}</div>
                             <div class="task-controls">${bucket !== 'holding' ? `
                                 <div class="sprint-controls">
                                     <div class="sprint-arrows">
@@ -1244,6 +1304,180 @@
                 const countEl = document.getElementById(bucket === 'holding' ? 'holdingCount' : `${bucket}Count`);
                 if (countEl) countEl.textContent = tasks.length;
             });
+        }
+
+        // ============================================
+        // MUST-DO LIST (Phase 1 — list behavior only)
+        // A must-do is a REFERENCE to a real task (its id), never a copy.
+        // Completing it anywhere completes the underlying task everywhere.
+        // ============================================
+        const MUST_DO_MAX = 3;
+        const MUST_DO_BUCKETS = ['admin', 'deepwork', 'strategic'];
+
+        // POMODORO CYCLE: 3 sprints per block, short breaks between, one long break at the end.
+        // Sizes track the existing energy levels 1:1, so no new duration concept.
+        const POMODORO_CYCLES = {
+            low:    { sprintMin: 15, shortBreak: 1,  longBreak: 10 },
+            medium: { sprintMin: 20, shortBreak: 2,  longBreak: 15 },
+            high:   { sprintMin: 30, shortBreak: 3,  longBreak: 15 }
+        };
+
+        function findTaskBucket(taskId) {
+            // Also checks wins, so a must-do stays resolvable after it's completed
+            // (completion moves the task object into wins, it doesn't delete it).
+            for (const bucket of [...MUST_DO_BUCKETS, 'wins']) {
+                if (state.tasks[bucket].some(t => t.id === taskId)) return bucket;
+            }
+            return null;
+        }
+
+        function renderMustDo() {
+            const listEl = document.getElementById('mustDoList');
+            const countEl = document.getElementById('mustDoCount');
+            const pickerEl = document.getElementById('mustDoTaskPicker');
+            const inputEl = document.getElementById('mustDoInput');
+            const addBtnEl = document.getElementById('mustDoAddBtn');
+            if (!listEl) return;
+
+            // Drop any ids that no longer resolve to a live task (safety net)
+            state.mustDo = (state.mustDo || []).filter(id => findTaskBucket(id) !== null);
+
+            const atCap = state.mustDo.length >= MUST_DO_MAX;
+            if (countEl) countEl.textContent = `${state.mustDo.length}/${MUST_DO_MAX}`;
+
+            // Render the flagged items
+            if (state.mustDo.length === 0) {
+                listEl.innerHTML = '<p class="empty-state-small">Nothing flagged yet.</p>';
+            } else {
+                listEl.innerHTML = state.mustDo.map(id => {
+                    const bucket = findTaskBucket(id);
+                    const task = state.tasks[bucket].find(t => t.id === id);
+                    const done = !!task.completed;
+                    return `
+                        <div class="must-do-item${done ? ' completed' : ''}">
+                            <input type="checkbox" class="must-do-checkbox" data-task-id="${sanitizeAttribute(id)}"
+                                title="${done ? 'Done' : 'Mark done'}" ${done ? 'checked disabled' : ''}>
+                            <span class="must-do-text${done ? ' completed' : ''}">${sanitizeHTML(task.text)}</span>
+                            <button class="must-do-remove" data-task-id="${sanitizeAttribute(id)}" title="Unflag (keeps the task)">×</button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Stays in its slot after completion — checking it off just marks it
+                // done visually, it doesn't free up a top-3 spot.
+                listEl.querySelectorAll('.must-do-checkbox:not(:disabled)').forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            const bucket = findTaskBucket(e.target.dataset.taskId);
+                            if (bucket) completeTask(e.target.dataset.taskId, bucket);
+                        }
+                    });
+                });
+
+                listEl.querySelectorAll('.must-do-remove').forEach(btn => {
+                    btn.addEventListener('click', () => removeMustDo(btn.dataset.taskId));
+                });
+            }
+
+            // Populate the "flag an existing task" picker with eligible tasks not already flagged
+            if (pickerEl) {
+                const flaggedSet = new Set(state.mustDo);
+                const candidates = MUST_DO_BUCKETS.flatMap(bucket =>
+                    state.tasks[bucket]
+                        .filter(t => !flaggedSet.has(t.id))
+                        .map(t => ({ id: t.id, text: t.text }))
+                );
+                const prevValue = pickerEl.value;
+                pickerEl.innerHTML = '<option value="">Flag an existing task…</option>' +
+                    candidates.map(c => `<option value="${sanitizeAttribute(c.id)}">${sanitizeHTML(c.text)}</option>`).join('');
+                if (candidates.some(c => c.id === prevValue)) pickerEl.value = prevValue;
+
+                pickerEl.disabled = atCap || candidates.length === 0;
+            }
+            if (inputEl) inputEl.disabled = atCap;
+            if (addBtnEl) addBtnEl.disabled = atCap;
+        }
+
+        window.removeMustDo = function(taskId) {
+            state.mustDo = (state.mustDo || []).filter(id => id !== taskId);
+            saveState();
+            renderMustDo();
+        };
+
+        function addMustDoFromPicker() {
+            const pickerEl = document.getElementById('mustDoTaskPicker');
+            if (!pickerEl || !pickerEl.value) return;
+            if (state.mustDo.length >= MUST_DO_MAX) return;
+
+            // Persistent flag on the task itself (not just the mustDo id list), so
+            // it survives completion for grading purposes and the card's own state.
+            const bucket = findTaskBucket(pickerEl.value);
+            const task = bucket ? state.tasks[bucket].find(t => t.id === pickerEl.value) : null;
+            if (task) task.isMustDo = true;
+
+            state.mustDo.push(pickerEl.value);
+            pickerEl.value = '';
+            saveState();
+            renderMustDo();
+            showMicroConfirm('Added to must-do');
+        }
+
+        function addMustDoTyped() {
+            const inputEl = document.getElementById('mustDoInput');
+            if (!inputEl) return;
+            const text = inputEl.value.trim();
+            if (!text) return;
+            if (state.mustDo.length >= MUST_DO_MAX) return;
+
+            // Ask which bucket this new task belongs in, then create a real task
+            // and flag it — a must-do is always a reference to a real task.
+            const overlay = document.createElement('div');
+            overlay.style.cssText = [
+                'position:fixed','top:0','left:0','width:100%','height:100%',
+                'background:rgba(0,0,0,0.75)','display:flex','align-items:center',
+                'justify-content:center','z-index:9999',"font-family:'Inter',sans-serif"
+            ].join(';');
+            overlay.innerHTML = `
+                <div style="background:var(--bg-primary,#0d0d0f);border:1px solid var(--border-color,#2a2a2f);border-radius:2px;padding:1.5rem;width:min(360px,90vw);">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--industrial-orange,#fb923c);letter-spacing:0.08em;margin-bottom:0.75rem;">WHICH BUCKET?</div>
+                    <div style="font-size:0.9rem;color:var(--text-secondary,#a0a0a0);margin-bottom:1.25rem;">Where does "${sanitizeHTML(text)}" belong?</div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        <button data-bucket="admin" class="must-do-bucket-choice" style="background:var(--industrial-orange,#fb923c);border:none;color:#000;padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;font-weight:600;">📋 ADMIN</button>
+                        <button data-bucket="deepwork" class="must-do-bucket-choice" style="background:var(--industrial-orange,#fb923c);border:none;color:#000;padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;font-weight:600;">🎯 DEEP WORK</button>
+                        <button data-bucket="strategic" class="must-do-bucket-choice" style="background:var(--industrial-orange,#fb923c);border:none;color:#000;padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;font-weight:600;">🎲 STRATEGIC</button>
+                        <button id="mustDoBucketCancel" style="background:transparent;border:1px solid var(--border-color,#2a2a2f);color:var(--text-muted,#555);padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;">CANCEL</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.querySelectorAll('.must-do-bucket-choice').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const bucket = btn.dataset.bucket;
+                    document.body.removeChild(overlay);
+
+                    const task = {
+                        id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                        text: text.replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+                        sprints: 1,
+                        sprintsWorked: 0,
+                        priority: 'medium',
+                        completed: false,
+                        bucket: bucket,
+                        isMustDo: true
+                    };
+                    state.tasks[bucket].push(task);
+                    state.mustDo.push(task.id);
+                    inputEl.value = '';
+                    saveState();
+                    renderAll();
+                    showMicroConfirm('Added to must-do');
+                });
+            });
+            document.getElementById('mustDoBucketCancel').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+            });
+            overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
         }
 
         function setupDragAndDrop(taskEl) {
@@ -1367,46 +1601,99 @@
 
         window.deleteTask = function(taskId, bucket) {
             state.tasks[bucket] = state.tasks[bucket].filter(t => t.id !== taskId);
+            // MUST-DO LIST: a deleted task can't stay flagged
+            state.mustDo = (state.mustDo || []).filter(id => id !== taskId);
             saveState();
             renderAll();
         };
 
         window.completeTask = function(taskId, bucket) {
-            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
-            if (taskIndex !== -1) {
-                const task = state.tasks[bucket][taskIndex];
-                task.completed = true;
-                task.completedAt = new Date().toISOString();
-                
-                // Move to wins
-                state.tasks.wins.push(task);
-                
-                // Remove from current bucket
-                state.tasks[bucket].splice(taskIndex, 1);
-                
-                // Reset efficiency counter — a task was closed
-                state.sprintsSinceLastTask = 0;
-                
-                // Update stats
-                state.sprintCount += task.sprints || 1;
-                
-                // AI COACH: Contextual task completion message
-                const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, b) => 
-                    sum + state.tasks[b].filter(t => !t.completed).length, 0);
-                
-                const message = getAICoachMessage('taskComplete', {
-                    priority: task.priority || 'medium',
-                    sprintValue: task.sprints || 1,
-                    tasksLeft: tasksLeft
-                });
-                
-                updateAIMessage(message);
-                
-                saveState();
-                renderAll();
-                showMicroConfirm(`✓ Task completed! +${task.sprints || 1} sprint${task.sprints > 1 ? 's' : ''}`);
+            const task = state.tasks[bucket].find(t => t.id === taskId);
+            if (!task) return;
+
+            // If real timed sprints were run on this task, they already counted in
+            // sprintCount via completeSprint(). Close it out clean, no prompt, no double-count.
+            if ((task.sprintsWorked || 0) > 0) {
+                _finalizeTaskCompletion(taskId, bucket, false);
+                return;
             }
+
+            // No timed sprints on this task. Ask how to count it.
+            const est = task.sprints || 1;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = [
+                'position:fixed','top:0','left:0','width:100%','height:100%',
+                'background:rgba(0,0,0,0.75)','display:flex','align-items:center',
+                'justify-content:center','z-index:9999',"font-family:'Inter',sans-serif"
+            ].join(';');
+            overlay.innerHTML = `
+                <div style="background:var(--bg-primary,#0d0d0f);border:1px solid var(--border-color,#2a2a2f);border-radius:2px;padding:1.5rem;width:min(380px,90vw);">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--industrial-orange,#fb923c);letter-spacing:0.08em;margin-bottom:0.75rem;">MARK COMPLETE</div>
+                    <div style="font-size:0.9rem;color:var(--text-secondary,#a0a0a0);margin-bottom:1.25rem;">You finished this without running the timer. Count it as ${est} sprint${est > 1 ? 's' : ''} of work?</div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button id="taskCreditYes" style="flex:1;background:var(--industrial-orange,#fb923c);border:none;color:#000;padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.05em;font-weight:600;">COUNT IT</button>
+                        <button id="taskCreditNo" style="flex:1;background:transparent;border:1px solid var(--border-color,#2a2a2f);color:var(--text-secondary,#a0a0a0);padding:0.55rem;cursor:pointer;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.05em;">JUST MARK DONE</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            document.getElementById('taskCreditYes').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                _finalizeTaskCompletion(taskId, bucket, true);
+            });
+            document.getElementById('taskCreditNo').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                _finalizeTaskCompletion(taskId, bucket, false);
+            });
+            overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
         };
+
+        function _finalizeTaskCompletion(taskId, bucket, creditSprints) {
+            const taskIndex = state.tasks[bucket].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            const task = state.tasks[bucket][taskIndex];
+            task.completed = true;
+            task.completedAt = new Date().toISOString();
+
+            // Move to wins
+            state.tasks.wins.push(task);
+
+            // Remove from current bucket
+            state.tasks[bucket].splice(taskIndex, 1);
+
+            // MUST-DO LIST: intentionally NOT filtered out here. A completed must-do
+            // stays in its top-3 slot on the card, shown struck through, rather than
+            // vanishing. It's cleared on unflag (removeMustDo), delete (deleteTask),
+            // or the daily reset in completeDay.
+
+            // Reset efficiency counter — a task was closed
+            state.sprintsSinceLastTask = 0;
+
+            // Only credit estimated sprints when the user confirmed off-timer work.
+            // Timed sprints already counted themselves in completeSprint().
+            const credited = creditSprints ? (task.sprints || 1) : 0;
+            if (credited > 0) state.sprintCount += credited;
+
+            // AI COACH: Contextual task completion message
+            const tasksLeft = ['admin', 'deepwork', 'strategic'].reduce((sum, b) =>
+                sum + state.tasks[b].filter(t => !t.completed).length, 0);
+
+            const message = getAICoachMessage('taskComplete', {
+                priority: task.priority || 'medium',
+                sprintValue: task.sprints || 1,
+                tasksLeft: tasksLeft
+            });
+
+            updateAIMessage(message);
+
+            saveState();
+            renderAll();
+            if (credited > 0) {
+                showMicroConfirm(`✓ Task completed! +${credited} sprint${credited > 1 ? 's' : ''}`);
+            } else {
+                showMicroConfirm(`✓ Task completed!`);
+            }
+        }
 
         // SMART DASHBOARD REDIRECT: Route based on plan
         function redirectToDashboard() {
@@ -1448,7 +1735,10 @@
             const priorityMultipliers = { high: 1.3, medium: 1.0, low: 0.8 };
             const bw = bucketWeights[task.bucket] ?? 1.0;
             const pm = priorityMultipliers[task.priority] ?? 1.0;
-            return bw * pm;
+            // MUST-DO WEIGHT: a flat add-on, not a multiplier, so a must-do always
+            // outweighs a regular task regardless of which bucket/priority it's in.
+            const mustDoBonus = task.isMustDo ? 1.0 : 0;
+            return (bw * pm) + mustDoBonus;
         }
 
         function calculateDayGrade() {
@@ -1474,8 +1764,29 @@
             const breakBalance = state.breaksCount > 0 ?
                 Math.min(100, (state.sprintCount / state.breaksCount) * 50) : 100;
 
-            // Weighted average: 25% sprints, 60% tasks, 15% balance
-            const score = (sprintCompletion * 0.25) + (taskCompletion * 0.60) + (breakBalance * 0.15);
+            // MUST-DO SCORING: a separate, visible adjustment on top of the blended
+            // score rather than buried inside taskCompletion, so it doesn't get
+            // diluted on days with a lot of other tasks.
+            // All must-dos cleared → +5 flat bonus.
+            // Any missed → -4 per miss, capped at -12 total, so a bad must-do day
+            // stings but can never zero out the grade on its own.
+            const mustDoTasks = (state.mustDo || [])
+                .map(id => {
+                    const b = findTaskBucket(id);
+                    return b ? state.tasks[b].find(t => t.id === id) : null;
+                })
+                .filter(Boolean);
+            const mustDoTotal = mustDoTasks.length;
+            const mustDoMissed = mustDoTasks.filter(t => !t.completed).length;
+            let mustDoAdjustment = 0;
+            if (mustDoTotal > 0) {
+                mustDoAdjustment = mustDoMissed === 0 ? 5 : -Math.min(12, mustDoMissed * 4);
+            }
+
+            // Weighted average: 25% sprints, 60% tasks, 15% balance, plus must-do adjustment
+            const score = Math.min(100, Math.max(0,
+                (sprintCompletion * 0.25) + (taskCompletion * 0.60) + (breakBalance * 0.15) + mustDoAdjustment
+            ));
 
             // Convert to plus/minus letter grade
             if (score >= 95) return 'A';
@@ -1789,6 +2100,9 @@
                     distractions_count: state.distractionCount || 0,
                     completed_tasks: state.tasks.wins || [],
                     intentions: state.intentions || [],
+                    planned_sprints: dayData.plannedSprints || 0,
+                    est_sprints: dayData.estSprints || 0,
+                    actual_sprints: dayData.actualSprints || 0,
                     // STUDENT: Session tracking
                     session_number: dayData.session_number || 1,
                     session_duration_minutes: dayData.session_duration_minutes || 0
@@ -1826,6 +2140,15 @@
             
             const totalPlanned = state.tasks.wins.length +
                 ['admin', 'deepwork', 'strategic'].reduce((s, b) => s + state.tasks[b].length, 0);
+
+            // ESTIMATE VS ACTUAL: sum estimates and real timed sprints across today's tasks
+            const _allTasksToday = [
+                ...state.tasks.wins,
+                ...['admin', 'deepwork', 'strategic'].flatMap(b => state.tasks[b])
+            ];
+            const estSprintsTotal = _allTasksToday.reduce((s, t) => s + (t.sprints || 0), 0);
+            const actualSprintsWorked = _allTasksToday.reduce((s, t) => s + (t.sprintsWorked || 0), 0);
+
             const gradingData = {
                 date: new Date().toISOString(),
                 systemGrade,
@@ -1834,6 +2157,9 @@
                 totalFocusedMinutes: state.totalFocusedMinutes,
                 tasks: state.tasks.wins.length,
                 plannedTasks: totalPlanned,
+                plannedSprints: state.dailySprintTarget || 0,  // real daily target for dashboard bars
+                estSprints: estSprintsTotal,                    // sum of per-task estimates
+                actualSprints: actualSprintsWorked,             // sum of real timed sprints run
                 breaks: state.breaksCount,
                 // STUDENT: Add session tracking
                 session_number: isStudent ? state.sessionNumber : 1,
@@ -1912,6 +2238,10 @@
             state.dailySprintTarget = 0;
             state.totalFocusedMinutes = 0;  // SPRINT WEIGHTING: reset for new day
             state.lastSprintTask = null;    // SPRINT FOCUS: reset for new day
+            state.mustDo = [];               // MUST-DO LIST: reset for new day
+            state.meetingCount = 0;          // MEETINGS: reset for new day (was never cleared, dashboard "today" figure was actually all-time)
+            state.totalMeetingTime = 0;      // MEETINGS: reset for new day
+            state.pomodoroCycleStep = 0;     // POMODORO: fresh block for new day (pomodoroMode itself is a preference, left as-is)
             
             // STUDENT: Don't mark day as ended - allow new session
             // STANDARD/PREMIUM: Mark day as ended
@@ -2004,6 +2334,20 @@
                                 ">${l}</button>
                             `).join('')}
                         </div>
+                        <button id="betaCoachFeedbackToggle" style="
+                            background: none; border: none;
+                            color: var(--text-muted, #666); font-size:0.78rem;
+                            cursor: pointer; padding: 0; margin-top: 0.5rem; text-decoration: underline;
+                        ">+ Say more about the coach (optional)</button>
+                        <textarea id="betaCoachFeedbackText" placeholder="What worked or didn't about the coach..." style="
+                            display: none; width: 100%; margin-top: 0.5rem;
+                            background: var(--bg-primary, #0d0d0f);
+                            border: 1px solid var(--border-light, #2a2a2f);
+                            border-radius: 2px; color: var(--text-primary, #f0f0f0);
+                            font-size: 0.85rem; padding: 0.6rem; resize: vertical;
+                            min-height: 70px; box-sizing: border-box;
+                            font-family: Inter, sans-serif;
+                        "></textarea>
                     </div>
 
                     <div style="margin-bottom:1.25rem;">
@@ -2072,6 +2416,14 @@
                 document.getElementById('betaNotesToggle').textContent = isHidden ? '- Hide note' : '+ Add a note (optional)';
             });
 
+            // Coach feedback toggle
+            document.getElementById('betaCoachFeedbackToggle').addEventListener('click', () => {
+                const ta = document.getElementById('betaCoachFeedbackText');
+                const isHidden = ta.style.display === 'none';
+                ta.style.display = isHidden ? 'block' : 'none';
+                document.getElementById('betaCoachFeedbackToggle').textContent = isHidden ? '- Hide coach note' : '+ Say more about the coach (optional)';
+            });
+
             // Dismiss helper
             const dismiss = () => {
                 localStorage.setItem('focushub_beta_modal_last', today);
@@ -2085,16 +2437,18 @@
             // Submit
             document.getElementById('betaSubmitBtn').addEventListener('click', async () => {
                 const notes = document.getElementById('betaNotesText').value.trim();
+                const coachFeedback = document.getElementById('betaCoachFeedbackText').value.trim();
                 await submitBetaRating({
                     sessionRating: selectedRating,
                     coachHelpful: selectedCoach,
-                    notes: notes || null
+                    notes: notes || null,
+                    coachFeedback: coachFeedback || null
                 });
                 dismiss();
             });
         }
 
-        async function submitBetaRating({ sessionRating, coachHelpful, notes }) {
+        async function submitBetaRating({ sessionRating, coachHelpful, notes, coachFeedback }) {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 await supabase.from('beta_ratings').insert({
@@ -2102,6 +2456,8 @@
                     session_rating: sessionRating,
                     coach_helpful: coachHelpful,
                     notes: notes || null,
+                    coach_feedback: coachFeedback || null,
+                    session_grade: state.currentGrade || null,
                     app_version: (typeof APP_VERSION !== 'undefined' ? APP_VERSION : null)
                 });
                 console.log('✅ Beta rating submitted');
@@ -2422,12 +2778,19 @@
                 state.timer.interval = null;
             }
 
-            // FIX: Only restore duration when the break poisoned it (duration === 5).
-            // If the user manually clicked a 15/20/30 button AFTER the modal,
-            // timer.duration is already correct — do not overwrite it.
-            // Use saved sprintDuration (set by startBreak) as first choice,
-            // energy-level default as fallback.
-            if (state.timer.duration === 5) {
+            // POMODORO: cycle mode always dictates duration from the energy-level cycle table,
+            // overriding manual button state entirely — this takes priority over the
+            // break-poisoned-duration fallback below.
+            if (state.pomodoroMode) {
+                const cycle = POMODORO_CYCLES[state.energyLevel] || POMODORO_CYCLES.medium;
+                state.timer.duration = cycle.sprintMin;
+                state.timer.remaining = state.timer.duration * 60;
+            } else if (state.timer.duration === 5) {
+                // FIX: Only restore duration when the break poisoned it (duration === 5).
+                // If the user manually clicked a 15/20/30 button AFTER the modal,
+                // timer.duration is already correct — do not overwrite it.
+                // Use saved sprintDuration (set by startBreak) as first choice,
+                // energy-level default as fallback.
                 const energyTimers = { low: 15, medium: 20, high: 30 };
                 state.timer.duration = state.timer.sprintDuration
                     || energyTimers[state.energyLevel]
@@ -2462,6 +2825,7 @@
             
             // IMMEDIATE DISPLAY UPDATE - Show timer right away
             updateTimerDisplay();
+            renderPomodoroUI();
             
             state.timer.interval = setInterval(() => {
                 // Calculate remaining time from end time
@@ -2498,13 +2862,22 @@
                 state.timer.sprintDuration = state.timer.duration;
             }
 
+            // POMODORO: break length comes from the cycle table (short vs long,
+            // based on sprints completed in the current block) instead of a flat 5.
+            let breakMin = 5;
+            if (state.pomodoroMode) {
+                const cycle = POMODORO_CYCLES[state.energyLevel] || POMODORO_CYCLES.medium;
+                const step = state.pomodoroCycleStep || 0;
+                breakMin = step >= 3 ? cycle.longBreak : cycle.shortBreak;
+            }
+
             const now = Date.now();
             state.timer.startTime = now;
-            state.timer.endTime = now + (5 * 60 * 1000); // 5-minute break
+            state.timer.endTime = now + (breakMin * 60 * 1000);
             state.timer.active = true;
             state.timer.type = 'break';
-            state.timer.duration = 5;
-            state.timer.remaining = 300;
+            state.timer.duration = breakMin;
+            state.timer.remaining = breakMin * 60;
             state.sessionState = 'break';
 
             // ACTIVITY LOG: record break start
@@ -2512,8 +2885,8 @@
                 type: 'break',
                 start: now,
                 end: null,
-                duration: 5,
-                label: `Break #${state.breaksCount + 1} (5 min)`
+                duration: breakMin,
+                label: `Break #${state.breaksCount + 1} (${breakMin} min)`
             });
             
             // ENHANCED COACHING: Track break
@@ -2522,6 +2895,7 @@
             updateAIMessage('Break started. Return to focus after.');
             resetInactivityMonitor();
             updateTimerDisplay();
+            renderPomodoroUI();
             
             state.timer.interval = setInterval(() => {
                 const timeLeft = Math.ceil((state.timer.endTime - Date.now()) / 1000);
@@ -2906,9 +3280,26 @@
                 state.totalFocusedMinutes += state.timer.duration;  // SPRINT WEIGHTING
                 state.lastSprintCompleteTime = Date.now();
                 state.sprintsSinceLastTask++;  // EFFICIENCY: count sprints since last task closed
+                // ATTRIBUTION: credit this timed sprint to its task so completion doesn't double-count
+                if (state.currentSprintTask) {
+                    for (const b of ['admin', 'deepwork', 'strategic', 'holding']) {
+                        const t = state.tasks[b].find(t => t.id === state.currentSprintTask);
+                        if (t) { t.sprintsWorked = (t.sprintsWorked || 0) + 1; break; }
+                    }
+                }
                 // SPRINT FOCUS: stash task before clearing so coach messages can reference it
                 state.lastSprintTask = state.currentSprintTask || null;
                 state.currentSprintTask = null;
+
+                // POMODORO: one more sprint done in this block
+                if (state.pomodoroMode) {
+                    state.pomodoroCycleStep = (state.pomodoroCycleStep || 0) + 1;
+                }
+            } else if (timerType === 'break' && state.pomodoroMode) {
+                // POMODORO: only the long break (taken at step 3) closes out the block
+                if ((state.pomodoroCycleStep || 0) >= 3) {
+                    state.pomodoroCycleStep = 0;
+                }
             }
             
             state.sessionState = 'idle';
@@ -3012,6 +3403,50 @@
             });
         }
 
+        // POMODORO: drives the toggle checkbox, the manual duration buttons,
+        // and the "Start Break" label/duration, based on cycle position.
+        function renderPomodoroUI() {
+            const indicator = document.getElementById('pomodoroIndicator');
+            const breakBtn = document.querySelector('.timer-btn-break');
+            const toggle = document.getElementById('pomodoroToggle');
+            const manualBtns = document.querySelectorAll('.timer-btn:not(.timer-btn-break)');
+
+            if (toggle) toggle.checked = !!state.pomodoroMode;
+
+            if (!state.pomodoroMode) {
+                if (indicator) indicator.classList.add('hidden');
+                manualBtns.forEach(b => b.style.display = '');
+                if (breakBtn) breakBtn.textContent = 'Start Break';
+                return;
+            }
+
+            const cycle = POMODORO_CYCLES[state.energyLevel] || POMODORO_CYCLES.medium;
+            const step = state.pomodoroCycleStep || 0; // sprints completed in this block, 0-3
+
+            // Manual 15/20/30 buttons are redundant once the cycle owns duration
+            manualBtns.forEach(b => b.style.display = 'none');
+
+            // The break available right now, if the "Start Break" button were clicked as-is
+            const breakLenNow = step >= 3 ? cycle.longBreak : cycle.shortBreak;
+            if (breakBtn) {
+                breakBtn.textContent = step >= 3
+                    ? `Start Long Break (${breakLenNow} min)`
+                    : `Start Break (${breakLenNow} min)`;
+            }
+
+            if (indicator) {
+                indicator.classList.remove('hidden');
+                if (state.timer.active && state.timer.type === 'break') {
+                    indicator.textContent = `On break · block resumes at sprint ${Math.min(step + 1, 3)} of 3`;
+                } else if (step >= 3) {
+                    indicator.textContent = `Block complete · long break (${cycle.longBreak} min), then a fresh block`;
+                } else {
+                    const breakAfterNextSprint = (step + 1 >= 3) ? cycle.longBreak : cycle.shortBreak;
+                    indicator.textContent = `Sprint ${step + 1} of 3 · ${cycle.sprintMin} min, then a ${breakAfterNextSprint} min break`;
+                }
+            }
+        }
+
         function updateTimerDisplay() {
             const minutes = Math.floor(state.timer.remaining / 60);
             const seconds = state.timer.remaining % 60;
@@ -3071,6 +3506,8 @@
             
             renderTasks();
             renderWins();
+            renderMustDo();
+            renderPomodoroUI();
             
             // Update AI coach with current context if not in active sprint
             if (!state.timer.active && state.dayActive) {

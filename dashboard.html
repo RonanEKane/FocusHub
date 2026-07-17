@@ -260,13 +260,52 @@
         .streak-status-line.streak-broken   { color: var(--danger); }
         .streak-status-line.streak-zero     { color: var(--text-muted); }
 
+        /* Streak keep-alive rule line */
+        .streak-rule {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-top: 0.6rem;
+        }
+
+        /* Caption above weekly bars */
+        .spark-caption {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.58rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Legend under weekly bars */
+        .spark-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+        }
+
+        .spark-legend span { display: flex; align-items: center; gap: 0.3rem; }
+
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 1px;
+            display: inline-block;
+        }
+
         /* Sparkline inside streak card */
         .sparkline-wrap {
             display: flex;
             align-items: flex-end;
             gap: 5px;
             height: 52px;
-            margin-top: 1.5rem;
+            margin-top: 0.4rem;
         }
 
         .spark-col {
@@ -530,7 +569,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="dashboard-supabase-sync.js"></script>
+    <!-- dashboard-supabase-sync.js removed: confirmed dead code, never called, superseded by loadHistoryFromSupabase() in this file -->
 </head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <body>
@@ -621,39 +660,46 @@
 
                 <!-- CARD 1: STREAK — DOMINANT (spans 2 rows, first column) -->
                 <div class="bento-card-streak" id="streakCard">
-                    <div class="card-micro-label">ACCOUNTABILITY_ENGINE</div>
-                    <div class="card-title">Consistency Streak</div>
+                    <div class="card-micro-label">CONSISTENCY</div>
+                    <div class="card-title">Day Streak</div>
 
                     <div class="streak-hero streak-zero" id="streakHero">0</div>
-                    <div class="streak-unit" style="color: var(--text-secondary);">consecutive B- days</div>
-                    <div class="streak-status-line streak-zero" id="streakStatusLine">No streak active — win today to start one.</div>
+                    <div class="streak-unit" style="color: var(--text-secondary);">days in a row hitting your mark</div>
+                    <div class="streak-status-line streak-zero" id="streakStatusLine">No streak yet — score B- or better today to start one.</div>
+                    <div class="streak-rule" id="streakRule">Keep it alive: finish today at B- or better.</div>
 
                     <div style="margin-top: auto;">
                         <hr class="card-divider" style="margin-top: 1.5rem;">
-                        <div class="card-delta" id="streakContext" style="margin-bottom: 1rem;">
+                        <div class="card-delta" id="streakContext" style="margin-bottom: 0.5rem;">
                             Best streak: <span id="bestStreak" style="color: var(--text-primary); font-weight: 600;">—</span> days
                         </div>
-                        <!-- Sparkline: last 7 days -->
+                        <div class="spark-caption">Sprints completed — last 7 days</div>
+                        <!-- Weekly bars: last 7 days -->
                         <div class="sparkline-wrap" id="weeklyChart"></div>
+                        <div class="spark-legend">
+                            <span><span class="legend-dot" style="background:var(--success);"></span>hit target</span>
+                            <span><span class="legend-dot" style="background:var(--industrial-orange);"></span>partial</span>
+                            <span><span class="legend-dot" style="background:var(--danger);"></span>missed</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- CARD 2: Activity Flow -->
                 <div class="bento-card">
-                    <div class="card-micro-label">LIVE_TICKER_01</div>
+                    <div class="card-micro-label">ACTIVITY</div>
                     <div class="card-title">Activity Flow</div>
                     <div class="metric-large" id="totalSprints">—</div>
-                    <div class="metric-label">Total Sprints All-Time</div>
+                    <div class="metric-label" id="totalSprintsLabel">Sprints — Last 7 Days</div>
                     <hr class="card-divider">
                     <div class="card-delta" id="sprintDelta">
-                        Last 7 days: <span id="totalSprintsContext" style="color: var(--text-primary); font-weight: 600;">—</span>
+                        <span id="sprintDeltaText">—</span>
                         <span id="sprintTrend"></span>
                     </div>
                 </div>
 
                 <!-- CARD 3: Performance Index -->
                 <div class="bento-card">
-                    <div class="card-micro-label">PERF_INDEX</div>
+                    <div class="card-micro-label">PERFORMANCE</div>
                     <div class="card-title">Performance Index</div>
                     <div class="score-ring-wrap">
                         <div class="score-ring">
@@ -688,7 +734,7 @@
 
                 <!-- CARD 4: Intention vs Reality -->
                 <div class="bento-card">
-                    <div class="card-micro-label">BEHAVIOR_DELTA</div>
+                    <div class="card-micro-label">FOLLOW-THROUGH</div>
                     <div class="card-title">Intention vs. Reality</div>
                     <div id="ivrContent">
                         <div class="ivr-rows">
@@ -714,6 +760,12 @@
                         <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted);">
                             Follow-through: <span id="followThroughRate" style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">—</span>
                         </div>
+                        <div id="ivrTaskToggleWrap" class="hidden" style="margin-top: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 0.6rem;">
+                            <button onclick="toggleIvrTaskList()" id="ivrTaskToggleBtn" style="background: none; border: none; padding: 0; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.35rem;">
+                                <span id="ivrTaskToggleArrow">▸</span> Today's tasks: est vs actual (<span id="ivrTaskCount">0</span>)
+                            </button>
+                            <div id="ivrTaskList" class="hidden" style="margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.4rem;"></div>
+                        </div>
                     </div>
                     <div id="ivrEmpty" class="card-empty hidden">
                         Log your first day to see<br>planned vs. delivered tasks.
@@ -729,11 +781,6 @@
                     <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text-muted); letter-spacing: 0.1em;">ALL-TIME AVERAGES</span>
                 </div>
                 <div class="metrics-grid">
-                    <div class="metric-cell">
-                        <div class="metric-cell-label">Days Logged</div>
-                        <div class="metric-cell-value" id="daysLogged">—</div>
-                        <div class="metric-cell-sub" id="daysLoggedSub"></div>
-                    </div>
                     <div class="metric-cell">
                         <div class="metric-cell-label">Sprint Completion</div>
                         <div class="metric-cell-value" id="sprintRate">—</div>
@@ -760,6 +807,12 @@
                         <div class="metric-cell-sub">today (excl. from score)</div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Closing Feedback — idle view only, recent-window estimate accuracy -->
+            <div id="closingFeedbackBox" class="stats-table hidden" style="margin-top: 2rem;">
+                <h3 class="stats-title">🎯 ESTIMATE ACCURACY</h3>
+                <div id="closingFeedbackText" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">—</div>
             </div>
 
             <!-- Subject Breakdown (Student Mode Only) -->
@@ -940,9 +993,46 @@
                     distEl.className = 'today-cell-value val-bad';
                 }
 
+                // Per-task est vs actual — only exists for today's live tasks, never saved historically
+                const wins = (state.tasks && state.tasks.wins) ? state.tasks.wins : [];
+                const toggleWrap = document.getElementById('ivrTaskToggleWrap');
+                const taskListEl = document.getElementById('ivrTaskList');
+                const taskCountEl = document.getElementById('ivrTaskCount');
+                if (wins.length > 0) {
+                    toggleWrap.classList.remove('hidden');
+                    taskCountEl.textContent = wins.length;
+                    taskListEl.innerHTML = wins.map(t => {
+                        const est = t.sprints || 0;
+                        const actual = t.sprintsWorked || 0;
+                        const diff = actual - est;
+                        let diffLabel, diffColor;
+                        if (diff === 0) { diffLabel = 'on target'; diffColor = 'var(--success)'; }
+                        else if (diff > 0) { diffLabel = `+${diff}`; diffColor = 'var(--industrial-orange)'; }
+                        else { diffLabel = `${diff}`; diffColor = 'var(--text-muted)'; }
+                        const safeText = (t.text || '').length > 42 ? t.text.slice(0, 42) + '…' : (t.text || '');
+                        return `
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; font-family:'JetBrains Mono', monospace; font-size:0.68rem;">
+                                <span style="color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${safeText}</span>
+                                <span style="flex-shrink:0; color:var(--text-muted);">${est}→${actual} <span style="color:${diffColor};">(${diffLabel})</span></span>
+                            </div>`;
+                    }).join('');
+                } else {
+                    toggleWrap.classList.add('hidden');
+                    taskListEl.classList.add('hidden');
+                    taskListEl.innerHTML = '';
+                }
+
             } catch (e) {
                 console.error('Error loading today state:', e);
             }
+        }
+
+        function toggleIvrTaskList() {
+            const listEl = document.getElementById('ivrTaskList');
+            const arrowEl = document.getElementById('ivrTaskToggleArrow');
+            const isHidden = listEl.classList.contains('hidden');
+            listEl.classList.toggle('hidden');
+            arrowEl.textContent = isHidden ? '▾' : '▸';
         }
 
         // ============================================
@@ -995,7 +1085,10 @@
                     breaks: day.breaks_taken,
                     distractions: day.distractions_count,
                     wins: day.completed_tasks,
-                    intentions: day.intentions
+                    intentions: day.intentions,
+                    plannedSprints: day.planned_sprints,
+                    estSprints: day.est_sprints,
+                    actualSprints: day.actual_sprints
                 }));
                 localStorage.setItem('focushub_grade_history', JSON.stringify(formattedHistory));
                 return formattedHistory;
@@ -1075,6 +1168,21 @@
                 document.getElementById('ivrEmpty').classList.remove('hidden');
                 document.getElementById('ivrContent').style.display = 'none';
                 // Streak card: zero state already default
+                const _sr = document.getElementById('streakRule');
+                if (_sr) _sr.style.display = 'none';
+                // Still honor an active first-ever session on the Activity Flow hero
+                try {
+                    const liveState = JSON.parse(getUserItem('focushub_state') || '{}');
+                    if (liveState.dayActive) {
+                        document.getElementById('totalSprints').textContent = liveState.sprintCount || 0;
+                        document.getElementById('totalSprintsLabel').textContent = 'Sprints Today';
+                        document.getElementById('sprintDeltaText').textContent = 'Last 7 days: 0';
+                    } else {
+                        document.getElementById('totalSprints').textContent = '0';
+                        document.getElementById('totalSprintsLabel').textContent = 'Sprints — Last 7 Days';
+                        document.getElementById('sprintDeltaText').textContent = '';
+                    }
+                } catch (e) {}
                 return;
             }
 
@@ -1085,41 +1193,61 @@
 
             streakHero.textContent = streak;
             document.getElementById('bestStreak').textContent = bestStreak;
+            const streakRule = document.getElementById('streakRule');
 
             if (streak === 0) {
                 streakHero.className = 'streak-hero streak-zero';
                 streakCard.className = 'bento-card-streak';
                 streakStatusLine.className = 'streak-status-line streak-zero';
-                streakStatusLine.textContent = 'Streak reset. Win today and start again.';
+                streakStatusLine.textContent = 'No streak right now. Score B- or better today to start one.';
+                if (streakRule) streakRule.style.display = 'none';
             } else if (streak >= 7) {
                 streakHero.className = 'streak-hero streak-on-track';
                 streakCard.className = 'bento-card-streak streak-on-track';
                 streakStatusLine.className = 'streak-status-line streak-on-track';
-                streakStatusLine.textContent = '▲ Elite consistency. Protect this streak.';
+                streakStatusLine.textContent = streak + ' days running. This is where it sticks.';
+                if (streakRule) { streakRule.style.display = 'block'; streakRule.textContent = 'Keep it alive: finish today at B- or better.'; }
             } else if (streak >= 3) {
                 streakHero.className = 'streak-hero streak-on-track';
                 streakCard.className = 'bento-card-streak streak-on-track';
                 streakStatusLine.className = 'streak-status-line streak-on-track';
-                streakStatusLine.textContent = '◆ Building. 7 days is where habits lock in.';
+                streakStatusLine.textContent = 'Building. Hit 7 days and the habit locks in.';
+                if (streakRule) { streakRule.style.display = 'block'; streakRule.textContent = 'Keep it alive: finish today at B- or better.'; }
             } else {
                 streakHero.className = 'streak-hero streak-at-risk';
                 streakCard.className = 'bento-card-streak streak-at-risk';
                 streakStatusLine.className = 'streak-status-line streak-at-risk';
-                streakStatusLine.textContent = '◆ Early days. Keep going — don\'t break the chain.';
+                streakStatusLine.textContent = 'Early days. Don\'t break the chain.';
+                if (streakRule) { streakRule.style.display = 'block'; streakRule.textContent = 'Keep it alive: finish today at B- or better.'; }
             }
 
-            // ── ACTIVITY FLOW ──
-            const totalSprints = history.reduce((s, d) => s + (d.sprints || d.sprintCount || d.sprint_count || 0), 0);
-            document.getElementById('totalSprints').textContent = totalSprints;
-
+            // ── ACTIVITY FLOW ── two-state: active session shows today, idle shows last-7-days snapshot
             const last7 = history.slice(-7);
             const prev7 = history.slice(-14, -7);
             const last7Sprints = last7.reduce((s, d) => s + (d.sprints || d.sprintCount || 0), 0);
             const prev7Sprints = prev7.reduce((s, d) => s + (d.sprints || d.sprintCount || 0), 0);
 
-            const sprintContextEl = document.getElementById('totalSprintsContext');
+            let dayActive = false, todaySprintsDone = 0;
+            try {
+                const liveState = JSON.parse(getUserItem('focushub_state') || '{}');
+                dayActive = !!liveState.dayActive;
+                todaySprintsDone = liveState.sprintCount || 0;
+            } catch (e) {}
+
+            const heroEl = document.getElementById('totalSprints');
+            const labelEl = document.getElementById('totalSprintsLabel');
+            const deltaTextEl = document.getElementById('sprintDeltaText');
             const sprintTrendEl = document.getElementById('sprintTrend');
-            sprintContextEl.textContent = last7Sprints;
+
+            if (dayActive) {
+                heroEl.textContent = todaySprintsDone;
+                labelEl.textContent = 'Sprints Today';
+                deltaTextEl.textContent = `Last 7 days: ${last7Sprints}`;
+            } else {
+                heroEl.textContent = last7Sprints;
+                labelEl.textContent = 'Sprints — Last 7 Days';
+                deltaTextEl.textContent = '';
+            }
 
             if (prev7.length > 0 && prev7Sprints > 0) {
                 const diff = last7Sprints - prev7Sprints;
@@ -1130,6 +1258,8 @@
                 } else {
                     sprintTrendEl.innerHTML = `<span style="color:var(--text-muted);"> → same as prev week</span>`;
                 }
+            } else {
+                sprintTrendEl.innerHTML = '';
             }
 
             // ── PERFORMANCE INDEX ──
@@ -1184,20 +1314,25 @@
                 }
             }
 
-            // ── SPARKLINE (streak card) ──
+            // ── WEEKLY BARS (streak card) ──
+            // Height = sprints completed (relative to the week's best day).
+            // Color  = did that day hit its real target (green), get close (orange), or miss (red).
             const maxSprints = Math.max(...last7.map(d => d.sprints || d.sprintCount || 0), 1);
             const chartHTML = last7.map(day => {
-                const planned = day.plannedSprints || 5;
                 const completed = day.sprints || day.sprintCount || day.sprint_count || 0;
-                const pct = Math.min((completed / planned) * 100, 100);
+                // Use the real saved target. If none was set that day, judge against the day's own output
+                // so an untargeted-but-productive day doesn't show false red.
+                const target = (day.plannedSprints && day.plannedSprints > 0) ? day.plannedSprints : Math.max(completed, 1);
+                const pct = Math.min((completed / target) * 100, 100);
                 const color = pct >= 100 ? 'var(--success)' : pct >= 60 ? 'var(--industrial-orange)' : 'var(--danger)';
                 const date = new Date(day.date);
                 const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
                 const barH = Math.max(4, Math.round((completed / maxSprints) * 44));
+                const targetLabel = (day.plannedSprints && day.plannedSprints > 0) ? `${completed}/${target} target` : `${completed} sprints`;
                 return `
                     <div class="spark-col">
                         <div class="spark-bar" style="height:${barH}px; background:${color};"
-                             title="${dayName}: ${completed}/${planned} sprints"></div>
+                             title="${dayName}: ${targetLabel}"></div>
                         <div class="spark-label">${dayName.slice(0,1)}</div>
                     </div>
                 `;
@@ -1205,11 +1340,6 @@
             document.getElementById('weeklyChart').innerHTML = chartHTML;
 
             // ── SYSTEM METRICS ──
-            // Days logged
-            document.getElementById('daysLogged').textContent = history.length;
-            document.getElementById('daysLoggedSub').textContent =
-                history.length === 1 ? '1 day recorded' : `${history.length} days recorded`;
-
             // Sprint completion rate — color semantically
             const sprintRateVal = history.reduce((sum, day) => {
                 const planned = day.plannedSprints || 5;
@@ -1272,6 +1402,31 @@
                     meetTimeEl.className = 'metric-cell-value val-muted';
                 }
             } catch (e) {}
+
+            // ── CLOSING FEEDBACK — idle view only, last-7-days estimate accuracy ──
+            const feedbackBox = document.getElementById('closingFeedbackBox');
+            const feedbackText = document.getElementById('closingFeedbackText');
+            if (dayActive) {
+                feedbackBox.classList.add('hidden');
+            } else {
+                const estSum = last7.reduce((s, d) => s + (d.estSprints || 0), 0);
+                const actualSum = last7.reduce((s, d) => s + (d.actualSprints || 0), 0);
+                if (estSum === 0) {
+                    feedbackBox.classList.add('hidden');
+                } else {
+                    feedbackBox.classList.remove('hidden');
+                    const pctDiff = Math.round(((actualSum - estSum) / estSum) * 100);
+                    let tendency;
+                    if (pctDiff > 5) {
+                        tendency = `you tend to run about ${pctDiff}% over your estimates`;
+                    } else if (pctDiff < -5) {
+                        tendency = `you tend to finish about ${Math.abs(pctDiff)}% under your estimates`;
+                    } else {
+                        tendency = `your estimates are holding up well, within ${Math.abs(pctDiff)}%`;
+                    }
+                    feedbackText.textContent = `Last 7 days: you estimated ${estSum} sprints, it took ${actualSum}. On average, ${tendency}.`;
+                }
+            }
 
             console.log('✅ Dashboard stats loaded successfully');
         }
