@@ -418,6 +418,7 @@
             energyLevel: 'medium',
             pomodoroMode: false,      // POMODORO: structured cycle on/off, a preference like energyLevel
             pomodoroCycleStep: 0,     // POMODORO: sprints completed in the current 3-sprint block (0-3)
+            pomodoroBreakDue: false,  // POMODORO: true right after a sprint completes until a break is actually completed
             timer: {
                 active: false,
                 duration: 20,
@@ -1112,6 +1113,7 @@
                 if (this.checked) {
                     state.pomodoroCycleStep = 0; // always start a fresh block when turned on
                 }
+                state.pomodoroBreakDue = false; // clean slate either way, on or off
                 renderPomodoroUI();
                 saveState();
             });
@@ -2242,6 +2244,7 @@
             state.meetingCount = 0;          // MEETINGS: reset for new day (was never cleared, dashboard "today" figure was actually all-time)
             state.totalMeetingTime = 0;      // MEETINGS: reset for new day
             state.pomodoroCycleStep = 0;     // POMODORO: fresh block for new day (pomodoroMode itself is a preference, left as-is)
+            state.pomodoroBreakDue = false;  // POMODORO: fresh block owes nothing yet
             
             // STUDENT: Don't mark day as ended - allow new session
             // STANDARD/PREMIUM: Mark day as ended
@@ -2570,8 +2573,10 @@
                 }
 
                 // RE-ENABLE sprint controls - with safety checks
+                // POMODORO: don't let exiting a meeting silently bypass an owed break —
+                // if Cycle Mode still owes a break, Start Focus stays disabled until it's taken.
                 const startBtn = document.getElementById('startSprintBtn');
-                if (startBtn) startBtn.disabled = false;
+                if (startBtn) startBtn.disabled = !!(state.pomodoroMode && state.pomodoroBreakDue);
                 document.querySelectorAll('.timer-btn').forEach(btn => btn.disabled = false);
                 state.sessionState = 'idle';
                 
@@ -2751,6 +2756,10 @@
             if (state.timer.active) return;
             if (state.inMeeting) {
                 showMicroConfirm('Cannot start sprint while in meeting mode');
+                return;
+            }
+            if (state.pomodoroMode && state.pomodoroBreakDue) {
+                showMicroConfirm('Take your break first — Cycle Mode is on');
                 return;
             }
             // SPRINT FOCUS: show task selection overlay, then run _doStartSprint
@@ -3054,6 +3063,16 @@
             // Remove any existing modal
             const existingModal = document.getElementById('timerCompleteModal');
             if (existingModal) existingModal.remove();
+
+            // POMODORO: precompute cycle context so the modal can reflect the real
+            // enforced flow instead of generic copy (real break length, no "skip the
+            // break" option when Cycle Mode is on and a break is actually owed).
+            const pomo = state.pomodoroMode ? (() => {
+                const cycle = POMODORO_CYCLES[state.energyLevel] || POMODORO_CYCLES.medium;
+                const step = state.pomodoroCycleStep || 0;
+                const isLong = step >= 3;
+                return { cycle, step, isLong, breakMin: isLong ? cycle.longBreak : cycle.shortBreak };
+            })() : null;
             
             // Create BLOCKING fullscreen modal
             const modal = document.createElement('div');
@@ -3094,7 +3113,7 @@
                         font-size: 1.2rem;
                         margin-bottom: 2rem;
                         line-height: 1.6;
-                    ">You crushed that ${state.timer.duration}-minute focus session!<br>What's your next move?</p>
+                    ">You crushed that ${state.timer.duration}-minute focus session!<br>${pomo ? (pomo.isLong ? 'Block complete. Time for your long break.' : `What's your next move?`) : `What's your next move?`}</p>
                     
                     <button onclick="takeBreakFromModal()" style="
                         width: 100%;
@@ -3109,9 +3128,10 @@
                         cursor: pointer;
                         transition: all 0.2s;
                     " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                        🧘 Take 5-Minute Break
+                        🧘 Take ${pomo ? `${pomo.breakMin}-Minute ${pomo.isLong ? 'Long ' : ''}Break` : '5-Minute Break'}${pomo ? ' (required)' : ''}
                     </button>
                     
+                    ${pomo ? '' : `
                     <button onclick="startAnotherSprintFromModal()" style="
                         width: 100%;
                         padding: 1.2rem;
@@ -3127,6 +3147,7 @@
                     " onmouseover="this.style.background='rgba(255,102,0,0.1)'" onmouseout="this.style.background='transparent'">
                         🔥 Start Another Sprint
                     </button>
+                    `}
                     
                     <button onclick="closeTimerModalOnly()" style="
                         width: 100%;
@@ -3163,7 +3184,7 @@
                         font-size: 1.2rem;
                         margin-bottom: 2rem;
                         line-height: 1.6;
-                    ">Time to get back to work!<br>Ready for another sprint?</p>
+                    ">Time to get back to work!<br>${pomo ? `Sprint ${(pomo.step || 0) + 1} of 3 next.` : 'Ready for another sprint?'}</p>
                     
                     <button onclick="startAnotherSprintFromModal()" style="
                         width: 100%;
@@ -3177,7 +3198,7 @@
                         font-weight: bold;
                         cursor: pointer;
                     ">
-                        🔥 Start Sprint
+                        🔥 ${pomo ? `Start Sprint ${(pomo.step || 0) + 1} of 3 (${pomo.cycle.sprintMin} min)` : 'Start Sprint'}
                     </button>
                     
                     <button onclick="closeTimerModalOnly()" style="
@@ -3291,12 +3312,18 @@
                 state.lastSprintTask = state.currentSprintTask || null;
                 state.currentSprintTask = null;
 
-                // POMODORO: one more sprint done in this block
+                // POMODORO: one more sprint done in this block, and a break is now owed
+                // before another sprint can start (cleared only when the break actually
+                // finishes below, not when it merely starts — so a meeting that interrupts
+                // an in-progress break doesn't quietly let the requirement slide).
                 if (state.pomodoroMode) {
                     state.pomodoroCycleStep = (state.pomodoroCycleStep || 0) + 1;
+                    state.pomodoroBreakDue = true;
                 }
             } else if (timerType === 'break' && state.pomodoroMode) {
-                // POMODORO: only the long break (taken at step 3) closes out the block
+                // POMODORO: any completed break, short or long, satisfies the requirement.
+                // Only the long break (taken at step 3) also closes out the block.
+                state.pomodoroBreakDue = false;
                 if ((state.pomodoroCycleStep || 0) >= 3) {
                     state.pomodoroCycleStep = 0;
                 }
@@ -3410,21 +3437,30 @@
             const breakBtn = document.querySelector('.timer-btn-break');
             const toggle = document.getElementById('pomodoroToggle');
             const manualBtns = document.querySelectorAll('.timer-btn:not(.timer-btn-break)');
+            const startBtn = document.getElementById('startSprintBtn');
 
             if (toggle) toggle.checked = !!state.pomodoroMode;
 
             if (!state.pomodoroMode) {
-                if (indicator) indicator.classList.add('hidden');
+                if (indicator) { indicator.classList.add('hidden'); indicator.innerHTML = ''; }
                 manualBtns.forEach(b => b.style.display = '');
                 if (breakBtn) breakBtn.textContent = 'Start Break';
+                // Don't fight meeting mode's own disable — only touch this when not in a meeting
+                if (startBtn && !state.inMeeting) startBtn.disabled = false;
                 return;
             }
 
             const cycle = POMODORO_CYCLES[state.energyLevel] || POMODORO_CYCLES.medium;
             const step = state.pomodoroCycleStep || 0; // sprints completed in this block, 0-3
+            const breakDue = !!state.pomodoroBreakDue;
+            const onBreakNow = state.timer.active && state.timer.type === 'break';
+            const onSprintNow = state.timer.active && state.timer.type === 'focus';
 
             // Manual 15/20/30 buttons are redundant once the cycle owns duration
             manualBtns.forEach(b => b.style.display = 'none');
+
+            // GATE: block Start Focus until the owed break is actually taken
+            if (startBtn && !state.inMeeting) startBtn.disabled = breakDue;
 
             // The break available right now, if the "Start Break" button were clicked as-is
             const breakLenNow = step >= 3 ? cycle.longBreak : cycle.shortBreak;
@@ -3436,14 +3472,43 @@
 
             if (indicator) {
                 indicator.classList.remove('hidden');
-                if (state.timer.active && state.timer.type === 'break') {
-                    indicator.textContent = `On break · block resumes at sprint ${Math.min(step + 1, 3)} of 3`;
+
+                const dotStyle = (status, wide) => {
+                    const base = `display:inline-block; height:8px; width:${wide ? '20px' : '8px'}; border-radius:2px; margin:0 2px; vertical-align:middle;`;
+                    if (status === 'done') return base + 'background:var(--success);';
+                    if (status === 'current') return base + 'background:var(--industrial-orange); box-shadow:0 0 0 2px rgba(251,146,60,0.3);';
+                    if (status === 'due') return base + 'background:var(--danger); box-shadow:0 0 0 2px rgba(239,68,68,0.3);';
+                    return base + 'background:transparent; border:1px solid var(--border-light);';
+                };
+
+                // Six-segment visual: sprint 1, break 1, sprint 2, break 2, sprint 3, long break
+                const segs = [1, 2, 3].map(n => {
+                    const sprintStatus = step >= n ? 'done' : (onSprintNow && step === n - 1) ? 'current' : 'upcoming';
+                    const isLongBreak = n === 3;
+                    const breakCurrent = onBreakNow && step === n;
+                    const breakIsDue = breakDue && step === n && !onBreakNow;
+                    const breakStatus = breakCurrent ? 'current' : breakIsDue ? 'due' : (step > n || (step === n && !breakDue && !onBreakNow)) ? 'done' : 'upcoming';
+                    return `<span title="Sprint ${n}" style="${dotStyle(sprintStatus)}"></span><span title="${isLongBreak ? 'Long break' : 'Break ' + n}" style="${dotStyle(breakStatus, isLongBreak)}"></span>`;
+                }).join('');
+
+                let caption;
+                if (onBreakNow) {
+                    caption = `On break · block resumes at sprint ${Math.min(step + 1, 3)} of 3`;
+                } else if (breakDue) {
+                    caption = step >= 3
+                        ? `Long break required (${cycle.longBreak} min) before a fresh block`
+                        : `Break required (${breakLenNow} min) before sprint ${step + 1}`;
                 } else if (step >= 3) {
-                    indicator.textContent = `Block complete · long break (${cycle.longBreak} min), then a fresh block`;
+                    caption = `Block complete · long break (${cycle.longBreak} min), then a fresh block`;
                 } else {
                     const breakAfterNextSprint = (step + 1 >= 3) ? cycle.longBreak : cycle.shortBreak;
-                    indicator.textContent = `Sprint ${step + 1} of 3 · ${cycle.sprintMin} min, then a ${breakAfterNextSprint} min break`;
+                    caption = `Sprint ${step + 1} of 3 · ${cycle.sprintMin} min, then a ${breakAfterNextSprint} min break`;
                 }
+
+                indicator.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:center; margin-bottom:0.35rem;">${segs}</div>
+                    <div style="text-align:center;">${caption}</div>
+                `;
             }
         }
 
