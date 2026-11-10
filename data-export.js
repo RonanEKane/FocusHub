@@ -39,7 +39,7 @@ const DataExport = {
             ].join('\n');
             
             // Download
-            this.downloadFile(csv, `focushub_daily_history_${startDate}_to_${endDate}.csv`, 'text/csv');
+            this.downloadFile(csv, `braindock_daily_history_${startDate}_to_${endDate}.csv`, 'text/csv');
             
             showToast('Daily history exported', 'success');
             
@@ -75,7 +75,7 @@ const DataExport = {
                 ...rows.map(row => row.join(','))
             ].join('\n');
             
-            this.downloadFile(csv, `focushub_tasks_${startDate}_to_${endDate}.csv`, 'text/csv');
+            this.downloadFile(csv, `braindock_tasks_${startDate}_to_${endDate}.csv`, 'text/csv');
             
             showToast('Task history exported', 'success');
             
@@ -114,7 +114,7 @@ const DataExport = {
                 ...rows.map(row => row.join(','))
             ].join('\n');
             
-            this.downloadFile(csv, `focushub_distractions_${startDate}_to_${endDate}.csv`, 'text/csv');
+            this.downloadFile(csv, `braindock_distractions_${startDate}_to_${endDate}.csv`, 'text/csv');
             
             showToast('Distraction log exported', 'success');
             
@@ -151,7 +151,7 @@ const DataExport = {
             };
             
             const json = JSON.stringify(exportData, null, 2);
-            this.downloadFile(json, `focushub_complete_data_${startDate}_to_${endDate}.json`, 'application/json');
+            this.downloadFile(json, `braindock_complete_data_${startDate}_to_${endDate}.json`, 'application/json');
             
             showToast('Complete data exported', 'success');
             
@@ -167,7 +167,7 @@ const DataExport = {
             const report = await WeeklyReports.generateReport();
             const markdown = WeeklyReports.formatReport(report);
             
-            const filename = `focushub_weekly_report_${new Date(report.weekStart).toISOString().split('T')[0]}.md`;
+            const filename = `braindock_weekly_report_${new Date(report.weekStart).toISOString().split('T')[0]}.md`;
             this.downloadFile(markdown, filename, 'text/markdown');
             
             showToast('Weekly report exported', 'success');
@@ -214,7 +214,7 @@ const DataExport = {
                 `Total Focus Time (mins),${totalSprints * 20}`
             ].join('\n');
             
-            this.downloadFile(csv, `focushub_summary_${startDate}_to_${endDate}.csv`, 'text/csv');
+            this.downloadFile(csv, `braindock_summary_${startDate}_to_${endDate}.csv`, 'text/csv');
             
             showToast('Summary stats exported', 'success');
             

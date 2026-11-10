@@ -2,8 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusHub - STAGING - Built for Brains That Wander, but Still Want to Win</title>
+    <title>BrainDock - STAGING - Built for Brains That Wander, but Still Want to Win</title>
     <link rel="stylesheet" href="style-staging.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -12,7 +16,7 @@
     <header class="app-header">
         <div class="logo-section">
             <div style="position: relative; display: inline-block;">
-                <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub" style="height: 32px; width: auto;">
+                <img id="appLogo" src="BrainDock_horiinv.svg" alt="BrainDock" style="height: 32px; width: auto;">
                 <span style="position: absolute; top: -6px; right: -38px; background: #fb923c; color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px;">BETA</span>
             </div>
             <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
@@ -280,7 +284,7 @@
             setupEventListeners();
             setupDropZones();
             renderAll();
-            console.log('✅ FocusHub initialized');
+            console.log('✅ BrainDock initialized');
         }
 
         // ============================================
@@ -715,7 +719,7 @@
             const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             // Update browser tab title with timer
-            document.title = `${timeStr} - FocusHub`;
+            document.title = `${timeStr} - BrainDock`;
             
             const valueEl = document.querySelector('.timer-value');
             const statusEl = document.querySelector('.timer-status');
@@ -815,10 +819,10 @@
             
             const logo = document.getElementById('appLogo');
             if (newTheme === 'dark') {
-                logo.src = 'FocusHub_horiinv.svg';
+                logo.src = 'BrainDock_horiinv.svg';
                 document.getElementById('themeToggle').textContent = 'DARK';
             } else {
-                logo.src = 'FocusHub_horinorm.svg';
+                logo.src = 'BrainDock_horinorm.svg';
                 document.getElementById('themeToggle').textContent = 'LIGHT';
             }
             

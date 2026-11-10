@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>FocusHub - Workspace</title>
+    <title>BrainDock - Workspace</title>
     <link rel="stylesheet" href="style.css">
     
     <!-- Supabase SDK -->
@@ -17,7 +21,7 @@
     <!-- Start Day Screen -->
     <div id="startDayScreen" class="start-day-screen">
         <div class="start-day-container">
-            <img id="startDayLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" style="height: 80px; width: auto; margin: 0 auto 1.5rem; display: block;">
+            <img id="startDayLogo" src="BrainDock_vertnorm.svg" alt="BrainDock" style="height: 80px; width: auto; margin: 0 auto 1.5rem; display: block;">
             <h1 class="start-title">Prepare your session</h1>
             <p class="start-subtitle">Define today's work requirements. The system enforces them.</p>
             <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin: 0 auto 2rem; max-width: 500px; line-height: 1.5;">
@@ -76,7 +80,7 @@
             const theme = localStorage.getItem('focushub_theme') || 'light';
             const logo = document.getElementById('startDayLogo');
             if (logo) {
-                logo.src = theme === 'dark' ? 'FocusHub_vertdark.svg' : 'FocusHub_vertnorm.svg';
+                logo.src = theme === 'dark' ? 'BrainDock_vertinv.svg' : 'BrainDock_vertnorm.svg';
             }
         }
         
@@ -94,7 +98,7 @@
             <div class="app-header-content">
                 <div class="logo-section">
                     <div style="position: relative; display: inline-block;">
-                        <img id="appLogo" src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img">
+                        <img id="appLogo" src="BrainDock_horinorm.svg" alt="BrainDock" class="logo-img">
                         <span style="position: absolute; top: -6px; right: -38px; background: #f45b07; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
                     </div>
                     <p class="tagline">Built for Brains That Wander, but Still Want to Win</p>
@@ -381,7 +385,7 @@
             
             <div class="modal-body">
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
-                    Your feedback helps make FocusHub better for everyone with ADHD.
+                    Your feedback helps make BrainDock better for everyone with ADHD.
                 </p>
                 
                 <!-- Feedback Type -->
@@ -875,7 +879,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `focushub-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `braindock-backup-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
             
@@ -1477,8 +1481,8 @@
             state.timer.interval = setInterval(updateTimer, 1000);
             
             // Track sprint started
-            if (window.FocusHubAnalytics) {
-                FocusHubAnalytics.trackFeature('sprint_started', { duration: duration });
+            if (window.BrainDockAnalytics) {
+                BrainDockAnalytics.trackFeature('sprint_started', { duration: duration });
             }
         }
 
@@ -1737,7 +1741,7 @@
                         body: body,
                         icon: icon, // Could use a proper icon URL
                         badge: icon,
-                        tag: 'focushub-timer', // Replace previous notification
+                        tag: 'braindock-timer', // Replace previous notification
                         requireInteraction: true, // Stay until user interacts
                         silent: false
                     });
@@ -3186,12 +3190,12 @@
             // Update toggle button and logos
             if (theme === 'dark') {
                 themeToggle.textContent = '🌙 Dark';
-                if (appLogo) appLogo.src = 'FocusHub_horiinv.svg'; // White text for dark theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertdark.svg';
+                if (appLogo) appLogo.src = 'BrainDock_horiinv.svg'; // White text for dark theme
+                if (startDayLogo) startDayLogo.src = 'BrainDock_vertinv.svg';
             } else {
                 themeToggle.textContent = '☀️ Light';
-                if (appLogo) appLogo.src = 'FocusHub_horinorm.svg'; // Orange text for light theme
-                if (startDayLogo) startDayLogo.src = 'FocusHub_vertnorm.svg';
+                if (appLogo) appLogo.src = 'BrainDock_horinorm.svg'; // Orange text for light theme
+                if (startDayLogo) startDayLogo.src = 'BrainDock_vertnorm.svg';
             }
         }
         
@@ -3534,7 +3538,7 @@ async function submitFeedback() {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                _subject: `FocusHub BETA: ${currentFeedbackType}`,
+                _subject: `BrainDock BETA: ${currentFeedbackType}`,
                 _template: 'table',
                 Type: currentFeedbackType,
                 Feedback: text,
@@ -3597,7 +3601,7 @@ function checkEndOfDayFeedbackPrompt() {
     // After 3 days of use, prompt once
     if (totalSessions >= 3 && !hasPrompted) {
         setTimeout(() => {
-            if (confirm('Quick feedback on FocusHub? (Takes 30 seconds)')) {
+            if (confirm('Quick feedback on BrainDock? (Takes 30 seconds)')) {
                 openFeedbackModal();
             }
             localStorage.setItem('focushub_eod_feedback_prompted', 'true');

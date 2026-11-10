@@ -2,8 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>FAQ - FocusHub</title>
+    <title>FAQ - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     
     <!-- Supabase SDK -->
@@ -14,7 +18,7 @@
     <header class="app-header">
         <div class="app-header-content">
             <div class="logo-section">
-                <img id="faqLogo" src="FocusHub_vertnorm.svg" alt="FocusHub" class="logo-img" style="height: 60px; width: auto;">
+                <img id="faqLogo" src="BrainDock_vertnorm.svg" alt="BrainDock" class="logo-img" style="height: 60px; width: auto;">
             </div>
             
             <div class="header-controls">
@@ -30,7 +34,7 @@
         <!-- AI Support Agent -->
         <div class="ai-support-section" style="background: var(--bg-secondary); padding: 3rem 2rem; border-radius: 12px; margin-bottom: 4rem;">
             <h2 style="text-align: center; font-size: 32px; margin-bottom: 1rem; color: var(--text-primary);">💬 AI Support Agent</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Ask anything about FocusHub - get instant answers.</p>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Ask anything about BrainDock - get instant answers.</p>
             
             <div class="chat-container">
                 <div id="chatMessages" class="chat-messages"></div>
@@ -40,7 +44,7 @@
                         type="text" 
                         id="chatInput" 
                         class="chat-input" 
-                        placeholder="Ask a question about FocusHub..."
+                        placeholder="Ask a question about BrainDock..."
                         autocomplete="off"
                     >
                     <button id="sendBtn" class="chat-send-btn">Send</button>
@@ -52,16 +56,16 @@
 
         <div class="faq-grid">
             <div class="faq-item">
-                <div class="faq-question">What makes FocusHub different from other productivity apps?</div>
+                <div class="faq-question">What makes BrainDock different from other productivity apps?</div>
                 <div class="faq-answer">
-                    FocusHub doesn't pile on endless to-do lists. It limits your focus to NOW. Energy-based timer. Strategic buckets. Tough-love accountability. Built specifically for ADHD brains that wander but still want to win.
+                    BrainDock doesn't pile on endless to-do lists. It limits your focus to NOW. Energy-based timer. Strategic buckets. Tough-love accountability. Built specifically for ADHD brains that wander but still want to win.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question">Is this really for ADHD?</div>
                 <div class="faq-answer">
-                    Yes. Built by someone with ADHD who tried every other system and watched them fail. FocusHub accounts for time blindness, decision fatigue, hyperfocus crashes, and the constant pull of distractions. It's not inspiration. It's scaffolding.
+                    Yes. Built by someone with ADHD who tried every other system and watched them fail. BrainDock accounts for time blindness, decision fatigue, hyperfocus crashes, and the constant pull of distractions. It's not inspiration. It's scaffolding.
                 </div>
             </div>
 
@@ -101,7 +105,7 @@
             <div class="faq-item">
                 <div class="faq-question">Is there a free version?</div>
                 <div class="faq-answer">
-                    Yes. FocusHub has a free tier with full core functionality: energy-adaptive timers, three-bucket task system, distraction parking, and end-of-day grading. Premium adds cross-device sync, advanced analytics, and the daily reflection library (350+ reflections from 7 traditions). Free users get everything they need to be productive.
+                    Yes. BrainDock has a free tier with full core functionality: energy-adaptive timers, three-bucket task system, distraction parking, and end-of-day grading. Premium adds cross-device sync, advanced analytics, and the daily reflection library (350+ reflections from 7 traditions). Free users get everything they need to be productive.
                 </div>
             </div>
 
@@ -127,7 +131,7 @@
             <div class="faq-item">
                 <div class="faq-question">What about my data and privacy?</div>
                 <div class="faq-answer">
-                    <strong>Privacy-first by design.</strong> FocusHub automatically deletes your task text every Friday at 11:59 PM to protect your privacy. We only keep anonymized statistics (sprint counts, completion rates) for 90 days.
+                    <strong>Privacy-first by design.</strong> BrainDock automatically deletes your task text every Friday at 11:59 PM to protect your privacy. We only keep anonymized statistics (sprint counts, completion rates) for 90 days.
                     <br><br>
                     <strong>Your rights:</strong>
                     <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
@@ -150,7 +154,7 @@
                     <br>
                     <strong>What we keep:</strong> Anonymized statistics (total tasks completed, sprint counts, efficiency metrics).
                     <br><br>
-                    This makes FocusHub <strong>more private than Notion, Todoist, or Asana</strong> - they keep your data forever.
+                    This makes BrainDock <strong>more private than Notion, Todoist, or Asana</strong> - they keep your data forever.
                 </div>
             </div>
 
@@ -176,14 +180,14 @@
                         <li><strong>At rest:</strong> AES-256 encryption</li>
                         <li><strong>Provider:</strong> Supabase (SOC 2 Type II certified)</li>
                     </ul>
-                    You can use FocusHub completely offline if you prefer - your data stays only on your device.
+                    You can use BrainDock completely offline if you prefer - your data stays only on your device.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question">What if I miss a day?</div>
                 <div class="faq-answer">
-                    Your tasks persist. Your streak resets. No guilt spirals. No shame notifications. Just start fresh. Discipline isn't perfection. It's getting back up. FocusHub doesn't punish gaps; it tracks forward momentum.
+                    Your tasks persist. Your streak resets. No guilt spirals. No shame notifications. Just start fresh. Discipline isn't perfection. It's getting back up. BrainDock doesn't punish gaps; it tracks forward momentum.
                 </div>
             </div>
 
@@ -218,7 +222,7 @@
             <div class="faq-item">
                 <div class="faq-question">Do I need an internet connection?</div>
                 <div class="faq-answer">
-                    No! FocusHub works 100% offline after the initial page load. Only external dependency is the confetti animation (CDN), which is purely cosmetic. Everything else runs in your browser.
+                    No! BrainDock works 100% offline after the initial page load. Only external dependency is the confetti animation (CDN), which is purely cosmetic. Everything else runs in your browser.
                 </div>
             </div>
         </div>
@@ -427,7 +431,7 @@
         const sendBtn = document.getElementById('sendBtn');
 
         // Add initial greeting
-        addMessage('assistant', "Hi! I'm the FocusHub support agent. Ask me anything about how FocusHub works, its features, or troubleshooting.");
+        addMessage('assistant', "Hi! I'm the BrainDock support agent. Ask me anything about how BrainDock works, its features, or troubleshooting.");
 
         function addMessage(role, content) {
             const messageDiv = document.createElement('div');
@@ -498,9 +502,9 @@
                     body: JSON.stringify({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 1000,
-                        system: `You are a helpful support agent for FocusHub, a productivity app designed specifically for ADHD brains. 
+                        system: `You are a helpful support agent for BrainDock, a productivity app designed specifically for ADHD brains. 
 
-FocusHub features:
+BrainDock features:
 - Sprint-based timer (15/20/30 min based on energy level)
 - Task buckets: Holding Area, Admin (1 sprint), Deep Work (2 sprints), Strategic (3 sprints)
 - Sprint targeting that adds up based on task priorities  
@@ -574,10 +578,10 @@ Be concise, helpful, and direct. Use a supportive but no-nonsense tone that matc
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertinv.svg'; // Dark = white text
+                if (faqLogo) faqLogo.src = 'BrainDock_vertinv.svg'; // Dark = white text
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
-                if (faqLogo) faqLogo.src = 'FocusHub_vertnorm.svg'; // Light = black text
+                if (faqLogo) faqLogo.src = 'BrainDock_vertnorm.svg'; // Light = black text
             }
         }
 
@@ -626,7 +630,7 @@ Be concise, helpful, and direct. Use a supportive but no-nonsense tone that matc
             Data stored locally & optionally synced (encrypted)
         </p>
         <p style="margin: 0.5rem 0; font-size: 0.75rem;">
-            &copy; 2026 FocusHub. Built for privacy.
+            &copy; 2026 BrainDock. Built for privacy.
         </p>
     </footer>
 </body>

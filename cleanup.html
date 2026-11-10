@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Cleanup - FocusHub Admin</title>
+    <title>Database Cleanup - BrainDock Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +15,7 @@
         <header class="admin-header">
             <div class="admin-header-content">
                 <div>
-                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
+                    <img src="BrainDock_horinorm.svg" alt="BrainDock" style="height: 40px; width: auto;">
                     <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">⚠️ Database Cleanup Tool</h1>
                 </div>
                 <div>
@@ -180,7 +184,7 @@
         const theme = localStorage.getItem('focushub_theme') || 'light';
         if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
-            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
+            document.querySelector('header img').src = 'BrainDock_horiinv.svg';
         }
     </script>
 </body>

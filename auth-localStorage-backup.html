@@ -2,14 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - FocusHub</title>
+    <title>Sign In - BrainDock</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-box">
-            <img src="FocusHub_vertnorm.svg" alt="FocusHub" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
+            <img src="BrainDock_vertnorm.svg" alt="BrainDock" class="auth-logo" style="height: 60px; width: auto; margin: 0 auto 2rem; display: block;">
             
             <!-- Login Form -->
             <div id="loginForm" class="auth-form">
@@ -244,10 +248,10 @@
             
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                authLogo.src = 'FocusHub_vertinv.svg';
+                authLogo.src = 'BrainDock_vertinv.svg';
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
-                authLogo.src = 'FocusHub_vertnorm.svg';
+                authLogo.src = 'BrainDock_vertnorm.svg';
             }
         }
         

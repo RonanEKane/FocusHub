@@ -1,9 +1,9 @@
 // ============================================
-// FOCUSHUB ANALYTICS
+// BRAINDOCK ANALYTICS
 // Event tracking and error monitoring with Supabase
 // ============================================
 
-const FocusHubAnalytics = {
+const BrainDockAnalytics = {
     supabaseClient: null,
     sessionId: null,
     currentUser: null,
@@ -29,7 +29,7 @@ const FocusHubAnalytics = {
             // Track page view
             this.trackEvent('page_view', { page: window.location.pathname });
             
-            console.log('✅ FocusHub Analytics initialized');
+            console.log('✅ BrainDock Analytics initialized');
             return true;
         } catch (error) {
             console.error('❌ Analytics initialization error:', error);
@@ -179,13 +179,13 @@ const FocusHubAnalytics = {
 // Auto-initialize
 (async function() {
     if (typeof SUPABASE_URL !== 'undefined') {
-        await FocusHubAnalytics.init();
+        await BrainDockAnalytics.init();
     }
 })();
 
 // Clean up session on page unload
 window.addEventListener('beforeunload', () => {
-    if (FocusHubAnalytics.sessionId) {
-        FocusHubAnalytics.endSession();
+    if (BrainDockAnalytics.sessionId) {
+        BrainDockAnalytics.endSession();
     }
 });

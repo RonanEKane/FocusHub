@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics - FocusHub</title>
+    <title>Analytics - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
@@ -15,7 +19,7 @@
         <header class="admin-header">
             <div class="admin-header-content">
                 <div>
-                    <img src="FocusHub_horinorm.svg" alt="FocusHub" style="height: 40px; width: auto;">
+                    <img src="BrainDock_horinorm.svg" alt="BrainDock" style="height: 40px; width: auto;">
                     <h1 style="display: inline-block; margin-left: 1rem; font-size: 1.25rem;">Analytics Dashboard</h1>
                 </div>
                 <div>
@@ -171,7 +175,7 @@
         // Load analytics from Supabase
         async function loadAnalytics() {
             try {
-                const summary = await FocusHubAnalytics.getAnalyticsSummary();
+                const summary = await BrainDockAnalytics.getAnalyticsSummary();
                 
                 if (!summary) {
                     console.error('No analytics data available');
@@ -294,7 +298,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `focushub-analytics-${Date.now()}.json`;
+            a.download = `braindock-analytics-${Date.now()}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -304,7 +308,7 @@
                 return;
             }
             
-            FocusHubAnalytics.clearAnalytics();
+            BrainDockAnalytics.clearAnalytics();
             alert('Analytics data cleared');
             loadAnalytics();
         }
@@ -321,7 +325,7 @@
         const theme = localStorage.getItem('focushub_theme') || 'light';
         if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
-            document.querySelector('header img').src = 'FocusHub_horiinv.svg';
+            document.querySelector('header img').src = 'BrainDock_horiinv.svg';
         }
         
         // Auto-refresh every 30 seconds

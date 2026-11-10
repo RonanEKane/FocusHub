@@ -2832,3 +2832,91 @@ input:focus, select:focus, textarea:focus {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* ==========================================================
+   MOBILE LAYOUT FIX (phones and small tablets)
+   Header and status rows used to sit on one line and push the
+   page wider than the screen, so users scrolled sideways.
+   They now wrap. "html body" prefix beats per-page inline styles.
+   ========================================================== */
+@media (max-width: 768px) {
+    html, body { overflow-x: clip; max-width: 100%; }
+    html body img { max-width: 100%; }
+
+    /* App header: logo on its own row, buttons wrap underneath */
+    html body .app-header,
+    html body .app-header.scrolled {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+    html body .app-header .logo-section img { height: 32px; width: auto; }
+    html body .header-actions {
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 0.4rem;
+    }
+    html body .header-actions .btn {
+        flex: 1 1 auto;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.75rem;
+        min-height: 44px;
+    }
+
+    /* Dashboard / overview status bar */
+    html body .status-bar { flex-wrap: wrap; gap: 0.5rem; padding-left: 1rem; padding-right: 1rem; }
+    html body .status-right { flex-wrap: wrap; flex: 1 1 100%; gap: 0.4rem; }
+    html body .status-right > * { flex: 0 1 auto; }
+    html body .page-header-right { flex-wrap: wrap; gap: 0.4rem; }
+    html body .page-header { flex-wrap: wrap; gap: 0.75rem; }
+
+    /* Main app grid: "1fr" alone lets wide children stretch the column
+       past the screen. minmax(0, 1fr) + min-width: 0 keeps it on screen. */
+    html body .app-container {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1rem;
+        gap: 1rem;
+    }
+    html body .app-container > *,
+    html body .main-content > *,
+    html body .sidebar > * { min-width: 0; max-width: 100%; }
+
+    /* Sprint timer card: one column, buttons 2 x 2 */
+    html body .sprint-timer-section.dominant {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1rem;
+    }
+    html body .sprint-timer-section.dominant > * { min-width: 0; }
+    html body .timer-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    html body .energy-row { flex-wrap: wrap; gap: 0.5rem; }
+    html body .energy-row select { max-width: 100%; }
+
+    /* Task buckets stack instead of sitting three across */
+    html body .buckets-grid { grid-template-columns: minmax(0, 1fr); }
+    html body .bucket { min-width: 0; }
+
+    /* Task Command Center: header wraps, task box full width above its button */
+    html body .task-section { padding: 1rem; }
+    html body .task-section .section-header { flex-wrap: wrap; gap: 0.5rem; }
+    html body .task-section .header-right { flex-wrap: wrap; gap: 0.5rem; }
+    html body .task-input-compact { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+    html body .task-input-main { width: 100%; }
+    html body .task-textarea-compact { width: 100%; box-sizing: border-box; min-height: 88px; }
+    html body .parse-btn-compact { width: 100%; min-height: 44px; }
+
+    /* Settings rows: label above control */
+    html body .setting-row { flex-wrap: wrap; gap: 0.5rem; }
+    html body .setting-control { min-width: 0; width: 100%; text-align: left; }
+
+    /* FAQ support chat: let the text box shrink so Send stays on screen */
+    html body .chat-input { min-width: 0; }
+
+    /* Today strip: five cells become a wrapping grid */
+    html body .today-strip .container { flex-wrap: wrap; }
+    html body .today-cell {
+        flex: 1 1 33%;
+        min-width: 0;
+        padding: 0.5rem 0.25rem;
+        border-right: none;
+    }
+}

@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- SECURITY: Force HTTPS -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>FocusHub - Built for Brains That Wander, but Still Want to Win</title>
+    <title>BrainDock - Built for Brains That Wander, but Still Want to Win</title>
     <!-- SEO & Social Meta Tags (V20.4) -->
-    <meta name="description" content="FocusHub - Built for Brains That Wander, but Still Want to Win. Complete productivity system for ADHD with tough-love accountability.">
+    <meta name="description" content="BrainDock - Built for Brains That Wander, but Still Want to Win. Complete productivity system for ADHD with tough-love accountability.">
     <meta name="keywords" content="ADHD, productivity, focus, task management, sprint timer, accountability">
-    <meta name="author" content="FocusHub">
+    <meta name="author" content="BrainDock">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="FocusHub - Productivity for ADHD Brains">
+    <meta property="og:title" content="BrainDock - Productivity for ADHD Brains">
     <meta property="og:description" content="Built for Brains That Wander, but Still Want to Win">
-    <meta property="og:image" content="/FocusHub_horiinv.svg">
+    <meta property="og:image" content="/og-image.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="FocusHub - Productivity for ADHD Brains">
+    <meta property="twitter:title" content="BrainDock - Productivity for ADHD Brains">
     <meta property="twitter:description" content="Built for Brains That Wander, but Still Want to Win">
-    <meta property="twitter:image" content="/FocusHub_horiinv.svg">
+    <meta property="twitter:image" content="/og-image.png">
     
     <!-- Google Analytics (V20.5) -->
     <!-- ⚠️ ACTION REQUIRED: Get your tracking ID from analytics.google.com -->
@@ -46,7 +46,7 @@
             <!-- Step 1: Welcome -->
             <div class="onboarding-step" id="onboard-step-1">
                 <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-primary);">
-                    Welcome to FocusHub
+                    Welcome to BrainDock
                 </h1>
                 <p style="font-size: 1.25rem; margin-bottom: 2rem; color: var(--text-secondary);">
                     Built for brains that wander. Let's get you set up in 60 seconds.
@@ -62,7 +62,7 @@
                     The Three-Bucket System
                 </h2>
                 <p style="margin-bottom: 2rem;">
-                    FocusHub uses only 3 task buckets. That's it. No folders, no tags, no endless organization.
+                    BrainDock uses only 3 task buckets. That's it. No folders, no tags, no endless organization.
                 </p>
                 
                 <div style="display: grid; gap: 1.5rem; margin-bottom: 2rem;">
@@ -147,7 +147,7 @@
     <!-- Header -->
     <header class="app-header">
         <div class="logo-section">
-            <img id="appLogo" src="FocusHub_horiinv.svg" alt="FocusHub">
+            <img id="appLogo" src="BrainDock_horiinv.svg" alt="BrainDock">
         </div>
         <div class="header-timer" id="headerTimerSection" style="display: none;">
             <span id="stickyTimer" style="font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 700; color: var(--industrial-orange);">20:00</span>
@@ -155,7 +155,7 @@
         <div class="header-actions">
             <button class="btn" id="dashboardBtn" title="View your stats and progress">DASHBOARD</button>
             <button class="btn" id="themeToggle" title="Switch between dark and light theme">DARK</button>
-            <button class="btn" id="logoutBtn" title="Sign out of FocusHub">Logout</button>
+            <button class="btn" id="logoutBtn" title="Sign out of BrainDock">Logout</button>
             <button class="btn btn-danger" id="endDayBtn" title="Complete your day and get your grade">END SESSION</button>
         </div>
     </header>
@@ -517,7 +517,7 @@
             // Sticky header with timer on scroll
             window.addEventListener('scroll', handleHeaderScroll);
             
-            console.log('✅ FocusHub initialized');
+            console.log('✅ BrainDock initialized');
             
             // Check if user needs onboarding (V20.5)
             setTimeout(checkOnboarding, 500);
@@ -2851,10 +2851,10 @@
             
             const logo = document.getElementById('appLogo');
             if (newTheme === 'dark') {
-                logo.src = 'FocusHub_horiinv.svg';
+                logo.src = 'BrainDock_horiinv.svg';
                 document.getElementById('themeToggle').textContent = 'DARK';
             } else {
-                logo.src = 'FocusHub_horinorm.svg';
+                logo.src = 'BrainDock_horinorm.svg';
                 document.getElementById('themeToggle').textContent = 'LIGHT';
             }
             
@@ -2869,10 +2869,10 @@
             if (!logo || !themeToggle) return; // Safety check
             
             if (currentTheme === 'dark') {
-                logo.src = 'FocusHub_horiinv.svg';
+                logo.src = 'BrainDock_horiinv.svg';
                 themeToggle.textContent = 'DARK';
             } else {
-                logo.src = 'FocusHub_horinorm.svg';
+                logo.src = 'BrainDock_horinorm.svg';
                 themeToggle.textContent = 'LIGHT';
             }
         }
@@ -3016,12 +3016,12 @@
     <footer class="app-footer">
         <div class="footer-links">
             <a href="settings.html" class="footer-link">⚙️ Settings</a>
-            <a href="https://docs.focushub.app" target="_blank" class="footer-link">📚 How-To Guide</a>
+            <a href="/how-to.html" target="_blank" class="footer-link">📚 How-To Guide</a>
             <a href="/cdn-cgi/l/email-protection#a8dbddd8d8c7dadce8cec7cbdddbc0ddca86c9d8d8" class="footer-link">💬 Support</a>
             <a href="/cdn-cgi/l/email-protection#244c4148484b64424b4751574c51460a455454" class="footer-link">✉️ Contact</a>
         </div>
         <div class="footer-copyright">
-            © 2026 FocusHub. All rights reserved.
+            © 2026 BrainDock. All rights reserved.
         </div>
     </footer>
     <script>
@@ -3118,7 +3118,7 @@
         function finishOnboarding() {
             localStorage.setItem('focushub_onboarding_complete', 'true');
             document.getElementById('onboardingModal').style.display = 'none';
-            showToast('Welcome to FocusHub! Let\'s get to work.', 'success');
+            showToast('Welcome to BrainDock! Let\'s get to work.', 'success');
         }
     </script>
 </body>

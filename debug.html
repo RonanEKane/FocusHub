@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug - FocusHub</title>
+    <title>Debug - BrainDock</title>
     <style>
         body {
             font-family: monospace;
@@ -40,7 +44,7 @@
     </style>
 </head>
 <body>
-    <h1>🔍 FocusHub Debug</h1>
+    <h1>🔍 BrainDock Debug</h1>
     
     <div class="card">
         <h2>LocalStorage Status</h2>
@@ -120,7 +124,7 @@
         }
         
         function clearAll() {
-            if (confirm('Clear all FocusHub data?')) {
+            if (confirm('Clear all BrainDock data?')) {
                 localStorage.removeItem('focushub_current_user');
                 localStorage.removeItem('focushub_users');
                 localStorage.removeItem('focushub_session_state');

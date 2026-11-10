@@ -2,8 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How-To - FocusHub</title>
+    <title>How-To - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     
     <!-- Supabase SDK -->
@@ -15,7 +19,7 @@
     <header class="app-header">
         <div class="app-header-content">
             <div class="logo-section">
-                <img src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+                <img src="BrainDock_horiinv.svg" alt="BrainDock" class="logo-img" style="height: 40px; width: auto;">
             </div>
             
             <div class="header-controls">
@@ -45,7 +49,7 @@
             
             <!-- Left Column: Main Content -->
             <div>
-                <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 3rem; color: var(--text-primary);">How to use FocusHub</h1>
+                <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 3rem; color: var(--text-primary);">How to use BrainDock</h1>
 
                 <!-- Step 1: Start a focus session -->
                 <section id="step-1" style="margin-bottom: 4rem;">
@@ -78,7 +82,7 @@
                             </svg>
                         </button>
                         <div class="detail-content" hidden>
-                            <p>Log the distraction immediately. FocusHub tracks what pulled you away and whether you intended it. This data helps you understand actual focus patterns rather than imagined ones. Continue the session after logging.</p>
+                            <p>Log the distraction immediately. BrainDock tracks what pulled you away and whether you intended it. This data helps you understand actual focus patterns rather than imagined ones. Continue the session after logging.</p>
                         </div>
                     </div>
 
@@ -231,7 +235,7 @@
                             </svg>
                         </button>
                         <div class="detail-content" hidden>
-                            <p>Each morning when you open FocusHub, you'll see a reflection from your chosen tradition. Reflections rotate daily—you won't see the same one twice in a 50-day cycle. The reflection appears at the start screen before you begin work, providing a moment of centering before execution begins.</p>
+                            <p>Each morning when you open BrainDock, you'll see a reflection from your chosen tradition. Reflections rotate daily—you won't see the same one twice in a 50-day cycle. The reflection appears at the start screen before you begin work, providing a moment of centering before execution begins.</p>
                         </div>
                     </div>
 
@@ -275,7 +279,7 @@
                     <!-- Collapsed State -->
                     <div id="aiSupportCollapsed">
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Need help?</h3>
-                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem;">Ask FocusHub support</p>
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem;">Ask BrainDock support</p>
                         <button id="openAiSupport" style="width: 100%; background: var(--industrial-orange); color: white; padding: 0.75rem; border: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
                             Start conversation
                         </button>
@@ -284,13 +288,13 @@
                     <!-- Expanded State (hidden by default) -->
                     <div id="aiSupportExpanded" style="display: none;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">FocusHub Support</h3>
+                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">BrainDock Support</h3>
                             <button id="closeAiSupport" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 0;">×</button>
                         </div>
                         
                         <div id="chatMessages" style="min-height: 300px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; padding: 1rem; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: 4px;">
                             <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; margin-bottom: 1rem;">
-                                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Ask questions about how FocusHub works, its features, or troubleshooting.</p>
+                                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Ask questions about how BrainDock works, its features, or troubleshooting.</p>
                             </div>
                         </div>
 
@@ -529,7 +533,7 @@
                 setTimeout(() => {
                     const agentMsg = document.createElement('div');
                     agentMsg.style.cssText = 'background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; margin-right: 2rem;';
-                    agentMsg.textContent = 'Information about FocusHub is available in the sections above.';
+                    agentMsg.textContent = 'Information about BrainDock is available in the sections above.';
                     chatMessages.appendChild(agentMsg);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, 1000);

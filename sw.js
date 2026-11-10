@@ -1,5 +1,5 @@
-// FocusHub Service Worker v20.4
-const CACHE_VERSION = 'focushub-v20.4';
+// BrainDock Service Worker v20.4
+const CACHE_VERSION = 'braindock-v20.4';
 const ASSETS_TO_CACHE = [
     '/',
     '/app.html',
@@ -8,10 +8,10 @@ const ASSETS_TO_CACHE = [
     '/supabase-config.js',
     '/analytics.js',
     '/keyboard-shortcuts.js',
-    '/FocusHub_horiinv.svg',
-    '/FocusHub_horinorm.svg',
-    '/FocusHub_vertinv.svg',
-    '/FocusHub_vertnorm.svg'
+    '/BrainDock_horiinv.svg',
+    '/BrainDock_horinorm.svg',
+    '/BrainDock_vertinv.svg',
+    '/BrainDock_vertnorm.svg'
 ];
 
 // Install event - cache assets

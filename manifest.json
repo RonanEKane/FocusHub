@@ -1,6 +1,6 @@
 {
-  "name": "FocusHub - Productivity for ADHD Brains",
-  "short_name": "FocusHub",
+  "name": "BrainDock - Productivity for ADHD Brains",
+  "short_name": "BrainDock",
   "description": "Built for Brains That Wander, but Still Want to Win",
   "version": "20.4",
   "start_url": "/app.html",
@@ -30,7 +30,7 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "FocusHub Dashboard"
+      "label": "BrainDock Dashboard"
     },
     {
       "src": "/screenshot-mobile.png",

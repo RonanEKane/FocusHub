@@ -2,10 +2,14 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- SECURITY: Force HTTPS -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Sign Up - FocusHub BETA</title>
+    <title>Sign Up - BrainDock BETA</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     <style>
         .auth-container {
@@ -132,7 +136,7 @@
             <!-- BETA badge -->
             <span style="position: absolute; top: 15px; right: 15px; background: #f45b07; color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.5px;">BETA</span>
             
-            <img id="authLogo" src="FocusHub_vertinv.svg?v=3" alt="FocusHub" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
+            <img id="authLogo" src="BrainDock_vertinv.svg?v=3" alt="BrainDock" class="auth-logo" style="height: 100px; width: auto; margin: 0 auto 2rem; display: block;">
             
             <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center; color: var(--text-primary);">Create account</h2>
             
@@ -189,7 +193,7 @@
                 <button type="submit" class="btn btn-primary btn-block">Create account</button>
                 
                 <p style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
-                    This creates your FocusHub account.
+                    This creates your BrainDock account.
                 </p>
             </form>
             
@@ -288,12 +292,12 @@ function initTheme() {
         document.documentElement.setAttribute('data-theme', 'dark');
         document.body.classList.add('theme-dark');
         document.body.classList.remove('theme-light');
-        authLogo.src = 'FocusHub_vertinv.svg?v=3'; // Dark = white text
+        authLogo.src = 'BrainDock_vertinv.svg?v=3'; // Dark = white text
     } else {
         document.documentElement.setAttribute('data-theme', 'light');
         document.body.classList.add('theme-light');
         document.body.classList.remove('theme-dark');
-        authLogo.src = 'FocusHub_vertnorm.svg?v=3'; // Light = black text
+        authLogo.src = 'BrainDock_vertnorm.svg?v=3'; // Light = black text
     }
     
     console.log('Signup theme initialized:', theme);

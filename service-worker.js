@@ -1,7 +1,7 @@
-// FocusHub Service Worker
+// BrainDock Service Worker
 // Enables offline functionality and caching
 
-const CACHE_NAME = 'focushub-v4-overview';
+const CACHE_NAME = 'braindock-v4-overview';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,10 +11,10 @@ const urlsToCache = [
   '/style.css',
   '/config.js',
   '/analytics.js',
-  '/FocusHub_vertnorm.svg',
-  '/FocusHub_vertinv.svg',
-  '/FocusHub_horinorm.svg',
-  '/FocusHub_horiinv.svg'
+  '/BrainDock_vertnorm.svg',
+  '/BrainDock_vertinv.svg',
+  '/BrainDock_horinorm.svg',
+  '/BrainDock_horiinv.svg'
 ];
 
 // Install event - cache resources
@@ -87,13 +87,13 @@ self.addEventListener('activate', (event) => {
 // Push notification event (for future use)
 self.addEventListener('push', (event) => {
   const options = {
-    body: event.data ? event.data.text() : 'New notification from FocusHub',
+    body: event.data ? event.data.text() : 'New notification from BrainDock',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     vibrate: [200, 100, 200]
   };
   
   event.waitUntil(
-    self.registration.showNotification('FocusHub', options)
+    self.registration.showNotification('BrainDock', options)
   );
 });

@@ -6,7 +6,7 @@
         <!-- Step 1: Welcome -->
         <div class="onboarding-step" id="onboard-step-1">
             <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-primary);">
-                Welcome to FocusHub
+                Welcome to BrainDock
             </h1>
             <p style="font-size: 1.25rem; margin-bottom: 2rem; color: var(--text-secondary);">
                 Built for brains that wander. Let's get you set up in 60 seconds.
@@ -22,7 +22,7 @@
                 The Three-Bucket System
             </h2>
             <p style="margin-bottom: 2rem;">
-                FocusHub uses only 3 task buckets. That's it. No folders, no tags, no endless organization.
+                BrainDock uses only 3 task buckets. That's it. No folders, no tags, no endless organization.
             </p>
             
             <div style="display: grid; gap: 1.5rem; margin-bottom: 2rem;">
@@ -174,7 +174,7 @@ function showOnboardingStep(stepNumber) {
 function finishOnboarding() {
     localStorage.setItem('focushub_onboarding_complete', 'true');
     document.getElementById('onboardingModal').style.display = 'none';
-    showToast('Welcome to FocusHub! Let\'s get to work.', 'success');
+    showToast('Welcome to BrainDock! Let\'s get to work.', 'success');
 }
 
 // Call this after init() completes

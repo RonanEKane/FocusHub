@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mission Control - FocusHub</title>
+    <title>Mission Control - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
 </head>
 <body>
     <!-- Technical Status Bar -->
     <div class="status-bar">
         <div class="status-left">
-            <img id="dashboardLogo" src="FocusHub_vertinv.svg" alt="FocusHub" class="status-logo" style="height: 80px; width: auto;">
+            <img id="dashboardLogo" src="BrainDock_vertinv.svg" alt="BrainDock" class="status-logo" style="height: 80px; width: auto;">
         </div>
         <div class="status-middle">
             <div id="dashboardTimer" class="dashboard-timer hidden">
@@ -41,9 +45,9 @@
     <!-- Mission Control Dashboard -->
     <div class="mission-control">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.5rem;">
                 <h1 class="mission-title" data-label="missionControl">MISSION CONTROL</h1>
-                <div style="display: flex; gap: 1rem; align-items: center;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                     <div class="mode-indicator" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 4px;">
                     MODE: <span id="currentMode" style="color: var(--text-primary); font-weight: 600;">LOADING...</span>
                 </div>
@@ -386,7 +390,7 @@
             // Update logo based on theme
             const logo = document.getElementById('overviewLogo');
             if (logo) {
-                logo.src = theme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+                logo.src = theme === 'dark' ? 'BrainDock_horiinv.svg' : 'BrainDock_horinorm.svg';
             }
         }
         
@@ -401,7 +405,7 @@
             // Update logo based on theme
             const logo = document.getElementById('overviewLogo');
             if (logo) {
-                logo.src = newTheme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+                logo.src = newTheme === 'dark' ? 'BrainDock_horiinv.svg' : 'BrainDock_horinorm.svg';
             }
         }
         
@@ -1420,7 +1424,7 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            const filename = `focushub_analytics_${new Date().toISOString().split('T')[0]}.csv`;
+            const filename = `braindock_analytics_${new Date().toISOString().split('T')[0]}.csv`;
             
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
@@ -1442,14 +1446,14 @@
     <div id="aiSupportPanel" style="display: none; position: fixed; bottom: 5rem; right: 2rem; width: 360px; max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); z-index: 1000; overflow: hidden;">
         <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">FocusHub Support</h3>
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">BrainDock Support</h3>
                 <button id="closeAiPanel" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 0;">×</button>
             </div>
         </div>
         
         <div id="aiChatMessages" style="height: 320px; overflow-y: auto; padding: 1rem; background: var(--bg-primary);">
             <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; margin-bottom: 1rem;">
-                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Ask questions about how FocusHub works, its features, or troubleshooting.</p>
+                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Ask questions about how BrainDock works, its features, or troubleshooting.</p>
             </div>
         </div>
 
@@ -1519,13 +1523,13 @@
                     } else if (msgLower.includes('export') || msgLower.includes('download')) {
                         response = '📥 To export all your data: scroll to the footer and click "Export My Data". You\'ll get a JSON file with everything.';
                     } else if (msgLower.includes('gdpr') || msgLower.includes('ccpa') || msgLower.includes('compliance')) {
-                        response = '✅ FocusHub is GDPR and CCPA compliant. We automatically delete task text weekly, never sell data, and give you complete control. See Privacy Policy for details.';
+                        response = '✅ BrainDock is GDPR and CCPA compliant. We automatically delete task text weekly, never sell data, and give you complete control. See Privacy Policy for details.';
                     } else if (msgLower.includes('weekly') || msgLower.includes('friday') || msgLower.includes('deletion')) {
                         response = '📅 Every Friday at 11:59 PM, we automatically delete all task text and personal information. We keep only anonymized statistics for 90 days to show trends.';
                     } else if (msgLower.includes('backup') || msgLower.includes('save')) {
                         response = '💾 Your data is automatically backed up! We keep rolling 7-day backups (encrypted), plus cloud sync if enabled. You can also export your data anytime.';
                     } else if (msgLower.includes('sync') || msgLower.includes('cloud')) {
-                        response = '☁️ Cloud sync is optional and encrypted. Your data is stored locally first, then optionally synced to secure Supabase servers. You can use FocusHub completely offline.';
+                        response = '☁️ Cloud sync is optional and encrypted. Your data is stored locally first, then optionally synced to secure Supabase servers. You can use BrainDock completely offline.';
                     } else if (msgLower.includes('secure') || msgLower.includes('encryption') || msgLower.includes('safe')) {
                         response = '🔐 Your data is encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase (SOC 2 certified) for cloud storage. Local data stays on your device.';
                     }
@@ -1566,7 +1570,7 @@
             Data stored locally & optionally synced (encrypted)
         </p>
         <p style="margin: 0.5rem 0; font-size: 0.75rem;">
-            &copy; 2026 FocusHub. Built for privacy.
+            &copy; 2026 BrainDock. Built for privacy.
         </p>
     </footer>
 </body>

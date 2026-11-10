@@ -307,7 +307,7 @@ const WeeklyReports = {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `focushub-weekly-report-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `braindock-weekly-report-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
     }

@@ -8,12 +8,12 @@ const EmailNotifications = {
     // Resend API configuration
     RESEND_API_KEY: 'YOUR_RESEND_API_KEY_HERE', // TODO: Replace with actual key
     RESEND_API_URL: 'https://api.resend.com/emails',
-    FROM_EMAIL: 'FocusHub <noreply@focushub.app>', // TODO: Update with your domain
+    FROM_EMAIL: 'BrainDock <noreply@braindock.app>', // TODO: Update with your domain
     
     // Email templates
     templates: {
         dailyReminder: {
-            subject: '⚡ FocusHub: Time to Execute',
+            subject: '⚡ BrainDock: Time to Execute',
             getBody: (userName, streak) => `
 <!DOCTYPE html>
 <html>
@@ -43,11 +43,11 @@ const EmailNotifications = {
             <p>Start your day. Log in. Get to work.</p>
         </div>
         
-        <a href="https://focushub.app/app.html" class="cta">START DAY →</a>
+        <a href="https://braindock.app/app.html" class="cta">START DAY →</a>
         
         <div class="footer">
             <p>Built for brains that wander, but still want to win.</p>
-            <p><a href="https://focushub.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
+            <p><a href="https://braindock.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
         </div>
     </div>
 </body>
@@ -135,11 +135,11 @@ const EmailNotifications = {
         </div>
         ` : ''}
         
-        <a href="https://focushub.app/dashboard.html" class="cta">VIEW FULL DASHBOARD →</a>
+        <a href="https://braindock.app/dashboard.html" class="cta">VIEW FULL DASHBOARD →</a>
         
         <div class="footer">
             <p>Keep grinding. The system works if you work the system.</p>
-            <p><a href="https://focushub.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
+            <p><a href="https://braindock.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
         </div>
     </div>
 </body>
@@ -181,7 +181,7 @@ const EmailNotifications = {
             <p><strong>Don't let it go to waste.</strong> Log in now and keep it alive.</p>
         </div>
         
-        <a href="https://focushub.app/app.html" class="cta">SAVE MY STREAK →</a>
+        <a href="https://braindock.app/app.html" class="cta">SAVE MY STREAK →</a>
         
         <div class="footer">
             <p>Consistency is everything. Show up.</p>
@@ -228,11 +228,11 @@ const EmailNotifications = {
             <p>If you're not, that's fine too. But don't lie to yourself.</p>
         </div>
         
-        <a href="https://focushub.app/app.html" class="cta">GET BACK TO WORK →</a>
+        <a href="https://braindock.app/app.html" class="cta">GET BACK TO WORK →</a>
         
         <div class="footer">
             <p>Built for brains that wander, but still want to win.</p>
-            <p><a href="https://focushub.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
+            <p><a href="https://braindock.app/settings.html" style="color: #fb923c;">Manage email preferences</a></p>
         </div>
     </div>
 </body>

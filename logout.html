@@ -2,8 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session Terminated - FocusHub</title>
+    <title>Session Terminated - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -197,7 +201,7 @@
         <div class="logout-content">
             <!-- Logo -->
             <div class="logout-logo">
-                <img src="FocusHub_vertnorm.svg" alt="FocusHub" id="logoImg">
+                <img src="BrainDock_vertnorm.svg" alt="BrainDock" id="logoImg">
             </div>
             
             <!-- Main Card -->
@@ -292,7 +296,7 @@
             
             <!-- Footer Tip -->
             <p class="footer-tip">
-                💡 TIP: Install FocusHub as an app for faster access
+                💡 TIP: Install BrainDock as an app for faster access
             </p>
         </div>
     </div>
@@ -374,14 +378,14 @@ function scheduleSession(timeSlot) {
     // Generate .ics file content
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//FocusHub//Next Session//EN
+PRODID:-//BrainDock//Next Session//EN
 BEGIN:VEVENT
-UID:focushub-${Date.now()}@focushub.app
+UID:braindock-${Date.now()}@braindock.app
 DTSTAMP:${formatICSDate(now)}
 DTSTART:${formatICSDate(scheduleDate)}
 DTEND:${formatICSDate(new Date(scheduleDate.getTime() + 60*60*1000))}
-SUMMARY:FocusHub Session
-DESCRIPTION:Return to FocusHub and start your next productive session.
+SUMMARY:BrainDock Session
+DESCRIPTION:Return to BrainDock and start your next productive session.
 STATUS:CONFIRMED
 END:VEVENT
 END:VCALENDAR`;
@@ -391,7 +395,7 @@ END:VCALENDAR`;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'focushub-next-session.ics';
+    a.download = 'braindock-next-session.ics';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -470,7 +474,7 @@ setTimeout(showBetaFeedbackPrompt, 1000);
             // Update logo for theme
             const logo = document.getElementById("logoImg");
             if (logo) {
-                logo.src = theme === "dark" ? "FocusHub_vertinv.svg" : "FocusHub_vertnorm.svg";
+                logo.src = theme === "dark" ? "BrainDock_vertinv.svg" : "BrainDock_vertnorm.svg";
             }
         })();
     </script>

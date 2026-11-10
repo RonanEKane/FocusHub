@@ -1,4 +1,4 @@
-🔧 FOCUSHUB - ALL FIXES APPLIED
+🔧 BRAINDOCK - ALL FIXES APPLIED
 ═══════════════════════════════════════════════════════════
 
 ✅ ISSUE #1: app.html Dark Mode
@@ -8,7 +8,7 @@
 
 ✅ ISSUE #2: start.html Logo
    Problem: Wrong logo (vertical instead of icon)
-   Fix: Changed to FocusHub_icon.svg
+   Fix: Changed to BrainDock_appicon.svg
    Fix: Changed .btn-primary to use var(--industrial-orange)
 
 ✅ ISSUE #3: overview.html Dark Mode
@@ -18,12 +18,12 @@
 ✅ ISSUE #4: how-to.html Header
    Problem: Wrong logo (vertical instead of horizontal)
    Problem: Pro-tip text not visible (missing CSS)
-   Fix: Changed to FocusHub_horinorm.svg
+   Fix: Changed to BrainDock_horinorm.svg
    Fix: Added .pro-tip CSS styling
 
 ✅ ISSUE #5: guide.html Header
    Problem: Wrong logo (vertical instead of horizontal)
-   Fix: Changed to FocusHub_horinorm.svg
+   Fix: Changed to BrainDock_horinorm.svg
 
 ═══════════════════════════════════════════════════════════
 

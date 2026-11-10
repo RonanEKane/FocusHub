@@ -7,7 +7,7 @@
         </div>
         <div class="modal-body">
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                Help us improve FocusHub by reporting bugs or issues you encounter.
+                Help us improve BrainDock by reporting bugs or issues you encounter.
             </p>
             
             <div class="form-group">
@@ -74,8 +74,8 @@ function submitBugReport() {
     localStorage.setItem('focushub_bug_reports', JSON.stringify(bugReports));
     
     // Track in analytics
-    if (window.FocusHubAnalytics) {
-        FocusHubAnalytics.trackEvent('bug_reported', {
+    if (window.BrainDockAnalytics) {
+        BrainDockAnalytics.trackEvent('bug_reported', {
             page: page,
             hasSteps: !!steps
         });

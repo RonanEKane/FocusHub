@@ -2,9 +2,13 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>Insight Center - FocusHub</title>
+    <title>Insight Center - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.5">
     <style>
         /* ═══════════════════════════════════════════════
@@ -576,7 +580,7 @@
     <!-- Technical Status Bar -->
     <div class="status-bar">
         <div class="status-left">
-            <img id="dashboardLogo" src="FocusHub_horiznorm.svg" alt="FocusHub" class="status-logo" style="height: 50px; width: auto;">
+            <img id="dashboardLogo" src="BrainDock_horinorm.svg" alt="BrainDock" class="status-logo" style="height: 50px; width: auto;">
         </div>
         <div class="status-middle">
             <div id="dashboardTimer" class="dashboard-timer hidden">
@@ -868,7 +872,7 @@
             document.documentElement.setAttribute('data-theme', theme);
             updateThemeButton(theme);
             const logo = document.getElementById('dashboardLogo');
-            if (logo) logo.src = theme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+            if (logo) logo.src = theme === 'dark' ? 'BrainDock_horiinv.svg' : 'BrainDock_horinorm.svg';
         }
 
         function toggleTheme() {
@@ -878,7 +882,7 @@
             localStorage.setItem('focushub_theme', newTheme);
             updateThemeButton(newTheme);
             const logo = document.getElementById('dashboardLogo');
-            if (logo) logo.src = newTheme === 'dark' ? 'FocusHub_horizinv.svg' : 'FocusHub_horiznorm.svg';
+            if (logo) logo.src = newTheme === 'dark' ? 'BrainDock_horiinv.svg' : 'BrainDock_horinorm.svg';
         }
 
         function updateThemeButton(theme) {
@@ -1735,7 +1739,7 @@
         const history = JSON.parse(getUserItemR('focushub_grade_history') || '[]');
         const last7 = history.slice(-7);
         const lines = [
-            'FocusHub — Weekly Report',
+            'BrainDock — Weekly Report',
             `Generated: ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`,
             '',
             'DATE         SPRINTS  TASKS  GRADE',
@@ -1755,7 +1759,7 @@
         const blob = new Blob([lines.join('\n')], {type:'text/plain'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `focushub-report-${new Date().toISOString().slice(0,10)}.txt`;
+        a.download = `braindock-report-${new Date().toISOString().slice(0,10)}.txt`;
         a.click();
     }
     </script>

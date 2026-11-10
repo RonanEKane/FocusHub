@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support - FocusHub</title>
+    <title>Support - BrainDock</title>
     <link rel="stylesheet" href="style.css?v=20.4">
     
     <!-- Supabase SDK -->
@@ -15,7 +19,7 @@
     <header class="app-header">
         <div class="app-header-content">
             <div class="logo-section">
-                <img src="FocusHub_horinorm.svg" alt="FocusHub" class="logo-img" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+                <img src="BrainDock_horiinv.svg" alt="BrainDock" class="logo-img" style="height: 40px; width: auto;">
             </div>
             
             <div class="header-controls">
@@ -42,25 +46,25 @@
                     <div class="faq-list">
                         <div class="faq-item">
                             <button class="faq-question" aria-expanded="false">
-                                <span>What is FocusHub designed for</span>
+                                <span>What is BrainDock designed for</span>
                                 <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </button>
                             <div class="faq-answer" hidden>
-                                <p>FocusHub is designed to reduce decision-making during work. It enforces time-bounded sessions and tracks actual effort, not intentions or plans.</p>
+                                <p>BrainDock is designed to reduce decision-making during work. It enforces time-bounded sessions and tracks actual effort, not intentions or plans.</p>
                             </div>
                         </div>
 
                         <div class="faq-item">
                             <button class="faq-question" aria-expanded="false">
-                                <span>Who should not use FocusHub</span>
+                                <span>Who should not use BrainDock</span>
                                 <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </button>
                             <div class="faq-answer" hidden>
-                                <p>If you need flexible scheduling, open-ended creative sessions, or prefer motivation over structure, FocusHub will feel restrictive. The system works best when used as intended.</p>
+                                <p>If you need flexible scheduling, open-ended creative sessions, or prefer motivation over structure, BrainDock will feel restrictive. The system works best when used as intended.</p>
                             </div>
                         </div>
 
@@ -72,7 +76,7 @@
                                 </svg>
                             </button>
                             <div class="faq-answer" hidden>
-                                <p>No. FocusHub is built for focus problems, not specific diagnoses. If you struggle with starting, staying focused, or measuring real work output, the system applies.</p>
+                                <p>No. BrainDock is built for focus problems, not specific diagnoses. If you struggle with starting, staying focused, or measuring real work output, the system applies.</p>
                             </div>
                         </div>
 
@@ -84,16 +88,16 @@
                                 </svg>
                             </button>
                             <div class="faq-answer" hidden>
-                                <p>No. FocusHub is a session-based focus system. Tasks exist only to provide context during sessions. The core unit is time spent working, not tasks completed.</p>
+                                <p>No. BrainDock is a session-based focus system. Tasks exist only to provide context during sessions. The core unit is time spent working, not tasks completed.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Group 2: Using FocusHub -->
+                <!-- Group 2: Using BrainDock -->
                 <div style="margin-bottom: 3rem;">
                     <h2 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 1.5rem; text-transform: uppercase;">
-                        Using FocusHub
+                        Using BrainDock
                     </h2>
                     
                     <div class="faq-list">
@@ -211,7 +215,7 @@
                     <!-- Collapsed State -->
                     <div id="aiSupportCollapsed">
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Need help?</h3>
-                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem;">Ask FocusHub support</p>
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem;">Ask BrainDock support</p>
                         <button id="openAiSupport" style="width: 100%; background: var(--industrial-orange); color: white; padding: 0.75rem; border: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px;">
                             Start conversation
                         </button>
@@ -220,13 +224,13 @@
                     <!-- Expanded State (hidden by default) -->
                     <div id="aiSupportExpanded" style="display: none;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">FocusHub Support</h3>
+                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">BrainDock Support</h3>
                             <button id="closeAiSupport" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 0;">×</button>
                         </div>
                         
                         <div id="chatMessages" style="min-height: 300px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; padding: 1rem; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: 4px;">
                             <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; margin-bottom: 1rem;">
-                                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Hi. I'm the FocusHub support agent. Ask me anything about how FocusHub works, its features, or troubleshooting.</p>
+                                <p style="font-size: 14px; color: var(--text-primary); margin: 0;">Hi. I'm the BrainDock support agent. Ask me anything about how BrainDock works, its features, or troubleshooting.</p>
                             </div>
                         </div>
 
@@ -412,7 +416,7 @@
             setTimeout(() => {
                 const agentMsg = document.createElement('div');
                 agentMsg.className = 'agent-message';
-                agentMsg.textContent = 'Information about FocusHub is available in the FAQ above. For additional support, contact support directly.';
+                agentMsg.textContent = 'Information about BrainDock is available in the FAQ above. For additional support, contact support directly.';
                 chatMessages.appendChild(agentMsg);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }, 1000);
